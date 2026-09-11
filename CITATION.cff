@@ -1,0 +1,46 @@
+cff-version: 1.2.0
+message: "If you use this formalization, please cite it as below."
+title: "HighContrastHomogenization: a Lean 4 formalization of homogenization at a polynomial scale in high contrast"
+abstract: >-
+  A machine-checked Lean 4 / mathlib formalization of the paper
+  "Homogenization at a polynomial scale in high contrast" (Armstrong, Kuusi,
+  Loher): polynomial entry into the small-contrast regime for stationary
+  coefficient fields satisfying a coarse ellipticity condition above a
+  random source scale, algebraic convergence of the annealed coarse-grained
+  matrices, and quantitative homogenization with correctors, a first-order
+  Liouville theorem and large-scale regularity above a random scale with an
+  explicit tail.  Built on the public CoarseGraining homogenization library.
+  The development contains no sorry and no custom axiom.
+type: software
+authors:
+  - family-names: Armstrong
+    given-names: Scott
+    affiliation: "CNRS and Laboratoire Jacques-Louis Lions, Sorbonne Université; Courant Institute of Mathematical Sciences, New York University"
+  - family-names: Kuusi
+    given-names: Tuomo
+    affiliation: "Department of Mathematics and Statistics, University of Helsinki"
+  - family-names: Loher
+    given-names: Amélie
+    affiliation: "All Souls College, University of Oxford"
+keywords:
+  - Lean
+  - mathlib
+  - formal verification
+  - stochastic homogenization
+  - high contrast
+  - coarse graining
+  - partial differential equations
+license: Apache-2.0
+repository-code: "https://github.com/scottnarmstrong/HighContrastHomogenization"
+references:
+  - type: article
+    title: "Homogenization at a polynomial scale in high contrast"
+    authors:
+      - family-names: Armstrong
+        given-names: Scott
+      - family-names: Kuusi
+        given-names: Tuomo
+      - family-names: Loher
+        given-names: Amélie
+    year: 2026
+    notes: "The paper formalized by this repository; arXiv identifier to be added on posting."

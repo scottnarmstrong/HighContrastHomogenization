@@ -1,0 +1,57 @@
+/-
+Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
+-/
+import HCPoly.Provider.Response.ProfileWeakLp
+
+/-!
+# Measurability of metric center fluctuations
+
+The diagonal metric quadratic form is a continuous polynomial on the finite
+product carrier.  Consequently every measurable optimizer average has a
+measurable metric fluctuation about a deterministic center.
+-/
+
+namespace Homogenization.HighContrast.Response
+
+open Book.Ch02 MeasureTheory
+
+noncomputable section
+
+variable {d : ℕ}
+
+/-- The canonical diagonal metric quadratic form is continuous. -/
+theorem continuous_metricBlockNormSq (m : Mat d) :
+    Continuous (metricBlockNormSq m) := by
+  have hfst (i : Fin d) : Continuous (fun X : BlockVec d ↦ X.1 i) :=
+    (continuous_apply i).comp continuous_fst
+  have hsnd (i : Fin d) : Continuous (fun X : BlockVec d ↦ X.2 i) :=
+    (continuous_apply i).comp continuous_snd
+  rw [show metricBlockNormSq m = fun X : BlockVec d ↦
+      ∑ i, X.1 i * ∑ j, m i j * X.1 j +
+        ∑ i, X.2 i * ∑ j, m⁻¹ i j * X.2 j by
+    funext X
+    rw [metricBlockNormSq_eq]
+    simp only [vecDot, matVecMul]]
+  exact (continuous_finset_sum _ fun i _ ↦
+      (hfst i).mul (continuous_finset_sum _ fun j _ ↦
+        continuous_const.mul (hfst j))).add
+    (continuous_finset_sum _ fun i _ ↦
+      (hsnd i).mul (continuous_finset_sum _ fun j _ ↦
+        continuous_const.mul (hsnd j)))
+
+/-- The square-root metric fluctuation of an a.e. measurable doubled vector
+about a deterministic center is a.e. measurable. -/
+theorem AEMeasurable.sqrt_metricBlockNormSq_sub_const
+    {P : Measure (CoeffSpace d)} {X : CoeffSpace d → BlockVec d}
+    (hX : AEMeasurable X P) (m : Mat d) (center : BlockVec d) :
+    AEMeasurable (fun a ↦
+      Real.sqrt (metricBlockNormSq m (X a - center))) P := by
+  have hsub : AEMeasurable (fun a ↦ X a - center) P :=
+    hX.sub aemeasurable_const
+  exact ((continuous_metricBlockNormSq m).measurable.comp_aemeasurable hsub).sqrt
+
+end
+
+end Homogenization.HighContrast.Response

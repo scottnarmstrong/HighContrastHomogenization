@@ -1,0 +1,182 @@
+/-
+Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
+-/
+import HCPoly.Provider.PolynomialHomogenization.Root.CorrectorDecay.LawFreeCoarsePoincare
+import HCPoly.Provider.Regularity.FiniteCubeSolutionRestriction
+
+namespace Homogenization
+namespace HighContrast
+
+open MeasureTheory Set
+
+noncomputable section
+
+private theorem cubeSolution_weakFluxIntegrable
+    {d : ℕ} {Q : TriadicCube d} {a : Book.Ch02.TriadicCoeffFamily d}
+    (u : Book.Ch03.CubeSolution Q a) :
+    weakFluxIntegrable (openCubeSet Q) (a.coeffOn Q).toCoeffField u := by
+  intro phi
+  exact integrableOn_vecDot_of_memVectorL2
+    (Book.Ch02.Solution.flux_memVectorL2 u)
+    phi.toH1Function.grad_memVectorL2
+
+noncomputable def jointAffineCubeSolution
+    {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
+    (Phi : Vec d → NormalizedLocalH1Carrier d)
+    (hPhi : IsFiniteAffineCorrectionJointLocalEquation a Phi)
+    (e : Vec d) (q : ℕ) :
+    Book.Ch03.CubeSolution (originCube d (q : ℤ)) a :=
+  let phiLocal : H1Function
+      (Book.Ch02.cubeDomain (originCube d (q : ℤ)) : Set (Vec d)) := by
+    simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
+      (Phi e).localH1Function q
+  { toH1 := finiteAffineBoundaryH1 (q : ℤ) e + phiLocal
+    isHarmonic := by
+      simpa only [phiLocal, localGradientCube, Book.Ch02.cubeDomain_coe] using
+        hPhi.2 e q }
+
+noncomputable def finiteAffineInnerCubeSolution
+    {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
+    (e : Vec d) (q m : ℕ) (hqm : q ≤ m) :
+    Book.Ch03.CubeSolution (originCube d (q : ℤ)) a :=
+  finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+    (finiteAffineCubeSolution a (m : ℤ) e)
+
+noncomputable def jointFiniteRemainderCubeSolution
+    {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
+    (Phi : Vec d → NormalizedLocalH1Carrier d)
+    (hPhi : IsFiniteAffineCorrectionJointLocalEquation a Phi)
+    (e : Vec d) (q m : ℕ) (hqm : q ≤ m) :
+    Book.Ch03.CubeSolution (originCube d (q : ℤ)) a :=
+  AHarmonicFunction.subOfIntegrable
+    (jointAffineCubeSolution a Phi hPhi e q)
+    (finiteAffineInnerCubeSolution a e q m hqm)
+    (cubeSolution_weakFluxIntegrable
+      (jointAffineCubeSolution a Phi hPhi e q))
+    (cubeSolution_weakFluxIntegrable
+      (finiteAffineInnerCubeSolution a e q m hqm))
+
+theorem jointFiniteRemainder_grad
+    {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
+    (Phi : Vec d → NormalizedLocalH1Carrier d)
+    (hPhi : IsFiniteAffineCorrectionJointLocalEquation a Phi)
+    (e : Vec d) (q m : ℕ) (hqm : q ≤ m) :
+    (jointFiniteRemainderCubeSolution a Phi hPhi e q m hqm).toH1.grad =
+      fun x ↦
+        e + ((Phi e).localH1Function q).grad x -
+        (finiteAffineSolution a (m : ℤ) e).toH1.grad x := by
+  unfold jointFiniteRemainderCubeSolution
+  rw [AHarmonicFunction.grad_subOfIntegrable]
+  funext x
+  rw [Pi.sub_apply]
+  simp only [jointAffineCubeSolution,
+    finiteAffineInnerCubeSolution, H1Function.add_grad,
+    finiteAffineBoundaryH1_grad, finiteCubeSolutionRestriction_grad,
+    finiteAffineCubeSolution, id_eq]
+
+theorem jointFiniteRemainder_energy_eq
+    {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
+    (Phi : Vec d → NormalizedLocalH1Carrier d)
+    (hPhi : IsFiniteAffineCorrectionJointLocalEquation a Phi)
+    (e : Vec d) (q m : ℕ) (hqm : q ≤ m) :
+    Book.Ch03.h1EnergyNormOnCube (originCube d (q : ℤ)) a
+        (jointFiniteRemainderCubeSolution
+          a Phi hPhi e q m hqm).toH1 =
+      Real.sqrt (normalizedLocalSymmetricEnergy
+        (Book.Ch03.publicCoeffField_isEllipticFieldOn_openCubeSet
+          (originCube d (q : ℤ)) a)
+        (((show LocalGradientL2 d q from
+              constantGradientOnOriginCube e (q : ℤ)) +
+            (Phi e).gradientComponent q) -
+          finiteAffineInnerGradientClass a e q (m - q))) := by
+  have hclass :
+      ((show LocalGradientL2 d q from
+            constantGradientOnOriginCube e (q : ℤ)) +
+          (Phi e).gradientComponent q) -
+        finiteAffineInnerGradientClass a e q (m - q) =
+      (jointFiniteRemainderCubeSolution
+        a Phi hPhi e q m hqm).toH1.gradToHilbertVectorL2 := by
+    rw [← NormalizedLocalH1Carrier.localH1Function_gradToHilbertVectorL2]
+    have hfiniteClass :
+        finiteAffineInnerGradientClass a e q (m - q) =
+          (finiteAffineSolutionInnerH1 a (q : ℤ) (m : ℤ)
+            (by exact_mod_cast hqm) e).gradToHilbertVectorL2 := by
+      unfold finiteAffineInnerGradientClass
+      simp only [Nat.add_sub_of_le hqm, id_eq]
+    rw [hfiniteClass]
+    let z := jointFiniteRemainderCubeSolution a Phi hPhi e q m hqm
+    let c : LocalGradientL2 d q := constantGradientOnOriginCube e (q : ℤ)
+    let p : LocalGradientL2 d q :=
+      ((Phi e).localH1Function q).gradToHilbertVectorL2
+    let f : LocalGradientL2 d q :=
+      (finiteAffineSolutionInnerH1 a (q : ℤ) (m : ℤ)
+        (by exact_mod_cast hqm) e).gradToHilbertVectorL2
+    apply Lp.ext
+    filter_upwards
+        [coeFn_toHilbertVectorL2OfVecField
+            (memVectorL2_const e),
+          (Phi e).localH1Function q |>.coeFn_gradToHilbertVectorL2,
+          (finiteAffineSolutionInnerH1 a (q : ℤ) (m : ℤ)
+            (by exact_mod_cast hqm) e).coeFn_gradToHilbertVectorL2,
+          z.toH1.coeFn_gradToHilbertVectorL2,
+          Lp.coeFn_add c p,
+          Lp.coeFn_sub (c + p) f]
+      with x hc hp hf hz hadd hsub
+    rw [hsub, Pi.sub_apply, hadd, Pi.add_apply]
+    rw [hz, jointFiniteRemainder_grad]
+    dsimp only [c, p, f] at hc hp hf ⊢
+    simp only [constantGradientOnOriginCube] at hc ⊢
+    rw [hc, hp, hf]
+    simp only [finiteAffineSolutionInnerH1_grad]
+    simp [hilbertifyVecField]
+  rw [hclass]
+  symm
+  rw [Root.sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
+  rw [weightedGradNorm_congr_coeff_ae_on _
+    (Book.Ch03.publicCoeffField_ae_eq_openCubeSet
+      (originCube d (q : ℤ)) a)]
+  rw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
+  rw [ENNReal.toReal_ofReal]
+  unfold Book.Ch03.h1EnergyNormOnCube
+  exact Real.sqrt_nonneg _
+
+/-- The harmonic difference between the joint exact-gauge corrector and a
+finite affine corrector has both printed-order rows controlled by its
+coefficient energy, with a law-free multiplier. -/
+theorem exists_jointFiniteRemainderRowsConstant
+    (d : ℕ) [NeZero d] (s : ℝ) (hs : 0 < s) :
+    ∃ C : ℝ, 0 < C ∧
+      ∀ (a : Book.Ch02.TriadicCoeffFamily d)
+        (Phi : Vec d → NormalizedLocalH1Carrier d)
+        (hPhi : IsFiniteAffineCorrectionJointLocalEquation a Phi),
+        ∀ (e : Vec d) (q m : ℕ) (hqm : q ≤ m) (B : ℝ),
+          scalarIdentityWeakError a s (q : ℤ) ≤ 1 →
+          Book.Ch03.h1EnergyNormOnCube (originCube d (q : ℤ)) a
+              (jointFiniteRemainderCubeSolution
+                a Phi hPhi e q m hqm).toH1 ≤ B →
+          cubeScaleNormalizedDualNegativeBesovVectorNormTwo
+              (originCube d (q : ℤ)) s
+              (jointFiniteRemainderCubeSolution
+                a Phi hPhi e q m hqm).toH1.grad ≤ C * B ∧
+          cubeScaleNormalizedDualNegativeBesovVectorNormTwo
+              (originCube d (q : ℤ)) s
+              (fun x ↦ matVecMul
+                (Book.Ch03.publicCoeffField (originCube d (q : ℤ)) a x)
+                ((jointFiniteRemainderCubeSolution
+                  a Phi hPhi e q m hqm).toH1.grad x)) ≤ C * B := by
+  obtain ⟨C, hC, hrows⟩ := exists_lawFreeCoarsePoincareRowsConstant
+    d s hs
+  refine ⟨C, hC, ?_⟩
+  intro a Phi hPhi e q m hqm B hweak henergy
+  have hraw := hrows a (q : ℤ)
+    (jointFiniteRemainderCubeSolution a Phi hPhi e q m hqm) hweak
+  constructor
+  · exact hraw.1.trans (mul_le_mul_of_nonneg_left henergy hC.le)
+  · exact hraw.2.trans (mul_le_mul_of_nonneg_left henergy hC.le)
+
+end
+
+end HighContrast
+end Homogenization
