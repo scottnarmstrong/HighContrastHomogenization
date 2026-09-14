@@ -79,7 +79,7 @@ theorem exists_pow_three_bracket {x : ℝ} (hx : 0 ≤ x) :
       linarith only [hx]
     · have hnl : 0 < Real.logb 3 x := by
         by_contra hc
-        push_neg at hc
+        push Not at hc
         exact hl.ne' (Nat.ceil_eq_zero.mpr hc)
       have hx0 : 0 < x := by
         rcases eq_or_lt_of_le hx with h | h
@@ -151,7 +151,7 @@ theorem integral_rpow_le {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
     ((measurable_const.add
       (hdag.source_measurable.const_mul c)).pow_const g).aestronglyMeasurable
   have hgi : Integrable (fun a => (1 + c * S a) ^ g) P := by
-    refine hfi.mono' hmeas (Filter.Eventually.of_forall fun a => ?_)
+    refine hfi.mono' hmeas (_root_.Filter.Eventually.of_forall fun a => ?_)
     have hpow : (1 + c * S a) ^ g ≤ (1 + c * S a) ^ (1 : ℝ) :=
       Real.rpow_le_rpow_of_exponent_le (hone a) hg1
     rw [Real.rpow_one] at hpow
@@ -161,7 +161,7 @@ theorem integral_rpow_le {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
     (f := fun a => 1 + c * S a)
     (fun x _ => (Real.continuousAt_rpow_const x g (Or.inr hg0)).continuousWithinAt)
     isClosed_Ici
-    (Filter.Eventually.of_forall fun a => by
+    (_root_.Filter.Eventually.of_forall fun a => by
       have := hone a
       simp only [Set.mem_Ici]
       linarith only [this])
@@ -193,7 +193,7 @@ theorem annealedBlock_centeredCube_le_blockScale {P : Measure (CoeffSpace d)}
       (integrable_const (1 : ℝ)).add ((integrable_source hdag).const_mul c)
     refine hfi.mono' ((measurable_const.add
       (hdag.source_measurable.const_mul c)).pow_const g).aestronglyMeasurable
-      (Filter.Eventually.of_forall fun a => ?_)
+      (_root_.Filter.Eventually.of_forall fun a => ?_)
     have hpow : (1 + c * S a) ^ g ≤ (1 + c * S a) ^ (1 : ℝ) :=
       Real.rpow_le_rpow_of_exponent_le (hone a) (le_of_lt hdag.g_mem.2)
     rw [Real.rpow_one] at hpow
@@ -207,7 +207,16 @@ theorem annealedBlock_centeredCube_le_blockScale {P : Measure (CoeffSpace d)}
       show (∫ a, (1 + c * S a) ^ g ∂P) • toFullBlockMat E =
           ∫ a, ((1 + c * S a) ^ g) • toFullBlockMat E ∂P by
         rw [integral_smul_const]]
-    refine integral_mono' (integrable_toFullBlockMat hint) (hgi.smul_const _) ?_
+    have hgiC : Integrable (fun a => (1 + c * S a) ^ g • toFullBlockMat E) P := by
+      have hgiC' : Integrable (fun a : CoeffSpace d => fun p q : BlockCoord d =>
+          (1 + c * S a) ^ g * toFullBlockMat E p q) P := by
+        rw [integrable_pi_iff]
+        intro p
+        rw [integrable_pi_iff]
+        intro q
+        exact hgi.mul_const _
+      exact hgiC'
+    refine integral_mono' (integrable_toFullBlockMat hint) hgiC ?_
     filter_upwards [ae_coarseBlock_centeredCube_le hdag i] with a ha
     have hrw : 1 + c * S a = 1 + 3 * ((3 : ℝ) ^ (-i) * S a) := by rw [hcdef]; ring
     rw [← hrw] at ha

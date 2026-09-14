@@ -34,6 +34,9 @@ private noncomputable def constantLocalGradientLinearMap
     (d q : ℕ) : Vec d →ₗ[ℝ] LocalGradientL2 d q where
   toFun e := constantGradientOnOriginCube e (q : ℤ)
   map_add' e e' := by
+    change constantGradientOnOriginCube (e + e') (q : ℤ) =
+        constantGradientOnOriginCube e (q : ℤ) +
+          constantGradientOnOriginCube e' (q : ℤ)
     simp only [constantGradientOnOriginCube]
     apply MeasureTheory.Lp.ext
     filter_upwards
@@ -51,6 +54,8 @@ private noncomputable def constantLocalGradientLinearMap
     rw [hcoeAdd, Pi.add_apply, he, he']
     rfl
   map_smul' c e := by
+    change constantGradientOnOriginCube (c • e) (q : ℤ) =
+        c • constantGradientOnOriginCube e (q : ℤ)
     simp only [constantGradientOnOriginCube]
     apply MeasureTheory.Lp.ext
     filter_upwards
@@ -62,7 +67,6 @@ private noncomputable def constantLocalGradientLinearMap
         (toHilbertVectorL2OfVecField (memVectorL2_const_varyingSlope e q))]
       with x he hsmul hcoeSmul
     rw [hsmul]
-    simp only [RingHom.id_apply]
     rw [hcoeSmul, Pi.smul_apply, he]
     rfl
 
@@ -208,8 +212,8 @@ private theorem gradToHilbertVectorL2_eq_of_grad_eq_varyingSlope
 private theorem finiteAffineBoundary_gradToHilbertVectorL2_eq_constant
     {d q : ℕ} [NeZero d] (e : Vec d) :
     (show LocalGradientL2 d q from by
-      simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-        (finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2) =
+      simp only [localGradientCube]
+      exact (finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2) =
       constantGradientOnOriginCube e (q : ℤ) := by
   change (finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2 =
     constantGradientOnOriginCube e (q : ℤ)
@@ -277,7 +281,7 @@ theorem tendsto_linearMap_apply_of_forall_tendsto_of_tendsto
         (nhds ((eLim i) • L (basisVec i))) := by
     intro i
     exact ((continuous_apply i).tendsto eLim |>.comp he).smul (hT (basisVec i))
-  have hsum := tendsto_finset_sum Finset.univ (fun i _ => hcoord i)
+  have hsum := tendsto_finsetSum Finset.univ (fun i _ => hcoord i)
   convert hsum using 1
   · funext k
     calc
@@ -384,13 +388,11 @@ theorem finiteAffineResidual_identifies_jointLocalGradient_along
   have hqk : ∀ k, (q : ℤ) ≤ ((q + rho k : ℕ) : ℤ) := by intro k; omega
   let r : ℕ → Book.Ch03.CubeSolution (originCube d (q : ℤ)) a :=
     fun k => finiteAffineGradientResidual a (hqk k) (u k) (e k)
-  let w : ℕ → H1Function (localGradientCube d q) := fun k => by
-    simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-      finiteAffineSolutionInnerH1 a (q : ℤ) ((q + rho k : ℕ) : ℤ)
-        (hqk k) (e k)
-  let v : ℕ → H1Function (localGradientCube d q) := fun k => by
-    simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-      (finiteCubeSolutionRestriction a (hqk k) (u k)).toH1
+  let w : ℕ → H1Function (localGradientCube d q) := fun k =>
+    finiteAffineSolutionInnerH1 a (q : ℤ) ((q + rho k : ℕ) : ℤ)
+      (hqk k) (e k)
+  let v : ℕ → H1Function (localGradientCube d q) := fun k =>
+    (finiteCubeSolutionRestriction a (hqk k) (u k)).toH1
   have hrClass : ∀ k, (r k).toH1.gradToHilbertVectorL2 =
       (v k).gradToHilbertVectorL2 - (w k).gradToHilbertVectorL2 := by
     intro k
@@ -402,6 +404,8 @@ theorem finiteAffineResidual_identifies_jointLocalGradient_along
        MeasureTheory.Lp.coeFn_sub
         (v k).gradToHilbertVectorL2 (w k).gradToHilbertVectorL2]
       with x hr hv hw hsub
+    change (r k).toH1.gradToHilbertVectorL2 x =
+      ((v k).gradToHilbertVectorL2 - (w k).gradToHilbertVectorL2) x
     rw [hr, hsub, Pi.sub_apply, hv, hw]
     simp only [r, finiteAffineGradientResidual_grad, v, w]
     rfl
@@ -415,12 +419,21 @@ theorem finiteAffineResidual_identifies_jointLocalGradient_along
       a hCauchy q rho hrho e eLim he
   have hwLimit' : Tendsto (fun k => (w k).gradToHilbertVectorL2) atTop
       (nhds ((jointAffineFullGradientLinearMap a hCauchy q) eLim)) := by
-    simpa only [w, jointAffineFullGradientLinearMap] using hwLimit
-  have hvLimit := hrZero.add hwLimit'
+    simpa only [w, jointAffineFullGradientLinearMap] using! hwLimit
+  -- Restate the residual's gradient class and its vanishing at the local
+  -- gradient exhaustion's own carrier, matching `v` and `w`, so the sum
+  -- below stays on a single presentation of the underlying cube.
+  let r' : ℕ → HilbertVectorL2 (localGradientCube d q) :=
+    fun k => (r k).toH1.gradToHilbertVectorL2
+  have hrClass' : ∀ k, r' k = (v k).gradToHilbertVectorL2 - (w k).gradToHilbertVectorL2 :=
+    hrClass
+  have hrZero' : Tendsto r' atTop (nhds (0 : HilbertVectorL2 (localGradientCube d q))) :=
+    hrZero
+  have hvLimit := hrZero'.add hwLimit'
   have hvLimit' : Tendsto (fun k => (v k).gradToHilbertVectorL2) atTop
       (nhds ((jointAffineFullGradientLinearMap a hCauchy q) eLim)) := by
-    simpa only [zero_add] using hvLimit.congr'
-      (Eventually.of_forall fun k => by rw [hrClass k]; abel)
+    simpa only [zero_add] using
+      hvLimit.congr' (Eventually.of_forall fun k => add_eq_of_eq_sub (hrClass' k))
   have hvConst : ∀ k, (v k).gradToHilbertVectorL2 =
       (v 0).gradToHilbertVectorL2 := by
     intro k
@@ -439,7 +452,7 @@ theorem finiteAffineResidual_identifies_jointLocalGradient_along
       (tendsto_const_nhds : Tendsto
         (fun _k : ℕ => (v 0).gradToHilbertVectorL2) atTop
           (nhds ((v 0).gradToHilbertVectorL2)))
-  simpa only [v] using tendsto_nhds_unique hconst hvLimit'
+  simpa only [v] using! tendsto_nhds_unique hconst hvLimit'
 
 end
 

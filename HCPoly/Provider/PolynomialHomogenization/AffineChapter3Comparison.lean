@@ -104,7 +104,7 @@ theorem coarseGrainingComparisonDatum_zero_of_hcWeakSolutions
     { u := u
       v := v
       uWeakSolution := huDir
-      vWeakSolution := by simpa [constantCoeffField] using hvDir
+      vWeakSolution := by simpa [constantCoeffField] using! hvDir
       zeroTraceDifference := ⟨w, hw⟩ }
   exact ⟨W, rfl, rfl⟩
 

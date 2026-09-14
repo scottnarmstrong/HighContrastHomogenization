@@ -310,11 +310,11 @@ theorem integrableOn_adaptedPreYoungCutoff_pullback [NeZero d]
     hsmooth.continuous.aestronglyMeasurable
   have hbdd : ∀ᵐ x ∂(volume.restrict (cubeSet R)),
       ‖adaptedPreYoungCutoff q hq t (matVecMul q x)‖ ≤ 2 :=
-    Filter.Eventually.of_forall fun x => by
+    _root_.Filter.Eventually.of_forall fun x => by
       rw [Real.norm_eq_abs, abs_of_nonneg]
       · exact adaptedPreYoungCutoff_le_two hq t (matVecMul q x)
       · exact adaptedPreYoungCutoff_nonneg hq t (matVecMul q x)
-  simpa using hconst.bdd_mul hmeas hbdd
+  simpa using! hconst.bdd_mul hmeas hbdd
 
 /-- The adapted cutoff's childwise weights are bounded by one. -/
 theorem abs_one_sub_cubeAverage_adaptedPreYoungCutoff_le_one [NeZero d]

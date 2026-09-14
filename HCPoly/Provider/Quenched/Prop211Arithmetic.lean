@@ -45,7 +45,7 @@ theorem exists_rebase_enlargement {cSc cStar : ℝ}
       have hcoef : 2 * e + e ^ 2 ≤ 3 * e := by
         linarith only [heSq]
       have hterm := mul_le_mul_of_nonneg_right hcoef hstar1.le
-      convert add_le_add_left hterm (1 + cStar) using 1 <;> ring
+      exact add_le_add_right hterm (1 + cStar)
     _ ≤ 1 + cSc := by
       have hsmall : 3 * e * (1 + cStar) ≤ 8 * e * (1 + cStar) := by
         have heStar : 0 ≤ e * (1 + cStar) := mul_nonneg he0.le hstar1.le

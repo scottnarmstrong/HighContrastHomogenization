@@ -303,8 +303,8 @@ theorem short_hop_assembly
   have _hLtr := hLtr
   have hg1 : g < 1 := hg.2
   have hd0 : d ≠ 0 := by omega
-  haveI : NeZero d := ⟨hd0⟩
-  haveI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨hd0⟩
+  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hCd0 : (0 : ℝ) ≤ Cd := le_trans zero_le_one hCd
   have hKhop0 : (0 : ℝ) ≤ Khop := le_trans zero_le_one hKhop
   have hrho : (0 : ℝ) < initExpRhoDr g := initExpRhoDr_pos hg1
@@ -335,7 +335,7 @@ theorem short_hop_assembly
     hl0log, hl0half, hl0strict, hBstrict, hthr, ?_⟩
   intro P E Ψ K S hPprob hstat _hunitLaw hdag jStar M hw Y hY hsd k mus ss r0
     hmusPos hmus0 hmusJump _hmusRatio hr0 hstepScale hentry u huk hshort hdetTest mu' hmu'def hcont
-  haveI : IsProbabilityMeasure P := hPprob
+  have : IsProbabilityMeasure P := hPprob
   -- the casts of the hop length
   have hcastl0 : (((l0 : ℕ) : ℤ) : ℝ) = ((l0 : ℕ) : ℝ) := by push_cast; ring
   have hl0Z : (0 : ℤ) ≤ ((l0 : ℕ) : ℤ) := Int.natCast_nonneg _

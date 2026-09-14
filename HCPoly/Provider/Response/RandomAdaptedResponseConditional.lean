@@ -210,8 +210,8 @@ theorem random_adapted_response_assembly_of_pre_young :
                           blockImbalance (adaptedMean P q t) ≤ 1 + deltaAd) := by
   classical
   intro d hd g hg deltaAd hdeltaAdLo _hdeltaAdHi Cpre _hCpre
-  haveI : NeZero d := ⟨by omega⟩
-  haveI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
+  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   let Cprof : ℝ := (exists_profile_response_constant hd).choose
   have hCprof : 1 ≤ Cprof :=
     (exists_profile_response_constant hd).choose_spec.1
@@ -235,7 +235,7 @@ theorem random_adapted_response_assembly_of_pre_young :
     hetaProfCap hprofile hprofileScaled hprofileMax hkap hecc hbuf
   dsimp only
   intro hpreYoungMinus hpreYoungPlus
-  letI : IsProbabilityMeasure P := hP
+  let : IsProbabilityMeasure P := hP
   have hE0full : (toFullBlockMat E0).PosDef :=
     posDef_toFullBlockMat hE0symm hE0pd
   have hm0pd : m0.PosDef := by

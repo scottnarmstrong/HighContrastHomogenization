@@ -25,7 +25,7 @@ namespace Homogenization
 namespace HighContrast
 namespace Root
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal Topology
 
 noncomputable section
@@ -47,7 +47,7 @@ theorem matVecMul_euclideanBall_subset_scaled
       euclideanBall d (affineBallFactor L * R) := by
   rintro _ ⟨y, hy, rfl⟩
   have hy' : vecNormSq y < R ^ 2 := by
-    simpa only [euclideanBall, euclideanBallAt, sub_zero] using hy
+    simpa only [euclideanBall, euclideanBallAt, sub_zero] using! hy
   have hlinear :=
     Book.Ch02.vecNormSq_matVecMul_le_matrixFrobeniusNormSq_mul_vecNormSq L y
   have hnorm : Book.Ch02.matrixFrobeniusNormSq L ≤ affineBallFactor L :=

@@ -129,7 +129,7 @@ theorem RowRetainingPrintOrderGoodScale.explicit_foldedAnchoredPhysicalFluxDefec
           translateCoeffField (ruledObservationCenter system i) aPhysical := by
     intro i
     rw [haPhysical]
-    simpa only [translateCoeffField] using hObs i
+    simpa only [translateCoeffField] using! hObs i
   have hF0 : (0 : ℝ) ≤ eccentricityFoldFactor abar
       (foldedFrameEccentricityExponent g kappaRate) :=
     le_trans zero_le_one (one_le_eccentricityFoldFactor abar _)

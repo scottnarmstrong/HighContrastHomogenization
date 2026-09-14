@@ -410,7 +410,7 @@ theorem exists_normalizedRuledPositiveWhitneyRowHsConstant
             normalizedWhitneyRowEnergy system
                 (ruledPositiveWhitneyCellEnergy system s G) ≤
               C * hsNormSq U s G := by
-  letI : NeZero d := ⟨Nat.ne_of_gt hd⟩
+  let : NeZero d := ⟨Nat.ne_of_gt hd⟩
   obtain ⟨Ccenter, hCcenterTop, hcenter⟩ :=
     exists_euclideanBoundaryWeightedCenteredEnergy_le_fracSeminormSq_of_integrable
       hd hrho hRad ⟨hs, hsHalf⟩

@@ -102,7 +102,7 @@ theorem homogenizationErrorOnCube_normalizedReference_infinity_two_sq_le_row
           blockExcess
             (coarseBlock (adaptedCellAt q ((t : ℤ) - (n : ℤ)) w) a)
             F := by
-      simpa only [q, F, ← coarseBlock_eq_coarseBlockMatrix] using href
+      simpa only [q, F, ← coarseBlock_eq_coarseBlockMatrix] using! href
     exact href'.trans <|
       blockExcess_coarseBlock_adaptedCellAt_le_quenched_block_row
         hq t n G a abar hS rho sourceScale hrho hrho1 henclose hactive w hw

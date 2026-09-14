@@ -72,7 +72,7 @@ theorem integrable_blockVecDot_of_hasIntegrableBlock {P : Measure (CoeffSpace d)
     funext a
     exact blockVecDot_blockMatVecMul_eq_sum _ _
   rw [hrw]
-  refine integrable_finset_sum _ fun α _ => integrable_finset_sum _ fun β _ => ?_
+  refine integrable_finsetSum _ fun α _ => integrable_finsetSum _ fun β _ => ?_
   exact ((hint α β).mul_const (toFullBlockVec X β)).const_mul (toFullBlockVec X α)
 
 /-- **The quadratic form of the mean block is the average of the quadratic
@@ -85,14 +85,14 @@ theorem blockVecDot_meanBlock_eq_integral {P : Measure (CoeffSpace d)}
       = ∫ a, ∑ α : BlockCoord d, ∑ β : BlockCoord d,
           toFullBlockVec X α *
             (blockMatEntry (M a) α β * toFullBlockVec X β) ∂P := by
-    refine integral_congr_ae (Filter.Eventually.of_forall fun a => ?_)
+    refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun a => ?_)
     exact blockVecDot_blockMatVecMul_eq_sum _ _
   rw [blockVecDot_blockMatVecMul_eq_sum, hrw,
-    integral_finset_sum _ fun α _ =>
-      integrable_finset_sum _ fun β _ =>
+    integral_finsetSum _ fun α _ =>
+      integrable_finsetSum _ fun β _ =>
         ((hint α β).mul_const (toFullBlockVec X β)).const_mul (toFullBlockVec X α)]
   refine Finset.sum_congr rfl fun α _ => ?_
-  rw [integral_finset_sum _ fun β _ =>
+  rw [integral_finsetSum _ fun β _ =>
     ((hint α β).mul_const (toFullBlockVec X β)).const_mul (toFullBlockVec X α)]
   refine Finset.sum_congr rfl fun β _ => ?_
   calc toFullBlockVec X α * (blockMatEntry (meanBlock P M) α β * toFullBlockVec X β)
@@ -105,7 +105,7 @@ theorem blockVecDot_meanBlock_eq_integral {P : Measure (CoeffSpace d)}
         (integral_mul_const _ _).symm
     _ = ∫ a, toFullBlockVec X α *
           (blockMatEntry (M a) α β * toFullBlockVec X β) ∂P := by
-        refine integral_congr_ae (Filter.Eventually.of_forall fun a => ?_)
+        refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun a => ?_)
         ring
 
 /-! ## Monotonicity of the mean -/

@@ -16,7 +16,7 @@ fixed cube must have zero slope.
 namespace Homogenization
 namespace HighContrast
 
-open Filter
+open _root_.Filter
 open scoped Topology
 
 noncomputable section
@@ -63,7 +63,7 @@ theorem exists_scalarIdentityGoodTailCanonicalLocalSlopeCoercivityThreshold
       a hCauchy q (fun _k => e) e tendsto_const_nhds
   have hgrad : Tendsto g atTop (nhds L) := by
     have hshift := hgradBase.comp (tendsto_add_atTop_nat 2)
-    simpa only [g, L, Function.comp_apply, add_assoc] using hshift
+    simpa only [g, L, Function.comp_apply, add_assoc] using! hshift
   have havg : Tendsto (fun k => localGradientClassAverage (g k)) atTop
       (nhds (localGradientClassAverage L)) :=
     (continuous_localGradientClassAverage.tendsto L).comp hgrad
@@ -127,7 +127,7 @@ theorem canonicalSlope_eq_of_localFullGradient_eq
   have hdiff : e - e' = 0 :=
     canonicalSlope_eq_zero_of_localFullGradient_eq_zero hcoercive
       hCauchy (e - e') q hnq (by
-        simpa only [jointAffineFullGradientLinearMap] using hzero)
+        simpa only [jointAffineFullGradientLinearMap] using! hzero)
   exact sub_eq_zero.mp hdiff
 
 end

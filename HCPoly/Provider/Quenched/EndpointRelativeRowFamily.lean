@@ -17,7 +17,7 @@ uses the uniform coarse-ellipticity estimate.
 
 namespace Homogenization.HighContrast.Quenched
 
-open Filter MeasureTheory
+open _root_.Filter MeasureTheory
 
 attribute [local instance] Classical.propDecidable
 
@@ -128,8 +128,13 @@ theorem quenched_block_row_le_stoppingGeneration_of_endpoint_family [NeZero d]
                 (1 - (3 : ℝ) ^ (-(rho - gamma)))⁻¹ := by
               have hs := mul_le_mul_of_nonneg_left hsum
                 (by norm_num : (0 : ℝ) ≤ 2)
-              convert mul_le_mul_of_nonneg_right hs hgeom using 1
-              all_goals ring
+              have h2 : 2 * (endpointTolerance delta eta q0 L n +
+                  endpointTolerance delta eta q0 L n) ≤
+                  4 * ((3 : ℝ) ^ eta * delta *
+                    (3 : ℝ) ^ (-(eta / (L : ℝ)) *
+                      ((n : ℝ) - (nstar : ℝ)))) := by
+                linarith only [hs]
+              exact mul_le_mul_of_nonneg_right h2 hgeom
           _ = (4 * (3 : ℝ) ^ eta *
                 (1 - (3 : ℝ) ^ (-(rho - gamma)))⁻¹) * delta *
                 (3 : ℝ) ^ (-(eta / (L : ℝ)) *

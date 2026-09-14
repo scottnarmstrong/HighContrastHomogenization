@@ -85,7 +85,7 @@ theorem blockContrast_blockScale_le {B : BlockMat d}
       c * blockContrast B := by
     field_simp
   rw [hrhs]
-  simpa only [smul_smul] using hchainScaled
+  simpa only [smul_smul] using! hchainScaled
 
 /-- A one-sided adapter error gives a corrected scalar contrast comparison.
 The error size is measured natively by `blockSize E B`; no tolerance or

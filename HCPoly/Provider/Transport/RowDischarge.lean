@@ -134,8 +134,13 @@ theorem adaptedMean_le_filling_rows [NeZero d] (hd : 1 ≤ d) (hCd : 0 ≤ Cd)
       (adaptedCellCenter (roundedGrid jStar nu) r w) (hcont r w hw)
   have hGint : Integrable (fun a =>
       (6 * (d : ℝ) * Real.sqrt d * Khop * boundaryConst Cd g nu * zetaG g *
-        (3 : ℝ) ^ (jStar - j) * Y a) • toFullBlockMat E) P :=
-    ((integrable_of_isWindowMultiplier hY).const_mul _).smul_const _
+        (3 : ℝ) ^ (jStar - j) * Y a) • toFullBlockMat E) P := by
+    refine integrable_of_entries fun i k => ?_
+    have hij : Integrable (fun a =>
+        (6 * (d : ℝ) * Real.sqrt d * Khop * boundaryConst Cd g nu * zetaG g *
+          (3 : ℝ) ^ (jStar - j) * Y a) * toFullBlockMat E i k) P :=
+      ((integrable_of_isWindowMultiplier hY).const_mul _).mul_const _
+    simpa only [Matrix.smul_apply, smul_eq_mul] using hij
   have hkey := annealedBlock_le_of_ae_le hW hcellint hGint hpath
   -- the mean of the below-start term
   have hGm : ∫ a, (6 * (d : ℝ) * Real.sqrt d * Khop * boundaryConst Cd g nu * zetaG g *

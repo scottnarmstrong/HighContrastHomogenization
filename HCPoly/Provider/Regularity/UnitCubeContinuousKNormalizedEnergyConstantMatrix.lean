@@ -129,7 +129,7 @@ private theorem continuousKResidualNorm_constMatrixMul_le
       (fun x ↦ euclideanNorm (F x - G.toField x)) (2 : ℝ≥0∞) mu := by
     have hsub := F.euclideanMemL2.sub G.euclideanMemL2
     simpa only [mu, euclideanNorm_eq_norm_ofVec, HilbertVec.ofVec,
-      PiLp.toLp_apply, Pi.sub_apply] using hsub.norm
+      PiLp.toLp_apply, Pi.sub_apply] using! hsub.norm
   have hpoint : ∀ x : Vec d,
       euclideanNorm
           (unitCubeEuclideanL2FieldConstMatrixMul A F x -
@@ -149,7 +149,7 @@ private theorem continuousKResidualNorm_constMatrixMul_le
           eLpNorm (fun x ↦ euclideanNorm (F x - G.toField x))
             (2 : ℝ≥0∞) mu := by
     apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul
-    exact Filter.Eventually.of_forall fun x ↦ by
+    exact _root_.Filter.Eventually.of_forall fun x ↦ by
       simpa only [Real.norm_eq_abs,
         abs_of_nonneg (euclideanNorm_nonneg _)] using hpoint x
   unfold continuousKResidualNorm
@@ -193,7 +193,7 @@ private theorem continuousKGradientNorm_constMatrixMul_le
           eLpNorm (fun x ↦ matrixFrobeniusMagnitude (G.gradient x))
             (2 : ℝ≥0∞) mu := by
     apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul
-    exact Filter.Eventually.of_forall fun x ↦ by
+    exact _root_.Filter.Eventually.of_forall fun x ↦ by
       simpa only [continuousKCompetitorConstMatrixMul_gradient,
         Real.norm_eq_abs,
         abs_of_nonneg (matrixFrobeniusMagnitude_nonneg _)] using
@@ -437,7 +437,7 @@ theorem unitCubeNormalizedEuclideanLpENorm_constMatrixMul_le
   simpa only [centeredCubeDomain, unitCenteredCubeDomain,
     centeredCubeEuclideanL2FieldConstMatrixMul_apply,
     unitCubeEuclideanL2FieldToCenteredCubeZero_apply,
-    unitCubeEuclideanL2FieldConstMatrixMul_apply] using hbound
+    unitCubeEuclideanL2FieldConstMatrixMul_apply] using! hbound
 
 /-- Constant matrix multiplication scales the normalized quadratic
 continuous `K`-energy on the unit cube by the square of the Euclidean matrix

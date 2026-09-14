@@ -32,7 +32,7 @@ private theorem exists_restrictedCanonicalResponseSolution_of_commonCoeff
     ∃ w : Book.Ch02.Solution (Book.Ch02.cubeDomain R) (F.coeffOn R),
       w.toH1.grad =
         canonicalMaximizerGradientOnCube Q (F.coeffOn Q) p r := by
-  letI : IsFiniteMeasure (volumeMeasureOn (openCubeSet R)) := by
+  let : IsFiniteMeasure (volumeMeasureOn (openCubeSet R)) := by
     simpa [volumeMeasureOn] using
       (isOpenBoundedConvexDomain_openCubeSet R).isFiniteMeasure_restrict_volume
   let uParent : AHarmonicFunction (F.coeffOn R).toCoeffField (openCubeSet Q) :=

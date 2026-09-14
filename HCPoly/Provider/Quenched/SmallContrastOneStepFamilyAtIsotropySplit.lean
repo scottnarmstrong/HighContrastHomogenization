@@ -203,9 +203,9 @@ theorem exists_one_step_family_at_isotropy_var_at_level_conv_family_split (d : �
     sigma cEnt hsigma hsigma0
     hcEnt hsmall hkEnt0 hlsplit hsplitns hentry0 cDeep hcDeep R lev hR1 hlev
     henvMax
-  haveI := hP
-  haveI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have := hP
+  have : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hcIso0 : (0 : ℝ) ≤ nearIdentityDefect cEnt sigma :=
     nearIdentityDefect_nonneg hcEnt.le hsigma0
   have hisoAll := hiso_of_isotropySplit hd hg hdag hstat hl hCd hmAl hqnorm
@@ -402,9 +402,9 @@ theorem exists_one_step_family_at_isotropy_var_at_level_conv_family_min (d : ℕ
     sigma cEnt hsigma hsigma0 hcEnt hsmall hkEnt0 hlsplit hsplitns hentry0
     cDeep hcDeep R lev hR1 hlev henvMax S0 SStar0 K0 hS0 hStar0 hform
     m hm n hn
-  haveI := hP
-  haveI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have := hP
+  have : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   by_cases hpos : 0 < hatExcessAt P (roundedGrid lAl mAl)
       ((N₀ : ℤ) + (n : ℤ))
   · have hjb1 : ∀ n' : ℕ, ns ≤ n' →

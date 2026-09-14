@@ -45,7 +45,7 @@ theorem norm_inv_roundedGrid_le {l : ℤ} (hl : (kZero d : ℤ) ≤ l)
       (Matrix.mulVec (q - (100 / 101 : ℝ) • (1 : Mat d)) x)
     rw [Matrix.sub_mulVec, dotProduct_sub, Matrix.smul_mulVec,
       Matrix.one_mulVec, dotProduct_smul]
-    simpa only [smul_eq_mul] using sub_nonneg.mpr h
+    simpa only [smul_eq_mul] using! sub_nonneg.mpr h
   have hinv : q⁻¹ ≤ (101 / 100 : ℝ) • (1 : Mat d) := by
     have h := inv_le_inv_of_le hcI hq hlo
     rw [inv_smul_of_isUnit hc.ne' (by simp : IsUnit (1 : Mat d).det), inv_one] at h

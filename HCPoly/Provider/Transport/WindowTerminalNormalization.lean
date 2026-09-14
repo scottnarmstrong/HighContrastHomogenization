@@ -57,7 +57,7 @@ witness is positive in positive dimension: a positive definite matrix is a unit,
 hence nonzero, and so is its inverse. -/
 theorem zero_lt_witnessEccentricity [NeZero d] {m : Mat d} (hm : m.PosDef) :
     0 < witnessEccentricity m := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have h1 : 0 < ‖m‖ := norm_pos_iff.mpr hm.isUnit.ne_zero
   have h2 : 0 < ‖m⁻¹‖ := norm_pos_iff.mpr hm.inv.isUnit.ne_zero
   rw [witnessEccentricity, Real.sqrt_pos, specBound_eq_norm hm.posSemidef,
@@ -90,7 +90,7 @@ theorem blockSize_blockReflect (H F : BlockMat d) :
       {t : ℝ | 0 ≤ t ∧ BlockMatLoewnerLE H (blockScale t F) ∧
         BlockMatLoewnerLE (blockScale (-t) F) H} := by
     ext t
-    simp only [Set.mem_setOf_eq, blockScale_blockReflect,
+    simp only [Set.mem_ofPred_eq, blockScale_blockReflect,
       blockMatLoewnerLE_blockReflect_iff]
   simp only [blockSize, hset]
 
@@ -117,13 +117,19 @@ theorem annealedBlock_le_blockScale (hE : IsSymmetricBlockMat E)
       (annealedBlock P (adaptedCellTranslate (roundedGrid jStar nu) r y))
       (blockScale (boundaryConst Cd g nu * ∫ a, Y a ∂P) E) := by
   have hint := hasIntegrableCoarseBlock_adaptedCellTranslate hY hnu hq r y hcont
+  have hYconst : Integrable (fun a => boundaryConst Cd g nu * Y a) P :=
+    (integrable_of_isWindowMultiplier hY).const_mul _
+  have hrhsInt : Integrable
+      (fun a => (boundaryConst Cd g nu * Y a) • toFullBlockMat E) P :=
+    integrable_of_entries fun i j => by
+      simpa only [Matrix.smul_apply, smul_eq_mul] using
+        hYconst.mul_const (toFullBlockMat E i j)
   refine blockMatLoewnerLE_of_le ?_
   rw [toFullBlockMat_annealedBlock hint, toFullBlockMat_blockScale,
     show (boundaryConst Cd g nu * ∫ a, Y a ∂P) • toFullBlockMat E =
       ∫ a, (boundaryConst Cd g nu * Y a) • toFullBlockMat E ∂P by
       rw [integral_smul_const, integral_const_mul]]
-  refine integral_mono' (integrable_toFullBlockMat hint)
-    (((integrable_of_isWindowMultiplier hY).const_mul _).smul_const _) ?_
+  refine integral_mono' (integrable_toFullBlockMat hint) hrhsInt ?_
   filter_upwards [ae_blockMatLoewnerLE_coarseBlock_adaptedCellTranslate hY hnu r y hcont]
     with a ha
   rw [burnDiscount_eq_one g hr, mul_one] at ha
@@ -254,7 +260,7 @@ theorem ofReal_integral_le_lqNorm [IsProbabilityMeasure P]
   have hint := integrable_of_isWindowMultiplier hY
   have h1 : ENNReal.ofReal (∫ a, Y a ∂P) = eLpNorm Y 1 P := by
     rw [eLpNorm_one_eq_lintegral_enorm, ← ofReal_integral_norm_eq_lintegral_enorm hint]
-    exact congrArg ENNReal.ofReal (integral_congr_ae (Filter.Eventually.of_forall
+    exact congrArg ENNReal.ofReal (integral_congr_ae (_root_.Filter.Eventually.of_forall
       fun a => (Real.norm_of_nonneg (le_trans zero_le_one (hY.one_le a))).symm))
   rw [h1, lqNorm]
   exact eLpNorm_le_eLpNorm_of_exponent_le (ENNReal.one_le_ofReal.mpr hQ)

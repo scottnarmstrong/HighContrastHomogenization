@@ -142,7 +142,7 @@ theorem one_le_blockImbalance_annealedBlock_centeredCube [NeZero d]
     {Ψ : ℝ → ℝ} {K : ℝ} {S : CoeffSpace d → ℝ}
     (hdag : HCPoly.Frozen.CoarseEllipticityDagger P g E Ψ K S) (m : ℤ) :
     1 ≤ blockImbalance (annealedBlock P (centeredCube d m)) := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have hsymm : IsSymmetricBlockMat (annealedBlock P (centeredCube d m)) :=
     isSymmetricBlockMat_annealedBlock P _
   have hpos : Book.Ch02.BlockPosDef (annealedBlock P (centeredCube d m)) :=
@@ -173,7 +173,7 @@ theorem entry_contrast (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
     (m : ℤ) (_hm : sourceBurn d (initExpQ d g : ℝ) K ≤ m) :
     annealedContrast P m - 1 ≤
       3 * (blockImbalance (annealedBlock P (centeredCube d m)) - 1) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   have hone : 1 ≤ blockImbalance (annealedBlock P (centeredCube d m)) :=
     one_le_blockImbalance_annealedBlock_centeredCube hdag m
   have hbridge :

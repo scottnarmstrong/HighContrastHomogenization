@@ -68,7 +68,7 @@ private theorem vecDot_sub_skew (A g : Mat d) (hg : IsSkewMat g)
         vecDot x (matVecMul A x) - vecDot x (matVecMul g x) := by
     simp only [vecDot, Pi.sub_apply, mul_sub, Finset.sum_sub_distrib]
   have hzero : vecDot x (matVecMul g x) = 0 := by
-    simpa [matVecMul] using dotProduct_mulVec_of_skew hgstar x
+    simpa [matVecMul] using! dotProduct_mulVec_of_skew hgstar x
   rw [hdot, hzero, sub_zero]
 
 /-- Uniform ellipticity is preserved when a constant skew matrix is

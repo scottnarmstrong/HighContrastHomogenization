@@ -33,7 +33,7 @@ private theorem sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube_base
   rw [sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
   rw [weightedGradNorm_congr_coeff_ae_on _
     (Book.Ch03.publicCoeffField_ae_eq_openCubeSet (originCube d k) a)]
-  rw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
+  erw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
   rw [ENNReal.toReal_ofReal]
   unfold Book.Ch03.h1EnergyNormOnCube
   exact Real.sqrt_nonneg _
@@ -158,14 +158,29 @@ theorem exists_baseExactMinimizerSlopeEnergyConstants
       abel
     have htri := sqrt_normalizedLocalSymmetricEnergy_add_le hEll hvol hvoltop
       uN.toH1.gradToHilbertVectorL2 (-r.toH1.gradToHilbertVectorL2)
-    rw [normalizedLocalSymmetricEnergy_neg_increment,
-      ← sub_eq_add_neg, ← hclass] at htri
+    have hneg_eq : normalizedLocalSymmetricEnergy hEll (-r.toH1.gradToHilbertVectorL2) =
+        normalizedLocalSymmetricEnergy hEll r.toH1.gradToHilbertVectorL2 :=
+      normalizedLocalSymmetricEnergy_neg_increment _ _
     have henergyTri : Book.Ch03.h1EnergyNormOnCube
           (originCube d (n : ℤ)) a w.toH1 ≤
         Book.Ch03.h1EnergyNormOnCube (originCube d (n : ℤ)) a uN.toH1 +
           Book.Ch03.h1EnergyNormOnCube (originCube d (n : ℤ)) a r.toH1 := by
-      simpa only [hEll,
-        sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube_base] using htri
+      have htri' : √(normalizedLocalSymmetricEnergy hEll w.toH1.gradToHilbertVectorL2) ≤
+          √(normalizedLocalSymmetricEnergy hEll uN.toH1.gradToHilbertVectorL2) +
+            √(normalizedLocalSymmetricEnergy hEll r.toH1.gradToHilbertVectorL2) := by
+        rw [hclass, sub_eq_add_neg, ← hneg_eq]
+        exact htri
+      have hw : √(normalizedLocalSymmetricEnergy hEll w.toH1.gradToHilbertVectorL2) =
+          Book.Ch03.h1EnergyNormOnCube (originCube d (n : ℤ)) a w.toH1 :=
+        sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube_base a (n : ℤ) w.toH1
+      have hu : √(normalizedLocalSymmetricEnergy hEll uN.toH1.gradToHilbertVectorL2) =
+          Book.Ch03.h1EnergyNormOnCube (originCube d (n : ℤ)) a uN.toH1 :=
+        sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube_base a (n : ℤ) uN.toH1
+      have hr : √(normalizedLocalSymmetricEnergy hEll r.toH1.gradToHilbertVectorL2) =
+          Book.Ch03.h1EnergyNormOnCube (originCube d (n : ℤ)) a r.toH1 :=
+        sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube_base a (n : ℤ) r.toH1
+      rw [hw, hu, hr] at htri'
+      exact htri'
     refine henergyTri.trans ?_
     have hspec := finiteAffineExactMinimizer_spec a hnm u
     have hbridge := weightedGradNorm_finiteAffineGradientResidual a hnm u b
@@ -195,7 +210,12 @@ theorem exists_baseExactMinimizerSlopeEnergyConstants
         =ᵐ[volumeMeasureOn (openCubeSet (originCube d (n : ℤ)))] fun _ ↦ 0 :=
       ae_mono (Measure.restrict_mono_set volume
         (openCubeSet_originCube_subset_of_le hnm)) (by
-          simpa only [zero_smul] using hzero)
+          have hmeas : volumeMeasureOn
+              (Book.Ch02.cubeDomain (originCube d (m : ℤ))).carrier =
+              volume.restrict (openCubeSet (originCube d (m : ℤ))) := rfl
+          rw [hmeas] at hzero
+          filter_upwards [hzero] with x hx
+          simpa only [zero_smul] using hx)
     have hcandEq : weightedGradNorm
           (a.coeffOn (originCube d (n : ℤ))).toCoeffField
           (openCubeSet (originCube d (n : ℤ)))

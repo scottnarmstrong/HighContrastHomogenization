@@ -32,7 +32,7 @@ namespace Homogenization
 namespace HighContrast
 namespace Root
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal Pointwise
 
 noncomputable section
@@ -46,7 +46,7 @@ theorem translateSet_euclideanBall (t : Vec d) (r : ℝ) :
     translateSet t (euclideanBall d r) = euclideanBallAt t r := by
   ext x
   rw [Homogenization.mem_translateSet_iff_sub_mem]
-  simp only [euclideanBall, euclideanBallAt, Set.mem_setOf_eq, sub_zero]
+  simp only [euclideanBall, euclideanBallAt, Set.mem_ofPred_eq, sub_zero]
 
 /-- Lebesgue volume does not see the centre of a Euclidean ball. -/
 theorem volume_euclideanBallAt_eq (t : Vec d) (r : ℝ) :
@@ -207,10 +207,10 @@ theorem tendsto_growth_realTranslate {theta : ℝ} (v : Vec d → ℝ) (t : Vec 
       normalizedL2Norm (euclideanBall d r) (fun y => v (y + t)))
       atTop (nhds 0) := by
   have hdouble : Tendsto (fun r : ℝ => (2 : ℝ) * r) atTop atTop :=
-    Filter.Tendsto.const_mul_atTop (by norm_num : (0 : ℝ) < 2) tendsto_id
+    _root_.Filter.Tendsto.const_mul_atTop (by norm_num : (0 : ℝ) < 2) tendsto_id
   have hcomp : Tendsto (fun r : ℝ => ENNReal.ofReal ((2 * r) ^ (-(1 + theta))) *
       normalizedL2Norm (euclideanBall d (2 * r)) v) atTop (nhds 0) := by
-    simpa [Function.comp] using h.comp hdouble
+    simpa [Function.comp] using! h.comp hdouble
   have hKtop : ENNReal.ofReal ((2 : ℝ) ^ d) ^ (1 / 2 : ℝ) *
       ENNReal.ofReal ((2 : ℝ) ^ (1 + theta)) ≠ ⊤ := by
     refine ENNReal.mul_ne_top ?_ ENNReal.ofReal_ne_top
@@ -223,7 +223,7 @@ theorem tendsto_growth_realTranslate {theta : ℝ} (v : Vec d → ℝ) (t : Vec 
     have := ENNReal.Tendsto.const_mul hcomp (Or.inr hKtop)
     simpa using this
   refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hupper
-    (Eventually.of_forall fun _ => zero_le _) ?_
+    (Eventually.of_forall fun _ => zero_le) ?_
   filter_upwards [eventually_ge_atTop (max (Real.sqrt (vecNormSq t)) 1)] with r hr
   have hrT : Real.sqrt (vecNormSq t) ≤ r := le_trans (le_max_left _ _) hr
   have hr1 : (1 : ℝ) ≤ r := le_trans (le_max_right _ _) hr
@@ -306,7 +306,7 @@ theorem tendsto_growth_realTranslate_subConst {theta : ℝ} (htheta : 0 < theta)
   have hupper := hfirst.add hsecond
   rw [add_zero] at hupper
   refine tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hupper
-    (Eventually.of_forall fun _ => zero_le _) ?_
+    (Eventually.of_forall fun _ => zero_le) ?_
   filter_upwards [eventually_gt_atTop (0 : ℝ)] with r hr0
   have hballzero : volume (euclideanBall d r) ≠ 0 := volume_euclideanBall_ne_zero hr0
   have hballtop : volume (euclideanBall d r) ≠ ⊤ := volume_euclideanBall_ne_top r

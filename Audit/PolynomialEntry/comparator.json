@@ -1,9 +1,0 @@
-{
-  "challenge_module": "Audit.PolynomialEntry.Challenge",
-  "solution_module": "Audit.PolynomialEntry.Solution",
-  "theorem_names": [
-    "HCPoly.StatementAudit.PolynomialEntry.polynomial_entry"
-  ],
-  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": false
-}

@@ -120,7 +120,7 @@ theorem le_rpow_add_of_rpow_le {Q C x y p b : ℝ} (hQ : 2 ≤ Q) (hC : 0 < C)
   · have : κ * y ≤ (2 * C) ^ Q⁻¹ * (p ^ (1 - Q⁻¹) * b ^ Q⁻¹) + κ * y := by
       linarith only [hgapterm]
     exact le_trans hcase this
-  · push_neg at hcase
+  · push Not at hcase
     have hxpos : (0 : ℝ) < x := lt_of_le_of_lt (mul_nonneg hκpos.le hy) hcase
     -- The fluctuation term absorbs into half of the left side.
     have hyx : y ≤ x / κ := by

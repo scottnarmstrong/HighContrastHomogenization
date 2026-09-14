@@ -71,8 +71,8 @@ theorem integrableOn_vecDot_diagonalWeakState_flux_pullback
       (diagonalWeakState hq t a p r (matVecMul q y)).2 i)
       (volume.restrict (cubeSet R))
     rw [volume_restrict_cubeSet_eq_volume_restrict_openCubeSet]
-    simpa only [adaptedDomainAt_carrier, hidentityCell] using hiOpen
-  simpa only [vecDot] using integrable_finset_sum
+    simpa only [adaptedDomainAt_carrier, hidentityCell] using! hiOpen
+  simpa only [vecDot] using! integrable_finsetSum
     (s := (Finset.univ : Finset (Fin d)))
     (fun i _ ↦ (hi i).const_mul (Pcen i))
 

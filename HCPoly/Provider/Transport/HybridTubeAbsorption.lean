@@ -124,7 +124,7 @@ theorem volume_le_of_escaping_hybridStrip {q q' : Mat d} (hd : 2 ≤ d)
                   (1 + 6 * Real.sqrt d) ^ (d - 1)) *
             gridRatio q q' * (3 : ℝ) ^ (c - (n + l))) *
         volume (adaptedCellTranslate q (n + l) y) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hself : ‖q⁻¹ * q‖ = 1 := norm_inv_mul_self_of_posDef hq
   have h3cn : (3 : ℝ) ^ c ≤ (3 : ℝ) ^ n :=
     zpow_le_zpow_right₀ (by norm_num) hcn
@@ -182,7 +182,7 @@ theorem volume_le_of_escaping_hybridStrip {q q' : Mat d} (hd : 2 ≤ d)
     rw [← hscale]
     have hscale0 : 0 ≤ (3 : ℝ) ^ (c - n) * (3 : ℝ) ^ (-l) := by positivity
     convert mul_le_mul_of_nonneg_right hcoef hscale0 using 1
-    all_goals ring
+    all_goals (first | rfl | ring)
   have hraw := volume_le_of_escaping_hybridStrip_raw hq hq' hcn y hA hesc
   simp only [hself, one_mul, mul_one] at hraw
   refine hraw.trans ?_

@@ -75,12 +75,12 @@ private theorem mem_Icc_iff_real {h z : ℤ} :
   · rintro ⟨h1, h2⟩
     constructor
     · by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have hz : z ≤ -h - 1 := by omega
       have hzr : (z : ℝ) ≤ -(h : ℝ) - 1 := by exact_mod_cast hz
       linarith only [h1, hzr]
     · by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       have hz : h + 1 ≤ z := by omega
       have hzr : (h : ℝ) + 1 ≤ (z : ℝ) := by exact_mod_cast hz
       linarith only [h2, hzr]

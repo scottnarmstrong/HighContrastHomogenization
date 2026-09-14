@@ -24,7 +24,7 @@ theorem sqrt_H1AffineFactor_normalizedRoot_le
   have hqT : matTranspose q = q := by
     have hq := normalizedRoot_posDef_of_posDef hS
     simpa only [matTranspose,
-      Matrix.conjTranspose_eq_transpose_of_trivial] using hq.isHermitian
+      Matrix.conjTranspose_eq_transpose_of_trivial] using! hq.isHermitian
   have hdet := absDet_rpow_two_div_le q
   have hnorm : ‖matTranspose q‖ ^ 2 ≤
       (Real.sqrt d * ‖q‖) ^ 2 := by

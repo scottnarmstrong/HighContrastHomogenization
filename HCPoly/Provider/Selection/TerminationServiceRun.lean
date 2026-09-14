@@ -159,7 +159,7 @@ theorem runCapped_serviceAccount
             (S := Sn) hnext htailMono
           constructor
           · simpa only [runCapped, hout, runTransitionSum,
-              pairedTransitionSum, add_assoc] using htail.1
+              pairedTransitionSum, add_assoc] using! htail.1
           · simp only [runCapped, hout]
             exact htail.2.trans (le_max_right _ _)
 

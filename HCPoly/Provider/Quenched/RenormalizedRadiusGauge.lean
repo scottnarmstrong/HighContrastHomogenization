@@ -181,7 +181,7 @@ theorem measureReal_normalized_renormRadius_gt_le [NeZero d]
         {a : CoeffSpace d | (3 : Real) ^ (n + q + b) <
           renormRadius S Ahat delta rho h n a} := by
       intro a ha
-      simp only [upperTailEvent, Set.mem_setOf_eq] at ha ⊢
+      simp only [upperTailEvent, Set.mem_ofPred_eq] at ha ⊢
       have hnpos : 0 < (3 : Real) ^ n := by positivity
       have hmul := (lt_div_iff₀ hnpos).mp ha
       have hpow : (3 : Real) ^ (n + q + b) =
@@ -240,7 +240,7 @@ theorem ae_renormScale_ne_top [NeZero d]
         {a : CoeffSpace d | ENNReal.ofReal ((3 : Real) ^ ((n + q : Nat) : Int)) <
           renormScale S Ahat delta rho h n a} := by
       intro a ha
-      simp only [Set.mem_setOf_eq] at ha ⊢
+      simp only [Set.mem_ofPred_eq] at ha ⊢
       rw [ha]
       exact ENNReal.ofReal_lt_top
     have htail := measureReal_renormScale_gt_le hAhat hGain hdelta hmu hmupos
@@ -256,7 +256,7 @@ theorem ae_renormScale_ne_top [NeZero d]
     simp only [f, C, A, B]
     rw [hexponent]
     ring_nf
-  have hlim : Filter.Tendsto f Filter.atTop (nhds 0) := hfsum.tendsto_atTop_zero
+  have hlim : _root_.Filter.Tendsto f _root_.Filter.atTop (nhds 0) := hfsum.tendsto_atTop_zero
   have hzero : P.real {a : CoeffSpace d |
       renormScale S Ahat delta rho h n a = ⊤} = 0 := by
     apply le_antisymm
@@ -266,7 +266,7 @@ theorem ae_renormScale_ne_top [NeZero d]
   have hset : {a : CoeffSpace d | ¬ renormScale S Ahat delta rho h n a ≠ ⊤} =
       {a : CoeffSpace d | renormScale S Ahat delta rho h n a = ⊤} := by
     ext a
-    simp only [Set.mem_setOf_eq, not_not]
+    simp only [Set.mem_ofPred_eq, not_not]
   rw [hset]
   exact (measureReal_eq_zero_iff).mp hzero
 

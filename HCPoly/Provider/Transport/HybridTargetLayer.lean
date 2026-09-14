@@ -91,7 +91,7 @@ theorem volume_le_of_close_outside {p : Mat d} (hp : p.PosDef) {j : ℤ}
       rw [← hp2, hp1]
     obtain ⟨i, hi⟩ : ∃ i, (1 / 2 : ℝ) * (3 : ℝ) ^ j ≤ |zt i| := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       refine hztout (Recurrence.mem_centeredCube_iff.mpr fun i => ?_)
       have hii := hcon i
       rw [abs_lt] at hii

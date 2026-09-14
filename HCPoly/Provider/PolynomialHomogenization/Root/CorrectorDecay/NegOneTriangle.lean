@@ -40,7 +40,7 @@ theorem negOneNorm_add_le_of_memVectorL2
     integrableOn_vecDot_of_memVectorL2 hG htestL2
   have hAddInt : IntegrableOn
       (fun x ↦ vecDot (F x + G x) (test.1 x)) V volume := by
-    simpa only [vecDot_add_left] using hFint.add hGint
+    simpa only [vecDot_add_left] using! hFint.add hGint
   calc
     dualPairing V (fun x ↦ F x + G x) test.1 =
         ENNReal.ofReal
@@ -51,7 +51,7 @@ theorem negOneNorm_add_le_of_memVectorL2
           (volumeAverage V (fun x ↦ vecDot (F x) (test.1 x)) +
             volumeAverage V (fun x ↦ vecDot (G x) (test.1 x))) := by
       congr 1
-      simpa only [vecDot_add_left] using volumeAverage_add hFint hGint
+      simpa only [vecDot_add_left] using! volumeAverage_add hFint hGint
     _ ≤ ENNReal.ofReal
           (volumeAverage V (fun x ↦ vecDot (F x) (test.1 x))) +
         ENNReal.ofReal

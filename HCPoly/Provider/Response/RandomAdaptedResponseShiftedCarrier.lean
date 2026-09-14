@@ -44,7 +44,7 @@ theorem shifted_primal_carrier_le
     ENNReal.ofReal
         |centeredResponse P (adaptedDomain hq t) p (r - h *ᵥ p)| ≤ bound := by
   have hcov := centeredResponse_subSkew (P := P) (adaptedDomain hq t)
-    (by simpa only [adaptedDomain_carrier] using hint) g hg p
+    (by simpa only [adaptedDomain_carrier] using! hint) g hg p
     (r + (g - h) *ᵥ p)
   have hload : r + (g - h) *ᵥ p - matVecMul g p = r - h *ᵥ p := by
     change r + (g - h) *ᵥ p - g *ᵥ p = r - h *ᵥ p
@@ -79,7 +79,7 @@ theorem shifted_adjoint_carrier_le
         |centeredAdjointResponse P (adaptedDomain hq t) p
           (r + h *ᵥ p)| ≤ bound := by
   have hcov := centeredAdjointResponse_subSkew (P := P) (adaptedDomain hq t)
-    (by simpa only [adaptedDomain_carrier] using hint) g hg p
+    (by simpa only [adaptedDomain_carrier] using! hint) g hg p
     (r + (h - g) *ᵥ p)
   have hload : r + (h - g) *ᵥ p + matVecMul g p = r + h *ᵥ p := by
     change r + (h - g) *ᵥ p + g *ᵥ p = r + h *ᵥ p

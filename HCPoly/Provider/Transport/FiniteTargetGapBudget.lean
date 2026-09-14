@@ -82,7 +82,7 @@ theorem exists_finite_target_gap_ennreal_bound
             (CgapS * transportSrcRemainder Cd g (Q : ℝ) a E jStar mu mu'
               (u + (l0 : ℤ))) := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   have hd1 : 1 ≤ d := le_trans (by omega) hd
   have hdR0 : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
   have hQ1 : (1 : ℝ) ≤ (Q : ℝ) := by exact_mod_cast (by omega : 1 ≤ Q)
@@ -173,7 +173,7 @@ theorem exists_finite_target_gap_ennreal_bound
   refine ⟨CgapP, CgapE, CgapS, hCgapP0, hCgapE0, hCgapS0, ?_⟩
   intro l0 hl0 Cd hCd P E Ψ K S hPprob hPstat hced jStar M hw Y hY mu mu'
     hmu hmu' rchk u hjr hru hcont etaX heta0
-  letI : IsProbabilityMeasure P := hPprob
+  let : IsProbabilityMeasure P := hPprob
   have hCd0 : (0 : ℝ) ≤ Cd := le_trans zero_le_one hCd
   have hjt : jStar ≤ u + 2 * (l0 : ℤ) := by omega
   have hq := isRoundedGrid_roundedGrid_of_isCoupledWindow hw hmu

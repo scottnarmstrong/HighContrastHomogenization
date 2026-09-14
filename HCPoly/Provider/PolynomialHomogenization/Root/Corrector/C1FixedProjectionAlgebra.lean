@@ -37,7 +37,7 @@ theorem sqrt_normalizedEnergy_linearMap_sub_le_sum_Ico_int
       ∑ j ∈ Finset.Ico n q,
         Real.sqrt (normalizedLocalSymmetricEnergy hEll
           (T (b (j + 1) - b j))) := by
-  induction q, hnq using Int.le_induction with
+  induction q, hnq using Int.leInduction with
   | base => simp [normalizedLocalSymmetricEnergy]
   | succ q hnq ih =>
       have hsplit : T (b (q + 1) - b n) =

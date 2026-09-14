@@ -44,7 +44,7 @@ private theorem poincareUpperEllipticityFactor_le_of_weakError_le_one
         mul_le_mul_of_nonneg_left hEsq (by positivity)
       _ = 4 * (d : ℝ) := by ring
   simpa only [Book.Ch03.poincareUpperEllipticityFactor,
-    Real.sqrt_eq_rpow] using Real.sqrt_le_sqrt hLambda'
+    Real.sqrt_eq_rpow] using! Real.sqrt_le_sqrt hLambda'
 
 /-- At a scalar-identity good scale, the coarse-Poincare gradient and flux
 rows have a dimension/order-only energy bound.  In particular, neither
@@ -155,7 +155,7 @@ theorem exists_lawFreeCoarsePoincareRowsConstant
       _ ≤ Book.Ch03.coarsePoincareFluxRHS Q a s (.finite 2) u := by
         simpa only [Book.Ch03.solutionFluxField,
           Book.Ch03.scaleNormalizedNegativeBesovVectorNorm_finite_two_eq_cubeBesovNegativeVectorSeminormTwo]
-          using hfluxRaw
+          using! hfluxRaw
       _ = B * Book.Ch03.poincareUpperEllipticityFactor
           Q a s (.finite 2) * D := by
         rw [Book.Ch03.coarsePoincareFluxRHS, henergy]
@@ -169,7 +169,7 @@ theorem exists_lawFreeCoarsePoincareRowsConstant
   · calc
       cubeScaleNormalizedDualNegativeBesovVectorNormTwo Q s u.toH1.grad ≤
           K * cubeBesovNegativeVectorSeminormTwo Q s u.toH1.grad := by
-        simpa only [K] using hnoteGrad
+        simpa only [K] using! hnoteGrad
       _ ≤ K * (B * L * D) := mul_le_mul_of_nonneg_left hgradSemi hK
       _ = (K * B * L) * D := by ring
       _ ≤ C * D := mul_le_mul_of_nonneg_right hKC hD
@@ -180,7 +180,7 @@ theorem exists_lawFreeCoarsePoincareRowsConstant
           K * cubeBesovNegativeVectorSeminormTwo Q s
             (fun x ↦ matVecMul (Book.Ch03.publicCoeffField Q a x)
               (u.toH1.grad x)) := by
-        simpa only [K] using hnoteFlux
+        simpa only [K] using! hnoteFlux
       _ ≤ K * (B * L * D) := mul_le_mul_of_nonneg_left hfluxSemi hK
       _ = (K * B * L) * D := by ring
       _ ≤ C * D := mul_le_mul_of_nonneg_right hKC hD

@@ -423,7 +423,6 @@ theorem family_hrec_of_line_clauses_src [NeZero d]
     (fun k hk => hVmeanle m hm k hk)
     hDrdelta hDrdrop
   have hres := hline n hn
-  simp only at hres
   have hmin : min n m = m := min_eq_right hmn
   rw [hmin] at hres
   exact hres

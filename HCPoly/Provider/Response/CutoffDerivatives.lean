@@ -130,7 +130,7 @@ theorem adaptedPreYoungCutoff_pullback_fderiv_bound {d : ℕ} [NeZero d]
     rw [show (fun y => A⁻¹ * η y) = A⁻¹ • η by
       funext y
       exact (smul_eq_mul _ _).symm]
-    rw [fderiv_const_smul_of_field]
+    rw [fderiv_const_smul_field]
     simp only [Pi.smul_apply, norm_smul, Real.norm_eq_abs, abs_of_nonneg hAinv]
   rw [hpull, hnorm]
   calc

@@ -316,11 +316,11 @@ theorem Homogenization.HighContrast.SourceControl.random_source_control_assembly
                     Homogenization.HighContrast.sourceRemainderScale d jStar K *
                     (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ))))))
     := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   refine ⟨2 * (2 * d : ℝ) ^ Q⁻¹, by positivity, ?_⟩
   intro Cd hCd P E Ψ K S hPprob _hstat hdag jStar M hw Y hY rho hrho l0 Khop _hKhop
     m m' mr hm hm' hmr _hgrid j hj W _hWcount hWmem hWcont t hjt hcontT
-  haveI := hPprob
+  have := hPprob
   have hE : Homogenization.IsSymmetricBlockMat E := hdag.refBlock_isSymm
   have hEpd : Homogenization.Book.Ch02.BlockPosDef E := hdag.refBlock_posDef
   have hg1 : g < 1 := hg.2

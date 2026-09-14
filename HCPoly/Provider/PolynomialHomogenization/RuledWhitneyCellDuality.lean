@@ -160,7 +160,7 @@ theorem ofReal_abs_volumeAverage_vecDot_le_cellDuality
         (positiveWhitneyCellEnergy system s G i) ^ (1 / 2 : ℝ) := by
   let Q : TriadicCube d :=
     translateCube (system.index i) (originCube d (system.scale i))
-  letI : NeZero d := ⟨Nat.ne_of_gt (lt_of_lt_of_le Nat.zero_lt_one hd)⟩
+  let : NeZero d := ⟨Nat.ne_of_gt (lt_of_lt_of_le Nat.zero_lt_one hd)⟩
   have hdual :=
     ofReal_abs_volumeAverage_le_sqrt_hsNormSq_mul_negSobolevNorm
       Q hs hsHalf F G hF hG.aestronglyMeasurable hGfinite
@@ -174,7 +174,7 @@ theorem ofReal_abs_volumeAverage_vecDot_le_cellDuality
     rw [← ENNReal.rpow_mul]
     norm_num
   rw [hnegative, ← hpositive]
-  simpa only [mul_comm] using hdual
+  simpa only [mul_comm] using! hdual
 
 end
 

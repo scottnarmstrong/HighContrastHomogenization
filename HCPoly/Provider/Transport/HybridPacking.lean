@@ -42,7 +42,7 @@ theorem finite_hybridPackingIndex {q : Mat d} (hq : q.PosDef) {n : ℤ}
 /-- The uncovered strip is contained in its target. -/
 theorem hybridStrip_subset {q : Mat d} {n : ℤ} {W : Set (Vec d)} :
     hybridStrip q n W ⊆ W :=
-  Set.diff_subset
+  Set.sdiff_subset
 
 /-- The uncovered strip of the scale-`n` packing lies in a target boundary
 layer of width controlled by the packed grid. -/
@@ -57,7 +57,7 @@ theorem volume_hybridStrip_le {q q' : Mat d} (hq : q.PosDef) (hq' : q'.PosDef)
     {z : Vec d | z i = ((k : ℝ) + 1 / 2) * (3 : ℝ) ^ n}
   have hFnull : volume F = 0 := by
     exact volume_image_gridFaces q' n
-  rw [← measure_diff_null (s := hybridStrip q' n W) hFnull]
+  rw [← measure_sdiff_null (s := hybridStrip q' n W) hFnull]
   have hraw := volume_le_of_escaping_ancestor (p := q) (q := q') hq
     (j := n + l) (c := n) (y := y) (A := hybridStrip q' n W \ F)
     (fun _ hx ↦ hx.1.1) (by

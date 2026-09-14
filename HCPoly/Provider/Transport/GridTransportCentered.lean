@@ -90,8 +90,8 @@ theorem exists_grid_transport_centered_bound
     centeredTransportSourceConst d Q Khop CgapS, hCcen, hCcenS, ?_⟩
   intro l0 hl0 Cd hCd P E Ψ K S hPprob hPstat hPunit hced jStar M hw Y hY
     mu mu' hmu hmu' hKgrid rchk u hjr hru hcont etaX heta0 heta4 hlo hhi
-  letI : IsProbabilityMeasure P := hPprob
-  haveI : NeZero d := ⟨by omega⟩
+  let : IsProbabilityMeasure P := hPprob
+  have : NeZero d := ⟨by omega⟩
   -- The concrete finite target family and its simultaneous majorants.
   obtain ⟨Z, hs, Zfill, cfill, Gmajor, Kmajor, hZcard, htarget, hwt,
       hhistory, hmajor, hbudget⟩ :=

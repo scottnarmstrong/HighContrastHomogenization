@@ -229,7 +229,16 @@ theorem annealedBlock_standardCell_le {P : Measure (CoeffSpace d)}
     rw [toFullBlockMat_annealedBlock hint, toFullBlockMat_blockScale,
       show (∫ a, (A + B * S a) ^ g ∂P) • toFullBlockMat E =
           ∫ a, ((A + B * S a) ^ g) • toFullBlockMat E ∂P by rw [integral_smul_const]]
-    refine integral_mono' (integrable_toFullBlockMat hint) (hgi.smul_const _) ?_
+    have hgiC : Integrable (fun a => ((A + B * S a) ^ g) • toFullBlockMat E) P := by
+      have hgiC' : Integrable (fun a : CoeffSpace d => fun p q : BlockCoord d =>
+          (A + B * S a) ^ g * toFullBlockMat E p q) P := by
+        rw [integrable_pi_iff]
+        intro p
+        rw [integrable_pi_iff]
+        intro q
+        exact hgi.mul_const _
+      exact hgiC'
+    refine integral_mono' (integrable_toFullBlockMat hint) hgiC ?_
     filter_upwards [ae_coarseBlock_standardCell_le hdag k hv] with a ha
     have hrw : (3 * (3 : ℝ) ^ (-k) + 1 + 3 * ((3 : ℝ) ^ (-k) * S a)) = A + B * S a := by
       rw [hA, hB]; ring

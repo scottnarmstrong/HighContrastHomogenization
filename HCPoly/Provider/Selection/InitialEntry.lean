@@ -71,8 +71,8 @@ theorem exists_initialSelectionEntry (hd : 2 ≤ d)
             (initExpRhoMax d g) (initExpRhoDr g) jdag c.etaReady c.etaPre
             w.alphaW w.alphaX w.alphaFresh w.alphaSearch
             (initialState r0 A0 hcen hnl) ≤ cc.CF * Lam := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   have hPi : 1 ≤ aspectRatio E :=
     one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hLam : 1 ≤ Lam := by

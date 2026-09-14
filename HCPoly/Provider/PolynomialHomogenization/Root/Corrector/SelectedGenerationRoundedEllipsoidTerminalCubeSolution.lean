@@ -359,7 +359,7 @@ theorem exists_roundedEllipsoidTerminalCubeSolutionAtGeneration
     rw [hUform]
     exact isOpenBoundedConvexDomain_matImage hQmat
       (isOpenBoundedConvexDomain_openCubeSet Q)
-  letI : IsFiniteMeasure (volumeMeasureOn U) :=
+  let : IsFiniteMeasure (volumeMeasureOn U) :=
     hUdomain.isFiniteMeasure_restrict_volume
   have hUsub : U ⊆ ellipsoid abar R := by
     simpa only [U, m] using
@@ -412,7 +412,7 @@ theorem exists_roundedEllipsoidTerminalCubeSolutionAtGeneration
   have hweakRounded :
       IsWeakSolutionOn (aRounded.coeffOn Q).toCoeffField
         (openCubeSet Q) uRounded.grad :=
-    hweakRoundedRaw.congr_ae hcoeffAE Filter.EventuallyEq.rfl
+    hweakRoundedRaw.congr_ae hcoeffAE _root_.Filter.EventuallyEq.rfl
   have hEll : IsAEEllipticFieldOn
       (aRounded.coeffOn Q).lam (aRounded.coeffOn Q).Lam
       (openCubeSet Q) (aRounded.coeffOn Q).toCoeffField := by

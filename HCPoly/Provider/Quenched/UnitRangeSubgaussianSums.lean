@@ -156,13 +156,15 @@ theorem hasSubgaussianMGF_sum_standardCell_colour
   have hYloc : ∀ w, @Measurable (CoeffSpace d) ℝ (coeffSigma d (U w)) _ (Y w) := by
     intro w
     by_cases hw : col w = c
-    · simpa [hU, hY, hw] using hXloc w
+    · have hUw : U w = standardCell d k w := by simp [hU, hw]
+      rw [hUw]
+      simpa [hY, hw] using hXloc w
     · simp only [hY, if_neg hw]
       exact measurable_const
   have hYbd : ∀ w, ∀ᵐ a ∂P, |Y w a| ≤ 1 := by
     intro w
     by_cases hw : col w = c
-    · simpa [hY, hw] using hXbd w
+    · simpa [hY, hw] using! hXbd w
     · simp [hY, hw]
   have hYmean : ∀ w, ∫ a, Y w a ∂P = 0 := by
     intro w

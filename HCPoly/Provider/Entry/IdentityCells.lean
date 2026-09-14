@@ -224,12 +224,16 @@ theorem annealedBlock_centeredCube_le_of_nonneg [NeZero d] {P : Measure (CoeffSp
       Integrable (fun a => toFullBlockMat (coarseBlock (adaptedCellAt (1 : Mat d) j w) a)) P :=
     fun w hw => integrable_toFullBlockMat (hcell w hw)
   have hsum : Integrable
-      (fun a => ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt (1 : Mat d) j w) a)) P :=
-    integrable_finset_sum Z hterm
+      (fun a => ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt (1 : Mat d) j w) a)) P := by
+    refine integrable_of_entries fun p q => ?_
+    simp only [Matrix.sum_apply, toFullBlockMat_eq_blockMatEntry]
+    exact integrable_finsetSum Z (fun w hw => hcell w hw p q)
   have hgint : Integrable
       (fun a => (Z.card : ℝ)⁻¹ •
-        ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt (1 : Mat d) j w) a)) P :=
-    hsum.smul ((Z.card : ℝ)⁻¹)
+        ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt (1 : Mat d) j w) a)) P := by
+    refine integrable_of_entries fun p q => ?_
+    simp only [Matrix.smul_apply, smul_eq_mul, Matrix.sum_apply, toFullBlockMat_eq_blockMatEntry]
+    exact (integrable_finsetSum Z (fun w hw => hcell w hw p q)).const_mul _
   have hle : ∀ a : CoeffSpace d,
       toFullBlockMat (coarseBlock (adaptedCell (1 : Mat d) p) a) ≤
         (Z.card : ℝ)⁻¹ •
@@ -248,9 +252,24 @@ theorem annealedBlock_centeredCube_le_of_nonneg [NeZero d] {P : Measure (CoeffSp
   have haver : ∫ a, (Z.card : ℝ)⁻¹ •
       ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt (1 : Mat d) j w) a) ∂P =
         toFullBlockMat (annealedBlock P (centeredCube d j)) := by
-    rw [integral_smul, integral_finset_sum _ hterm, Finset.sum_congr rfl hval,
-      Finset.sum_const, ← Nat.cast_smul_eq_nsmul ℝ, smul_smul,
-      inv_mul_cancel₀ hcardpos.ne', one_smul]
+    ext p q
+    have hlhs : (∫ a, (Z.card : ℝ)⁻¹ •
+        ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt (1 : Mat d) j w) a) ∂P) p q =
+          ∫ a, (Z.card : ℝ)⁻¹ *
+            ∑ w ∈ Z, blockMatEntry (coarseBlock (adaptedCellAt (1 : Mat d) j w) a) p q ∂P := by
+      rw [entry_integral hgint p q]
+      refine integral_congr_ae (Filter.Eventually.of_forall fun a => ?_)
+      simp only [Matrix.smul_apply, smul_eq_mul, Matrix.sum_apply, toFullBlockMat_eq_blockMatEntry]
+    have hentry : ∀ w ∈ Z,
+        ∫ a, blockMatEntry (coarseBlock (adaptedCellAt (1 : Mat d) j w) a) p q ∂P =
+          blockMatEntry (annealedBlock P (centeredCube d j)) p q := by
+      intro w hw
+      have h := (entry_integral (hterm w hw) p q).symm.trans
+        (congrFun (congrFun (hval w hw) p) q)
+      simpa only [toFullBlockMat_eq_blockMatEntry] using h
+    rw [hlhs, integral_const_mul, integral_finsetSum Z (fun w hw => hcell w hw p q),
+      Finset.sum_congr rfl hentry, Finset.sum_const, nsmul_eq_mul, ← mul_assoc,
+      inv_mul_cancel₀ hcardpos.ne', one_mul, toFullBlockMat_eq_blockMatEntry]
   rw [haver, Initialization.adaptedCell_one] at hmono
   refine blockMatLoewnerLE_of_le ?_
   rw [toFullBlockMat_annealedBlock hintp]

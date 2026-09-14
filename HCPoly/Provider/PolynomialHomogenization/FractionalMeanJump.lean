@@ -59,7 +59,7 @@ private theorem eLpNorm_two_eq_rpow
     {A : Type*} [MeasurableSpace A]
     {E : Type*} [NormedAddCommGroup E] (f : A → E) (mu : Measure A) :
     eLpNorm f 2 mu = (∫⁻ x, ‖f x‖ₑ ^ (2 : ℝ) ∂mu) ^ (1 / (2 : ℝ)) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   norm_num
 
 private theorem enorm_integral_rpow_two_le
@@ -102,7 +102,7 @@ private theorem enorm_hilbertVec_sub_sq (v w : Vec d) :
   have hsub : HilbertVec.ofVec v - HilbertVec.ofVec w =
       HilbertVec.ofVec (v - w) :=
     ((HilbertVec.ofVecL d).map_sub v w).symm
-  rw [hsub, ← ofReal_norm_eq_enorm, ← ENNReal.ofReal_pow (norm_nonneg _)]
+  rw [hsub, ← ofReal_norm, ← ENNReal.ofReal_pow (norm_nonneg _)]
   congr 1
   simpa [vecNormSq, vecDot, HilbertVec.ofVec, PiLp.toLp_apply, pow_two] using
     HilbertVec.norm_sq_eq_sum_sq (HilbertVec.ofVec (v - w))
@@ -125,9 +125,9 @@ theorem ofReal_vecNormSq_sub_volumeAverageVec_le_crossAverage
   let muF := normalizedSetMeasure F
   let GH : Vec d → HilbertVec d := fun x => HilbertVec.ofVec (G x)
   let mF : HilbertVec d := ∫ y, GH y ∂muF
-  haveI hmuE : IsProbabilityMeasure muE :=
+  have hmuE : IsProbabilityMeasure muE :=
     isProbabilityMeasure_normalizedSetMeasure hEpos hEtop
-  haveI hmuF : IsProbabilityMeasure muF :=
+  have hmuF : IsProbabilityMeasure muF :=
     isProbabilityMeasure_normalizedSetMeasure hFpos hFtop
   have hGHEvol : Integrable GH (volume.restrict E) :=
     (HilbertVec.ofVecL d).integrable_comp hGE

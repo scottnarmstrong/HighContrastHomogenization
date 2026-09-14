@@ -61,7 +61,8 @@ theorem jointTargetHarmonicGradient_eq_restricted_outer
         (finiteAffineCorrectionJointLocalCubeSolution a hCauchy e m).toH1.coeFn_gradToHilbertVectorL2.filter_mono
           (ae_mono (Measure.restrict_mono_set volume (localGradientCube_mono hqm)))]
       with x hleft hright houter
-    rw [hleft, hright, houter, finiteCubeSolutionRestriction_grad]
+    rw [hleft, finiteCubeSolutionRestriction_grad]
+    exact houter.symm.trans hright.symm
   rw [hrestrict]
   have hm' :
       (finiteAffineCorrectionJointLocalCubeSolution a hCauchy e m).toH1.gradToHilbertVectorL2 =

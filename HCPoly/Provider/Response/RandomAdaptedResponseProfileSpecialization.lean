@@ -236,10 +236,9 @@ theorem profile_response_sup_of_pre_young
   have hCprof := (exists_profile_response_constant hd).choose_spec.1
   have hprofileResponse := (exists_profile_response_constant hd).choose_spec.2
   refine ⟨hCprof, ?_⟩
-  dsimp only
   intro S SStar K hS hStar hEtform
-  letI : IsProbabilityMeasure P := hP
-  haveI : NeZero d := ⟨by omega⟩
+  let _ : IsProbabilityMeasure P := hP
+  have _ : NeZero d := ⟨by omega⟩
   have hm0pd' : m0.PosDef := by
     rw [hm0eq]
     exact posDef_canonMetric (posDef_toFullBlockMat hE0symm hE0pd)
@@ -605,7 +604,7 @@ theorem profile_response_sup_of_pre_young
         Sum.elim (-(pLoad e)) (rMinus e) ≤
           4 * Real.sqrt (relSize B SStar) := by
       simpa only [pLoad, rLoad, rMinus, Ehat, G0, B, rSym,
-        hRsp, responseSkew] using hloadSq.1
+        hRsp, responseSkew] using! hloadSq.1
     have hraw := (defect_bounds (Ethat := Ehat) (Eshat := Eshat)
       hEhatPos.posSemidef hhatTS hrhoPowOne hhatLoss
       (Sum.elim (-(pLoad e)) (rMinus e)) hload).2
@@ -639,7 +638,7 @@ theorem profile_response_sup_of_pre_young
         Sum.elim (pLoad e) (rPlus e) ≤
           4 * Real.sqrt (relSize B SStar) := by
       simpa only [pLoad, rLoad, rPlus, Ehat, G0, B, rSym,
-        hRsp, responseSkew] using hloadSq.2
+        hRsp, responseSkew] using! hloadSq.2
     have hraw := (defect_bounds (Ethat := Ehat) (Eshat := Eshat)
       hEhatPos.posSemidef hhatTS hrhoPowOne hhatLoss
       (Sum.elim (pLoad e) (rPlus e)) hload).2
@@ -680,7 +679,7 @@ theorem profile_response_sup_of_pre_young
         Sum.elim (-(pLoad e)) (rMinus e) ≤
           4 * Real.sqrt (relSize B SStar) := by
       simpa only [pLoad, rLoad, rMinus, Ehat, G0, B, rSym,
-        hRsp, responseSkew] using hloadSq.1
+        hRsp, responseSkew] using! hloadSq.1
     have hchain := energy_chain hnonneg' hid' hload
     change EJMinus e ≤ AStar *
       Real.sqrt (blockImbalance (adaptedMean P q s))
@@ -699,7 +698,7 @@ theorem profile_response_sup_of_pre_young
         Sum.elim (pLoad e) (rPlus e) ≤
           4 * Real.sqrt (relSize B SStar) := by
       simpa only [pLoad, rLoad, rPlus, Ehat, G0, B, rSym,
-        hRsp, responseSkew] using hloadSq.2
+        hRsp, responseSkew] using! hloadSq.2
     have hchain := energy_chain hnonneg' hid' hload
     change EJPlus e ≤ AStar *
       Real.sqrt (blockImbalance (adaptedMean P q s))
@@ -727,7 +726,7 @@ theorem profile_response_sup_of_pre_young
         Sum.elim (-(pLoad e)) (rMinus e) ≤
           4 * Real.sqrt (relSize B SStar) := by
       simpa only [pLoad, rLoad, rMinus, Ehat, G0, B, rSym,
-        hRsp, responseSkew] using hloadSq.1
+        hRsp, responseSkew] using! hloadSq.1
     have hcenterMetric : Sum.elim (centerMinus e).1 (centerMinus e).2 ⬝ᵥ
         M0 *ᵥ Sum.elim (centerMinus e).1 (centerMinus e).2 ≤
           8 * beta * (Real.sqrt (blockImbalance (adaptedMean P q t)) + 1) *
@@ -765,7 +764,7 @@ theorem profile_response_sup_of_pre_young
           profileQuadraticLoad
             (profileRecenteredMean P q (canonicalShear E0) s)
             (centerMinus e).1 (centerMinus e).2) := by
-      simpa only [rowMinus, centerMinus, h0] using hrows.1.2
+      simpa only [rowMinus, centerMinus, h0] using! hrows.1.2
     have hcompare : blockImbalance (adaptedMean P q t) ≤
         (1 + deltaDet) ^ (d : ℝ) * blockImbalance (adaptedMean P q s) :=
       hcomp.1.trans (mul_le_mul_of_nonneg_right hrhoPow
@@ -815,7 +814,7 @@ theorem profile_response_sup_of_pre_young
         Sum.elim (pLoad e) (rPlus e) ≤
           4 * Real.sqrt (relSize B SStar) := by
       simpa only [pLoad, rLoad, rPlus, Ehat, G0, B, rSym,
-        hRsp, responseSkew] using hloadSq.2
+        hRsp, responseSkew] using! hloadSq.2
     have hcenterMetric : Sum.elim (centerPlus e).1 (centerPlus e).2 ⬝ᵥ
         M0 *ᵥ Sum.elim (centerPlus e).1 (centerPlus e).2 ≤
           8 * beta * (Real.sqrt (blockImbalance (adaptedMean P q t)) + 1) *
@@ -868,7 +867,7 @@ theorem profile_response_sup_of_pre_young
           profileQuadraticLoad
             (profileRecenteredAdjointMean P q (canonicalShear E0) s)
             (centerPlus e).1 (centerPlus e).2) := by
-      simpa only [rowPlus, centerPlus, h0] using hrows.2.2
+      simpa only [rowPlus, centerPlus, h0] using! hrows.2.2
     have hcompare : blockImbalance (adaptedMean P q t) ≤
         (1 + deltaDet) ^ (d : ℝ) * blockImbalance (adaptedMean P q s) :=
       hcomp.1.trans (mul_le_mul_of_nonneg_right hrhoPow
@@ -917,7 +916,7 @@ theorem profile_response_sup_of_pre_young
         Sum.elim (-(pLoad e)) (rMinus e) ≤
           4 * Real.sqrt (relSize B SStar) := by
       simpa only [pLoad, rLoad, rMinus, Ehat, G0, B, rSym,
-        hRsp, responseSkew] using hloadSq.1
+        hRsp, responseSkew] using! hloadSq.1
     have hLenSq : LenM ^ 2 ≤ 4 * Real.sqrt (relSize B SStar) := by
       rw [sq_diagonalWeakLoadMinus hFhat.1 hFhat.2,
         blockVecDot_blockMatVecMul_eq_dotProduct]
@@ -937,7 +936,7 @@ theorem profile_response_sup_of_pre_young
     have hpair : vecDot (pLoad e) (rMinus e) = 1 := by
       simpa only [pLoad, rLoad, rMinus, rSym, B, centeredResponseLoadP,
         centeredResponseLoadQ, centeredResponseMetric,
-        centeredResponseBlock, responseSymmetric] using
+        centeredResponseBlock, responseSymmetric] using!
         dotProduct_signed_load (centeredResponseMetric_posDef hS hStar K)
           (skew_sub (by exact hg0) (is_skew_mat_response_skew K)) rfl rfl he
     have hLamRaw : LamM ≤
@@ -1113,9 +1112,9 @@ theorem profile_response_sup_of_pre_young
           (mul_nonneg (mul_nonneg hcconst0 hKStar0) hLenStar0) hetaRoot0)
     have hcell' : cell ≤ ENNReal.ofReal Scen * centeredRoot +
         ENNReal.ofReal Scell * nonlinearRoot := by
-      simpa only [cell, Ucell, Scen, Scell, Ft] using hcell
+      simpa only [cell, Ucell, Scen, Scell, Ft] using! hcell
     have hav' : average ≤ ENNReal.ofReal Sav * nonlinearHalf := by
-      simpa only [average, Uav, Sav, Ft, one_div] using hav
+      simpa only [average, Uav, Sav, Ft, one_div] using! hav
     have hcenter' : center ≤ ENNReal.ofReal (Kfac * LenM) *
         centeredRoot := by
       simpa only [center, Kfac, LenM, centeredRoot, Fhat, Ft,
@@ -1127,7 +1126,7 @@ theorem profile_response_sup_of_pre_young
       simpa only [Cprof, N, cell, average, bad, good, center, Kfac, LenM,
         LamM, Fhat, Ft, Mtot, Ucell, Uav, Eminus, cconst, centerMinus,
         h0, initExpA,
-        ← profileHattedBlock_adaptedMean, profileHattedBlock] using hN
+        ← profileHattedBlock_adaptedMean, profileHattedBlock] using! hN
     exact weak_quantity_le_rstar_sq_of_profile
       (W := weakMinus e) (N := N) (cell := cell) (average := average)
       (bad := bad) (good := good) (center := center)
@@ -1191,7 +1190,7 @@ theorem profile_response_sup_of_pre_young
         Sum.elim (pLoad e) (rPlus e) ≤
           4 * Real.sqrt (relSize B SStar) := by
       simpa only [pLoad, rLoad, rPlus, Ehat, G0, B, rSym,
-        hRsp, responseSkew] using hloadSq.2
+        hRsp, responseSkew] using! hloadSq.2
     have hLenSq : LenP ^ 2 ≤ 4 * Real.sqrt (relSize B SStar) := by
       rw [sq_diagonalWeakLoadPlus hFhat.1 hFhat.2,
         blockVecDot_blockMatVecMul_eq_dotProduct]
@@ -1211,7 +1210,7 @@ theorem profile_response_sup_of_pre_young
     have hpair : vecDot (pLoad e) (rPlus e) = 1 := by
       simpa only [pLoad, rLoad, rPlus, rSym, B, centeredResponseLoadP,
         centeredResponseLoadQ, centeredResponseMetric,
-        centeredResponseBlock, responseSymmetric] using
+        centeredResponseBlock, responseSymmetric] using!
         dotProduct_signed_load (centeredResponseMetric_posDef hS hStar K)
           (skew_sub (is_skew_mat_response_skew K) (by exact hg0)) rfl rfl he
     have hLamRaw : LamP ≤
@@ -1364,9 +1363,9 @@ theorem profile_response_sup_of_pre_young
           hetaRoot0)
     have hcell' : cell ≤ ENNReal.ofReal Scen * centeredRoot +
         ENNReal.ofReal Scell * nonlinearRoot := by
-      simpa only [cell, Ucell, Scen, Scell, Ft] using hcell
+      simpa only [cell, Ucell, Scen, Scell, Ft] using! hcell
     have hav' : average ≤ ENNReal.ofReal Sav * nonlinearHalf := by
-      simpa only [average, Uav, Sav, Ft, one_div] using hav
+      simpa only [average, Uav, Sav, Ft, one_div] using! hav
     have hcenter' : center ≤ ENNReal.ofReal (Kfac * LenP) * centeredRoot := by
       simpa only [center, Kfac, LenP, centeredRoot, Fhat, Ft,
         ← profileHattedBlock_adaptedMean, profileHattedBlock] using hcenter.2
@@ -1377,7 +1376,7 @@ theorem profile_response_sup_of_pre_young
       simpa only [Cprof, N, cell, average, bad, good, center, Kfac, LenP,
         LamP, Fhat, Ft, Mtot, Ucell, Uav, Eplus, cconst, centerPlus,
         h0, initExpA, ← profileHattedBlock_adaptedMean,
-        profileHattedBlock] using hN
+        profileHattedBlock] using! hN
     exact weak_quantity_le_rstar_sq_of_profile
       (W := weakPlus e) (N := N) (cell := cell) (average := average)
       (bad := bad) (good := good) (center := center)

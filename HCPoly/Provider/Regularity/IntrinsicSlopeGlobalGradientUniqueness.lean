@@ -28,8 +28,8 @@ theorem localGradientClassAverage_eq_globalFullGradientAverage
     {d : ℕ} [NeZero d] (e : Vec d) (z : NormalizedLocalH1Carrier d)
     (n : ℕ) :
     localGradientClassAverage
-        ((show LocalGradientL2 d n from by
-            simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
+        ((show LocalGradientL2 d n from
+            Eq.mp (by simp only [LocalGradientL2, localGradientCube, Book.Ch02.cubeDomain_coe]; rfl)
               (finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2) +
           z.gradientComponent n) =
       cubeAverageVec (originCube d (n : ℤ))

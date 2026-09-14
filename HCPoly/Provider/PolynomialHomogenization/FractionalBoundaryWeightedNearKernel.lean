@@ -68,7 +68,7 @@ theorem exists_bound_lintegral_near_fractionalBoundaryKernel
       · apply ENNReal.ofReal_le_ofReal
         have hnorm : 0 < ‖x - y‖ := norm_pos_iff.mpr (sub_ne_zero.mpr hxy)
         have hle : ‖x - y‖ ≤ euclideanDist x y := by
-          simpa only [euclideanDist] using norm_le_sqrt_vecNormSq (x - y)
+          simpa only [euclideanDist] using! norm_le_sqrt_vecNormSq (x - y)
         exact Real.rpow_le_rpow_of_nonpos hnorm hle he0.le
     exact mul_le_mul' hkernel hweight
   calc

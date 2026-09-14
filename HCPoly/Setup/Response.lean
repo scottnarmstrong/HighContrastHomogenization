@@ -191,7 +191,7 @@ theorem blockVecDot_blockMatVecMul_annealedBlock
   have hrow : ∀ α : BlockCoord d,
       Integrable (fun a => ∑ β : BlockCoord d, toFullBlockVec X α *
         (blockMatEntry (coarseBlock U a) α β * toFullBlockVec X β)) P :=
-    fun α => integrable_finset_sum _ fun β _ => hterm α β
+    fun α => integrable_finsetSum _ fun β _ => hterm α β
   calc blockVecDot X (blockMatVecMul (annealedBlock P U) X)
       = ∑ α : BlockCoord d, ∑ β : BlockCoord d,
           toFullBlockVec X α *
@@ -206,11 +206,11 @@ theorem blockVecDot_blockMatVecMul_annealedBlock
     _ = ∫ a, ∑ α : BlockCoord d, ∑ β : BlockCoord d,
           toFullBlockVec X α *
             (blockMatEntry (coarseBlock U a) α β * toFullBlockVec X β) ∂P := by
-        rw [integral_finset_sum _ fun α _ => hrow α]
+        rw [integral_finsetSum _ fun α _ => hrow α]
         exact Finset.sum_congr rfl fun α _ =>
-          (integral_finset_sum _ fun β _ => hterm α β).symm
+          (integral_finsetSum _ fun β _ => hterm α β).symm
     _ = ∫ a, blockVecDot X (blockMatVecMul (coarseBlock U a) X) ∂P :=
-        integral_congr_ae (Filter.Eventually.of_forall fun a =>
+        integral_congr_ae (_root_.Filter.Eventually.of_forall fun a =>
           (blockVecDot_blockMatVecMul_eq_sum (coarseBlock U a) X).symm)
 
 /-- **The positivity of the annealed block.**  The expectation of an integrable
@@ -231,16 +231,16 @@ theorem blockPosDef_annealedBlock
         Integrable (fun a => toFullBlockVec X α *
           (blockMatEntry (coarseBlock U a) α β * toFullBlockVec X β)) P :=
       fun α β => ((hint α β).mul_const (toFullBlockVec X β)).const_mul _
-    have hsum := integrable_finset_sum (μ := P) Finset.univ
+    have hsum := integrable_finsetSum (μ := P) Finset.univ
       fun α (_ : α ∈ (Finset.univ : Finset (BlockCoord d))) =>
-        integrable_finset_sum (μ := P) Finset.univ fun β _ => hterm α β
-    refine hsum.congr (Filter.Eventually.of_forall fun a => ?_)
+        integrable_finsetSum (μ := P) Finset.univ fun β _ => hterm α β
+    refine hsum.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
     rw [hf]
     exact (blockVecDot_blockMatVecMul_eq_sum _ X).symm
   have hsupp : Function.support f = Set.univ :=
     Set.eq_univ_of_forall fun a => ne_of_gt (hfpos a)
   refine (integral_pos_iff_support_of_nonneg_ae
-    (Filter.Eventually.of_forall fun a => (hfpos a).le) hfint).2 ?_
+    (_root_.Filter.Eventually.of_forall fun a => (hfpos a).le) hfint).2 ?_
   rw [hsupp]
   simp [measure_univ]
 

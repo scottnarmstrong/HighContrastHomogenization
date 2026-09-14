@@ -31,10 +31,9 @@ private theorem memVectorL2_constMatVecMul (A : Mat d) {U : Set (Vec d)}
   let L : Vec d →L[ℝ] Vec d :=
     LinearMap.toContinuousLinearMap (Matrix.mulVecLin A)
   refine MemLp.of_le_mul (c := ‖L‖) hv ?_ ?_
-  · simpa only [L, matVecMul] using
-      L.continuous.comp_aestronglyMeasurable hv.aestronglyMeasurable
+  · exact (continuous_matVecMul A).comp_aestronglyMeasurable hv.aestronglyMeasurable
   · filter_upwards [] with x
-    simpa only [L, matVecMul] using L.le_opNorm (v x)
+    simpa only [L, matVecMul] using! L.le_opNorm (v x)
 
 /-- An aligned child label gives the corresponding ordinary descendant of the
 terminal reference cube. -/
@@ -192,16 +191,18 @@ theorem ofReal_abs_volumeAverage_adaptedCellAt_cutoffOscillation_le
     cubeAverage_le_of_le R hphiInt (fun y ↦ adaptedPreYoungCutoff_le_two hq t _)
   have hfTopR : MemLp f ∞ (normalizedCubeMeasure R) := by
     apply memLp_top_of_bound (hphiCont.sub continuous_const).aestronglyMeasurable 2
-    exact Filter.Eventually.of_forall fun y ↦ by
+    exact _root_.Filter.Eventually.of_forall fun y ↦ by
       rw [Real.norm_eq_abs, abs_le]
-      constructor <;>
-        linarith only [adaptedPreYoungCutoff_nonneg hq t (matVecMul q y),
-          adaptedPreYoungCutoff_le_two hq t (matVecMul q y), hphiAvg0, hphiAvg2]
+      constructor
+      · change -2 ≤ adaptedPreYoungCutoff q hq t (matVecMul q y) - cubeAverage R phi
+        linarith only [adaptedPreYoungCutoff_nonneg hq t (matVecMul q y), hphiAvg2]
+      · change adaptedPreYoungCutoff q hq t (matVecMul q y) - cubeAverage R phi ≤ 2
+        linarith only [adaptedPreYoungCutoff_le_two hq t (matVecMul q y), hphiAvg0]
   have hf : MemLp f 1 (normalizedCubeMeasure R) :=
     hfTopR.mono_exponent (by norm_num)
   have hfInt : IntegrableOn f (cubeSet R) volume :=
     (hphiInt.sub (integrableOn_const (volume_cubeSet_lt_top R).ne)).congr
-      (Filter.Eventually.of_forall fun y ↦ rfl)
+      (_root_.Filter.Eventually.of_forall fun y ↦ rfl)
   have hfBound : ∀ y ∈ cubeSet R, |f y| ≤ 2 := by
     intro y hy
     rw [abs_le]
@@ -211,11 +212,11 @@ theorem ofReal_abs_volumeAverage_adaptedCellAt_cutoffOscillation_le
   have hfFluct : ∀ j : ℕ, ∀ T ∈ descendantsAtDepth R j,
       MemLp (cubeFluctuation T f) ∞ (normalizedCubeMeasure T) := by
     intro j T hT
-    simpa only [cubeFluctuation] using
-      (memLp_on_descendant_of_memLp hT hfTopR).sub
-        (memLp_const (cubeAverage T f))
+    change MemLp (f - fun x => cubeAverage T f) ∞ (normalizedCubeMeasure T)
+    exact (memLp_on_descendant_of_memLp hT hfTopR).sub
+      (memLp_const (cubeAverage T f))
   have hmean : cubeAverage R f = 0 := by
-    simpa only [f, cubeFluctuation] using cubeAverage_cubeFluctuation R phi
+    simpa only [f, cubeFluctuation] using! cubeAverage_cubeFluctuation R phi
   have hres : ∀ j : ℕ, ∀ y ∈ cubeSet R,
       |cubeProjectionResidual R j f y| ≤
         K * cubeBesovCircDepthWeight R (1 / 2) (j + 1) := by
@@ -223,7 +224,7 @@ theorem ofReal_abs_volumeAverage_adaptedCellAt_cutoffOscillation_le
     obtain ⟨T, hT, hyT⟩ := exists_mem_descendantsAtDepth_of_mem_cubeSet j hy
     have hphiTopT : MemLp phi ∞ (normalizedCubeMeasure T) := by
       apply memLp_top_of_bound hphiCont.aestronglyMeasurable 2
-      exact Filter.Eventually.of_forall fun z ↦ by
+      exact _root_.Filter.Eventually.of_forall fun z ↦ by
         rw [Real.norm_eq_abs, abs_of_nonneg (adaptedPreYoungCutoff_nonneg hq t _)]
         exact adaptedPreYoungCutoff_le_two hq t _
     have hphiTwoT : MemLp phi 2 (normalizedCubeMeasure T) :=
@@ -282,14 +283,14 @@ theorem ofReal_abs_volumeAverage_adaptedCellAt_cutoffOscillation_le
         change Integrable (fun y ↦ (F (matVecMul q y)).1 i)
           (volume.restrict (cubeSet R))
         rw [volume_restrict_cubeSet_eq_volume_restrict_openCubeSet]
-        simpa only [adaptedDomainAt_carrier, hidentityCell] using hi
+        simpa only [adaptedDomainAt_carrier, hidentityCell] using! hi
     | inr i =>
         have hi := integrableOn_component
           (U := adaptedDomainAt Matrix.PosDef.one s w) hpull₂ i
         change Integrable (fun y ↦ (F (matVecMul q y)).2 i)
           (volume.restrict (cubeSet R))
         rw [volume_restrict_cubeSet_eq_volume_restrict_openCubeSet]
-        simpa only [adaptedDomainAt_carrier, hidentityCell] using hi
+        simpa only [adaptedDomainAt_carrier, hidentityCell] using! hi
   have hchild : ∀ N : ℕ,
       ENNReal.ofReal (cubeBesovCircPartialNorm R (1 / 2) 1 1 N G) ≤ B := by
     intro N

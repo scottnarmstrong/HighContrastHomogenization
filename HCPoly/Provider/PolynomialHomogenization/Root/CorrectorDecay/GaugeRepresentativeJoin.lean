@@ -178,7 +178,7 @@ theorem physicalPair_le_identityGaugePair
     memVectorL2_const eRef
   have hfull : MemVectorL2 (openCubeSet Q)
       (fun y ↦ eRef + F y) := by
-    simpa only [Pi.add_apply] using hconst.add hF
+    simpa only [Pi.add_apply] using! hconst.add hF
   have hpublic : MemVectorL2 (openCubeSet Q) (fun y ↦
       matVecMul (Book.Ch03.publicCoeffField Q aIdentity y)
         (eRef + F y) - eRef) :=

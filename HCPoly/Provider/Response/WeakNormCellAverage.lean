@@ -108,7 +108,7 @@ estimate does to the optimizer state. -/
 theorem memVectorL2_sub_const {U : Set (Vec d)} (hU : IsOpenBoundedConvexDomain U)
     {F : Vec d → Vec d} (hF : MemVectorL2 U F) (c : Vec d) :
     MemVectorL2 U (fun x => F x - c) := by
-  letI : MeasureTheory.IsFiniteMeasure (volumeMeasureOn U) := hU.isFiniteMeasure_restrict_volume
+  let : MeasureTheory.IsFiniteMeasure (volumeMeasureOn U) := hU.isFiniteMeasure_restrict_volume
   exact hF.sub (MeasureTheory.memLp_const c)
 
 /-- **The cell average of a centered field**: subtracting a constant from a

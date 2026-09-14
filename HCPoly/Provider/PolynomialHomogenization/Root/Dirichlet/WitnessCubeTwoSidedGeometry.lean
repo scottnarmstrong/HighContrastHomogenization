@@ -161,7 +161,7 @@ theorem two_mul_rho_le_cubeScale [NeZero d] {abar : Mat d}
   have hgauge := gaugeDomain_eq_translateSet hS hU
   have hpow : (0 : ℝ) < (3 : ℝ) ^ j := by positivity
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   set t : ℝ := ((3 : ℝ) ^ j / 2 + rho) / 2 with htdef
   have ht0 : 0 ≤ t := by
     rw [htdef]

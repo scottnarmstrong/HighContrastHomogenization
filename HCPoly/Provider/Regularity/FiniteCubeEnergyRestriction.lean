@@ -76,8 +76,8 @@ theorem localSymmetricEnergyENorm_eq_ofReal_h1EnergyNormOnCube
     exact cubeAverage_coefficientEnergyDensity_nonneg_of_isEllipticFieldOn Q
       (Book.Ch03.publicCoeffField Q a) u.grad
       (Book.Ch03.publicCoeffField_isEllipticFieldOn_cubeSet Q a)
-  rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_ofReal_cubeAverage_coefficientEnergyDensity,
-    havg]
+  rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_ofReal_cubeAverage_coefficientEnergyDensity
+    (u := (u : H1Function (openCubeSet Q))), havg]
   unfold Book.Ch03.h1EnergyNormOnCube
   rw [Real.sqrt_eq_rpow, ENNReal.ofReal_rpow_of_nonneg hX (by norm_num)]
 
@@ -88,7 +88,8 @@ theorem weightedGradNorm_eq_ofReal_h1EnergyNormOnCube
     (u : H1Function (Book.Ch02.cubeDomain Q : Set (Vec d))) :
     weightedGradNorm (a.coeffOn Q).toCoeffField (openCubeSet Q) u.grad =
       ENNReal.ofReal (Book.Ch03.h1EnergyNormOnCube Q a u) := by
-  rw [weightedGradNorm_eq_localSymmetricEnergyENorm,
+  rw [weightedGradNorm_eq_localSymmetricEnergyENorm
+      (u := (u : H1Function (openCubeSet Q))),
     localSymmetricEnergyENorm_eq_ofReal_h1EnergyNormOnCube]
 
 /-- Restricting a centered-cube solution to its centered child loses at most
@@ -108,7 +109,7 @@ theorem h1EnergyNormOnCube_finiteCubeSolutionRestriction_sub_one_le
   let f : Vec d → ℝ≥0∞ := fun x ↦ ENNReal.ofReal
     (coefficientEnergyDensity (a.coeffOn Q).toCoeffField u.toH1.grad x)
   have hRQ : R = CubeCalderonZygmund.centralDescendant Q 1 := by
-    simpa only [Q, R, pow_one, show m - (1 : ℤ) = m - 1 by ring] using
+    simpa only [Q, R, pow_one, show m - ((1 : ℕ) : ℤ) = m - 1 by simp] using
       (centralDescendant_originCube_eq_originCube_sub (d := d) m 1).symm
   have hsub : openCubeSet R ⊆ openCubeSet Q := by
     simpa only [Q, R] using
@@ -116,15 +117,16 @@ theorem h1EnergyNormOnCube_finiteCubeSolutionRestriction_sub_one_le
   have hcoeffVol : (a.coeffOn R).toCoeffField
       =ᵐ[volumeMeasureOn (openCubeSet R)] (a.coeffOn Q).toCoeffField :=
     a.restrictsTo_of_subset hsub
-  have hcoeff : (a.coeffOn R).toCoeffField
-      =ᵐ[normalizedCubeMeasure R] (a.coeffOn Q).toCoeffField := by
+  have hcoeff : ∀ᵐ x ∂normalizedCubeMeasure R,
+      (a.coeffOn R).toCoeffField x = (a.coeffOn Q).toCoeffField x := by
     simpa only [volumeMeasureOn, normalizedCubeMeasure, cubeMeasure,
       volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using
       MeasureTheory.Measure.ae_smul_measure hcoeffVol
         (ENNReal.ofReal ((cubeVolume R)⁻¹))
   have hinner : Book.Ch03.ABK26.localSymmetricEnergyENorm R (a.coeffOn R) uR.toH1 =
       (∫⁻ x, f x ∂normalizedCubeMeasure R) ^ (1 / 2 : ℝ) := by
-    rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_coefficientEnergyDensity]
+    rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_coefficientEnergyDensity
+      (u := (uR.toH1 : H1Function (openCubeSet R)))]
     congr 1
     apply lintegral_congr_ae
     filter_upwards [hcoeff] with x hx
@@ -149,7 +151,8 @@ theorem h1EnergyNormOnCube_finiteCubeSolutionRestriction_sub_one_le
       A * Book.Ch03.ABK26.localSymmetricEnergyENorm Q (a.coeffOn Q) u.toH1 := by
     rw [hinner, hmeasure, MeasureTheory.lintegral_smul_measure, smul_eq_mul,
       ENNReal.mul_rpow_of_nonneg _ _ (by norm_num : (0 : ℝ) ≤ 1 / 2)]
-    rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_coefficientEnergyDensity]
+    rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_coefficientEnergyDensity
+      (u := (u.toH1 : H1Function (openCubeSet Q)))]
     exact mul_le_mul hAroot
       (ENNReal.rpow_le_rpow hrestrict (by norm_num))
       (by positivity) (by positivity)
@@ -200,8 +203,8 @@ theorem h1EnergyNormOnCube_finiteCubeSolutionRestriction_sub_nat_le
   have hcoeffVol : (a.coeffOn R).toCoeffField
       =ᵐ[volumeMeasureOn (openCubeSet R)] (a.coeffOn Q).toCoeffField :=
     a.restrictsTo_of_subset hsub
-  have hcoeff : (a.coeffOn R).toCoeffField
-      =ᵐ[normalizedCubeMeasure R] (a.coeffOn Q).toCoeffField := by
+  have hcoeff : ∀ᵐ x ∂normalizedCubeMeasure R,
+      (a.coeffOn R).toCoeffField x = (a.coeffOn Q).toCoeffField x := by
     simpa only [volumeMeasureOn, normalizedCubeMeasure, cubeMeasure,
       volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using
       MeasureTheory.Measure.ae_smul_measure hcoeffVol
@@ -209,7 +212,8 @@ theorem h1EnergyNormOnCube_finiteCubeSolutionRestriction_sub_nat_le
   have hinner : Book.Ch03.ABK26.localSymmetricEnergyENorm R
         (a.coeffOn R) uR.toH1 =
       (∫⁻ x, f x ∂normalizedCubeMeasure R) ^ (1 / 2 : ℝ) := by
-    rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_coefficientEnergyDensity]
+    rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_coefficientEnergyDensity
+      (u := (uR.toH1 : H1Function (openCubeSet R)))]
     congr 1
     apply lintegral_congr_ae
     filter_upwards [hcoeff] with x hx
@@ -236,7 +240,8 @@ theorem h1EnergyNormOnCube_finiteCubeSolutionRestriction_sub_nat_le
         (a.coeffOn Q) u.toH1 := by
     rw [hinner, hmeasure, MeasureTheory.lintegral_smul_measure, smul_eq_mul,
       ENNReal.mul_rpow_of_nonneg _ _ (by norm_num : (0 : ℝ) ≤ 1 / 2)]
-    rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_coefficientEnergyDensity]
+    rw [Book.Ch03.ABK26.localSymmetricEnergyENorm_eq_coefficientEnergyDensity
+      (u := (u.toH1 : H1Function (openCubeSet Q)))]
     exact mul_le_mul hAroot
       (ENNReal.rpow_le_rpow hrestrict (by norm_num))
       (by positivity) (by positivity)

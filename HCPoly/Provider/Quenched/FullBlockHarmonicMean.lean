@@ -206,9 +206,14 @@ theorem fullBlockArithmeticMean_sub_harmonicMean_le_averageQuadratic
     (b := b) G hb
   have hPSD := fullBlockHarmonicMean_quadratic_posSemidef
     (b := b) (G := G) hb hG
-  convert hPSD using 1
-  rw [hId]
-  noncomm_ring
+  have hEq : (N : ℝ)⁻¹ • (∑ i, (b i - G) * (b i)⁻¹ * (b i - G)) -
+      (fullBlockArithmeticMean b - fullBlockHarmonicMean b) =
+      (fullBlockHarmonicMean b - G) * (fullBlockHarmonicMean b)⁻¹ *
+        (fullBlockHarmonicMean b - G) := by
+    rw [hId]
+    noncomm_ring
+  rw [hEq]
+  exact hPSD
 
 end
 

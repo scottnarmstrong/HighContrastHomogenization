@@ -150,7 +150,7 @@ private theorem bigLambdaRef_blockScale {c : Real} (hc : 0 < c)
             (schurSigma E + matTranspose (schurSkew E - h) * E.lowerRight *
               (schurSkew E - h)) (t • (1 : Mat d))} := by
     ext t
-    simp only [Set.mem_setOf_eq, Set.mem_image, hmat]
+    simp only [Set.mem_ofPred_eq, Set.mem_image, hmat]
     constructor
     · rintro ⟨ht0, h, hh, hle⟩
       refine ⟨t / c, ⟨div_nonneg ht0 hc.le, h, hh, ?_⟩, by field_simp⟩
@@ -205,7 +205,7 @@ theorem blockContrast_blockScale_le {B : BlockMat d}
   have hrhs : (c ^ 2 * blockContrast B) * c⁻¹ = c * blockContrast B := by
     field_simp
   rw [hrhs]
-  simpa only [smul_smul] using hscaled
+  simpa only [smul_smul] using! hscaled
 
 end
 

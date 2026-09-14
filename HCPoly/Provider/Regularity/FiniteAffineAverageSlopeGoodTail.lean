@@ -79,7 +79,16 @@ private theorem normalizedFiniteCorrection_successor_gradient_eq_avg
         (finiteCubeSolutionRestriction a hrm
           (finiteAffineSuccessorDifference a
             ((q + k : ℕ) : ℤ) e)).toH1.gradToHilbertVectorL2 := by
-  rw [← gradToHilbertVectorL2_sub_avg,
+  let w : H1Function (localGradientCube d r) := by
+    simp only [localGradientCube]
+    exact (finiteCubeSolutionRestriction a hrm
+      (finiteAffineSuccessorDifference a ((q + k : ℕ) : ℤ) e)).toH1
+  have hcast :
+      (finiteCubeSolutionRestriction a hrm
+          (finiteAffineSuccessorDifference a
+            ((q + k : ℕ) : ℤ) e)).toH1.gradToHilbertVectorL2 =
+        w.gradToHilbertVectorL2 := rfl
+  rw [hcast, ← gradToHilbertVectorL2_sub_avg,
     localGradientRestrict_gradToHilbertVectorL2_restrictLocalH1]
   apply gradToHilbertVectorL2_eq_of_grad_eq_avg
   funext x
@@ -191,7 +200,7 @@ theorem exists_scalarIdentityGoodTailFiniteCorrectionGradientAverageConstant
               (finiteAffineCorrectionLocalSequence a e) q (j + 2)).2 =
           w.toH1.gradToHilbertVectorL2 := by
       simpa only [normalizedLocalPair, w, m,
-        localGradientRestrict_refl, ContinuousLinearMap.id_apply] using
+        localGradientRestrict_refl, ContinuousLinearMap.id_apply] using!
         normalizedFiniteCorrection_successor_gradient_eq_avg
           a e q (j + 2) q le_rfl (by omega)
     have havg : localGradientClassAverage w.toH1.gradToHilbertVectorL2 =
@@ -201,12 +210,15 @@ theorem exists_scalarIdentityGoodTailFiniteCorrectionGradientAverageConstant
         localGradientClassAverage w.toH1.gradToHilbertVectorL2 =
             cubeAverageVec (originCube d (q : ℤ)) w.toH1.grad := by
           simpa only [localGradientRestrict_refl, ContinuousLinearMap.id_apply]
-            using localGradientClassAverage_restrictedH1Gradient_avg le_rfl w.toH1
+            using! localGradientClassAverage_restrictedH1Gradient_avg le_rfl w.toH1
         _ = cubeAverageVec (originCube d (q : ℤ))
             (finiteAffineSuccessorDifference a m e).toH1.grad := by
           simp only [w, finiteCubeSolutionRestriction_grad]
     rw [← localGradientClassAverage_sub, hclass, havg]
-    dsimp only [epsilon, E, m]
+    dsimp only [epsilon, E]
+    have hm0 : ((q + (j + 2) : ℕ) : ℤ) = m := by dsimp only [m]; omega
+    have hmSucc : ((q + (j + 3) : ℕ) : ℤ) = m + 1 := by dsimp only [m]; omega
+    rw [hm0, hmSucc]
     convert hbound using 1
   have htelescope := norm_sub_le_sum_Ico_of_successive_norm_le
     x epsilon Cstep (euclideanNorm e) hsuccessive (Nat.zero_le t)

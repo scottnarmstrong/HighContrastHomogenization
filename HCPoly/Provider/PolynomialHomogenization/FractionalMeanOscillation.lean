@@ -31,7 +31,7 @@ private noncomputable def normalizedDomainMeasure (U : Set (Vec d)) :
 private theorem eLpNorm_two_eq_rpow {A : Type*} [MeasurableSpace A]
     {E : Type*} [NormedAddCommGroup E] (f : A → E) (mu : Measure A) :
     eLpNorm f 2 mu = (∫⁻ x, ‖f x‖ₑ ^ (2 : ℝ) ∂mu) ^ (1 / (2 : ℝ)) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   norm_num
 
 private theorem enorm_sub_integral_rpow_two_le
@@ -72,7 +72,7 @@ private theorem integral_normalizedDomainMeasure_eq_volumeAverageVec
 
 private theorem enorm_hilbertVec_sq (v : Vec d) :
     ‖HilbertVec.ofVec v‖ₑ ^ (2 : ℕ) = ENNReal.ofReal (vecNormSq v) := by
-  rw [← ofReal_norm_eq_enorm]
+  rw [← ofReal_norm]
   rw [← ENNReal.ofReal_pow (norm_nonneg _)]
   congr 1
   simpa [vecNormSq, vecDot, HilbertVec.ofVec, PiLp.toLp_apply, pow_two] using

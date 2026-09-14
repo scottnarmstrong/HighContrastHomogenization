@@ -170,7 +170,7 @@ theorem transport_definedness_and_bridge
                 (Homogenization.HighContrast.roundedGrid jStar mu)
                 (u + 2 * (l0 : ℤ)))
     := by
-  haveI : IsProbabilityMeasure P := hPprob
+  have : IsProbabilityMeasure P := hPprob
   have hQ1 : (1 : ℝ) ≤ (Q : ℝ) := by exact_mod_cast Nat.one_le_of_lt hQ
   obtain ⟨hdef, hmono⟩ := definedness_of_isWindowMultiplier hd hPstat hced.refBlock_isSymm
     hQ1 hw hY hmu hmu' hcont

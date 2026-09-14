@@ -56,7 +56,7 @@ theorem measurable_blockMatEntry_normalizedBlock_coarseBlock_standardCell
     @Measurable (CoeffSpace d) ℝ (coeffSigma d (standardCell d k w)) _
       (fun a => blockMatEntry
         (normalizedBlock (coarseBlock (standardCell d k w) a) E) α β) := by
-  letI : MeasurableSpace (CoeffSpace d) := coeffSigma d (standardCell d k w)
+  let : MeasurableSpace (CoeffSpace d) := coeffSigma d (standardCell d k w)
   have hrw : (fun a : CoeffSpace d => blockMatEntry
       (normalizedBlock (coarseBlock (standardCell d k w) a) E) α β)
       = fun a : CoeffSpace d => ∑ delta : BlockCoord d, ∑ gamma : BlockCoord d,
@@ -217,7 +217,7 @@ theorem measurable_blockMatEntry_blockCutoff_of_local {U : Set (Vec d)} (B : ℝ
     @Measurable (CoeffSpace d) ℝ (coeffSigma d U) _
       (fun a => blockMatEntry (blockCutoff B (H a)) α β) := by
   classical
-  letI : MeasurableSpace (CoeffSpace d) := coeffSigma d U
+  let : MeasurableSpace (CoeffSpace d) := coeffSigma d U
   have hset : MeasurableSet
       {a : CoeffSpace d | ∀ alpha beta : BlockCoord d,
         |blockMatEntry (H a) alpha beta| ≤ B} := by
@@ -226,7 +226,7 @@ theorem measurable_blockMatEntry_blockCutoff_of_local {U : Set (Vec d)} (B : ℝ
         = ⋂ alpha : BlockCoord d, ⋂ beta : BlockCoord d,
             {a : CoeffSpace d | |blockMatEntry (H a) alpha beta| ≤ B} := by
       ext a
-      simp only [Set.mem_iInter, Set.mem_setOf_eq]
+      simp only [Set.mem_iInter, Set.mem_ofPred_eq]
     rw [hrw]
     exact MeasurableSet.iInter fun alpha => MeasurableSet.iInter fun beta =>
       measurableSet_le (hH alpha beta).abs measurable_const

@@ -35,7 +35,7 @@ private theorem matrixNorm_le_of_euclideanNorm_mulVec_le
   have hy : HilbertVec.ofVec y = x := HilbertVec.ofVec_toVec x
   have hx := h y
   rw [euclideanNorm_eq_norm_ofVec, euclideanNorm_eq_norm_ofVec] at hx
-  simpa only [hy, Matrix.toEuclideanCLM_toLp, matVecMul] using hx
+  simpa only [hy, Matrix.toEuclideanCLM_toLp, matVecMul] using! hx
 
 /-- On a sufficiently small GoodMax row, the proof-gated terminal inverse
 best-fit slope matrix differs from the identity by `O(delta)` in the source

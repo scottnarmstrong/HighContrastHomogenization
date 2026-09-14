@@ -32,7 +32,7 @@ namespace Selection
 
 open MeasureTheory
 open scoped Topology
-open Filter
+open _root_.Filter
 
 noncomputable section
 
@@ -59,8 +59,8 @@ theorem measurable_readout_cellMuMinimizer
     Measurable fun w : Om =>
       F w ((cellMuHilbert hvol (sliceOf hSlice w)).minimizerMap P0) := by
   classical
-  haveI : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
-  haveI : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
+  have : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
+  have : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
   obtain ⟨xi, hxi⟩ :
       ∃ xi : ℕ → canonicalMuBlockCorrectionGeneratorSubmodule U, DenseRange xi :=
     ⟨TopologicalSpace.denseSeq _, TopologicalSpace.denseRange_denseSeq _⟩

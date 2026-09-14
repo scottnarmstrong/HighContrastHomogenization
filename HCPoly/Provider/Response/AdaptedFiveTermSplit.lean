@@ -20,7 +20,7 @@ private theorem integral_avsum_eq_avsum_integral {P : Measure (CoeffSpace d)}
     (hF : ∀ z ∈ Z, Integrable (F z) P) :
     (∫ a, avsum Z (fun z ↦ F z a) ∂P) = avsum Z (fun z ↦ ∫ a, F z a ∂P) := by
   unfold avsum
-  rw [integral_const_mul, integral_finset_sum Z hF]
+  rw [integral_const_mul, integral_finsetSum Z hF]
 private theorem sum_mul_avsum {iota : Type*} (Z : Finset iota) (c : Vec d)
     (F : Fin d → iota → ℝ) : ∑ i, c i * avsum Z (F i) =
       avsum Z (fun z ↦ ∑ i, c i * F i z) := by
@@ -55,11 +55,11 @@ private theorem integrableOn_cutoff_mul_diagonalWeakState_readout [NeZero d]
     (adaptedPreYoungCutoff_smooth hq t).continuous.aestronglyMeasurable
   have hbdd : ∀ᵐ x ∂volumeMeasureOn (adaptedCell q t),
       ‖adaptedPreYoungCutoff q hq t x‖ ≤ 2 :=
-    Filter.Eventually.of_forall fun x ↦ by
+    _root_.Filter.Eventually.of_forall fun x ↦ by
       rw [Real.norm_eq_abs, abs_of_nonneg]
       · exact adaptedPreYoungCutoff_le_two hq t x
       · exact adaptedPreYoungCutoff_nonneg hq t x
-  simpa only [mul_comm] using hbase.bdd_mul hmeas hbdd
+  simpa only [mul_comm] using! hbase.bdd_mul hmeas hbdd
 private theorem annealed_cutoff_readout_split [NeZero d]
     {P : Measure (CoeffSpace d)} {q : Mat d} (hq : q.PosDef)
     {s t : ℤ} (hst : s ≤ t) (X : CoeffSpace d → Vec d → BlockVec d)
@@ -121,7 +121,7 @@ private theorem annealed_cutoff_readout_split [NeZero d]
             (fun x ↦ toFullBlockVec (X a x) alpha) := by funext x; simp; ring
     have hsmul : IntegrableOn ((volumeAverage (adaptedCellAt q s w) (adaptedPreYoungCutoff q hq t)) •
         fun x ↦ toFullBlockVec (X a x) alpha) (adaptedCellAt q s w) volume := by
-      simpa only [Pi.smul_apply, smul_eq_mul] using hF.const_mul _
+      simpa only [Pi.smul_apply, smul_eq_mul] using! hF.const_mul _
     rw [hoscEq, volumeAverage_sub hcutF hsmul, volumeAverage_smul]
     ring
   have hpoint : (fun a ↦ volumeAverage (adaptedCell q t) (fun x ↦
@@ -230,7 +230,8 @@ private theorem vecDot_annealed_cutoff_split [NeZero d]
                 toFullBlockVec (X a x) (Sum.inl i)) ∂P) := by
   dsimp only
   intro hInt
-  simpa only [profilePrimalCutoffMean, toFullBlockVec, Pi.smul_apply, smul_eq_mul] using
+  simpa only [profilePrimalCutoffMean, volumeAverageVec, toFullBlockVec, Pi.smul_apply,
+    smul_eq_mul] using
     vecDot_annealed_cutoff_split (P := P) (Recurrence.posDef_of_isRoundedGrid hgrid) hst
       (fun a ↦ diagonalWeakState _ t (a.subSkew g hg) p r)
       (fun w a ↦ diagonalWeakChildState _ s w (a.subSkew g hg) p r)
@@ -266,7 +267,8 @@ private theorem vecDot_annealed_cutoff_split [NeZero d]
                 toFullBlockVec (X a x) (Sum.inr i)) ∂P) := by
   dsimp only
   intro hInt
-  simpa only [profilePrimalCutoffMean, toFullBlockVec, Pi.smul_apply, smul_eq_mul] using
+  simpa only [profilePrimalCutoffMean, volumeAverageVec, toFullBlockVec, Pi.smul_apply,
+    smul_eq_mul] using
     vecDot_annealed_cutoff_split (P := P) (Recurrence.posDef_of_isRoundedGrid hgrid) hst
       (fun a ↦ diagonalWeakState _ t (a.subSkew g hg) p r)
       (fun w a ↦ diagonalWeakChildState _ s w (a.subSkew g hg) p r)
@@ -303,7 +305,7 @@ private theorem vecDot_annealed_cutoff_split [NeZero d]
   dsimp only
   intro hInt
   simpa only [profileAdjointCutoffMean, diagonalWeakAdjointState_eq, toFullBlockVec,
-    Pi.smul_apply, smul_eq_mul] using vecDot_annealed_cutoff_split (P := P)
+    Pi.smul_apply, smul_eq_mul] using! vecDot_annealed_cutoff_split (P := P)
       (Recurrence.posDef_of_isRoundedGrid hgrid) hst
       (fun a ↦ diagonalWeakState _ t (a.subSkew g hg).transpose p r)
       (fun w a ↦ diagonalWeakChildState _ s w (a.subSkew g hg).transpose p r)
@@ -340,7 +342,7 @@ private theorem vecDot_annealed_cutoff_split [NeZero d]
   dsimp only
   intro hInt
   simpa only [profileAdjointCutoffMean, diagonalWeakAdjointState_eq, toFullBlockVec,
-    Pi.smul_apply, smul_eq_mul] using vecDot_annealed_cutoff_split (P := P)
+    Pi.smul_apply, smul_eq_mul] using! vecDot_annealed_cutoff_split (P := P)
       (Recurrence.posDef_of_isRoundedGrid hgrid) hst
       (fun a ↦ diagonalWeakState _ t (a.subSkew g hg).transpose p r)
       (fun w a ↦ diagonalWeakChildState _ s w (a.subSkew g hg).transpose p r)

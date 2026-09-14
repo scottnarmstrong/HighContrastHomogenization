@@ -125,7 +125,7 @@ theorem serviceWork_le (hd : 2 ≤ d)
       c.Crec c.h * Real.exp X :=
     mul_nonneg hlam (Real.exp_pos X).le
   have hreal := toReal_add_bound hprofileFinite hcoef hnoise (by
-    simpa only [X] using hbound)
+    simpa only [X] using! hbound)
   have hwork := scaledWork_service c.etaReady_pos c.etaReady_le_one
     hlam (c.service_le.trans (by norm_num))
     c.Csvc_pos.le ENNReal.toReal_nonneg ENNReal.toReal_nonneg hX hreal
@@ -185,7 +185,7 @@ theorem serviceWork_decrement_le (hd : 2 ≤ d)
       c.Crec c.h * Real.exp X :=
     mul_nonneg hlam (Real.exp_pos X).le
   have hreal := toReal_add_bound hprofileFinite hcoef hnoise (by
-    simpa only [X] using hbound)
+    simpa only [X] using! hbound)
   have hp : c.etaReady < (stateProfile P (initExpQ d g : ℝ)
       (initExpA g) (initExpRhoMax d g) jStar S).toReal := by
     rw [← ENNReal.toReal_ofReal c.etaReady_pos.le]

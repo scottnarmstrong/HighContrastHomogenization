@@ -187,8 +187,8 @@ theorem Homogenization.HighContrast.Persistence.persistence_transfer_assembly
             cStar
     := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
-  haveI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
+  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   obtain ⟨hg0, hg1⟩ := hg
   -- The printed upper halves of the two tolerances and of the adapted
   -- imbalance are recorded; the transfer consumes only their lower halves
@@ -203,7 +203,7 @@ theorem Homogenization.HighContrast.Persistence.persistence_transfer_assembly
     Persistence.zero_lt_gapConst hArad, ?_⟩
   intro P E Ψ K S hP hstat hunit hdag jStar M hwin m0 q hm0 hq t ht hcont Y hY
     hUmean himb l ment r maux hl hment hr hmaux
-  haveI := hP
+  have := hP
   subst hq
   set q : Mat d := roundedGrid jStar m0
   have hqr : IsRoundedGrid jStar q :=

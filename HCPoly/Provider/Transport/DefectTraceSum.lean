@@ -19,7 +19,7 @@ theorem eLpNorm_one_eq_ofReal_integral {P : Measure (CoeffSpace d)}
     {f : CoeffSpace d → ℝ} (hf : Integrable f P) (hf0 : ∀ a, 0 ≤ f a) :
     eLpNorm f 1 P = ENNReal.ofReal (∫ a, f a ∂P) := by
   have hnorm : ∫ a, ‖f a‖ ∂P = ∫ a, f a ∂P :=
-    integral_congr_ae (Filter.Eventually.of_forall fun a => Real.norm_of_nonneg (hf0 a))
+    integral_congr_ae (_root_.Filter.Eventually.of_forall fun a => Real.norm_of_nonneg (hf0 a))
   rw [eLpNorm_one_eq_lintegral_enorm,
     ← ofReal_integral_norm_eq_lintegral_enorm hf, hnorm]
 
@@ -42,12 +42,12 @@ theorem eLpNorm_defect_trace_sum_eq {P : Measure (CoeffSpace d)}
     (hDpos i hi a).trace_nonneg
   have hint : Integrable (fun a => ∑ i ∈ s,
       wt i ^ Q * p i ^ (Q - 1) * blockTrace (D i a)) P :=
-    integrable_finset_sum s fun i hi =>
+    integrable_finsetSum s fun i hi =>
       (Recurrence.integrable_blockTrace (hDint i hi)).const_mul _
   rw [eLpNorm_one_eq_ofReal_integral hint (fun a => Finset.sum_nonneg fun i hi =>
     mul_nonneg (hcoef0 i hi) (htrace0 i hi a))]
   congr 1
-  rw [integral_finset_sum s fun i hi =>
+  rw [integral_finsetSum s fun i hi =>
     (Recurrence.integrable_blockTrace (hDint i hi)).const_mul _]
   exact Finset.sum_congr rfl fun i hi => by
     rw [integral_const_mul, Recurrence.integral_blockTrace (hDint i hi), hDmean i hi]

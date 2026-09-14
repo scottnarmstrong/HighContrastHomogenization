@@ -98,7 +98,7 @@ theorem exists_alignedTransportAndDriftConstant
     raw.enlargeConstant (le_max_left _ _)
   refine ⟨Ltr, Ctr, htransport', ?_⟩
   intro Cd hCd P E Psi K source hprob hstat hunit hdag jStar M hwin Y hY
-  haveI : IsProbabilityMeasure P := hprob
+  have : IsProbabilityMeasure P := hprob
   have hraw := hbridge Cd hCd P E Psi K source hprob hstat hunit hdag
     jStar M hwin Y hY
   exact twoGridShiftedDrift_enlargeConstant hd hCbridge (le_max_right _ _)

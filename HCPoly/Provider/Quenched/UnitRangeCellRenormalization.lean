@@ -240,7 +240,7 @@ theorem measureReal_renormCell_le_of_family [NeZero d]
   have hXloc : ∀ (α β : BlockCoord d) (u : Fin d → ℤ),
       @Measurable (CoeffSpace d) ℝ (coeffSigma d (standardCell d l u)) _ (Xobs α β u) := by
     intro α β u
-    letI : MeasurableSpace (CoeffSpace d) := coeffSigma d (standardCell d l u)
+    let : MeasurableSpace (CoeffSpace d) := coeffSigma d (standardCell d l u)
     simp only [hXdef]
     exact ((hlocN α β u).sub measurable_const).div measurable_const
   have hXbd : ∀ (α β : BlockCoord d) (u : Fin d → ℤ), ∀ᵐ a ∂P, |Xobs α β u a| ≤ 1 := by
@@ -317,10 +317,10 @@ theorem measureReal_renormCell_le_of_family [NeZero d]
         funext b
         exact blockMatEntry_normalizedBlock_eq_sum _ E α β
       rw [hrw]
-      exact integrable_finset_sum _ fun delta _ => integrable_finset_sum _ fun gamma _ =>
+      exact integrable_finsetSum _ fun delta _ => integrable_finsetSum _ fun gamma _ =>
         ((hcellint gamma delta).mul_const _).const_mul _
     have hstep := blockMatLoewnerLE_meanBlock (hintN u) hIB2
-      (Filter.Eventually.of_forall fun b => by
+      (_root_.Filter.Eventually.of_forall fun b => by
         simp only [hNcutdef]
         exact blockMatLoewnerLE_blockCutoff (hNpd u b))
     rw [meanBlock_normalizedBlock E (hasIntegrableBlock_coarseBlock hcellint),
@@ -412,7 +412,7 @@ theorem measureReal_renormCell_le_of_family [NeZero d]
     exact blockVecDot_nonneg_of_blockPosDef hEpd X
   have hqAhat0 : 0 ≤ qAhat := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have hneg : 2 * kappaRef E * qAhat < 0 := by nlinarith only [hkappa1, hcon]
     linarith only [e3, hqE0, hneg]
   have hstep : kappa * qE ≤ 2 * kappa * kappaRef E * qAhat := by

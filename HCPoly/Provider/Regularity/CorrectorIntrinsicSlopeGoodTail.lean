@@ -217,8 +217,10 @@ private theorem finiteAffineCorrection_grad_eq_comparisonGradient
         (finiteAffineBoundaryH1 m e) := by
   funext x
   rw [finiteAffineSolution_toH1]
-  simp [Book.Ch03.homogenizationComparisonConstantGradientField,
-    identityConstantCoeffMatrix_matrix, Homogenization.matVecMul_one]
+  simp only [Book.Ch03.homogenizationComparisonConstantGradientField,
+    identityConstantCoeffMatrix_matrix, Homogenization.matVecMul_one,
+    H1Function.add_grad, finiteAffineBoundaryH1_grad]
+  abel
 
 private theorem originCube_pred_mem_childCubes_originCube
     {d : ℕ} (s : ℤ) :
@@ -383,7 +385,16 @@ private theorem normalizedFiniteCorrection_successor_gradient_eq
         (finiteCubeSolutionRestriction a hrm
           (finiteAffineSuccessorDifference a
             ((q + k : ℕ) : ℤ) e)).toH1.gradToHilbertVectorL2 := by
-  rw [← gradToHilbertVectorL2_sub,
+  let w : H1Function (localGradientCube d r) := by
+    simp only [localGradientCube]
+    exact (finiteCubeSolutionRestriction a hrm
+      (finiteAffineSuccessorDifference a ((q + k : ℕ) : ℤ) e)).toH1
+  have hcast :
+      (finiteCubeSolutionRestriction a hrm
+          (finiteAffineSuccessorDifference a
+            ((q + k : ℕ) : ℤ) e)).toH1.gradToHilbertVectorL2 =
+        w.gradToHilbertVectorL2 := rfl
+  rw [hcast, ← gradToHilbertVectorL2_sub,
     localGradientRestrict_gradToHilbertVectorL2_restrictLocalH1]
   apply gradToHilbertVectorL2_eq_of_grad_eq
   funext x
@@ -481,7 +492,7 @@ theorem exists_cubeSolutionGradientAverageEnergyConstant
   have hnegative : N ≤ Book.Ch03.coarsePoincareGradientRHS Q a s (.finite 2) u := by
     simpa only [N,
       Book.Ch03.scaleNormalizedNegativeBesovVectorNorm_finite_two_eq_cubeBesovNegativeVectorSeminormTwo]
-      using Book.Ch03.coarsePoincareGradient_negativeBesov_le
+      using! Book.Ch03.coarsePoincareGradient_negativeBesov_le
         Q a u hs (q := .finite 2) (by norm_num)
   have hlower :
       Book.Ch03.poincareLowerEllipticityFactor Q a s (.finite 2) ≤ L := by
@@ -656,8 +667,11 @@ theorem exists_scalarIdentityGoodTailIntrinsicSlopeThreshold
           (finiteAffineCorrectionLocalSequence a e (r0 + q + 2)).grad‖ ≤
           Cinit * scalarIdentityCorrectedWeakError a s
             (((r0 + q) + 2 : ℕ) : ℤ) * euclideanNorm e := by
-        simpa only [finiteAffineCorrectionLocalSequence,
-          Nat.add_assoc] using hbase
+        have heq : (finiteAffineCorrectionLocalSequence a e (r0 + q + 2)).grad =
+            (finiteAffineCorrection a (((r0 + q) + 2 : ℕ) : ℤ) e).toH1Function.grad :=
+          rfl
+        rw [heq]
+        exact hbase
       _ ≤ Cinit * epsilon q * euclideanNorm e :=
         mul_le_mul_of_nonneg_right
           (mul_le_mul_of_nonneg_left hfirst hCinit.le)
@@ -680,6 +694,11 @@ theorem exists_scalarIdentityGoodTailIntrinsicSlopeThreshold
     let w : Book.Ch03.CubeSolution (originCube d (q0 : ℤ)) a :=
       finiteCubeSolutionRestriction a (by omega : (q0 : ℤ) ≤ m)
         (finiteAffineSuccessorDifference a m e)
+    let w' : H1Function (localGradientCube d q0) := by
+      simp only [localGradientCube]
+      exact w.toH1
+    have hwcast : w.toH1.gradToHilbertVectorL2 = w'.gradToHilbertVectorL2 := rfl
+    have hwgradcast : w.toH1.grad = w'.grad := rfl
     have hinterval : ScalarIdentityGoodTailOnInterval a s delta
         (q0 : ℤ) (m + 1) :=
       (hgood.interval (by omega)).mono_start (by omega)
@@ -689,10 +708,16 @@ theorem exists_scalarIdentityGoodTailIntrinsicSlopeThreshold
             (normalizedLocalPair
               (finiteAffineCorrectionLocalSequence a e) q0 (k + 2)).2 =
           w.toH1.gradToHilbertVectorL2 := by
-      simpa only [normalizedLocalPair, q0, m, w,
-        localGradientRestrict_refl, ContinuousLinearMap.id_apply] using
-        normalizedFiniteCorrection_successor_gradient_eq
-          a e q0 (k + 2) q0 le_rfl (by omega)
+      have hraw := normalizedFiniteCorrection_successor_gradient_eq
+        a e q0 (k + 2) q0 le_rfl (by omega : (q0 : ℤ) ≤ ((q0 + (k + 2) : ℕ) : ℤ))
+      have hrawcast :
+          (finiteCubeSolutionRestriction a
+              (by omega : (q0 : ℤ) ≤ ((q0 + (k + 2) : ℕ) : ℤ))
+              (finiteAffineSuccessorDifference a
+                ((q0 + (k + 2) : ℕ) : ℤ) e)).toH1.gradToHilbertVectorL2 =
+            w'.gradToHilbertVectorL2 := rfl
+      rw [hrawcast, localGradientRestrict_refl, ContinuousLinearMap.id_apply] at hraw
+      simpa only [normalizedLocalPair, q0, m, w, hwcast] using hraw
     have havg :
         localGradientClassAverage
           (w.toH1.gradToHilbertVectorL2) =
@@ -701,8 +726,10 @@ theorem exists_scalarIdentityGoodTailIntrinsicSlopeThreshold
       calc
         localGradientClassAverage (w.toH1.gradToHilbertVectorL2) =
             cubeAverageVec (originCube d (q0 : ℤ)) w.toH1.grad := by
-          simpa only [localGradientRestrict_refl, ContinuousLinearMap.id_apply]
-            using localGradientClassAverage_restrictedH1Gradient le_rfl w.toH1
+          rw [hwcast, hwgradcast]
+          have hraw := localGradientClassAverage_restrictedH1Gradient
+            (le_refl q0) w'
+          rwa [localGradientRestrict_refl, ContinuousLinearMap.id_apply] at hraw
         _ = cubeAverageVec (originCube d (q0 : ℤ))
               (finiteAffineSuccessorDifference a m e).toH1.grad := by
           simp only [w, finiteCubeSolutionRestriction_grad]

@@ -254,7 +254,7 @@ theorem diagonalWeakMaximum_burnsplit_parametrized_le [NeZero d]
     have h1 := Real.one_le_rpow
       (le_max_left 1 (3 * Sh a * (3 : ℝ) ^ (-((t : ℝ) + (D : ℝ))))) hg.1
     linarith only [h1]
-  · push_neg at hS
+  · push Not at hS
     have hS0 : 0 < Sh a := lt_trans (zpow_pos (by norm_num) _) hS
     set m : ℤ := ⌈Real.logb 3 (Sh a)⌉ with hmdef
     have hlogS : ((t + (D : ℤ) : ℤ) : ℝ) < Real.logb 3 (Sh a) := by

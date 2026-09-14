@@ -80,7 +80,7 @@ theorem measurableSet_renormBadCell [NeZero d]
         {a | delta * (3 : ℝ) ^ (rho * ((m : ℝ) - (k : ℝ))) <
           blockExcess (coarseBlock U a) A} := by
     ext a
-    simp only [renormBadCell, Set.mem_setOf_eq, Set.mem_inter_iff]
+    simp only [renormBadCell, Set.mem_ofPred_eq, Set.mem_inter_iff]
     have hiff := blockMatLoewnerLE_iff_blockExcess_le hU hUvol a hA hApd hc
     constructor
     · rintro ⟨hsource, hnot⟩
@@ -139,7 +139,8 @@ theorem measurable_renormScale [NeZero d]
   have hbad := measurableSet_renormBadGeneration (rho := rho) hS hA hApd hdelta h m
   by_cases hnm : (n : ℤ) ≤ m
   · simpa only [measurableRenormScale, hnm, true_and] using
-      Measurable.ite hbad measurable_const measurable_const
+      (Measurable.ite (p := fun b : CoeffSpace d => b ∈ renormBadGeneration S A delta rho h m)
+        hbad measurable_const measurable_const)
   · simp only [hnm, false_and, if_false]
     exact measurable_const
 

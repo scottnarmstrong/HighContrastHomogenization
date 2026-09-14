@@ -19,7 +19,7 @@ the rounded constant-coefficient weak equation.
 namespace Homogenization
 namespace HighContrast
 
-open Filter MeasureTheory Set
+open _root_.Filter MeasureTheory Set
 open scoped ENNReal Matrix.Norms.L2Operator Topology
 
 noncomputable section
@@ -134,7 +134,7 @@ theorem exists_h10Function_of_tendsto_roundedIterationGradientHilbertL2
         w).symm
   have hGmem : G ∈
       Set.range (H10GraphClosed.gradientCLM (d := d) (U := U)) :=
-    hclosed.mem_of_tendsto hG (Filter.Eventually.of_forall hrange)
+    hclosed.mem_of_tendsto hG (_root_.Filter.Eventually.of_forall hrange)
   rcases hGmem with ⟨z, hzG⟩
   rcases exists_h10Function_of_mem_h10GraphClosedSubmodule (U := U) hU z.2 with
     ⟨u, _huVal, huGrad⟩
@@ -173,13 +173,13 @@ theorem roundedIteration_isZeroTraceDirichletRhsWeakSolution_of_tendsto
     simpa only [U] using unitCubeEuclideanL2Field_memVectorL2 h
   have hHI : Tendsto (fun n ↦ inner ℝ HI (g n)) atTop
       (nhds (inner ℝ HI u.toH1Function.gradToHilbertVectorL2)) :=
-    Filter.Tendsto.inner tendsto_const_nhds hlim
+    _root_.Filter.Tendsto.inner tendsto_const_nhds hlim
   have hHIsucc : Tendsto (fun n ↦ inner ℝ HI (g (n + 1))) atTop
       (nhds (inner ℝ HI u.toH1Function.gradToHilbertVectorL2)) :=
     hHI.comp (tendsto_add_atTop_nat 1)
   have hHB : Tendsto (fun n ↦ inner ℝ HB (g n)) atTop
       (nhds (inner ℝ HB u.toH1Function.gradToHilbertVectorL2)) :=
-    Filter.Tendsto.inner tendsto_const_nhds hlim
+    _root_.Filter.Tendsto.inner tendsto_const_nhds hlim
   have hsequence : ∀ n : ℕ,
       inner ℝ HB (g n) =
         -Hforce + inner ℝ HI (g n) - inner ℝ HI (g (n + 1)) := by
@@ -218,7 +218,7 @@ theorem roundedIteration_isZeroTraceDirichletRhsWeakSolution_of_tendsto
                 (P x) ∂volume := by
               simpa only [U, B, D, P, w, wnext,
                 unitCubeEuclideanL2FieldAdd_apply,
-                unitCubeEuclideanL2FieldConstMatrixMul_apply] using hweak
+                unitCubeEuclideanL2FieldConstMatrixMul_apply] using! hweak
         _ = -(Hforce + ∫ x in U,
               vecDot (matVecMul D (w.toH1Function.grad x)) (P x) ∂volume) := by
               rw [show (fun x ↦ vecDot
@@ -259,7 +259,7 @@ theorem roundedIteration_isZeroTraceDirichletRhsWeakSolution_of_tendsto
           vecDot (matVecMul B (w.toH1Function.grad x)) (P x) ∂volume by
           simpa only [HB, g, U, B, P, w,
             unitCubeGradientEuclideanL2FieldHilbertL2_eq_gradToHilbertVectorL2]
-            using inner_unitCubeMatrixGradientTestHilbertL2_eq_integral B φ w]
+            using! inner_unitCubeMatrixGradientTestHilbertL2_eq_integral B φ w]
     rw [show inner ℝ HI (g n) =
         ∫ x in U, vecDot (w.toH1Function.grad x) (P x) ∂volume by
           have hinner :=
@@ -267,7 +267,7 @@ theorem roundedIteration_isZeroTraceDirichletRhsWeakSolution_of_tendsto
               (1 : Mat d) φ w
           simpa only [HI, g, U, P, w,
             unitCubeGradientEuclideanL2FieldHilbertL2_eq_gradToHilbertVectorL2,
-            matVecMul_one_iterationWeakLimit] using hinner]
+            matVecMul_one_iterationWeakLimit] using! hinner]
     rw [show inner ℝ HI (g (n + 1)) =
         ∫ x in U, vecDot (wnext.toH1Function.grad x) (P x) ∂volume by
           have hinner :=
@@ -275,7 +275,7 @@ theorem roundedIteration_isZeroTraceDirichletRhsWeakSolution_of_tendsto
               (1 : Mat d) φ wnext
           simpa only [HI, g, U, P, wnext,
             unitCubeGradientEuclideanL2FieldHilbertL2_eq_gradToHilbertVectorL2,
-            matVecMul_one_iterationWeakLimit] using hinner]
+            matVecMul_one_iterationWeakLimit] using! hinner]
     rw [hBsplit, hweak']
     ring
   have hright : Tendsto
@@ -287,7 +287,7 @@ theorem roundedIteration_isZeroTraceDirichletRhsWeakSolution_of_tendsto
     simpa only [add_sub_cancel_right] using h
   have hHBnegative : Tendsto (fun n ↦ inner ℝ HB (g n)) atTop
       (nhds (-Hforce)) :=
-    hright.congr' (Filter.Eventually.of_forall fun n ↦ (hsequence n).symm)
+    hright.congr' (_root_.Filter.Eventually.of_forall fun n ↦ (hsequence n).symm)
   have hpair : inner ℝ HB u.toH1Function.gradToHilbertVectorL2 = -Hforce :=
     tendsto_nhds_unique hHB hHBnegative
   change

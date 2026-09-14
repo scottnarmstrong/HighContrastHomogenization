@@ -60,7 +60,7 @@ theorem measurable_toFullBlockMat_normalizedBlock_coeffSigma {U : Set (Vec d)}
     (E F : BlockMat d) (α β : BlockCoord d) :
     @Measurable (CoeffSpace d) ℝ (coeffSigma d U) _
       fun a => toFullBlockMat (normalizedBlock (blockSub (coarseBlock U a) E) F) α β := by
-  letI : MeasurableSpace (CoeffSpace d) := coeffSigma d U
+  let : MeasurableSpace (CoeffSpace d) := coeffSigma d U
   have hfun : (fun a : CoeffSpace d =>
         toFullBlockMat (normalizedBlock (blockSub (coarseBlock U a) E) F) α β) =
       fun a : CoeffSpace d => ∑ γ : BlockCoord d, ∑ δ : BlockCoord d,

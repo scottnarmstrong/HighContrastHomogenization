@@ -40,9 +40,9 @@ theorem lintegral_finset_sup'_rpow_le_sum {ι α : Type*} [DecidableEq ι]
     rw [hmax]
     exact Finset.single_le_sum
       (f := fun k => ENNReal.ofReal (f k x) ^ Q)
-      (fun _ _ => (zero_le _ : (0 : ℝ≥0∞) ≤ _)) hi
+      (fun _ _ => (zero_le : (0 : ℝ≥0∞) ≤ _)) hi
   refine (lintegral_mono hpath).trans_eq ?_
-  exact lintegral_finset_sum' s hfmeas
+  exact lintegral_finsetSum' s hfmeas
 
 end
 

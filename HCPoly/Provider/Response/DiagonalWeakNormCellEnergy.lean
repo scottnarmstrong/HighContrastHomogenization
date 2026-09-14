@@ -139,7 +139,7 @@ theorem avsum_diagonalWeakState_energy_eq [NeZero d]
   obtain ⟨_b, _blam, _bLam, _hbf, _hblam, _hbLam, hbEll, _hba⟩ :=
     hfamily (adaptedDomain hq t)
   obtain ⟨hpot, hflux⟩ := diagonalWeakState_memVectorL2 hq t a p r
-  letI : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
+  let : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
     (Recurrence.isOpenBoundedConvexDomain_adaptedCell hq t).isFiniteMeasure_restrict_volume
   have hX : MemBlockL2 (adaptedCell q t) X.eval :=
     memBlockL2_blockField hpot hflux
@@ -170,7 +170,7 @@ theorem avsum_diagonalWeakState_energy_eq [NeZero d]
       2 * variationEnergyValue (adaptedDomain hq t)
         (a.coeffOn (adaptedDomain hq t)) (diagonalWeakOptimizer hq t a p r) := by
     simpa only [F, diagonalWeakState,
-      CoeffSpace.coeffOn_toCoeffField] using hparent
+      CoeffSpace.coeffOn_toCoeffField] using! hparent
   change avsum (alignedIndex q k t) (fun w =>
       volumeAverage (adaptedCellAt q k w) (fun x =>
         blockVecDot (F x)

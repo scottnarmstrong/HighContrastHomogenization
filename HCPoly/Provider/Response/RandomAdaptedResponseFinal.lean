@@ -176,7 +176,7 @@ theorem Homogenization.HighContrast.Response.random_adapted_response_assembly
                           1 + deltaAd
     := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨Cpre, hCpre, hfamilies⟩ :=
     exists_pre_young_response_families d
   intro Cd hCd
@@ -196,7 +196,7 @@ theorem Homogenization.HighContrast.Response.random_adapted_response_assembly
     htSharp hdet hcalLo hcalHi deltaDetBar deltaTerm hddb0 hddb1 hdt0
     hdt1 hdetTerm hdrift etaProfBar etaIn etaOut epsSt hetaProfPos
     hetaProfCap hprofile hprofileScaled hprofileMax hkap hecc hbuf
-  letI : IsProbabilityMeasure P := hP
+  let : IsProbabilityMeasure P := hP
   have hE0full : (toFullBlockMat E0).PosDef :=
     posDef_toFullBlockMat hE0symm hE0pd
   have hm0pd : m0.PosDef := by

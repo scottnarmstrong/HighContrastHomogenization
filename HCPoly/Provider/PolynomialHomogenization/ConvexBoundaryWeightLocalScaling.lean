@@ -80,8 +80,7 @@ theorem exists_bound_lintegral_local_euclideanBoundaryWeight_scaled
                 r ^ ((d : ℝ) + (-p)) := by rw [Real.rpow_add hr]
           _ = 4 ^ d * (A ^ p / (1 - p)) *
                 r ^ ((d : ℝ) - p) := by ring_nf
-      · dsimp only [C]
-        positivity
+      · positivity
 
 end
 

@@ -40,7 +40,7 @@ integral of its square. -/
 theorem eLpNorm_two_sq_eq_lintegral_sq {α : Type*} [MeasurableSpace α]
     (μ : Measure α) (g : α → ℝ≥0∞) :
     eLpNorm g 2 μ ^ (2 : ℕ) = ∫⁻ a, g a ^ (2 : ℕ) ∂μ := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   simp only [ENNReal.toReal_ofNat, enorm_eq_self]
   rw [← ENNReal.rpow_natCast (_ ^ (1 / (2 : ℝ))) 2, ← ENNReal.rpow_mul]
   norm_num

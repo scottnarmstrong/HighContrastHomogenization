@@ -106,7 +106,7 @@ theorem aestronglyMeasurable_entry_normalizedBlock_blockSub {P : Measure (CoeffS
   have hsub : ∀ γ δ : BlockCoord d, AEStronglyMeasurable
       (fun a => (toFullBlockMat (X a) - toFullBlockMat (Y a)) γ δ) P := by
     intro γ δ
-    simpa only [Matrix.sub_apply] using (hX γ δ).sub (hY γ δ)
+    simpa only [Matrix.sub_apply] using! (hX γ δ).sub (hY γ δ)
   have hfun : (fun a : CoeffSpace d =>
         toFullBlockMat (normalizedBlock (blockSub (X a) (Y a)) F) α β)
       = fun a : CoeffSpace d => (matSqrt (toFullBlockMat F)⁻¹ *
@@ -176,7 +176,7 @@ theorem aestronglyMeasurable_schattenNorm {P : Measure (CoeffSpace d)}
     continuous_iff_continuousAt.mpr fun t =>
       Real.continuousAt_rpow_const t _ (Or.inr (by positivity))
   exact (hcont.comp_aestronglyMeasurable htr).congr
-    (Filter.Eventually.of_forall fun a => (schattenNorm_natCast_eq (hH a) hQeven).symm)
+    (_root_.Filter.Eventually.of_forall fun a => (schattenNorm_natCast_eq (hH a) hQeven).symm)
 
 /-! ## The recurrence -/
 
@@ -261,8 +261,8 @@ theorem fixed_grid_recurrence_assembly
           Real.sqrt (Q : ℝ)) * Real.sqrt ((3 : ℝ) ^ d))) := mul_nonneg hKK.le hCAA
     linarith only [hprod]
   intro P hPprob hPstat hPunit l q hq j h hlj hh _hposj _hposp hfinj hfinp hmomj hmomp
-  haveI := hPprob
-  haveI : NeZero d := ⟨by omega⟩
+  have := hPprob
+  have : NeZero d := ⟨by omega⟩
   have hjp : j ≤ j + h := by omega
   have hqPD : q.PosDef := posDef_of_isRoundedGrid hq
   obtain ⟨-, hDelta, -, hrelnorm, hrelgap⟩ :=
@@ -291,12 +291,17 @@ theorem fixed_grid_recurrence_assembly
     rw [hGfull a]
     exact toFullBlockMat_coarseBlock_adaptedCell_le_average hqPD hjp hZset a
   have hGint : Integrable (fun a => toFullBlockMat (G a)) P := by
-    have hsum : Integrable
-        (fun a => ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a)) P :=
-      integrable_finset_sum Z fun w _ =>
-        integrable_toFullBlockMat_coarseBlock_adaptedCellAt hPstat hq hlj hfinj w
+    -- As in `toFullBlockMat_adaptedMean_le`, the sum's integrability is bridged
+    -- from the entrywise interface rather than the matrix-level one.
+    have hentry : ∀ w ∈ Z, ∀ α β : BlockCoord d,
+        Integrable (fun a => toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) α β) P :=
+      fun w _ α β => (hasIntegrableCoarseBlock_adaptedCellAt hPstat hq hlj hfinj w α β).congr
+        (_root_.Filter.Eventually.of_forall fun a =>
+          (toFullBlockMat_eq_blockMatEntry (coarseBlock (adaptedCellAt q j w) a) α β).symm)
     simp only [hGfull]
-    exact (hsum.smul ((Z.card : ℝ)⁻¹)).congr (Filter.Eventually.of_forall fun _ => rfl)
+    exact integrable_of_entries fun α β => by
+      simp only [Matrix.smul_apply, Matrix.sum_apply, smul_eq_mul]
+      exact (integrable_finsetSum Z fun w hw => hentry w hw α β).const_mul _
   have hGmean : ∫ a, toFullBlockMat (G a) ∂P = toFullBlockMat (adaptedMean P q j) := by
     simp only [hGfull]
     exact integral_alignedAverage_eq_adaptedMean hPstat hq hlj hfinj hZne

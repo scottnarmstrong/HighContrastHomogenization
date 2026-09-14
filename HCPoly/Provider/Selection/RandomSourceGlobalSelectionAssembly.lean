@@ -217,8 +217,8 @@ theorem Homogenization.HighContrast.Selection.random_source_global_selection_ass
   refine ⟨cc.B, cc.Cexec, cc.Csel, cc.Bmin_le, cc.Cexec_pos, cc.Csel_pos,
     cc.rho_cutoff, cc.moment_cutoff, ?_⟩
   intro P E Psi K source hprob hstat hunit hdag Lam hLamEq jdag Mexec hjdag hMexec
-  letI : IsProbabilityMeasure P := hprob
-  letI : NeZero d := ⟨by omega⟩
+  let : IsProbabilityMeasure P := hprob
+  let : NeZero d := ⟨by omega⟩
   have hPi : 1 ≤ aspectRatio E :=
     one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hLam : 1 ≤ Lam := by

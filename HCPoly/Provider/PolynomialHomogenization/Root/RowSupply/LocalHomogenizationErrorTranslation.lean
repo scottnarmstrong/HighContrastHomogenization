@@ -95,7 +95,7 @@ private theorem normalizedBlockResponseMax_translate_of_physical_ae
     let hmp :=
       measurePreserving_addRight_restrict_translateSet Z (openCubeSet R)
     have hcomp := hmp.quasiMeasurePreserving.tendsto_ae hPhysicalT'
-    simpa only [Function.comp_apply, translateCoeffField] using hcomp
+    simpa only [Function.comp_apply, translateCoeffField] using! hcomp
   have hcoeff :
       translateCoeffField Z (aPhysical.coeffOn T).toCoeffField =ᵐ[
         volumeMeasureOn (openCubeSet R)]

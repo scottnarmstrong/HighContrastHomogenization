@@ -130,7 +130,7 @@ theorem edist_convexFractionalChainMean_succ_le_amplitude
     apply ENNReal.mul_ne_top (ENNReal.inv_ne_top.mpr hFpos.ne')
     exact ENNReal.rpow_ne_top_of_nonneg (by norm_num)
       (ENNReal.mul_ne_top hFtop ENNReal.ofReal_ne_top)
-  simpa only [E, F, D, K, C, convexFractionalChainMean] using
+  simpa only [E, F, D, K, C, convexFractionalChainMean] using!
     edist_volumeAverageVec_le_amplitudeAverage_of_cross
       (U := U) (s := s) (G := G)
       (isOpen_euclideanBallAt _ _).measurableSet hEpos hEtop hFpos hFtop

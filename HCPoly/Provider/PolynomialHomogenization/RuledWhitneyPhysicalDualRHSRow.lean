@@ -28,7 +28,7 @@ private def cubeEuclideanLpFieldOfMemVectorL2
       have hnormalized : MemLp F (2 : ℝ≥0∞)
           (normalizedCubeMeasure Q) :=
         memLp_normalizedCubeMeasure_of_memVectorL2_cubeSet Q hF
-      simpa only [Function.comp_apply, HilbertVec.ofVecL_apply] using
+      simpa only [Function.comp_apply, HilbertVec.ofVecL_apply] using!
         (HilbertVec.ofVecL d).comp_memLp' hnormalized }
 
 /-- The available fractional smooth-dual comparison controls one physical
@@ -44,12 +44,12 @@ theorem negativeWhitneyCellEnergy_le_fullDual
         (ENNReal.ofReal
           (physicalFullDualBesovVectorNorm (whitneyCellCube system i) s F)) ^
             (2 : ℕ) := by
-  letI : NeZero d := ⟨Nat.ne_of_gt (lt_of_lt_of_le Nat.zero_lt_one hd)⟩
+  let : NeZero d := ⟨Nat.ne_of_gt (lt_of_lt_of_le Nat.zero_lt_one hd)⟩
   let Q : TriadicCube d := whitneyCellCube system i
   have hFQ : MemVectorL2 (cubeSet Q) F := by
     change MemLp F 2 (volume.restrict (cubeSet Q))
     rw [volume_restrict_cubeSet_eq_volume_restrict_openCubeSet]
-    simpa [Q, whitneyCellCube, volumeMeasureOn] using hF
+    simpa [Q, whitneyCellCube, volumeMeasureOn] using! hF
   let FF : CubeEuclideanLpField Q FiniteLpExponent.two :=
     cubeEuclideanLpFieldOfMemVectorL2 Q F hFQ
   have hmain :=
@@ -59,7 +59,7 @@ theorem negativeWhitneyCellEnergy_le_fullDual
       fractionalDualToBesovConstant d *
         ENNReal.ofReal
           (physicalFullDualBesovVectorNorm (whitneyCellCube system i) s F) := by
-    simpa [Q, FF, whitneyCellCube, physicalFullDualBesovVectorNorm] using hmain
+    simpa [Q, FF, whitneyCellCube, physicalFullDualBesovVectorNorm] using! hmain
   unfold negativeWhitneyCellEnergy
   calc
     negSobolevNorm (system.cell i) s F ^ (2 : ℝ) ≤

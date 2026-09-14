@@ -66,7 +66,7 @@ theorem exists_coeffSpaceDoubledResponse_adaptedCellTranslate_le_tsum_filling
     let I := Σ u : ℕ, {w // w ∈ Z (n - (u : ℤ))}
     let c : I → Set (Vec d) := fun i ↦
       adaptedCellAt q (n - (i.1 : ℤ)) i.2.1
-    letI : Countable I := inferInstance
+    let : Countable I := inferInstance
     have hc : ∀ i : I, IsOpenBoundedConvexDomain (c i) := fun i ↦
       hdom _ _ i.2.2
     have hcsub : ∀ i : I, c i ⊆ adaptedCellTranslate p j y := fun i ↦

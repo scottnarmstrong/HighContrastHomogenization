@@ -102,7 +102,7 @@ theorem measureReal_renormRadius_gt_le_varying
       {a : CoeffSpace d | ENNReal.ofReal ((3 : ℝ) ^ N) <
         renormScale S Ahat delta rho h n a} := by
     intro a ha
-    simp only [Set.mem_setOf_eq, renormRadius, hpowsplit] at ha
+    simp only [Set.mem_ofPred_eq, renormRadius, hpowsplit] at ha
     have hmax : (3 : ℝ) ^ N <
         max 1 (renormScale S Ahat delta rho h n a).toReal := by
       linarith only [ha]
@@ -113,7 +113,7 @@ theorem measureReal_renormRadius_gt_le_varying
       · rw [heq] at hmax
         linarith only [hmax, hNone]
       · rwa [heq] at hmax
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     by_cases htop : renormScale S Ahat delta rho h n a = ⊤
     · rw [htop]
       exact ENNReal.ofReal_lt_top

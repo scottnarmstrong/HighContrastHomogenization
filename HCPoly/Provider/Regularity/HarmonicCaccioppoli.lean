@@ -51,7 +51,7 @@ theorem harmonic_centralChild_gradient_energy_le
           ∂volume = 0 := by
     simpa only [sqCutoff_apply, fderiv_sqCutoff eta.smooth,
       euclideanGradient, euclideanCoordDeriv, zero_mul, integral_zero,
-      WeakPoissonEquationOn.vecDot_cutoff_energy_integrand] using htest
+      vecNormSq, WeakPoissonEquationOn.vecDot_cutoff_energy_integrand] using htest
   have hmain : IntegrableOn
       (fun x => eta x ^ 2 * vecNormSq (u.grad x)) (openCubeSet Q) :=
     WeakPoissonEquationOn.integrableOn_sq_cutoff_vecNormSq_of_memVectorL2

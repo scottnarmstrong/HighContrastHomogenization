@@ -70,7 +70,7 @@ theorem integrableOn_and_integral_smoothGrad_skew_weakGradient_eq_zero
         ∂volume = 0 :=
     (Response.isSolenoidalOn_constSkew_mul_gradient hU k hk v) φ₀
   constructor
-  · simpa [v, φ₀, H10Function.ofContDiff, H1Function.ofContDiff, smoothGrad] using hint
+  · simpa [v, φ₀, H10Function.ofContDiff, H1Function.ofContDiff, smoothGrad] using! hint
   · calc
       ∫ x in U, vecDot (smoothGrad φ x) (matVecMul k (Du x)) ∂volume =
           ∫ x in U, vecDot (matVecMul k (Du x)) (smoothGrad φ x) ∂volume := by
@@ -79,7 +79,7 @@ theorem integrableOn_and_integral_smoothGrad_skew_weakGradient_eq_zero
             exact vecDot_comm _ _
       _ = 0 := by
         simpa [v, φ₀, H10Function.ofContDiff, H1Function.ofContDiff,
-          smoothGrad] using hzero
+          smoothGrad] using! hzero
 
 /-- Adding a constant skew matrix to a coefficient field leaves its weak
 solution class unchanged on Sobolev gradients. -/

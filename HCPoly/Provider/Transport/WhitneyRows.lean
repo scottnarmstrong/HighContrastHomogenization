@@ -229,7 +229,7 @@ theorem volume_residual_le {p q : Mat d} (hp : p.PosDef) (hq : q.PosDef) {n j J 
         volume (adaptedCellTranslate p j y) := by
   have hFnull : volume (matVecMul q '' ⋃ (i : Fin d) (k : ℤ),
       {z : Vec d | z i = ((k : ℝ) + 1 / 2) * (3 : ℝ) ^ J}) = 0 := volume_image_gridFaces q J
-  rw [← measure_diff_null (μ := volume) (s := adaptedCellTranslate p j y \
+  rw [← measure_sdiff_null (μ := volume) (s := adaptedCellTranslate p j y \
       ⋃ a ∈ Set.Icc J n, ⋃ w ∈ fillingIndex q n (adaptedCellTranslate p j y) a,
         adaptedCellAt q a w) hFnull]
   refine volume_le_of_escaping_ancestor hp (c := J) (fun x hx => hx.1.1) ?_
@@ -244,7 +244,7 @@ theorem volume_residual_le {p q : Mat d} (hp : p.PosDef) (hq : q.PosDef) {n j J 
 
 private theorem eq_zero_of_le_geometric₀ {x K : ℝ} (hx : 0 ≤ x)
     (h : ∀ m : ℕ, x ≤ K * (1 / 3 : ℝ) ^ m) : x = 0 := by
-  have hlim : Filter.Tendsto (fun m : ℕ => K * (1 / 3 : ℝ) ^ m) Filter.atTop (nhds 0) := by
+  have hlim : _root_.Filter.Tendsto (fun m : ℕ => K * (1 / 3 : ℝ) ^ m) _root_.Filter.atTop (nhds 0) := by
     have hpow := tendsto_pow_atTop_nhds_zero_of_lt_one (by norm_num : (0 : ℝ) ≤ 1 / 3)
       (by norm_num : (1 : ℝ) / 3 < 1)
     simpa using hpow.const_mul K
@@ -264,7 +264,7 @@ theorem volume_diff_iUnion_fillingIndex {p q : Mat d} (hp : p.PosDef) (hq : q.Po
   set D : Set (Vec d) := W \ ⋃ a ∈ Set.Iic n, ⋃ w ∈ fillingIndex q n W a,
     adaptedCellAt q a w with hD
   have hWtop : volume W ≠ ⊤ := volume_adaptedCellTranslate_ne_top p j y
-  have hDtop : volume D ≠ ⊤ := ne_top_of_le_ne_top hWtop (measure_mono Set.diff_subset)
+  have hDtop : volume D ≠ ⊤ := ne_top_of_le_ne_top hWtop (measure_mono Set.sdiff_subset)
   have hCd : (0 : ℝ) ≤ 2 * (d : ℝ) * Real.sqrt d * ‖p⁻¹ * q‖ := by positivity
   have hkey : ∀ m : ℕ, (volume D).toReal ≤
       (2 * (d : ℝ) * Real.sqrt d * ‖p⁻¹ * q‖ * (3 : ℝ) ^ (n - j) * (volume W).toReal) *
@@ -272,7 +272,7 @@ theorem volume_diff_iUnion_fillingIndex {p q : Mat d} (hp : p.PosDef) (hq : q.Po
     intro m
     have hmono : D ⊆ W \ ⋃ a ∈ Set.Icc (n - (m : ℤ)) n, ⋃ w ∈ fillingIndex q n W a,
         adaptedCellAt q a w :=
-      Set.diff_subset_diff_right (Set.biUnion_subset_biUnion_left fun a ha => ha.2)
+      Set.sdiff_subset_sdiff_right (Set.biUnion_subset_biUnion_left fun a ha => ha.2)
     have hle := (measure_mono hmono).trans
       (volume_residual_le hp hq (n := n) (j := j) (J := n - (m : ℤ)) (by omega) (y := y))
     have hfin : ENNReal.ofReal (2 * (d : ℝ) * Real.sqrt d * ‖p⁻¹ * q‖ *

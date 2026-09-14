@@ -111,8 +111,8 @@ theorem exists_initialProviderData {d H Ltr : ℕ} (hd : 2 ≤ d)
     (c : Constants d H g epsCal etaDr etaProfBar deltaDetBar Cd Khop Ctr Ltr)
     {eta : ℝ} (heta : 0 < eta) :
     ∃ Chit : ℝ, InitialProviderData c eta Chit := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   obtain ⟨CdQ, hCdQ, hmomentC, hlogC⟩ := Initialization.exists_initialization_constant d hd g
   have hhR : 1 ≤ (c.h : ℝ) := by exact_mod_cast c.one_le_h
   have hQone : 1 ≤ (initExpQ d g : ℝ) := by exact_mod_cast (le_trans (by norm_num : 1 ≤ 2) (two_le_initExpQ hg))
@@ -144,7 +144,7 @@ theorem exists_initialProviderData {d H Ltr : ℕ} (hd : 2 ≤ d)
   have hChit : 0 < Chit := by dsimp [Chit]; positivity
   refine ⟨Chit, ⟨hChit, ?_⟩⟩
   intro P E Ψ K S hprob hstat hunit hdag jStar M hw Y hY R hjR hwindow
-  letI : IsProbabilityMeasure P := hprob
+  let : IsProbabilityMeasure P := hprob
   let Pi : ℝ := aspectRatio E
   let base : ℝ := 2 + Pi
   let Lam : ℝ := Real.logb 3 base

@@ -248,7 +248,7 @@ theorem exists_scaledNegOne_pair_le_normalizedDualRows
           (2 * fractionalDualToBesovConstant d *
             ENNReal.ofReal
               (((3 : ℝ) ^ (s.1 * (n : ℝ))) * B)) := by
-      simpa only [mul_add, mul_assoc] using hscale
+      simpa only [mul_add, mul_assoc] using! hscale
     _ = C₀ * ENNReal.ofReal B := by
       dsimp only [C₀]
       calc

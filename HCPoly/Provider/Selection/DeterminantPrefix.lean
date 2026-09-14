@@ -174,7 +174,7 @@ theorem entry_detRoot_bounds [NeZero d] {E A : BlockMat d}
     detRoot d A ≤ c ^ 2 * detRoot d E ∧
       detRoot d E ≤ canonImbalance (toFullBlockMat E) ∧
       detRoot d A ≤ c ^ 2 * kap := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have hc0 : 0 < c := lt_of_lt_of_le zero_lt_one hc
   have hAEroot := detRoot_le_of_le_smul hA hE hc0 hAE
   have hdet := det_le_canonImbalance_pow hE hEsharp
@@ -212,7 +212,7 @@ private theorem entry_projectiveRadius_aux [NeZero d] (hd : 2 ≤ d) {E A : Full
     projDist 1 (canonMetric A) ≤
       (1 / 2) * Real.log (Lam / lam) +
         ((d : ℝ) / 2) * Real.log (c ^ 2 * kap) := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have hc0 : 0 < c := lt_of_lt_of_le zero_lt_one hc
   have hscaled : (c • E).PosDef := posDef_smul hE hc0
   have hcanon : canonBlock (c • E) = canonBlock E := by

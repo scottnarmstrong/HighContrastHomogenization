@@ -732,8 +732,8 @@ private theorem two_add_mul_le_rpow_two_add {a k base c : ℝ}
 
 theorem endpoint_hcore_body_corrected_core (d : ℕ) (hd : 2 ≤ d) : ∀ g : ℝ, g ∈ Set.Ico (0 : ℝ) 1 → ∃ cSc : ℝ, 0 < cSc ∧ ∃ alpha Cdelay : ℝ, 0 < alpha ∧ 0 ≤ Cdelay ∧ ∀ (cStar gBase : ℝ) (Pbase : Measure (CoeffSpace d)) (Ebase : BlockMat d) (Ψbase : ℝ → ℝ) (Kbase : ℝ) (Sbase : CoeffSpace d → ℝ), cStar ∈ Set.Ioc 0 cSc → gBase = (1 + g) / 2 → MeasureTheory.IsProbabilityMeasure Pbase → HCPoly.Frozen.IsStationaryLaw Pbase → HCPoly.Frozen.IsUnitRangeLaw Pbase → HCPoly.Frozen.CoarseEllipticityDagger Pbase gBase Ebase Ψbase Kbase Sbase → annealedContrast Pbase 0 - 1 ≤ cStar → blockContrast Ebase ≤ 1 + cSc → ∃ m0 : ℕ, (3 : ℝ) ^ m0 ≤ (2 + aspectRatio Ebase * Kbase) ^ Cdelay ∧ ∀ j : ℕ, annealedContrast Pbase ((m0 + j : ℕ) : ℤ) - 1 ≤ (3 : ℝ) ^ (-alpha * (j : ℝ)) := by
   intro g hg
-  haveI : NeZero d := ⟨by omega⟩
-  haveI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
+  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   obtain ⟨Cpre, H, eta, hCpre1, hH4, heta, hfamP⟩ := exists_one_step_family_at_isotropy_var_at_level_conv_family_min d hd
   have hgB : (1 + g) / 2 ∈ Set.Ico (0 : ℝ) 1 := ⟨by linarith only [hg.1], by linarith only [hg.2]⟩
   obtain ⟨CsubF, CBF, hCsubF0, hCBF0, hdataP⟩ := exists_endpoint_frozen_data_minimal d hd ((1 + g) / 2) hgB
@@ -873,7 +873,7 @@ theorem endpoint_hcore_body_corrected_core (d : ℕ) (hd : 2 ≤ d) : ∀ g : �
   have hbody : ∀ (cStar gBase : ℝ) (Pbase : Measure (CoeffSpace d)) (Ebase : BlockMat d) (Ψbase : ℝ → ℝ) (Kbase : ℝ) (Sbase : CoeffSpace d → ℝ), cStar ∈ Set.Ioc 0 cSc → gBase = (1 + g) / 2 → MeasureTheory.IsProbabilityMeasure Pbase → HCPoly.Frozen.IsStationaryLaw Pbase → HCPoly.Frozen.IsUnitRangeLaw Pbase → HCPoly.Frozen.CoarseEllipticityDagger Pbase gBase Ebase Ψbase Kbase Sbase → annealedContrast Pbase 0 - 1 ≤ cStar → blockContrast Ebase ≤ 1 + cSc → ∃ m0 : ℕ, (3 : ℝ) ^ m0 ≤ (2 + aspectRatio Ebase * Kbase) ^ CdelayS ∧ ∀ j : ℕ, annealedContrast Pbase ((m0 + j : ℕ) : ℤ) - 1 ≤ (3 : ℝ) ^ (-alpha * (j : ℝ)) := by
     intro cStar gBase Pbase Ebase Ψbase Kbase Sbase hcStar hgBase hprob
       hstat hunit hdag hann hblock
-    haveI := hprob
+    have := hprob
     subst hgBase
     rw [← hgBdef] at hdag
     have haspect1 : 1 ≤ aspectRatio Ebase := Quenched.one_le_aspectRatio_of_coarseEllipticityDagger hdag
@@ -1281,7 +1281,7 @@ theorem endpoint_hcore_body_corrected_core (d : ℕ) (hd : 2 ≤ d) : ∀ g : �
         (heccA'.trans haspb) hkap1rec hkapE' hgK'cap hDDdef hGaccD
         hCBrev0.le hCdvZdef hC5def hCEdef hCFdef hcFdef hCnsCdef hcnsdef
         hnsSum hnsBvCap hnsEvCap ?_
-      simpa only [rAFv, adapter, Eband] using hnsFvCap
+      simpa only [rAFv, adapter, Eband] using! hnsFvCap
     have hSource := corrected_normalized_source_cap
         (d := d) (ns := ns) (A := Aact) (delta := delta0)
         (beta := 2 * beta2) (base := base) (cW := cW) (Cpre := Cpre)

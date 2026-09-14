@@ -96,8 +96,8 @@ theorem selectionRun_terminal_polynomial_bounds (hd : 2 ≤ d)
         (2 + aspectRatio E) ^ radiusExponent c.chop cc.CN ∧
       gridRatio T.q 1 ≤
         (2 + aspectRatio E) ^ gridExponent d c.chop cc.CN := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   have hLamOne : 1 ≤ Lam := by
     rw [hLam]
     exact ShortHop.one_le_logb_two_add_aspectRatio hPi

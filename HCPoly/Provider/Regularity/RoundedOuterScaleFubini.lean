@@ -32,7 +32,7 @@ private theorem geometricWeight_mul_boundary_zpow
   have hzpow : (3 : ℝ) ^ (-(u : ℤ)) =
       Real.rpow (3 : ℝ) (-(u : ℤ) : ℝ) :=
     by
-      simpa only [Int.cast_neg, Int.cast_natCast] using
+      simpa only [Int.cast_neg, Int.cast_natCast] using!
         (Real.rpow_intCast (3 : ℝ) (-(u : ℤ))).symm
   have hjoin :
       Real.rpow (3 : ℝ) (-s * 2 * (l : ℝ)) *
@@ -117,7 +117,7 @@ private theorem sum_antidiagonal_boundaryGap_le
         ∑ u ∈ Finset.range (n + 1), f u := by
     rw [Finset.Nat.sum_antidiagonal_eq_sum_range_succ_mk]
     change (∑ u ∈ Finset.range (n + 1), f (n - u)) = _
-    simpa only [Nat.add_sub_cancel_left] using
+    simpa only [Nat.add_sub_cancel_left] using!
       Finset.sum_range_reflect f (n + 1)
   rw [show 1 - 2 * s = gap by rfl, hfinite]
   calc
@@ -232,13 +232,13 @@ theorem summable_boundaryConvolution_shift_and_tsum_le
     refine hdiagonal.congr ?_
     intro n
     rw [tsum_fintype]
-    simpa only [sigmaTerm, diagonal] using
+    simpa only [sigmaTerm, diagonal] using!
       (Finset.sum_finset_coe (s := Finset.antidiagonal n) term).symm
   have hsigma : Summable sigmaTerm :=
     (summable_sigma_of_nonneg hsigma0).2
       ⟨fun _ ↦ (hasSum_fintype _).summable, hsigmaOuter⟩
   have hpair : Summable term := by
-    exact Finset.sigmaAntidiagonalEquivProd.summable_iff.mp hsigma
+    exact Finset.HasAntidiagonal.sigmaAntidiagonalEquivProd.summable_iff.mp hsigma
   have hinner : ∀ l : ℕ, Summable (fun u : ℕ ↦
       kernel u * A (G + (l + u))) := by
     intro l
@@ -263,13 +263,13 @@ theorem summable_boundaryConvolution_shift_and_tsum_le
       w l * ∑' u : ℕ, kernel u * A (G + (l + u))) := by
     exact hpair.prod.congr (fun l ↦ congrFun houterEq l)
   have hpairEqDiagonal : (∑' p : ℕ × ℕ, term p) = ∑' n : ℕ, diagonal n := by
-    rw [← Finset.sigmaAntidiagonalEquivProd.tsum_eq term]
+    rw [← Finset.HasAntidiagonal.sigmaAntidiagonalEquivProd.tsum_eq term]
     change (∑' c, sigmaTerm c) = ∑' n : ℕ, diagonal n
     rw [hsigma.tsum_sigma' (fun _ ↦ (hasSum_fintype _).summable)]
     apply tsum_congr
     intro n
     rw [tsum_fintype]
-    simpa only [sigmaTerm, diagonal] using
+    simpa only [sigmaTerm, diagonal] using!
       (Finset.sum_finset_coe (s := Finset.antidiagonal n) term)
   have houterTsum :
       (∑' l : ℕ, w l * ∑' u : ℕ,

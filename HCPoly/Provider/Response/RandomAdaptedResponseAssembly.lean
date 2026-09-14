@@ -225,7 +225,7 @@ theorem random_adapted_response_endgame {d : ℕ} [NeZero d]
               responseSkew K *ᵥ centeredResponseLoadP S SStar K e)|) ''
       {e : Vec d | e ⬝ᵥ e = 1})
   have hnorm := centeredResponse_absolute_bound hd (adaptedDomain hq t) hfinT
-    hS hStar (by simpa [adaptedDomain] using hEtform)
+    hS hStar (by simpa [adaptedDomain] using! hEtform)
   have hnormEq := norm_normalized_sub_one hS hStar (K := K) (r := r)
     (B := B) rfl (by simpa only [← hEtform] using htSharpFull)
   have habs : relSize B SStar - 1 ≤ 2 * (d : ℝ) * Ssup := by

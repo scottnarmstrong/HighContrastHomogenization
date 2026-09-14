@@ -163,7 +163,7 @@ theorem exists_canonicalFiniteCorrectorAbsoluteDecayConstants
       (show H1Function (localGradientCube d m) from by
         simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
           finiteAffineBoundaryH1 (m : ℤ) e).grad = fun _ ↦ e := by
-    simpa only using finiteAffineBoundaryH1_grad (m := (m : ℤ)) e
+    simpa only using! finiteAffineBoundaryH1_grad (m := (m : ℤ)) e
   have hglobal :=
     (finiteAffineCorrectionJointLocalLimit a hCauchy e).globalGradientRepresentative_ae_eq_localH1Gradient m
   have hjointField : jointM.grad =ᵐ[volumeMeasureOn

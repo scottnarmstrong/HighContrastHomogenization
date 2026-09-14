@@ -172,11 +172,9 @@ theorem canonImbalance_eq {E : FullBlockMat d} (hE : E.PosDef) :
   have hRM : R * canonBlock E * R = 1 := matSqrt_inv_conj hM
   have hRMinv : R * canonBlock E = R⁻¹ := by
     have h := congrArg (fun M : FullBlockMat d => M * R⁻¹) hRM
-    simp only at h
     rwa [Matrix.mul_assoc, Matrix.mul_nonsing_inv _ hRdet, Matrix.mul_one, Matrix.one_mul] at h
   have hMR : canonBlock E * R = R⁻¹ := by
     have h := congrArg (fun M : FullBlockMat d => R⁻¹ * M) hRM
-    simp only at h
     rwa [← Matrix.mul_assoc, ← Matrix.mul_assoc, Matrix.nonsing_inv_mul _ hRdet,
       Matrix.one_mul, Matrix.mul_one] at h
   have hSharpRic : fullBlockSharp E = canonBlock E * E⁻¹ * canonBlock E :=

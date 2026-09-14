@@ -153,7 +153,7 @@ theorem measureReal_successorScale_gt_le [NeZero d]
     have hcginv : (0 : ℝ) ≤ cgauge * (Kc⁻¹) ^ (2 * mu) := by
       have hcg : 0 < cgauge := by
         by_contra hcon
-        push_neg at hcon
+        push Not at hcon
         have hbad : cgauge * ((Kc⁻¹) ^ (2 * mu) *
             (3 : ℝ) ^ (2 * mu * ((nstar : ℝ) + (b : ℝ) -
               ((M : ℝ) - (jStar : ℝ))))) ≤ 0 := by
@@ -230,37 +230,37 @@ theorem ae_successorScale_ne_top [NeZero d]
         ENNReal.ofReal ((3 : ℝ) ^ (n + q + b)) <
           successorScale gg (Eref n) (M - jStar) a} := by
       intro a ha
-      simp only [hT, Set.mem_setOf_eq] at ha
-      simp only [Set.mem_setOf_eq, ha]
+      simp only [hT, Set.mem_ofPred_eq] at ha
+      simp only [Set.mem_ofPred_eq, ha]
       exact ENNReal.ofReal_lt_top
     exact (measureReal_mono hsub).trans
       (measureReal_successorScale_gt_le hstat hQ hw hdag hmu hcd hM hshift hburn
         hgauge hcdle n q hn)
   have hzero : P.real T ≤ 0 := by
-    have hpow : Filter.Tendsto
+    have hpow : _root_.Filter.Tendsto
         (fun q : ℕ => cd * (3 : ℝ) ^ (2 * mu * (q : ℝ)))
-        Filter.atTop Filter.atTop := by
-      have hcast : Filter.Tendsto (fun q : ℕ => (q : ℝ))
-          Filter.atTop Filter.atTop := tendsto_natCast_atTop_atTop
-      have hlin : Filter.Tendsto (fun q : ℕ => 2 * mu * (q : ℝ))
-          Filter.atTop Filter.atTop :=
-        Filter.Tendsto.const_mul_atTop (by linarith only [hmu]) hcast
-      have hexp : Filter.Tendsto (fun x : ℝ => (3 : ℝ) ^ x)
-          Filter.atTop Filter.atTop := by
+        _root_.Filter.atTop _root_.Filter.atTop := by
+      have hcast : _root_.Filter.Tendsto (fun q : ℕ => (q : ℝ))
+          _root_.Filter.atTop _root_.Filter.atTop := tendsto_natCast_atTop_atTop
+      have hlin : _root_.Filter.Tendsto (fun q : ℕ => 2 * mu * (q : ℝ))
+          _root_.Filter.atTop _root_.Filter.atTop :=
+        _root_.Filter.Tendsto.const_mul_atTop (by linarith only [hmu]) hcast
+      have hexp : _root_.Filter.Tendsto (fun x : ℝ => (3 : ℝ) ^ x)
+          _root_.Filter.atTop _root_.Filter.atTop := by
         have hrw : (fun x : ℝ => (3 : ℝ) ^ x) =
             fun x : ℝ => Real.exp (Real.log 3 * x) := by
           funext x
           exact Real.rpow_def_of_pos (by norm_num) x
         rw [hrw]
         exact Real.tendsto_exp_atTop.comp
-          (Filter.Tendsto.const_mul_atTop (Real.log_pos (by norm_num))
-            Filter.tendsto_id)
-      exact Filter.Tendsto.const_mul_atTop hcd (hexp.comp hlin)
-    have htend : Filter.Tendsto
+          (_root_.Filter.Tendsto.const_mul_atTop (Real.log_pos (by norm_num))
+            _root_.Filter.tendsto_id)
+      exact _root_.Filter.Tendsto.const_mul_atTop hcd (hexp.comp hlin)
+    have htend : _root_.Filter.Tendsto
         (fun q : ℕ => Real.exp (-(cd * (3 : ℝ) ^ (2 * mu * (q : ℝ)))))
-        Filter.atTop (nhds 0) :=
-      Real.tendsto_exp_atBot.comp (Filter.tendsto_neg_atTop_atBot.comp hpow)
-    exact ge_of_tendsto htend (Filter.Eventually.of_forall hbound)
+        _root_.Filter.atTop (nhds 0) :=
+      Real.tendsto_exp_atBot.comp (_root_.Filter.tendsto_neg_atTop_atBot.comp hpow)
+    exact ge_of_tendsto htend (_root_.Filter.Eventually.of_forall hbound)
   have hmeasure : P T = 0 := by
     have hnonneg : (0 : ℝ) ≤ P.real T := measureReal_nonneg
     have hreal : P.real T = 0 := le_antisymm hzero hnonneg

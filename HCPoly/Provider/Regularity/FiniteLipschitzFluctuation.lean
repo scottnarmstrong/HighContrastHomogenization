@@ -41,7 +41,7 @@ theorem cubeLpNorm_two_cubeFluctuation_le_two_mul
     cubeLpNorm Q (2 : ℝ≥0∞) (cubeFluctuation Q f) ≤
         cubeLpNorm Q (2 : ℝ≥0∞) f +
           cubeLpNorm Q (2 : ℝ≥0∞) (fun _ : Vec d ↦ -cubeAverage Q f) := by
-      simpa [cubeFluctuation, sub_eq_add_neg] using hadd
+      simpa [cubeFluctuation, sub_eq_add_neg] using! hadd
     _ = cubeLpNorm Q (2 : ℝ≥0∞) f + |cubeAverage Q f| := by
       rw [cubeLpNorm_const (Q := Q) (p := (2 : ℝ≥0∞))
         (c := -cubeAverage Q f) (by norm_num)]
@@ -59,7 +59,7 @@ theorem normalized_fluctuation_le_affine_error_add_slope
         cubeLpNorm Q (2 : ℝ≥0∞) (cubeFluctuation Q u.toFun) ≤
       2 * (normalizedAffineCandidateError Q u.toFun c e +
         cubeBesovW12LocalPoincareConstant d * euclideanNorm e) := by
-  letI : IsFiniteMeasure (volumeMeasureOn (openCubeSet Q)) := by
+  let : IsFiniteMeasure (volumeMeasureOn (openCubeSet Q)) := by
     simpa [volumeMeasureOn] using
       (isOpenBoundedConvexDomain_openCubeSet Q).isFiniteMeasure_restrict_volume
   let ell : H1Function (openCubeSet Q) :=

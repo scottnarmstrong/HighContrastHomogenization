@@ -145,7 +145,7 @@ theorem measureReal_not_blockMatLoewnerLE_le {P : Measure (CoeffSpace d)}
     refine ha (blockMatLoewnerLE_blockScale_of_abs_blockMatEntry_le heta hF ?_)
     intro α β
     by_contra hentry
-    push_neg at hentry
+    push Not at hentry
     exact hcon (Set.mem_biUnion (Finset.mem_univ (α, β)) hentry)
   calc P.real {a : CoeffSpace d |
         ¬ BlockMatLoewnerLE (H a) (blockScale (2 * (d : ℝ) * eta) F)}
@@ -199,7 +199,7 @@ theorem measureReal_not_blockMatLoewnerLE_average_le_frGauge
     (hXloc α β) (hXbd α β) (hXmean α β) hZ ht
   refine le_trans (measureReal_mono ?_) hbase
   intro a ha
-  simp only [Set.mem_setOf_eq, hH a α β] at ha ⊢
+  simp only [Set.mem_ofPred_eq, hH a α β] at ha ⊢
   exact le_of_lt ha
 
 end

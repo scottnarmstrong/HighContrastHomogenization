@@ -57,12 +57,12 @@ theorem meanBlock_normalizedBlock {P : Measure (CoeffSpace d)}
           matSqrt (toFullBlockMat E)⁻¹ α gamma *
             (blockMatEntry (M a) gamma delta *
               matSqrt (toFullBlockMat E)⁻¹ delta β) ∂P := by
-    refine integral_congr_ae (Filter.Eventually.of_forall fun a => ?_)
+    refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun a => ?_)
     exact blockMatEntry_normalizedBlock_eq_sum (M a) E α β
-  rw [hrw, integral_finset_sum _ fun delta _ =>
-    integrable_finset_sum _ fun gamma _ => hint delta gamma]
+  rw [hrw, integral_finsetSum _ fun delta _ =>
+    integrable_finsetSum _ fun gamma _ => hint delta gamma]
   refine Finset.sum_congr rfl fun delta _ => ?_
-  rw [integral_finset_sum _ fun gamma _ => hint delta gamma]
+  rw [integral_finsetSum _ fun gamma _ => hint delta gamma]
   refine Finset.sum_congr rfl fun gamma _ => ?_
   rw [blockMatEntry_meanBlock]
   rw [integral_const_mul, integral_mul_const]

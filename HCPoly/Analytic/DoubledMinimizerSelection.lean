@@ -37,7 +37,7 @@ namespace Selection
 
 open MeasureTheory
 open scoped Topology
-open Filter
+open _root_.Filter
 
 noncomputable section
 
@@ -170,10 +170,10 @@ theorem measurable_toHilbertMatrixL2_of_measurable_entryTest
     @Measurable Om (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) mOm (borel _)
       (fun w => AEEQuantitativeEllipticSlice.toHilbertMatrixL2 (sliceOf hSlice w)) := by
   classical
-  haveI : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
-  haveI : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
-  letI : MeasurableSpace (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) := borel _
-  haveI : BorelSpace (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) := ⟨rfl⟩
+  have : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
+  have : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
+  let : MeasurableSpace (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) := borel _
+  have : BorelSpace (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) := ⟨rfl⟩
   obtain ⟨u, hu, hSmooth⟩ := exists_dense_smoothProbeSequence_of_dense_smoothProbeSet (U := U)
     (dense_smoothCompactSupportHilbertMatrixL2_tsupport_subset hUopen hUfin)
   refine measurable_of_measurable_inner_denseRange_polish u hu fun n => ?_
@@ -302,8 +302,8 @@ theorem stronglyMeasurable_cellMuMinimizer
     StronglyMeasurable fun w : Om =>
       (cellMuHilbert hvol (sliceOf hSlice w)).minimizerMap P0 := by
   classical
-  haveI : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
-  haveI : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
+  have : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
+  have : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
   obtain ⟨xi, hxi⟩ :
       ∃ xi : ℕ → canonicalMuBlockCorrectionGeneratorSubmodule U, DenseRange xi :=
     ⟨TopologicalSpace.denseSeq _, TopologicalSpace.denseRange_denseSeq _⟩

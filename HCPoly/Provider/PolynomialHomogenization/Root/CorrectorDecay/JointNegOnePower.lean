@@ -25,7 +25,7 @@ private theorem normalizedDual_eq_of_ae_eq
   intro i _hi
   apply Book.Ch03.cubeBesovDualFullNorm_eq_of_ae_eq_on_cubeSet
   simpa only [volumeMeasureOn,
-    volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using
+    volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using!
       hFG.fun_comp (fun z ↦ z i)
 
 private theorem outer_pair_restrict_gap_three

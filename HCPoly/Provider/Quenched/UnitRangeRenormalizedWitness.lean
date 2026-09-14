@@ -78,7 +78,7 @@ theorem blockPosDef_annealedBlock_of_frozen [NeZero d] {P : Measure (CoeffSpace 
   rw [blockVecDot_blockMatVecMul_blockScale] at h1
   have hE := hdag.refBlock_posDef X hX
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have hneg : 2 * kappaRef E *
       blockVecDot X (blockMatVecMul (annealedBlock P (centeredCube d l)) X) ≤ 0 := by
     nlinarith only [hk1, hcon]

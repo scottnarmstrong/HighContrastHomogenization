@@ -32,7 +32,7 @@ private theorem normalizedRoot_transpose_eq
     {m : Mat d} (hm : m.PosDef) :
     matTranspose (Selection.normalizedRoot m) = Selection.normalizedRoot m := by
   have hq := normalizedRoot_posDef_of_posDef hm
-  simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+  simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using!
     hq.isHermitian
 
 private theorem normalizedRoot_mul_inv_vec

@@ -127,7 +127,7 @@ theorem projDist_canonMetric_le (hd : 0 < d) {E F : FullBlockMat d} (hE : E.PosD
     (hlow : (Real.sqrt u)⁻¹ • canonBlock F ≤ canonBlock E)
     (hhigh : canonBlock E ≤ Real.sqrt u • canonBlock F) :
     projDist (canonMetric E) (canonMetric F) ≤ (1 / 2) * Real.log u := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, hd⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, hd⟩⟩
   have hmE : (canonMetric E).PosDef := posDef_canonMetric hE
   have hmF : (canonMetric F).PosDef := posDef_canonMetric hF
   have hdetE : IsUnit (canonMetric E).det := isUnit_det_of_posDef hmE
@@ -284,7 +284,7 @@ theorem canonDeterminantLoss (hd : 2 ≤ d) {E F : FullBlockMat d} (hE : E.PosDe
   have h1ρ : 1 ≤ E.det / F.det := (one_le_div hF.det_pos).mpr (det_le_det_of_le hF hE hFE)
   have h1r : 1 ≤ r := by
     by_contra hlt
-    push_neg at hlt
+    push Not at hlt
     have hpow := pow_lt_one₀ hr₀ hlt hdpos.ne'
     rw [hrd] at hpow
     linarith only [hpow, h1ρ]

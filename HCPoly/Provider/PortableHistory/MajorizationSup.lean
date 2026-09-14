@@ -59,9 +59,9 @@ theorem iSup_finset_rpow_le_sum {ι : Type*} (s : Finset ι) (f : ι → ℝ≥0
       rw [hsup]
       rcases le_total (f c) (⨆ i ∈ s, f i) with h | h
       · rw [max_eq_right h]
-        exact le_add_of_nonneg_of_le (zero_le _) ih
+        exact le_add_of_nonneg_of_le zero_le ih
       · rw [max_eq_left h]
-        exact le_add_of_le_of_nonneg le_rfl (zero_le _)
+        exact le_add_of_le_of_nonneg le_rfl zero_le
 
 /-- **The admissibility `a ≤ Qρ_max - d` absorbs the counting factor.**  The
 weight of a scale gap `u`, raised to the power `Q` and multiplied by the number
@@ -159,7 +159,7 @@ theorem lintegral_iSup_translate_le {P : Measure (CoeffSpace d)}
       ≤ ∫⁻ x, ∑ y ∈ Z, F (translateCoeff (v y) x) ^ Q ∂P :=
         lintegral_mono fun x => iSup_finset_rpow_le_sum Z _ hQ
     _ = ∑ y ∈ Z, ∫⁻ x, F (translateCoeff (v y) x) ^ Q ∂P :=
-        lintegral_finset_sum' Z fun y _ => hmeas y
+        lintegral_finsetSum' Z fun y _ => hmeas y
     _ = ∑ _y ∈ Z, ∫⁻ x, F x ^ Q ∂P :=
         Finset.sum_congr rfl fun y _ => lintegral_comp_translateCoeff hP hFQ (v y)
     _ = (Z.card : ℝ≥0∞) * ∫⁻ x, F x ^ Q ∂P := by rw [Finset.sum_const, nsmul_eq_mul]
@@ -185,7 +185,7 @@ theorem centeredMoment_rpow (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 0 < Q) 
       (isSymmetricBlockMat_blockSub (isSymmetricBlockMat_coarseBlock _ x)
         (Recurrence.isSymmetricBlockMat_adaptedMean P q j))) Q
   rw [centeredMoment, lqSchattenSize,
-    eLpNorm_eq_lintegral_rpow_enorm hne (by simp), htoReal, one_div,
+    eLpNorm_eq_lintegral_rpow_enorm_toReal hne (by simp), htoReal, one_div,
     ENNReal.rpow_inv_rpow hQ.ne']
   exact lintegral_congr fun x => by rw [Real.enorm_eq_ofReal (hnn x)]
 

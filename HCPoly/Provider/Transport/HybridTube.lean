@@ -56,7 +56,7 @@ theorem volume_le_of_escaping_hybridStrip_raw [NeZero d] {q q' : Mat d}
   let F : Set (Vec d) := matVecMul q' '' ⋃ (i : Fin d) (k : ℤ),
     {z : Vec d | z i = ((k : ℝ) + 1 / 2) * (3 : ℝ) ^ n}
   have hFnull : volume F = 0 := volume_image_gridFaces q' n
-  rw [← measure_diff_null (s := A) hFnull]
+  rw [← measure_sdiff_null (s := A) hFnull]
   have hWbounded : IsBoundedDomain W :=
     isBoundedDomain_adaptedCellTranslate hq (n + l) y
   let hpackfin := finite_hybridPackingIndex hq' (n := n) hWbounded

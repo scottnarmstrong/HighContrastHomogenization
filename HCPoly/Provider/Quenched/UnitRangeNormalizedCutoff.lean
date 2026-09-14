@@ -36,7 +36,7 @@ theorem measurable_blockMatEntry_normalizedBlock_coarseBlock_standardCell
     @Measurable (CoeffSpace d) ℝ (coeffSigma d (standardCell d k w)) _
       (fun a => blockMatEntry
         (normalizedBlock (coarseBlock (standardCell d k w) a) F) α β) := by
-  letI : MeasurableSpace (CoeffSpace d) := coeffSigma d (standardCell d k w)
+  let : MeasurableSpace (CoeffSpace d) := coeffSigma d (standardCell d k w)
   have hentry : ∀ γ δ : BlockCoord d,
       Measurable fun a : CoeffSpace d =>
         blockMatEntry (coarseBlock (standardCell d k w) a) γ δ :=

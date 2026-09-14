@@ -213,7 +213,7 @@ theorem exists_bound_lintegral_far_fractionalBoundaryKernel
       rcases Nat.eq_zero_or_pos n with hn | hn
       · simpa only [hn, pow_zero, one_mul] using hfar
       · have hmin := Nat.find_min hex (Nat.pred_lt hn.ne')
-        push_neg at hmin
+        push Not at hmin
         have hnid : n.pred + 1 = n := Nat.succ_pred_eq_of_pos hn
         rwa [hnid] at hmin
     refine Set.mem_iUnion.mpr ⟨n, hyU, ?_, ?_⟩

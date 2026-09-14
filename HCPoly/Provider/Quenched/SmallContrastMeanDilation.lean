@@ -229,7 +229,7 @@ theorem adaptedMean_le_hattedContrast_dilation
       (sub_nonneg.mpr
         (adaptedHattedContrast_le hstat hgrid hlj hjp hfinj hfinp))
   have hdiag : x + y ≤ delta := by
-    simpa only [C, F, QS, QR, x, y, delta] using
+    simpa only [C, F, QS, QR, x, y, delta] using!
       schur_trace_gaps_le_hattedContrast_drop
         hCsymm hCpos hFsymm hFpos hCF
           (Persistence.blockSharp_adaptedMean_le hgrid p hfinp)

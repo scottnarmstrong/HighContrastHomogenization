@@ -93,9 +93,9 @@ theorem eLpNorm_weakRoot_le_profileMajorant
     intro a
     by_cases hbad : (1 : ℝ≥0∞) < M a
     · have hnotGood : a ∉ good := by
-        simpa only [good, Set.mem_setOf_eq, not_le] using hbad
+        simpa only [good, Set.mem_ofPred_eq, not_le] using hbad
       have hbadMem : a ∈ bad := by
-        simpa only [bad, Set.mem_setOf_eq] using hbad
+        simpa only [bad, Set.mem_ofPred_eq] using hbad
       rw [if_pos hbad, show badEnergy a =
           M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a) by
             exact Set.indicator_of_mem hbadMem _,
@@ -103,9 +103,9 @@ theorem eLpNorm_weakRoot_le_profileMajorant
           exact Set.indicator_of_notMem hnotGood _]
       simp only [mul_zero, add_zero]
     · have hgood : a ∈ good := by
-        simpa only [good, Set.mem_setOf_eq] using le_of_not_gt hbad
+        simpa only [good, Set.mem_ofPred_eq] using le_of_not_gt hbad
       have hnotBad : a ∉ bad := by
-        simpa only [bad, Set.mem_setOf_eq] using hbad
+        simpa only [bad, Set.mem_ofPred_eq] using hbad
       rw [if_neg hbad,
         show badEnergy a = (0 : ℝ≥0∞) by
           exact Set.indicator_of_notMem hnotBad _,
@@ -138,8 +138,8 @@ theorem eLpNorm_weakRoot_le_profileMajorant
             eLpNorm (ENNReal.ofReal ∘ V) 2 P) :=
         mul_le_mul_right (eLpNorm_add_le hUOf hVOf (by norm_num)) _
       _ = ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) := by
-        rw [eLpNorm_ofReal U (Filter.Eventually.of_forall hU0),
-          eLpNorm_ofReal V (Filter.Eventually.of_forall hV0)]
+        rw [eLpNorm_ofReal U (_root_.Filter.Eventually.of_forall hU0),
+          eLpNorm_ofReal V (_root_.Filter.Eventually.of_forall hV0)]
   have hgoodNorm : eLpNorm
       (fun a ↦ ENNReal.ofReal R * goodEnergy a) 2 P ≤
       profileGoodEnergy P alpha H M En := by
@@ -239,9 +239,9 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
     intro a
     by_cases hbad : lev < M a
     · have hnotGood : a ∉ good := by
-        simpa only [good, Set.mem_setOf_eq, not_le] using hbad
+        simpa only [good, Set.mem_ofPred_eq, not_le] using hbad
       have hbadMem : a ∈ bad := by
-        simpa only [bad, Set.mem_setOf_eq] using hbad
+        simpa only [bad, Set.mem_ofPred_eq] using hbad
       rw [if_pos hbad, show badEnergy a =
           M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a) by
             exact Set.indicator_of_mem hbadMem _,
@@ -249,9 +249,9 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
           exact Set.indicator_of_notMem hnotGood _]
       simp only [mul_zero, add_zero]
     · have hgood : a ∈ good := by
-        simpa only [good, Set.mem_setOf_eq] using le_of_not_gt hbad
+        simpa only [good, Set.mem_ofPred_eq] using le_of_not_gt hbad
       have hnotBad : a ∉ bad := by
-        simpa only [bad, Set.mem_setOf_eq] using hbad
+        simpa only [bad, Set.mem_ofPred_eq] using hbad
       rw [if_neg hbad,
         show badEnergy a = (0 : ℝ≥0∞) by
           exact Set.indicator_of_notMem hnotBad _,
@@ -284,8 +284,8 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
             eLpNorm (ENNReal.ofReal ∘ V) 2 P) :=
         mul_le_mul_right (eLpNorm_add_le hUOf hVOf (by norm_num)) _
       _ = ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) := by
-        rw [eLpNorm_ofReal U (Filter.Eventually.of_forall hU0),
-          eLpNorm_ofReal V (Filter.Eventually.of_forall hV0)]
+        rw [eLpNorm_ofReal U (_root_.Filter.Eventually.of_forall hU0),
+          eLpNorm_ofReal V (_root_.Filter.Eventually.of_forall hV0)]
   have hgoodNorm : eLpNorm
       (fun a ↦ ENNReal.ofReal R * goodEnergy a) 2 P ≤
       profileGoodEnergyAt P lev alpha H M En := by

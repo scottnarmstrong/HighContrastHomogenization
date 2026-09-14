@@ -11,7 +11,7 @@ lake build           # build the CoarseGraining dependency and the project
 ```
 
 The production build is required to emit no Lean or linter warnings.  The
-Mathlib-only files `Audit/*/Challenge.lean` are the sole exception: each
+Mathlib-only files `HCPolyAudit/*/Challenge.lean` are the sole exception: each
 contains one documented statement-level `sorry`, checked against its
 completed solution by `leanprover/comparator`.
 
@@ -31,9 +31,9 @@ A few practical notes for working with a development of this size:
   `lake build HCPoly.Meta.AxiomsAudit`.
 
 - **The comparator surfaces** are not part of the default build; build them
-  with `lake build Audit`.  Running the comparator itself needs
+  with `lake build HCPolyAudit`.  Running the comparator itself needs
   `leanprover/comparator`, `lean4export` at the project's toolchain tag, and
-  `landrun`; see `Audit/README.md`.
+  `landrun`; see `HCPolyAudit/README.md`.
 
 ## Conventions
 

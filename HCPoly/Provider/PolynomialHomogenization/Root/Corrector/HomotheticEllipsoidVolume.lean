@@ -44,7 +44,7 @@ theorem matImage_smul_one_ellipsoid
   ext y
   constructor
   · rintro ⟨x, hx, rfl⟩
-    rw [matVecMul_smul_one, ellipsoid, Set.mem_setOf_eq,
+    rw [matVecMul_smul_one, ellipsoid, Set.mem_ofPred_eq,
       vecDot_smul_self]
     calc
       q ^ 2 * vecDot x (matVecMul (symmPart abar)⁻¹ x) ≤
@@ -54,7 +54,7 @@ theorem matImage_smul_one_ellipsoid
   · intro hy
     let x : Vec d := q⁻¹ • y
     refine ⟨x, ?_, ?_⟩
-    · rw [ellipsoid, Set.mem_setOf_eq]
+    · rw [ellipsoid, Set.mem_ofPred_eq]
       have hscale :
           vecDot x (matVecMul (symmPart abar)⁻¹ x) =
             q⁻¹ ^ 2 * vecDot y (matVecMul (symmPart abar)⁻¹ y) := by

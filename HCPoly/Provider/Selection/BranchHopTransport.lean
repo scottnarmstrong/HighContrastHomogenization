@@ -99,7 +99,7 @@ theorem branchT5Transport_of_alignedConstant (hd : 2 ≤ d)
       stateProfile P (initExpQ d g : ℝ) (initExpA g)
         (initExpRhoMax d g) jStar S' = stateHistory S' := by
   dsimp only
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   let t0 : ℤ := S.cursor + 2 * (c.l0 : ℤ)
   let n : ℤ := S.cursor + (c.l0 : ℤ)
   let F : BlockMat d := adaptedMean P S.q t0

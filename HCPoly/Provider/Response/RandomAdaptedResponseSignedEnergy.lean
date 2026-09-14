@@ -153,7 +153,7 @@ theorem shifted_annealed_response_energies_eq_and_nonneg
         apply congrArg
           (responseJ (adaptedDomain hq t)
             (a.transpose.coeffOn (adaptedDomain hq t)) p)
-        simpa only [neg_matVecMul, sub_neg_eq_add] using hplusShift
+        simpa only [neg_matVecMul, sub_neg_eq_add] using! hplusShift
       _ = (1 / 2 : ℝ) * (p ⬝ᵥ S *ᵥ p) +
           (1 / 2 : ℝ) *
             ((q + h *ᵥ p - K *ᵥ p) ⬝ᵥ SStar⁻¹ *ᵥ
@@ -168,10 +168,10 @@ theorem shifted_annealed_response_energies_eq_and_nonneg
         rw [load_sq_pos hEt rfl hEhat rfl rfl]
         ring
   refine ⟨⟨hEJMinus, ?_⟩, ⟨hEJPlus, ?_⟩⟩
-  · exact integral_nonneg_of_ae (Filter.Eventually.of_forall fun a ↦
+  · exact integral_nonneg_of_ae (_root_.Filter.Eventually.of_forall fun a ↦
       Book.Ch02.responseJ_nonneg (adaptedDomain hq t)
         ((a.subSkew g0 hg0).coeffOn (adaptedDomain hq t)) p qMinus)
-  · exact integral_nonneg_of_ae (Filter.Eventually.of_forall fun a ↦
+  · exact integral_nonneg_of_ae (_root_.Filter.Eventually.of_forall fun a ↦
       Book.Ch02.responseJ_nonneg (adaptedDomain hq t)
         ((a.subSkew g0 hg0).transpose.coeffOn (adaptedDomain hq t)) p qPlus)
 

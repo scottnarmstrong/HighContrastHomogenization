@@ -55,7 +55,7 @@ theorem eLpNorm_two_real_sq {P : Measure (CoeffSpace d)}
     congr 1
     rw [← Real.rpow_natCast (f a) 2]
     norm_num
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   simp only [ENNReal.toReal_ofNat]
   rw [lintegral_congr h1, ← ENNReal.rpow_natCast _ 2, ← ENNReal.rpow_mul]
   norm_num
@@ -142,7 +142,7 @@ theorem eLpNorm_schattenTwo_adaptedCellAt_eq
         (fun _ : CoeffSpace d ↦ toFullBlockMat E α β) P :=
       aestronglyMeasurable_const
     have hm := hmA.sub hmE
-    simpa only [X, Recurrence.toFullBlockMat_blockSub_apply] using hm
+    simpa only [X, Recurrence.toFullBlockMat_blockSub_apply] using! hm
   have hmeas : AEStronglyMeasurable
       (fun a : CoeffSpace d ↦ schattenSize 2 (X a) F) P :=
     Transport.aestronglyMeasurable_schattenSize (P := P) (A := X) (F := F)
@@ -316,7 +316,7 @@ theorem eLpNorm_diagonalWeakCellDefect_le [NeZero d]
     have hm := hmA.sub
       (aestronglyMeasurable_const
         (b := toFullBlockMat (adaptedMean P q k) α β))
-    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using hm
+    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using! hm
   have hmeasG1 : AEStronglyMeasurable
       (fun a => Real.sqrt
         (Response.avsum (Response.alignedIndex q k t) fun w => A w a ^ 2)) P := by
@@ -326,12 +326,12 @@ theorem eLpNorm_diagonalWeakCellDefect_le [NeZero d]
       refine (Finset.aestronglyMeasurable_sum (Response.alignedIndex q k t)
         (f := fun w => fun a => A w a ^ 2) (fun w _ =>
           ((hmeasA w).mul (hmeasA w)).congr
-            (Filter.Eventually.of_forall fun a => by
+            (_root_.Filter.Eventually.of_forall fun a => by
               show A w a * A w a = A w a ^ 2
               rw [pow_two]))).congr
-        (Filter.Eventually.of_forall fun a => by rw [Finset.sum_apply])
+        (_root_.Filter.Eventually.of_forall fun a => by rw [Finset.sum_apply])
     exact (aestronglyMeasurable_const.mul hsum).congr
-      (Filter.Eventually.of_forall fun a => rfl)
+      (_root_.Filter.Eventually.of_forall fun a => rfl)
   have hmeasC : AEStronglyMeasurable C P := by
     rw [hC]
     refine Transport.aestronglyMeasurable_schattenSize (by exact even_two)
@@ -346,7 +346,7 @@ theorem eLpNorm_diagonalWeakCellDefect_le [NeZero d]
     have hm := hmA.sub
       (aestronglyMeasurable_const
         (b := toFullBlockMat (adaptedMean P q t) α β))
-    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using hm
+    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using! hm
   -- the L² triangle
   have hmono : eLpNorm (fun a => Response.diagonalWeakCellDefect q k t F a) 2 P ≤
       eLpNorm
@@ -402,7 +402,7 @@ theorem eLpNorm_diagonalWeakCellDefect_le [NeZero d]
           ENNReal.ofReal_sum_of_nonneg fun w _ => sq_nonneg _]
       rw [lintegral_congr hexp,
         lintegral_const_mul' _ _ ENNReal.ofReal_ne_top,
-        lintegral_finset_sum']
+        lintegral_finsetSum']
       · have hper : ∀ w ∈ Response.alignedIndex q k t,
             ∫⁻ a, ENNReal.ofReal (A w a ^ 2) ∂P =
               scaleVariance P q F k ^ (2 : ℕ) := by
@@ -439,7 +439,7 @@ theorem eLpNorm_diagonalWeakCellDefect_le [NeZero d]
         exact (ENNReal.measurable_ofReal.comp_aemeasurable
           (((hmeasA w).aemeasurable.mul
             (hmeasA w).aemeasurable).congr
-            (Filter.Eventually.of_forall fun a => by
+            (_root_.Filter.Eventually.of_forall fun a => by
               show A w a * A w a = A w a ^ 2
               rw [pow_two])))
     exact hbound

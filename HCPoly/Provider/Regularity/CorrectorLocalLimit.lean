@@ -357,7 +357,7 @@ theorem norm_toScalarL2_le_anchoredLocalPoincareConstant_mul_grad
             exact mul_le_mul_of_nonneg_left hinnerNorm (norm_nonneg _)
   have hp :
       ‖w.subAverage.toScalarL2‖ ≤ C * ‖w.gradToHilbertVectorL2‖ := by
-    letI :
+    let :
         IsFiniteMeasure
           (volumeMeasureOn (openCubeSet (originCube d (n : ℤ)))) := by
       simpa [localGradientCube] using
@@ -367,7 +367,7 @@ theorem norm_toScalarL2_le_anchoredLocalPoincareConstant_mul_grad
       (originCubeMeanZeroH1CoerciveEstimate d (n : ℤ)).bound_subAverage w
     calc
       ‖w.subAverage.toScalarL2‖ ≤ C * ‖w.gradToVectorL2‖ := by
-        simpa [C, H1MeanZeroFunction.valueL2Norm] using hbase
+        simpa [C, H1MeanZeroFunction.valueL2Norm] using! hbase
       _ ≤ C * ‖w.gradToHilbertVectorL2‖ := by
         exact mul_le_mul_of_nonneg_left
           w.norm_gradToVectorL2_le_norm_gradToHilbertVectorL2
@@ -506,7 +506,7 @@ private noncomputable def normalizedLocalPairLimit {d : ℕ}
 private theorem tendsto_normalizedLocalPairLimit {d : ℕ}
     (u : ∀ q, H1Function (localGradientCube d q))
     (hgrad : NormalizedLocalGradientCauchy u) (n : ℕ) :
-    Filter.Tendsto (normalizedLocalPair u n) Filter.atTop
+    _root_.Filter.Tendsto (normalizedLocalPair u n) _root_.Filter.atTop
       (nhds (normalizedLocalPairLimit u hgrad n)) :=
   Classical.choose_spec
     (cauchySeq_tendsto_of_complete (normalizedLocalPair_cauchy u hgrad n))
@@ -536,30 +536,30 @@ private theorem localValueRestrict_normalizedLocalPairLimit {d : ℕ}
     localValueRestrict hmn (normalizedLocalPairLimit u hgrad n).1 =
       (normalizedLocalPairLimit u hgrad m).1 := by
   have hn :
-      Filter.Tendsto (fun k => (normalizedLocalPair u n k).1) Filter.atTop
+      _root_.Filter.Tendsto (fun k => (normalizedLocalPair u n k).1) _root_.Filter.atTop
         (nhds (normalizedLocalPairLimit u hgrad n).1) :=
     (tendsto_normalizedLocalPairLimit u hgrad n).fst_nhds
   have hm :
-      Filter.Tendsto (fun k => (normalizedLocalPair u m k).1) Filter.atTop
+      _root_.Filter.Tendsto (fun k => (normalizedLocalPair u m k).1) _root_.Filter.atTop
         (nhds (normalizedLocalPairLimit u hgrad m).1) :=
     (tendsto_normalizedLocalPairLimit u hgrad m).fst_nhds
   have hleft :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => localValueRestrict hmn (normalizedLocalPair u n k).1)
-        Filter.atTop
+        _root_.Filter.atTop
         (nhds (localValueRestrict hmn
           (normalizedLocalPairLimit u hgrad n).1)) :=
     ((localValueRestrict hmn).continuous.tendsto
       (normalizedLocalPairLimit u hgrad n).1).comp hn
   have hshift :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => (normalizedLocalPair u m (k + (n - m))).1)
-        Filter.atTop (nhds (normalizedLocalPairLimit u hgrad m).1) :=
-    (Filter.tendsto_add_atTop_iff_nat (n - m)).mpr hm
+        _root_.Filter.atTop (nhds (normalizedLocalPairLimit u hgrad m).1) :=
+    (_root_.Filter.tendsto_add_atTop_iff_nat (n - m)).mpr hm
   have hright :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => localValueRestrict hmn (normalizedLocalPair u n k).1)
-        Filter.atTop (nhds (normalizedLocalPairLimit u hgrad m).1) := by
+        _root_.Filter.atTop (nhds (normalizedLocalPairLimit u hgrad m).1) := by
     simpa only [localValueRestrict_normalizedLocalPair] using hshift
   exact tendsto_nhds_unique hleft hright
 
@@ -570,30 +570,30 @@ private theorem localGradientRestrict_normalizedLocalPairLimit {d : ℕ}
     localGradientRestrict hmn (normalizedLocalPairLimit u hgrad n).2 =
       (normalizedLocalPairLimit u hgrad m).2 := by
   have hn :
-      Filter.Tendsto (fun k => (normalizedLocalPair u n k).2) Filter.atTop
+      _root_.Filter.Tendsto (fun k => (normalizedLocalPair u n k).2) _root_.Filter.atTop
         (nhds (normalizedLocalPairLimit u hgrad n).2) :=
     (tendsto_normalizedLocalPairLimit u hgrad n).snd_nhds
   have hm :
-      Filter.Tendsto (fun k => (normalizedLocalPair u m k).2) Filter.atTop
+      _root_.Filter.Tendsto (fun k => (normalizedLocalPair u m k).2) _root_.Filter.atTop
         (nhds (normalizedLocalPairLimit u hgrad m).2) :=
     (tendsto_normalizedLocalPairLimit u hgrad m).snd_nhds
   have hleft :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => localGradientRestrict hmn (normalizedLocalPair u n k).2)
-        Filter.atTop
+        _root_.Filter.atTop
         (nhds (localGradientRestrict hmn
           (normalizedLocalPairLimit u hgrad n).2)) :=
     ((localGradientRestrict hmn).continuous.tendsto
       (normalizedLocalPairLimit u hgrad n).2).comp hn
   have hshift :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => (normalizedLocalPair u m (k + (n - m))).2)
-        Filter.atTop (nhds (normalizedLocalPairLimit u hgrad m).2) :=
-    (Filter.tendsto_add_atTop_iff_nat (n - m)).mpr hm
+        _root_.Filter.atTop (nhds (normalizedLocalPairLimit u hgrad m).2) :=
+    (_root_.Filter.tendsto_add_atTop_iff_nat (n - m)).mpr hm
   have hright :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => localGradientRestrict hmn (normalizedLocalPair u n k).2)
-        Filter.atTop (nhds (normalizedLocalPairLimit u hgrad m).2) := by
+        _root_.Filter.atTop (nhds (normalizedLocalPairLimit u hgrad m).2) := by
     simpa only [localGradientRestrict_normalizedLocalPair] using hshift
   exact tendsto_nhds_unique hleft hright
 
@@ -661,7 +661,7 @@ private theorem normalizedLocalPairLimit_mem_h1Graph {d : ℕ}
     normalizedLocalPairLimit u hgrad n ∈
       h1GraphClosedSubmodule (U := localGradientCube d n) := by
   apply mem_h1GraphClosedSubmodule_of_tendsto_h1Function
-    (l := Filter.atTop) (w := normalizedLocalH1 u n)
+    (l := _root_.Filter.atTop) (w := normalizedLocalH1 u n)
   · exact (tendsto_normalizedLocalPairLimit u hgrad n).fst_nhds
   · exact (tendsto_normalizedLocalPairLimit u hgrad n).snd_nhds
 
@@ -682,26 +682,26 @@ private theorem normalizedLocalPairLimit_unitMeanZero {d : ℕ}
     scalarIntegralCLM (U := localGradientCube d 0)
       (normalizedLocalPairLimit u hgrad 0).1 = 0 := by
   have hvalue :
-      Filter.Tendsto (fun k => (normalizedLocalPair u 0 k).1) Filter.atTop
+      _root_.Filter.Tendsto (fun k => (normalizedLocalPair u 0 k).1) _root_.Filter.atTop
         (nhds (normalizedLocalPairLimit u hgrad 0).1) :=
     (tendsto_normalizedLocalPairLimit u hgrad 0).fst_nhds
   have hleft :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => scalarIntegralCLM (U := localGradientCube d 0)
           (normalizedLocalPair u 0 k).1)
-        Filter.atTop
+        _root_.Filter.atTop
         (nhds (scalarIntegralCLM (U := localGradientCube d 0)
           (normalizedLocalPairLimit u hgrad 0).1)) :=
     ((scalarIntegralCLM (U := localGradientCube d 0)).continuous.tendsto
       (normalizedLocalPairLimit u hgrad 0).1).comp hvalue
   have hright :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => scalarIntegralCLM (U := localGradientCube d 0)
           (normalizedLocalPair u 0 k).1)
-        Filter.atTop (nhds 0) := by
+        _root_.Filter.atTop (nhds 0) := by
     simpa only [scalarIntegral_normalizedLocalPair_zero] using
       (tendsto_const_nhds :
-        Filter.Tendsto (fun _k : ℕ => (0 : ℝ)) Filter.atTop (nhds 0))
+        _root_.Filter.Tendsto (fun _k : ℕ => (0 : ℝ)) _root_.Filter.atTop (nhds 0))
   exact tendsto_nhds_unique hleft hright
 
 private noncomputable def assembledNormalizedLocalH1Carrier {d : ℕ}
@@ -719,7 +719,7 @@ def IsNormalizedLocalLimit {d : ℕ}
     (u : ∀ q, H1Function (localGradientCube d q))
     (z : NormalizedLocalH1Carrier d) : Prop :=
   ∀ n,
-    Filter.Tendsto (normalizedLocalPair u n) Filter.atTop
+    _root_.Filter.Tendsto (normalizedLocalPair u n) _root_.Filter.atTop
       (nhds (z.valueComponent n, z.gradientComponent n))
 
 private theorem assembledNormalizedLocalH1Carrier_isLimit {d : ℕ}

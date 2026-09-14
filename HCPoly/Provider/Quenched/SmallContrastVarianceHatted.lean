@@ -118,7 +118,7 @@ theorem blockSize_variance_replacement_pathwise [NeZero d]
   -- the smallness packs
   have hintj' : HasIntegrableCoarseBlock P
       ((Response.adaptedDomain hqpd j : Domain d) : Set (Vec d)) := by
-    simpa only [Response.adaptedDomain_carrier] using hintj
+    simpa only [Response.adaptedDomain_carrier] using! hintj
   have hEj' : toFullBlockMat
       (annealedBlock P
         ((Response.adaptedDomain hqpd j : Domain d) : Set (Vec d))) =
@@ -129,7 +129,7 @@ theorem blockSize_variance_replacement_pathwise [NeZero d]
       hStarj hEj' hposj' htrj
   have hintp' : HasIntegrableCoarseBlock P
       ((Response.adaptedDomain hqpd p : Domain d) : Set (Vec d)) := by
-    simpa only [Response.adaptedDomain_carrier] using hintp
+    simpa only [Response.adaptedDomain_carrier] using! hintp
   have hEp' : toFullBlockMat
       (annealedBlock P
         ((Response.adaptedDomain hqpd p : Domain d) : Set (Vec d))) =

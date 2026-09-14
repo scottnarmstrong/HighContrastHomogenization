@@ -87,10 +87,6 @@ theorem centeredHistory_ne_top_of_window [NeZero d]
       lintegral_rpow_enorm_lt_top_of_eLpNorm_lt_top hp0 ENNReal.ofReal_ne_top hXLpTop
   refine ne_of_lt (lt_of_le_of_lt (lintegral_mono fun a ↦ ?_) hXmoment)
   apply ENNReal.rpow_le_rpow _ (le_trans zero_le_one hQ)
-  change ENNReal.ofReal (blockSize
-      (blockSub (coarseBlock (adaptedCell (roundedGrid jStar m0) j) a)
-        (adaptedMean P (roundedGrid jStar m0) j))
-      (adaptedMean P (roundedGrid jStar m0) t)) ≤ X a
   have hmean : annealedBlock P (adaptedCell (roundedGrid jStar m0) j) =
       adaptedMean P (roundedGrid jStar m0) j := by
     rw [← PortableHistory.adaptedCellAt_zero]

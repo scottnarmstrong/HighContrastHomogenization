@@ -152,7 +152,7 @@ theorem exp_mul_centeredMoment_le [NeZero d] {Q a rhoMax : ℝ} (ha : 0 < a)
     refine le_trans (Finset.single_le_sum
       (f := fun j : ℤ => ENNReal.ofReal ((3 : ℝ) ^ (-a * ((T : ℝ) - (j : ℝ))) *
         Real.exp (Q * detIncrement P q j T)) * centeredMoment P Q q j ^ Q)
-      (fun i _ => zero_le _) hmem) ?_
+      (fun i _ => zero_le) hmem) ?_
     exact le_trans (self_le_add_left _ _) (self_le_add_right _ _)
   have hprod : (3 : ℝ) ^ (a * ((T : ℝ) - (r : ℝ))) *
       ((3 : ℝ) ^ (-a * ((T : ℝ) - (r : ℝ))) * Real.exp (Q * detIncrement P q r T)) =
@@ -196,7 +196,7 @@ theorem frakH_le_of_portableProfile_le_one [NeZero d] {Q a rhoMax : ℝ} (ha : 0
     rw [portableProfile]
     refine le_trans (Finset.single_le_sum
       (f := fun j : ℤ => ENNReal.ofReal ((3 : ℝ) ^ (-a * ((T : ℝ) - 1 - (j : ℝ))) *
-        frakH Q (relMean P q j T))) (fun i _ => zero_le _) hmem) ?_
+        frakH Q (relMean P q j T))) (fun i _ => zero_le) hmem) ?_
     exact self_le_add_left _ _
   have hprod : (3 : ℝ) ^ (a * ((T : ℝ) - 1 - (r : ℝ))) *
       ((3 : ℝ) ^ (-a * ((T : ℝ) - 1 - (r : ℝ))) * frakH Q (relMean P q r T)) =
@@ -240,7 +240,7 @@ theorem exp_detIncrement_sub_one_le [NeZero d] [IsProbabilityMeasure P] {Q a rho
   have hQ0 : (0 : ℝ) < Q := lt_of_lt_of_le zero_lt_one hQ
   rcases eq_or_lt_of_le hrT with heq | hlt
   · rw [heq, detIncrement_self, mul_zero, Real.exp_zero, sub_self, ENNReal.ofReal_zero]
-    exact zero_le _
+    exact zero_le
   · have hjs : jStar ≤ r := by omega
     have hfrak : ENNReal.ofReal (frakH Q (relMean P q r T)) ≤
         ENNReal.ofReal ((3 : ℝ) ^ (a * (h : ℝ))) *

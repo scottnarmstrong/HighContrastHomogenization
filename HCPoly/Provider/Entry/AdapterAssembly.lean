@@ -78,8 +78,8 @@ theorem exists_euclidean_adapter (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
                     (CAE * witnessEccentricity mAl * transferGauge g K n *
                       (3 : ℝ) ^ (-((m : ℝ) - (n : ℝ)))) E)) := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
-  haveI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
+  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hg0 : 0 ≤ g := hg.1
   have hg1 : g < 1 := hg.2
   have hgpos : (0 : ℝ) < 1 - g := by linarith only [hg1]
@@ -102,7 +102,7 @@ theorem exists_euclidean_adapter (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
   have hdcube : (d : ℝ) * Real.sqrt d ≤ (d : ℝ) ^ 3 := hstep1.trans hstep2
   refine ⟨15274 * (d : ℝ) ^ 3 * (1 - g)⁻¹, by positivity, ?_⟩
   intro P E Ψ K S hP hstat _hunit hdag lAl hlAl mAl hmAl k n m hk hkn hnm
-  haveI := hP
+  have := hP
   have hgrid : IsRoundedGrid lAl (roundedGrid lAl mAl) := ⟨hlAl, mAl, hmAl, rfl⟩
   have hq : (roundedGrid lAl mAl).PosDef := Recurrence.posDef_of_isRoundedGrid hgrid
   have hqinv : ‖(roundedGrid lAl mAl)⁻¹‖ ≤ 101 / 100 :=

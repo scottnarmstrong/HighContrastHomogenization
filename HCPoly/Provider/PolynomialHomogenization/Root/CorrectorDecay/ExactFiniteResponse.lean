@@ -34,8 +34,9 @@ private theorem cubeLpNorm_eq_of_ae_eq_on_parent_cube
   have hvol : f =ᵐ[MeasureTheory.volume.restrict (cubeSet R)] h :=
     MeasureTheory.ae_restrict_of_ae_restrict_of_subset
       (cubeSet_subset_of_mem_descendantsAtDepth hR)
-      (by simpa only [volumeMeasureOn] using hfh)
+      (by simpa only [volumeMeasureOn] using! hfh)
   have hnorm : f =ᵐ[normalizedCubeMeasure R] h := by
+    show ∀ᵐ x ∂normalizedCubeMeasure R, f x = h x
     simpa only [normalizedCubeMeasure, cubeMeasure] using
       MeasureTheory.Measure.ae_smul_measure hvol
         (ENNReal.ofReal ((cubeVolume R)⁻¹))
@@ -133,7 +134,7 @@ theorem exists_identityFiniteResponseConstant
     simp only [u, finiteAffineSolution_toH1, H1Function.add_toFun]
     ring
   have hdesc : originCube d (m - 1) ∈ descendantsAtDepth Q 1 := by
-    simpa only [Q, centralDescendant_originCube_eq_originCube_sub] using
+    simpa only [Q, centralDescendant_originCube_eq_originCube_sub, Nat.cast_one] using
       CubeCalderonZygmund.centralDescendant_mem_descendantsAtDepth Q 1
   rw [cubeLpNorm_eq_of_ae_eq_on_parent_cube hdesc hcorrectionAE] at hvalue
   have hscale : Ccomp * E * A ≤ C * E * euclideanNorm e := by

@@ -153,7 +153,7 @@ theorem exists_scalarIdentityInfiniteCorrectorC1ConstantsWithSlope
         finiteAffineGradientExcess a (m : ℤ) (m : ℤ) u := by
     have heBase : P e = bBase := he
     simpa only [uQ, finiteQ, finiteCubeSolutionRestriction_grad,
-      heBase, bBase, hnm, P] using hfixedRaw
+      heBase, bBase, hnm, P] using! hfixedRaw
   have hexcessOuter : finiteAffineGradientExcess a (m : ℤ) (m : ℤ) u ≤
       weightedGradNorm
         (a.coeffOn (originCube d (m : ℤ))).toCoeffField
@@ -165,7 +165,7 @@ theorem exists_scalarIdentityInfiniteCorrectorC1ConstantsWithSlope
     have hzero' : (finiteAffineSolution a (m : ℤ) (0 : Vec d)).toH1.grad
         =ᵐ[volumeMeasureOn (openCubeSet (originCube d (m : ℤ)))]
           fun _ ↦ 0 := by
-      simpa only [zero_smul] using hzero
+      simpa only [zero_smul] using! hzero
     refine hcandidate.trans_eq ?_
     apply weightedGradNorm_congr_ae
     filter_upwards [hzero'] with x hx
@@ -191,7 +191,7 @@ theorem exists_scalarIdentityInfiniteCorrectorC1ConstantsWithSlope
       (show H1Function (localGradientCube d q) from by
         simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
           finiteAffineBoundaryH1 (q : ℤ) e).grad = fun _ ↦ e := by
-    simpa only using finiteAffineBoundaryH1_grad (m := (q : ℤ)) e
+    simpa only using! finiteAffineBoundaryH1_grad (m := (q : ℤ)) e
   have hglobal :=
     (finiteAffineCorrectionJointLocalLimit a hCauchy e).globalGradientRepresentative_ae_eq_localH1Gradient q
   have hjointField : jointQ.grad =ᵐ[volumeMeasureOn

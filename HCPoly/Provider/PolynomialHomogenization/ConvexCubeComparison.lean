@@ -54,7 +54,7 @@ theorem exists_identityCoarseGrainingComparisonDatum_of_hcWeakSolution
       coarseGrainingComparisonDatum_zero_of_hcWeakSolutions
         (a0 := identityConstantCoeffMatrix 0) u v hu hv 0 hwTrace
     exact ⟨W, hWu⟩
-  · letI : NeZero d := ⟨hd⟩
+  · let : NeZero d := ⟨hd⟩
     let U : Set (Vec d) := Book.Ch02.cubeDomain Q
     let a0 : Book.Ch03.ConstantCoeffMatrix d := identityConstantCoeffMatrix d
     let b0 : CoeffField d := constantCoeffField a0.matrix
@@ -130,8 +130,11 @@ theorem exists_identityCoarseGrainingComparisonDatum_of_hcWeakSolution
                   refine MeasureTheory.setIntegral_congr_fun
                     (Book.Ch02.cubeDomain Q).measurableSet ?_
                   intro x _hx
-                  simp [hb0_apply, v, hpsiGrad, sub_eq_add_neg,
-                    vecDot_add_right, vecDot_neg_right]
+                  have hgrad : v.grad x = u.grad x - w.toH1Function.grad x := by
+                    show (u - w.toH1Function).grad x = u.grad x - w.toH1Function.grad x
+                    rw [H1Function.sub_grad]
+                  simp only [hb0_apply, hpsiGrad, hgrad, sub_eq_add_neg, vecDot_add_right,
+                    vecDot_neg_right]
           _ = (∫ x in U, vecDot (psi.toH1Function.grad x) (u.grad x) ∂volume) -
                 ∫ x in U,
                   vecDot (psi.toH1Function.grad x) (w.toH1Function.grad x) ∂volume :=
@@ -141,7 +144,10 @@ theorem exists_identityCoarseGrainingComparisonDatum_of_hcWeakSolution
         w.toH1Function.toFun =ᵐ[volumeMeasureOn U]
           fun x => u.toFun x - v.toFun x := by
       filter_upwards with x
-      simp [v]
+      show w.toH1Function.toFun x = u.toFun x - (u - w.toH1Function).toFun x
+      rw [H1Function.sub_toFun]
+      change w.toH1Function.toFun x = u.toFun x - (u.toFun x - w.toH1Function.toFun x)
+      ring
     obtain ⟨W, hWu, _hWv⟩ :=
       coarseGrainingComparisonDatum_zero_of_hcWeakSolutions
         (a0 := a0) u v hu hv w hwTrace

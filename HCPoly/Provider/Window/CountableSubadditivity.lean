@@ -28,7 +28,7 @@ theorem ae_eq_iUnion_of_countable_aePartition {ι : Type*} {U : Set (Vec d)}
     {c : ι → Set (Vec d)} (hsub : ∀ i, c i ⊆ U)
     (hnull : volume (U \ ⋃ i, c i) = 0) : U =ᵐ[volume] ⋃ i, c i := by
   refine ae_eq_set.mpr ⟨hnull, ?_⟩
-  rw [Set.diff_eq_empty.mpr (Set.iUnion_subset hsub), measure_empty]
+  rw [Set.sdiff_eq_empty.mpr (Set.iUnion_subset hsub), measure_empty]
 
 /-- The weights of a countable almost-everywhere partition sum to one. -/
 theorem tsum_weight_eq_one_of_countable_aePartition {ι : Type*} [Countable ι]
@@ -136,7 +136,7 @@ theorem blockQuadratic_le_tsum_weight_of_countable_aePartition [NeZero d]
   have hEll : IsEllipticFieldOn lam Lam U f :=
     Recurrence.isEllipticFieldOn_of_measurable hfm hfell hU.isOpen.measurableSet
   have hUtop : volume U ≠ ⊤ := hU.volume_lt_top.ne
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := by
+  have : IsFiniteMeasure (volumeMeasureOn U) := by
     simpa [volumeMeasureOn] using hU.isFiniteMeasure_restrict_volume
   have hweights := tsum_weight_eq_one_of_countable_aePartition
     (fun i => (hc i).isOpen.measurableSet) hsub hdisj hnull hU0 hUtop
@@ -189,7 +189,7 @@ theorem blockQuadratic_le_tsum_weight_of_countable_aePartition [NeZero d]
     rw [volumeAverage_eq_tsum_weight_of_countable_aePartition
       (fun i => (hc i).isOpen.measurableSet) hsub hdisj hnull hint hcell0 hUtop]
     refine havgSummable.tsum_le_tsum (fun i => ?_) hrespSummable
-    haveI : IsFiniteMeasure (volumeMeasureOn (c i)) := by
+    have : IsFiniteMeasure (volumeMeasureOn (c i)) := by
       simpa [volumeMeasureOn] using (hc i).isFiniteMeasure_restrict_volume
     have hElli : IsEllipticFieldOn lam Lam (c i) f :=
       IsEllipticFieldOn.mono hEll (hc i).isOpen.measurableSet (hsub i)

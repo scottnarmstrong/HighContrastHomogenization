@@ -156,7 +156,7 @@ theorem matSqrt_le_matSqrt {A B : Matrix n n ℝ} (hA : A.PosSemidef) (hB : B.Po
   -- Step 4: `‖W‖ ≤ 1`.
   have hWnorm : ‖W‖ ≤ 1 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     obtain ⟨m, hm⟩ := pow_unbounded_of_one_lt (R := ℝ) C₀ hcon
     have hmono : ‖W‖ ^ m ≤ ‖W‖ ^ 2 ^ m :=
       pow_le_pow_right₀ hcon.le (Nat.le_of_lt (Nat.lt_two_pow_self))

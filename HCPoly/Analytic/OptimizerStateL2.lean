@@ -59,8 +59,7 @@ theorem exists_blockState_toHilbertBlockL2 {U : Set (Vec d)} (f : HilbertBlockL2
   · exact hFmem
   · refine MeasureTheory.Lp.ext ?_
     filter_upwards [coeFn_toHilbertBlockL2OfBlockField (U := U) (F := F) hFmem] with x hx
-    rw [hx]
-    simp [hilbertifyBlockField, hF]
+    exact hx.trans (by simp [hilbertifyBlockField, hF])
 
 /-! ## The optimizer state is square integrable -/
 
@@ -122,7 +121,7 @@ theorem inner_optimizerStateL2 {U : Book.Ch02.Domain d}
     _ = ∑ alpha : BlockCoord d, ∫ x in (U : Set (Vec d)),
           toFullBlockVec (Y.eval x) alpha *
             toFullBlockVec (optimizerBlockState U aU p q x) alpha ∂volume :=
-          integral_finset_sum _ fun alpha _ => hint alpha
+          integral_finsetSum _ fun alpha _ => hint alpha
 
 /-! ## Strong measurability of the ambient optimizer state -/
 
@@ -142,10 +141,10 @@ theorem stronglyMeasurable_optimizerStateL2 {Om : Type*} [mOm : MeasurableSpace 
     (p q : Vec d) :
     StronglyMeasurable fun w : Om => optimizerStateL2 U (aU w) p q := by
   classical
-  haveI : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
-  haveI : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
-  letI : MeasurableSpace (HilbertBlockL2 (U : Set (Vec d))) := borel _
-  haveI : BorelSpace (HilbertBlockL2 (U : Set (Vec d))) := ⟨rfl⟩
+  have : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
+  have : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
+  let : MeasurableSpace (HilbertBlockL2 (U : Set (Vec d))) := borel _
+  have : BorelSpace (HilbertBlockL2 (U : Set (Vec d))) := ⟨rfl⟩
   obtain ⟨u, hu, hrep⟩ :
       ∃ u : ℕ → HilbertBlockL2 (U : Set (Vec d)), DenseRange u ∧
         ∀ n : ℕ, ∃ (Y : BlockState d) (hY : MemBlockL2 (U : Set (Vec d)) Y.eval),

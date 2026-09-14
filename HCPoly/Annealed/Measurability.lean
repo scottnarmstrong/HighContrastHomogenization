@@ -150,7 +150,7 @@ theorem Mu_centeredCube_eq_Mu_cubeSet (m : ℤ) (Q : BlockVec d) (f : CoeffField
     Mu (centeredCube d m) Q f = Mu (cubeSet (originCube d m)) Q f := by
   rcases Nat.eq_zero_or_pos d with hd | hd
   · rw [centeredCube_eq_cubeSet_of_dim_zero hd]
-  · haveI : NeZero d := ⟨by omega⟩
+  · have : NeZero d := ⟨by omega⟩
     exact (Mu_cubeSet_originCube_eq_openCubeSet m Q f).symm
 
 /-- **The coarse-grained energy of a centered cube is measurable** on the

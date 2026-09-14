@@ -144,7 +144,7 @@ theorem lqSchattenSize_alignedAverage_le_of_lqNorm_le {P : Measure (CoeffSpace d
     intro α β
     rw [hentry α β]
     have hsum := Finset.aestronglyMeasurable_sum Z fun w (_ : w ∈ Z) => hmeasw w α β
-    exact ((hsum.congr (Filter.Eventually.of_forall fun a => by
+    exact ((hsum.congr (_root_.Filter.Eventually.of_forall fun a => by
       simp only [Finset.sum_apply])).const_smul _)
   have harith : (Z.card : ℝ)⁻¹ *
       ((2 * Q + 4 * IndependentSums.rosenthalBennettIntegralConst * Real.sqrt Q) *
@@ -174,7 +174,7 @@ theorem lqSchattenSize_alignedAverage_le_of_lqNorm_le {P : Measure (CoeffSpace d
             (blockSub (coarseBlock (adaptedCellAt q j w) a) (adaptedMean P q j)) F) α β) := by
       rw [lqNorm, lqNorm, hentry α β, eLpNorm_const_smul]
       congr 1
-      rw [← ofReal_norm_eq_enorm, Real.norm_of_nonneg (le_of_lt (inv_pos.mpr hMpos))]
+      rw [← ofReal_norm, Real.norm_of_nonneg (le_of_lt (inv_pos.mpr hMpos))]
     rw [hscale, ← harith, ENNReal.ofReal_mul (le_of_lt (inv_pos.mpr hMpos))]
     exact mul_le_mul' le_rfl (lqNorm_sum_aligned_le hPs hP hQ hq hj hint F hv Z α β
       fun w hw => hbd w hw α β)
@@ -212,7 +212,7 @@ theorem finite_range_matrix_averaging (d : ℕ) (hd : 0 < d) {Q : ℝ} (hQ : 2 �
     ((2 * Q + 4 * IndependentSums.rosenthalBennettIntegralConst * Real.sqrt Q) *
       Real.sqrt ((3 : ℝ) ^ d)), by positivity, ?_⟩
   intro P hPprob hPs hP l q hq j hj hint F v Z hZ hbd
-  haveI := hPprob
+  have := hPprob
   have hMpos : (0 : ℝ) < (Z.card : ℝ) := by exact_mod_cast Finset.card_pos.mpr hZ
   have hgain : (0 : ℝ) < (Z.card : ℝ) ^ (-(2 : ℝ)⁻¹) := Real.rpow_pos_of_pos hMpos _
   rcases eq_or_ne v ⊤ with rfl | hv

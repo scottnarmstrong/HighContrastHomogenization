@@ -78,7 +78,7 @@ private theorem integrable_adjoint_optimizer_gradient_apply
   have hbase :=
     (integrable_adjoint_coarseBlock_mulVec_apply U hint X (Sum.inr i)).add
       (integrable_const (X.1 i))
-  refine hbase.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+  refine hbase.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   have h := blockAverage_eq (a.transpose.coeffOn U)
     (centeredAdjointOptimizer_isMaximizer U a p q)
   rw [← coarseBlock_eq_coarseBlockMatrix a.transpose U] at h
@@ -96,7 +96,7 @@ private theorem integrable_adjoint_optimizer_flux_apply
   have hbase :=
     (integrable_adjoint_coarseBlock_mulVec_apply U hint X (Sum.inl i)).add
       (integrable_const (X.2 i))
-  refine hbase.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+  refine hbase.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   have h := blockAverage_eq (a.transpose.coeffOn U)
     (centeredAdjointOptimizer_isMaximizer U a p q)
   rw [← coarseBlock_eq_coarseBlockMatrix a.transpose U] at h
@@ -113,7 +113,7 @@ theorem annealedAdjointOptimizerGradient_subSkew
       (centeredAdjointOptimizer U (a.subSkew g hg) p q) i ∂P) =
       annealedAdjointOptimizerGradient P U p (q + matVecMul g p) := by
   funext i
-  exact integral_congr_ae (Filter.Eventually.of_forall fun a ↦ congrFun
+  exact integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦ congrFun
     (averageGradient_centeredAdjointOptimizer_subSkew U a g hg p q) i)
 
 /-- The separately annealed adjoint optimizer flux gains the skew matrix
@@ -139,14 +139,14 @@ theorem annealedAdjointOptimizerFlux_subSkew
   have hmatInt : Integrable (fun a ↦ matVecMul g
       (averageGradient U (a.transpose.coeffOn U)
         (centeredAdjointOptimizer U a p q₀)) i) P := by
-    simpa only [matVecMul] using integrable_finset_sum Finset.univ
+    simpa only [matVecMul] using integrable_finsetSum Finset.univ
       (fun j _ ↦ (hgradInt j).const_mul (g i j))
   have hmatIntegral :
       (∫ a, matVecMul g (averageGradient U (a.transpose.coeffOn U)
         (centeredAdjointOptimizer U a p q₀)) i ∂P) =
         matVecMul g (annealedAdjointOptimizerGradient P U p q₀) i := by
     simp only [matVecMul]
-    rw [integral_finset_sum Finset.univ
+    rw [integral_finsetSum Finset.univ
       (fun j _ ↦ (hgradInt j).const_mul (g i j))]
     apply Finset.sum_congr rfl
     intro j _
@@ -159,7 +159,7 @@ theorem annealedAdjointOptimizerFlux_subSkew
           (centeredAdjointOptimizer U a p q₀) i +
         matVecMul g (averageGradient U (a.transpose.coeffOn U)
           (centeredAdjointOptimizer U a p q₀)) i ∂P := by
-      refine integral_congr_ae (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       exact congrFun
         (averageFlux_centeredAdjointOptimizer_subSkew U a g hg p q) i
     _ = (∫ a, averageFlux U (a.transpose.coeffOn U)
@@ -191,7 +191,7 @@ theorem centeredAdjointResponse_subSkew
   have hresponse :
       (∫ a, responseJ U ((a.subSkew g hg).transpose.coeffOn U) p q ∂P) =
         ∫ a, responseJ U (a.transpose.coeffOn U) p q₀ ∂P := by
-    refine integral_congr_ae (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change responseJ U ((a.subSkew g hg).transpose.coeffOn U) p q =
       responseJ U (a.transpose.coeffOn U) p q₀
     rw [CoeffSpace.transpose_subSkew]
@@ -208,7 +208,7 @@ theorem centeredAdjointResponse_subSkew
   have hgstar : Matrix.conjTranspose g = -g := by
     rwa [conjTranspose_eq_transpose']
   have hzero : vecDot G (matVecMul g G) = 0 := by
-    simpa [vecDot, matVecMul] using dotProduct_mulVec_of_skew hgstar G
+    simpa [vecDot, matVecMul] using! dotProduct_mulVec_of_skew hgstar G
   have hdot : vecDot G (F + matVecMul g G) = vecDot G F := by
     calc
       _ = vecDot G F + vecDot G (matVecMul g G) := by

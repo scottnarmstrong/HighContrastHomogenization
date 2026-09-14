@@ -26,7 +26,7 @@ variable {d : ℕ}
 complement. -/
 theorem IsOpenBoundedConvexDomain.compl_nonempty (hd : 1 ≤ d)
     {U : Set (Vec d)} (hU : IsOpenBoundedConvexDomain U) : Uᶜ.Nonempty := by
-  haveI : NeZero d := ⟨Nat.ne_of_gt hd⟩
+  have : NeZero d := ⟨Nat.ne_of_gt hd⟩
   rw [Set.nonempty_compl]
   intro hUuniv
   apply NormedSpace.unbounded_univ ℝ (Vec d)
@@ -72,7 +72,7 @@ theorem volume_euclideanBoundaryDistance_lt_le (hd : 1 ≤ d)
       {x : Vec d | x ∈ U ∧ euclideanBoundaryDistance U x < t} =
         {x : Vec d | x ∈ U ∧ ¬euclideanBallAt x t ⊆ U} := by
     ext x
-    simp only [Set.mem_setOf_eq, and_congr_right_iff]
+    simp only [Set.mem_ofPred_eq, and_congr_right_iff]
     intro _hx
     exact euclideanBoundaryDistance_lt_iff_not_ball_subset hd hU ht
   rw [hsets]
@@ -93,7 +93,7 @@ theorem measure_inverse_euclideanBoundaryDistance_gt_le (hd : 1 ≤ d)
       {x : Vec d | t < (euclideanBoundaryDistance U x)⁻¹} ∩ U =
         {x : Vec d | x ∈ U ∧ euclideanBoundaryDistance U x < t⁻¹} := by
     ext x
-    simp only [Set.mem_inter_iff, Set.mem_setOf_eq]
+    simp only [Set.mem_inter_iff, Set.mem_ofPred_eq]
     constructor
     · rintro ⟨htail, hx⟩
       exact ⟨hx, (lt_inv_comm₀ ht (euclideanBoundaryDistance_pos hd hU hx)).mp htail⟩

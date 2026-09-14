@@ -35,7 +35,7 @@ theorem euclideanBall_subset_centeredOpenCube_two_mul
     euclideanBall d r ⊆ centeredOpenCube d (2 * r) := by
   intro x hx
   have hxnorm : vecNormSq x < r ^ 2 := by
-    simpa only [euclideanBall, euclideanBallAt, sub_zero, Set.mem_setOf_eq] using hx
+    simpa only [euclideanBall, euclideanBallAt, sub_zero, Set.mem_ofPred_eq] using hx
   have hxcoord : ∀ i : Fin d, -r < x i ∧ x i < r := by
     intro i
     have hi : x i ^ 2 < r ^ 2 :=

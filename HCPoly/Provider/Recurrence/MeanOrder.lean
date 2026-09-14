@@ -98,7 +98,33 @@ theorem integral_alignedAverage_eq_adaptedMean {P : Measure (CoeffSpace d)}
       annealedBlock_adaptedCellAt_eq_adaptedMean hP hq hlj hmeas w]
   have hcard : (0 : ℝ) < (Z.card : ℝ) := by
     exact_mod_cast Finset.card_pos.mpr hZ
-  rw [integral_smul, integral_finset_sum _ hterm, Finset.sum_congr rfl hcell,
+  -- The generic finite-sum integral lemma resolves its ambient norm on the
+  -- flattened carrier through the operator-norm scope, while the coarse
+  -- response's own integrability comes from the entrywise one; the two
+  -- interfaces are bridged entry by entry rather than at the matrix level.
+  have hentry : ∀ w ∈ Z, ∀ α β : BlockCoord d,
+      Integrable (fun a => toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) α β) P :=
+    fun w _ α β => (hasIntegrableCoarseBlock_adaptedCellAt hP hq hlj hint w α β).congr
+      (_root_.Filter.Eventually.of_forall fun a =>
+        (toFullBlockMat_eq_blockMatEntry (coarseBlock (adaptedCellAt q j w) a) α β).symm)
+  have hsumint : Integrable
+      (fun a => ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a)) P :=
+    integrable_of_entries fun α β => by
+      simpa only [Matrix.sum_apply] using integrable_finsetSum Z fun w hw => hentry w hw α β
+  have hsumeq : ∫ a, ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) ∂P =
+      ∑ w ∈ Z, ∫ a, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) ∂P := by
+    ext α β
+    have hL : (∫ a, ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) ∂P) α β =
+        ∑ w ∈ Z, ∫ a, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) α β ∂P := by
+      rw [entry_integral hsumint α β]
+      simp only [Matrix.sum_apply]
+      exact integral_finsetSum Z fun w hw => hentry w hw α β
+    have hR : (∑ w ∈ Z, ∫ a, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) ∂P) α β =
+        ∑ w ∈ Z, ∫ a, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) α β ∂P := by
+      simp only [Matrix.sum_apply]
+      exact Finset.sum_congr rfl fun w hw => entry_integral (hterm w hw) α β
+    rw [hL, hR]
+  rw [integral_smul, hsumeq, Finset.sum_congr rfl hcell,
     Finset.sum_const, ← Nat.cast_smul_eq_nsmul ℝ, smul_smul,
     inv_mul_cancel₀ hcard.ne', one_smul]
 
@@ -123,16 +149,25 @@ theorem toFullBlockMat_adaptedMean_le [NeZero d] {P : Measure (CoeffSpace d)}
         (Z.card : ℝ)⁻¹ • ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) :=
     fun a => toFullBlockMat_coarseBlock_adaptedCell_le_average
       (posDef_of_isRoundedGrid hq) hjp hZ a
+  -- As in `integral_alignedAverage_eq_adaptedMean`, the sum's integrability is
+  -- bridged from the entrywise interface rather than the matrix-level one.
+  have hentry : ∀ w ∈ Z, ∀ α β : BlockCoord d,
+      Integrable (fun a => toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) α β) P :=
+    fun w _ α β => (hasIntegrableCoarseBlock_adaptedCellAt hP hq hlj hintj w α β).congr
+      (_root_.Filter.Eventually.of_forall fun a =>
+        (toFullBlockMat_eq_blockMatEntry (coarseBlock (adaptedCellAt q j w) a) α β).symm)
   have hsum : Integrable
       (fun a => ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a)) P :=
-    integrable_finset_sum Z fun w _ =>
-      integrable_toFullBlockMat_coarseBlock_adaptedCellAt hP hq hlj hintj w
+    integrable_of_entries fun α β => by
+      simpa only [Matrix.sum_apply] using integrable_finsetSum Z fun w hw => hentry w hw α β
   have hgint : Integrable
       (fun a => (Z.card : ℝ)⁻¹ •
         ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt q j w) a)) P :=
-    (hsum.smul ((Z.card : ℝ)⁻¹)).congr (Filter.Eventually.of_forall fun _ => rfl)
+    integrable_of_entries fun α β => by
+      simp only [Matrix.smul_apply, Matrix.sum_apply, smul_eq_mul]
+      exact (integrable_finsetSum Z fun w hw => hentry w hw α β).const_mul _
   have hmono := integral_mono' (integrable_toFullBlockMat hintp) hgint
-    (Filter.Eventually.of_forall hle)
+    (_root_.Filter.Eventually.of_forall hle)
   rw [integral_alignedAverage_eq_adaptedMean hP hq hlj hintj hZne] at hmono
   rwa [toFullBlockMat_adaptedMean_eq_integral hintp]
 

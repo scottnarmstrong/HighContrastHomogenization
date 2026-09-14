@@ -9,7 +9,7 @@ import HCPoly.Provider.Window.SuccessorDiscrete
 namespace Homogenization
 namespace HighContrast
 namespace Window
-open MeasureTheory Filter
+open MeasureTheory _root_.Filter
 open scoped ENNReal BigOperators
 noncomputable section
 
@@ -178,7 +178,7 @@ theorem ae_successorScale_ne_top [NeZero d]
     let q : ℕ := (m - M).toNat
     have hmq : m = M + (q : ℤ) := by dsimp only [q]; omega
     have hNq : N ≤ q := by dsimp only [q]; omega
-    exact hN q hNq (by simpa only [A, ← hmq] using hm)
+    exact hN q hNq (by simpa only [A, ← hmq] using! hm)
   have hsup : (⨆ (m : ℤ) (_ : badScaleEvent g E (M - jStar) m a),
       ENNReal.ofReal ((3 : ℝ) ^ m)) ≤
       ENNReal.ofReal ((3 : ℝ) ^ (M + (N : ℤ))) :=

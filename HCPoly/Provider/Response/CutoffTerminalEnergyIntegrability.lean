@@ -61,7 +61,7 @@ private theorem cutoffWeightedHalfEnergy_nonneg_le_two_responseJ
       rwa [vecDot_matVecMul_symmPart] at hsymm
     exact mul_nonneg (by norm_num) hraw
   have hphiBound : ∀ᵐ x ∂volumeMeasureOn (U : Set (Vec d)), ‖phi x‖ ≤ 2 :=
-    Filter.Eventually.of_forall fun x ↦ by
+    _root_.Filter.Eventually.of_forall fun x ↦ by
       rw [Real.norm_of_nonneg (hphiNonneg x)]
       exact hphiLe x
   have hweightedIntegrable :
@@ -176,8 +176,8 @@ private theorem integrable_responseJ_of_finiteAdaptedMean
   let X : BlockVec d := (-p, r)
   have hquad := (integrable_coarseBlock_quadratic hint X).const_mul (1 / 2 : ℝ)
   have hsub := hquad.sub (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X, adaptedDomain_carrier] using
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X, adaptedDomain_carrier, Pi.sub_apply] using
     (responseJ_eq_coarseBlock (adaptedDomain hq t) a p r).symm
 
 private theorem integrable_adjointResponseJ_of_finiteAdaptedMean
@@ -191,15 +191,15 @@ private theorem integrable_adjointResponseJ_of_finiteAdaptedMean
   have hquad : Integrable (fun a ↦ blockVecDot X
       (blockMatVecMul (coarseBlock (adaptedCell q t) a.transpose) X)) P := by
     have hbase := integrable_coarseBlock_quadratic hint D
-    refine hbase.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine hbase.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change blockVecDot D (blockMatVecMul (coarseBlock (adaptedCell q t) a) D) =
       blockVecDot X (blockMatVecMul (coarseBlock (adaptedCell q t) a.transpose) X)
     rw [← adaptedDomain_carrier hq t, coarseBlock_transpose a,
       blockQuadratic_adjointSign_congr]
   have hsub := (hquad.const_mul (1 / 2 : ℝ)).sub
     (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X, adaptedDomain_carrier] using
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X, adaptedDomain_carrier, Pi.sub_apply] using
     (responseJ_eq_coarseBlock (adaptedDomain hq t) a.transpose p r).symm
 
 private theorem integrable_responseJ_subSkew_of_finiteAdaptedMean
@@ -209,7 +209,7 @@ private theorem integrable_responseJ_subSkew_of_finiteAdaptedMean
     Integrable (fun a ↦ responseJ (adaptedDomain hq t)
       ((a.subSkew g hg).coeffOn (adaptedDomain hq t)) p r) P := by
   refine (integrable_responseJ_of_finiteAdaptedMean hq t hint p
-    (r - matVecMul g p)).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    (r - matVecMul g p)).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   exact (responseJ_subSkew (adaptedDomain hq t) a g hg p r).symm
 
 private theorem integrable_adjointResponseJ_subSkew_of_finiteAdaptedMean
@@ -219,7 +219,7 @@ private theorem integrable_adjointResponseJ_subSkew_of_finiteAdaptedMean
     Integrable (fun a ↦ responseJ (adaptedDomain hq t)
       ((a.subSkew g hg).transpose.coeffOn (adaptedDomain hq t)) p r) P := by
   refine (integrable_adjointResponseJ_of_finiteAdaptedMean hq t hint p
-    (r + matVecMul g p)).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    (r + matVecMul g p)).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   change responseJ (adaptedDomain hq t) (a.transpose.coeffOn (adaptedDomain hq t))
       p (r + matVecMul g p) = responseJ (adaptedDomain hq t)
         ((a.subSkew g hg).transpose.coeffOn (adaptedDomain hq t)) p r

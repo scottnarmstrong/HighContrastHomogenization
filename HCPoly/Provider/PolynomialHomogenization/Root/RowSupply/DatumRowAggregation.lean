@@ -47,7 +47,7 @@ private theorem continuous_vecNormSq :
     funext x
     simp [vecNormSq, vecDot]
   rw [hrw]
-  exact continuous_finset_sum _ fun i _ =>
+  exact continuous_finsetSum _ fun i _ =>
     (continuous_apply i).mul (continuous_apply i)
 
 /-- Every selected enlarged-margin Whitney cell has scale bounded by twice

@@ -83,7 +83,7 @@ theorem integrableOn_weakPairing_of_integrableOn_tsupport_of_locallyBounded
     fun j => (hFmeas j).mono_measure hrestr
   have hcont : Continuous (smoothGrad φ) := continuous_smoothGrad hφ.contDiff
   obtain ⟨B, hB⟩ := hKc.exists_bound_of_continuousOn hcont.continuousOn
-  haveI : IsFiniteMeasure (volume.restrict (tsupport φ)) :=
+  have : IsFiniteMeasure (volume.restrict (tsupport φ)) :=
     ⟨by rw [Measure.restrict_apply_univ]; exact hKc.measure_lt_top⟩
   -- Each component of `F` is integrable on the compact support of the test.
   have hFj : ∀ j, IntegrableOn (fun x => F x j) (tsupport φ) volume := by
@@ -107,8 +107,8 @@ theorem integrableOn_weakPairing_of_integrableOn_tsupport_of_locallyBounded
       (fun x => vecDot (smoothGrad φ x) (matVecMul (b x) (F x))) (tsupport φ)
       volume := by
     rw [hexp]
-    refine integrable_finset_sum _ fun i _ =>
-      integrable_finset_sum _ fun j _ => ?_
+    refine integrable_finsetSum _ fun i _ =>
+      integrable_finsetSum _ fun j _ => ?_
     refine Integrable.bdd_mul (c := B * M) (hFj j) ?_ ?_
     · exact (((continuous_apply i).comp hcont).aestronglyMeasurable).mul (hbK i j)
     · filter_upwards [hM, ae_restrict_mem hKm] with x hx hxK
@@ -119,7 +119,7 @@ theorem integrableOn_weakPairing_of_integrableOn_tsupport_of_locallyBounded
       rw [Real.norm_eq_abs, abs_mul]
       exact mul_le_mul hgi (hx i j) (abs_nonneg _) hB0
   -- Off the support of the test the integrand vanishes.
-  refine hKint.of_forall_diff_eq_zero hV ?_
+  refine hKint.of_forall_sdiff_eq_zero hV ?_
   intro x hx
   rw [smoothGrad_eq_zero_of_notMem_tsupport hx.2]
   simp [vecDot]

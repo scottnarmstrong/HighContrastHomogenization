@@ -51,18 +51,19 @@ theorem integrable_toFullBlockMat_diagonalWeakAverageDefect [NeZero d]
         ∑ w ∈ Z, toFullBlockMat (adaptedResponse q k w a) :=
     fun a ↦ toFullBlockMat_ofFullBlockMat _
   have hGint : Integrable (fun a ↦ toFullBlockMat (G a)) P := by
-    have hsum : Integrable
-        (fun a ↦ ∑ w ∈ Z, toFullBlockMat (adaptedResponse q k w a)) P :=
-      integrable_finset_sum Z fun w _ ↦ by
-        simpa only [adaptedResponse] using
-          Recurrence.integrable_toFullBlockMat_coarseBlock_adaptedCellAt
-            hP hgrid hlk hintk w
+    have hentry : ∀ w ∈ Z, ∀ α β : BlockCoord d,
+        Integrable (fun a ↦ toFullBlockMat (adaptedResponse q k w a) α β) P :=
+      fun w _ α β ↦ (Recurrence.hasIntegrableCoarseBlock_adaptedCellAt
+          hP hgrid hlk hintk w α β).congr
+        (_root_.Filter.Eventually.of_forall fun a ↦
+          (toFullBlockMat_eq_blockMatEntry (coarseBlock (adaptedCellAt q k w) a) α β).symm)
     simp only [hGfull]
-    exact (hsum.smul ((Z.card : ℝ)⁻¹)).congr
-      (Filter.Eventually.of_forall fun _ ↦ rfl)
+    exact integrable_of_entries fun α β ↦ by
+      simp only [Matrix.smul_apply, Matrix.sum_apply, smul_eq_mul]
+      exact (integrable_finsetSum Z fun w hw ↦ hentry w hw α β).const_mul _
   have hnormalized :=
     Recurrence.integrable_toFullBlockMat_normalizedBlock_blockSub hintt hGint
-  refine hnormalized.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+  refine hnormalized.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   exact (toFullBlockMat_diagonalWeakAverageDefect_eq_normalized
     hq hkt (adaptedMean P q t) a).symm
 
@@ -88,15 +89,16 @@ theorem integral_blockTrace_diagonalWeakAverageDefect_eq [NeZero d]
         ∑ w ∈ Z, toFullBlockMat (adaptedResponse q k w a) :=
     fun a ↦ toFullBlockMat_ofFullBlockMat _
   have hGint : Integrable (fun a ↦ toFullBlockMat (G a)) P := by
-    have hsum : Integrable
-        (fun a ↦ ∑ w ∈ Z, toFullBlockMat (adaptedResponse q k w a)) P :=
-      integrable_finset_sum Z fun w _ ↦ by
-        simpa only [adaptedResponse] using
-          Recurrence.integrable_toFullBlockMat_coarseBlock_adaptedCellAt
-            hP hgrid hlk hintk w
+    have hentry : ∀ w ∈ Z, ∀ α β : BlockCoord d,
+        Integrable (fun a ↦ toFullBlockMat (adaptedResponse q k w a) α β) P :=
+      fun w _ α β ↦ (Recurrence.hasIntegrableCoarseBlock_adaptedCellAt
+          hP hgrid hlk hintk w α β).congr
+        (_root_.Filter.Eventually.of_forall fun a ↦
+          (toFullBlockMat_eq_blockMatEntry (coarseBlock (adaptedCellAt q k w) a) α β).symm)
     simp only [hGfull]
-    exact (hsum.smul ((Z.card : ℝ)⁻¹)).congr
-      (Filter.Eventually.of_forall fun _ ↦ rfl)
+    exact integrable_of_entries fun α β ↦ by
+      simp only [Matrix.smul_apply, Matrix.sum_apply, smul_eq_mul]
+      exact (integrable_finsetSum Z fun w hw ↦ hentry w hw α β).const_mul _
   have hGmean : ∫ a, toFullBlockMat (G a) ∂P =
       toFullBlockMat (adaptedMean P q k) := by
     simp only [hGfull]

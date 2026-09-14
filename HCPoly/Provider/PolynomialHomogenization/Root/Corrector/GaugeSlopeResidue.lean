@@ -47,7 +47,7 @@ copy is `private`.) -/
 theorem matTranspose_normalizedRoot [NeZero d] {m : Mat d} (hm : m.PosDef) :
     matTranspose (Selection.normalizedRoot m) = Selection.normalizedRoot m := by
   have hq := normalizedRoot_posDef_of_posDef hm
-  simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+  simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using!
     hq.isHermitian
 
 /-! ## The tolerance of the reverse classification at the private exponents -/

@@ -35,15 +35,13 @@ private theorem sum_Icc_pred_eq_sum_Ico {f : ℤ → ℝ} {b n : ℤ} :
     simp only [Finset.mem_Ico]
     omega
   · intro r _ s _ hrs
-    dsimp at hrs
     omega
   · intro j hj
     refine ⟨j + 1, ?_, ?_⟩
     have hjrange := Finset.mem_Ico.mp hj
     · rw [Finset.mem_Icc]
       omega
-    · dsimp
-      omega
+    · omega
   · intro r _
     rfl
 

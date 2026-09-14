@@ -59,7 +59,7 @@ theorem selectionRun_terminal_enclosure (hd : 2 ≤ d)
         v = terminalState.base ∨ v = terminalState.base + (H : ℤ) →
         ∀ z ∈ containedCenters terminalState.q k v,
           adaptedCellTranslate terminalState.q k z ⊆ centeredCube d Mexec) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hmem : terminalState ∈
       (selectionRun cc P jStar Lam r0 A0 hcen hnl).states := by
     exact runCapped_terminal_state_mem P (initExpQ d g : ℝ) (initExpA g)
@@ -111,7 +111,7 @@ theorem selectionRun_states_definedness_and_mean_order (hd : 2 ≤ d)
           T ≤ (selectionRun cc P jStar Lam r0 A0 hcen hnl).queryScale →
             BlockMatLoewnerLE (adaptedMean P S'.q T)
               (adaptedMean P S'.q j)) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hQ : 1 ≤ (initExpQ d g : ℝ) := by
     exact_mod_cast le_trans (by omega : 1 ≤ 2) (two_le_initExpQ hg)
   have hstate : ∀ S' ∈
@@ -176,7 +176,7 @@ theorem selectionRun_terminal_definedness_and_mean_order (hd : 2 ≤ d)
         T ≤ terminalState.base + (H : ℤ) →
           BlockMatLoewnerLE (adaptedMean P terminalState.q T)
             (adaptedMean P terminalState.q j)) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have henc := selectionRun_terminal_enclosure hd cc hLam hwin hj0 hr0 hMexec
     A0 hcen hnl terminalState hterminal hY
   have hmem : terminalState ∈

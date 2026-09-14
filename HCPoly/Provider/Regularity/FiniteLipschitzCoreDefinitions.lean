@@ -38,7 +38,8 @@ theorem finiteCenteredCubeSolutionEnergy_eq_of_le
     finiteCenteredCubeSolutionEnergy a m u k =
       Book.Ch03.h1EnergyNormOnCube (originCube d k) a
         (finiteCubeSolutionRestriction a hkm u).toH1 := by
-  simpa only [finiteCenteredCubeSolutionEnergy, finiteLipschitzEnergyRow] using
+  simpa only [finiteCenteredCubeSolutionEnergy, finiteLipschitzEnergyRow,
+    finiteLipschitzRestriction] using
     finiteLipschitzEnergyRow_eq_h1EnergyNormOnCube_of_le a m u k hkm
 
 /-- The canonical normalized best-affine error of a finite cube solution on

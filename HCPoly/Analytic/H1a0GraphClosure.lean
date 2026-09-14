@@ -29,7 +29,7 @@ private theorem memVectorL2_smoothGrad_of_isLocalTest {U : Set (Vec d)}
     MemVectorL2 U (smoothGrad f) := by
   let w : H10Function U :=
     H10Function.ofContDiff hU hf.contDiff hf.hasCompactSupport hf.tsupport_subset
-  simpa [w, H10Function.ofContDiff, H1Function.ofContDiff, smoothGrad] using
+  simpa [w, H10Function.ofContDiff, H1Function.ofContDiff, smoothGrad] using!
     w.toH1Function.grad_memVectorL2
 
 /-- The Hilbert-vector `L²` seminorm is the square root of the integral of
@@ -38,12 +38,12 @@ theorem eLpNorm_hilbertifyVecField_eq_rpow_lintegral_vecNormSq
     {U : Set (Vec d)} (F : Vec d → Vec d) :
     eLpNorm (hilbertifyVecField F) 2 (volume.restrict U) =
       (∫⁻ x in U, ENNReal.ofReal (vecNormSq (F x)) ∂volume) ^ (1 / 2 : ℝ) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   norm_num only [ENNReal.toReal_ofNat]
   congr 1
   apply lintegral_congr
   intro x
-  rw [← ofReal_norm_eq_enorm,
+  rw [← ofReal_norm,
     ENNReal.ofReal_rpow_of_nonneg (norm_nonneg _) (by norm_num)]
   congr 1
   rw [Real.rpow_two, HilbertVec.norm_sq_eq_sum_sq, vecNormSq_eq_sum_sq]
@@ -99,7 +99,7 @@ theorem exists_h10Function_grad_ae_eq_of_memH1a0 [NeZero d]
       atTop (nhds 0) := by
     exact tendsto_zero_of_le_of_tendsto_zero (fun n ↦ by
       unfold h1NormSqOnUnweighted
-      exact le_add_of_nonneg_left (zero_le _)) hunweighted
+      exact le_add_of_nonneg_left zero_le) hunweighted
   have hgradELp : Tendsto
       (fun n ↦ eLpNorm
         (hilbertifyVecField (fun x ↦ smoothGrad (v n) x - Du x)) 2
@@ -115,6 +115,8 @@ theorem exists_h10Function_grad_ae_eq_of_memH1a0 [NeZero d]
         (fun x ↦ hilbertifyVecField (smoothGrad (v n)) x -
           hilbertifyVecField Du x) 2 (volume.restrict U)) atTop (nhds 0) := by
     convert hgradELp using 1
+    funext n
+    congr 1
   have hgrad : Tendsto (fun n ↦ (w n).toH1Function.gradToHilbertVectorL2)
       atTop (nhds (toHilbertVectorL2OfVecField hDu)) := by
     let hvhilb : ∀ n,
@@ -128,7 +130,7 @@ theorem exists_h10Function_grad_ae_eq_of_memH1a0 [NeZero d]
       (hilbertifyVecField Du) hDuhilb).2 hgradELp'
     simpa [w, H10Function.ofContDiff, H1Function.ofContDiff, smoothGrad,
       H1Function.gradToHilbertVectorL2, toHilbertVectorL2OfVecField,
-      toHilbertVectorL2] using ht
+      toHilbertVectorL2] using! ht
   rcases h10GraphClosedSubmodule_exists_norm_value_le_mul_norm_gradient hU with
     ⟨C, hC, hPoincare⟩
   have hscalarCauchy : CauchySeq (fun n ↦ (w n).toH1Function.toScalarL2) := by
@@ -175,7 +177,7 @@ theorem exists_h10Function_grad_ae_eq_of_memH1a0 [NeZero d]
       (h10GraphClosedSubmodule U).toSubmodule := by
     change (z, toHilbertVectorL2OfVecField hDu) ∈
       (h10GraphSubmodule U).topologicalClosure
-    simpa [Submodule.topologicalClosure_coe] using hclosure
+    exact hclosure
   obtain ⟨w0, -, hw0grad⟩ :=
     exists_h10Function_of_mem_h10GraphClosedSubmodule hU hclosed
   refine ⟨w0, ?_⟩

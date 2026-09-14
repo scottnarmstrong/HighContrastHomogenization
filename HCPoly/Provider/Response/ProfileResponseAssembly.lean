@@ -47,8 +47,8 @@ theorem profile_weak_rhs_mono
       (mul_le_mul_of_nonneg_right hC hK) hden
   exact add_le_add
     (add_le_add
-      (mul_le_mul_of_nonneg_right (ENNReal.ofReal_le_ofReal hcoef1) (zero_le U))
-      (mul_le_mul_of_nonneg_right (ENNReal.ofReal_le_ofReal hcoef2) (zero_le R)))
+      (mul_le_mul_of_nonneg_right (ENNReal.ofReal_le_ofReal hcoef1) zero_le)
+      (mul_le_mul_of_nonneg_right (ENNReal.ofReal_le_ofReal hcoef2) zero_le))
     le_rfl
 
 /-- Complete terminal profiles give the source, maximum, recent, energy,
@@ -249,8 +249,8 @@ theorem exists_profile_response_constant {d : ℕ} (hd : 2 ≤ d) :
     s t H hjs ht hH _hHt hcells hbelow
     hfin hmean hfields Cport _hCport _hportable h0 pMinus qMinus pPlus qPlus
   dsimp only
-  letI : IsProbabilityMeasure P := hP
-  haveI : NeZero d := ⟨by omega⟩
+  let : IsProbabilityMeasure P := hP
+  have : NeZero d := ⟨by omega⟩
   have hQ : (2 : ℝ) < (Q : ℝ) := by exact_mod_cast hQnat
   have hQtwo : (2 : ℝ) ≤ (Q : ℝ) := hQ.le
   have hQone : (1 : ℝ) ≤ (Q : ℝ) := by linarith only [hQ]

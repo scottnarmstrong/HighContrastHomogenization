@@ -305,7 +305,7 @@ private theorem finiteAffineBestFitResidual_memLp
     uk - originCubeAffineH1LinearMap d k p
   have hv := v.memL2_normalizedCubeMeasure
   simpa only [v, p, H1Function.sub_toFun, finiteAffineSolutionInnerH1_toFun,
-    originCubeAffineH1LinearMap_toFun] using hv
+    originCubeAffineH1LinearMap_toFun] using! hv
 
 /-- Best-fit slopes on adjacent centered cubes differ by at most a
 dimension-only multiple of the outer best-fit error. -/
@@ -471,7 +471,7 @@ theorem exists_finiteAffineBestFitTerminalSlopeConstant
       (c - 0) (p - b) ≤ 4 * Cr * delta * euclideanNorm b := by
     calc
       normalizedAffineCandidateError (originCube d m) (fun _ ↦ 0)
-          (c - 0) (p - b) ≤ E + R := by simpa only [E, R, c, p] using htriangle
+          (c - 0) (p - b) ≤ E + R := by simpa only [E, R, c, p] using! htriangle
       _ ≤ R + R := add_le_add hE (le_refl R)
       _ ≤ 2 * (2 * Cr * delta * euclideanNorm b) := by
         nlinarith only [hR]
@@ -702,7 +702,7 @@ theorem exists_finiteAffineBestFitTerminalBandConstant
       (c - 0) (p - b) ≤ 4 * B * Cr * delta * euclideanNorm b := by
     calc
       normalizedAffineCandidateError (originCube d k) (fun _ ↦ 0)
-          (c - 0) (p - b) ≤ E + Rk := by simpa only [E, Rk, c, p] using htriangle
+          (c - 0) (p - b) ≤ E + Rk := by simpa only [E, Rk, c, p] using! htriangle
       _ ≤ Rk + Rk := add_le_add hE (le_refl Rk)
       _ ≤ 2 * (2 * B * Cr * delta * euclideanNorm b) := by
         nlinarith only [hRk]

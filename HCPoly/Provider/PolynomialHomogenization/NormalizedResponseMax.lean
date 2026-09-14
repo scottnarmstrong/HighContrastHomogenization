@@ -48,7 +48,7 @@ private theorem normalizedRoot_transpose_eq [NeZero d]
     {m : Mat d} (hm : m.PosDef) :
     matTranspose (Selection.normalizedRoot m) = Selection.normalizedRoot m := by
   have hq := normalizedRoot_posDef_of_posDef hm
-  simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+  simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using!
     hq.isHermitian
 
 private theorem normalizedReferencePrimalLoad_physicalNormalizedPrimalLoad
@@ -295,7 +295,7 @@ theorem normalizedBlockResponseMax_le_adaptedCell_blockExcess [NeZero d]
         (blockVecDot_normalizedReferenceLoads hS P Q).symm
       _ = blockVecDot X X := by rw [hprimal, hdual]
       _ = Book.Ch02.fullBlockVecNormSq e := by
-        simpa only [X] using blockVecDot_ofFullBlockVec_self_eq_fullBlockVecNormSq e
+        simpa only [X] using! blockVecDot_ofFullBlockVec_self_eq_fullBlockVecNormSq e
       _ = 1 := he
   rw [hloadInv, hloadSqrt]
   calc

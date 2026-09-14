@@ -8,7 +8,7 @@ import HCPoly.Provider.Window.StrongTailMoment
 namespace Homogenization
 namespace IndependentSums
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal BigOperators
 
 noncomputable section
@@ -47,7 +47,7 @@ private theorem eLpNorm_le_integer_of_strongPsiTail
     intro ω
     rw [Real.enorm_eq_ofReal (hW0 ω),
       ENNReal.ofReal_rpow_of_nonneg (hW0 ω) hNpos.le]
-  rw [eLpNorm_eq_lintegral_rpow_enorm hq0 hqtop, hqreal, hint, one_div]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hq0 hqtop, hqreal, hint, one_div]
   calc
     (∫⁻ ω, ENNReal.ofReal (W ω ^ (N : ℝ)) ∂μ) ^ ((N : ℝ)⁻¹) ≤
         (ENNReal.ofReal D) ^ ((N : ℝ)⁻¹) :=
@@ -100,7 +100,7 @@ theorem eLpNorm_le_of_strongPsiTail
     linarith only [hprod]
   have hTq : ((T : ℕ) : ℤ) + 1 ≤ q := by
     have hlt : ((T : ℕ) : ℤ) < q := by
-      exact (Int.lt_ceil).2 (by simpa only [q] using hTlt)
+      exact (Int.lt_ceil).2 (by simpa only [q] using! hTlt)
     omega
   have hB1 : 1 ≤ B := one_le_two.trans hB
   have hpowq : B ^ (T + 1) ≤ B ^ q := by

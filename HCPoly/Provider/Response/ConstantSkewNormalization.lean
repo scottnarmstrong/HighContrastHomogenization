@@ -66,7 +66,7 @@ theorem blockSize_skewBlockCongr (g : Mat d) (A E : BlockMat d) :
   unfold blockSize
   congr 1
   ext c
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   rw [← blockScale_skewBlockCongr g c E,
     ← blockScale_skewBlockCongr g (-c) E,
     skewBlockCongr_loewner_iff, skewBlockCongr_loewner_iff]
@@ -78,7 +78,7 @@ theorem blockExcess_skewBlockCongr (g : Mat d) (A E : BlockMat d) :
   unfold blockExcess
   congr 1
   ext c
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   rw [← blockScale_skewBlockCongr g (1 + c) E,
     skewBlockCongr_loewner_iff]
 

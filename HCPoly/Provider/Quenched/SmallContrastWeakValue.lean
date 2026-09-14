@@ -129,7 +129,7 @@ theorem calibrated_weak_loads [NeZero d]
   -- the smallness pack
   have hint' : HasIntegrableCoarseBlock P
       ((Response.adaptedDomain hq0 t : Domain d) : Set (Vec d)) := by
-    simpa only [Response.adaptedDomain_carrier] using hint
+    simpa only [Response.adaptedDomain_carrier] using! hint
   have hE' : toFullBlockMat
       (annealedBlock P
         ((Response.adaptedDomain hq0 t : Domain d) : Set (Vec d))) =

@@ -206,7 +206,7 @@ theorem selectionRun_state_invariants (hd : 2 ≤ d)
     · intro _ _
       have hfin := (hdefined.1 (initialState r0 A0 hcen hnl) hinitMem r0 hj0
         (by simpa only [run] using hquery0)).1
-      simpa only [cert] using hfin
+      simpa only [cert] using! hfin
     · intro i hi
       simp only [initialState] at hi
       omega

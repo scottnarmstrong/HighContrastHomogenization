@@ -177,7 +177,7 @@ theorem sqrt_normalizedLocalSymmetricEnergy_add_le
     c • hilbertSymmCoeffOperator hEll
   have hT : T.IsPositive := hpos.smul_of_nonneg hc
   simpa only [normalizedLocalSymmetricEnergy, T, c,
-    ContinuousLinearMap.smul_apply, real_inner_smul_left] using
+    smul_apply, real_inner_smul_left] using
     sqrt_inner_apply_add_le T hT F G
 
 /-- A finite coefficient-energy telescope is bounded by the sum of its

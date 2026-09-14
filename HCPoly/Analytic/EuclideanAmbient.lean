@@ -40,7 +40,7 @@ variable {d : ℕ}
 square. -/
 theorem lt_of_sq_lt_sq' {a b : ℝ} (hb : 0 ≤ b) (h : a ^ 2 < b ^ 2) : a < b := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have h1 : b * b ≤ a * a := mul_self_le_mul_self hb hcon
   have h2 : b ^ 2 ≤ a ^ 2 := by
     calc b ^ 2 = b * b := pow_two b
@@ -156,7 +156,7 @@ theorem center_mem_euclideanBallAt (c : Vec d) {r : ℝ} (hr : 0 < r) :
 
 theorem continuous_vecNormSq : Continuous (fun x : Vec d => vecNormSq x) := by
   simp only [vecNormSq, vecDot]
-  exact continuous_finset_sum _ fun i _ => (continuous_apply i).mul (continuous_apply i)
+  exact continuous_finsetSum _ fun i _ => (continuous_apply i).mul (continuous_apply i)
 
 theorem continuous_vecNormSq_sub (c : Vec d) :
     Continuous (fun x : Vec d => vecNormSq (x - c)) :=
@@ -213,7 +213,7 @@ theorem vecNormSq_sub_le_of_mem_metricBall {c x : Vec d} {r : ℝ}
     intro i
     have h := Metric.mem_ball.mp hx
     have h1 : dist (x i) (c i) ≤ dist x c := by
-      simpa [Real.dist_eq, Real.norm_eq_abs] using
+      simpa [Real.dist_eq, Real.norm_eq_abs] using!
         norm_le_pi_norm (x - c) i
     have h2 : dist (x i) (c i) < r := lt_of_le_of_lt h1 h
     rwa [Real.dist_eq] at h2
@@ -236,7 +236,7 @@ theorem vecNormSq_sub_lt_of_mem_metricBall {c x : Vec d} {r : ℝ} (hd : 0 < d)
     intro i
     have h := Metric.mem_ball.mp hx
     have h1 : dist (x i) (c i) ≤ dist x c := by
-      simpa [Real.dist_eq, Real.norm_eq_abs] using
+      simpa [Real.dist_eq, Real.norm_eq_abs] using!
         norm_le_pi_norm (x - c) i
     have h2 : dist (x i) (c i) < r := lt_of_le_of_lt h1 h
     rwa [Real.dist_eq] at h2
@@ -262,7 +262,7 @@ theorem matVecMul_one (x : Vec d) : matVecMul (1 : Mat d) x = x := Matrix.one_mu
 theorem continuous_matVecMul (M : Mat d) : Continuous (fun x : Vec d => matVecMul M x) := by
   refine continuous_pi fun i => ?_
   simp only [matVecMul]
-  exact continuous_finset_sum _ fun j _ => continuous_const.mul (continuous_apply j)
+  exact continuous_finsetSum _ fun j _ => continuous_const.mul (continuous_apply j)
 
 end
 

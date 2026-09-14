@@ -46,16 +46,16 @@ of Theorem D for uniformly elliptic laws; its Dirichlet clause is exported
 in the negative-Sobolev form of Theorem D rather than the paper's `L²`
 form with a forcing term, as explained below.
 
-- **1,656 Lean source files, 332,381 lines** (including the comparator
-  audit surface; the library itself is 1,640 files and 325,097 lines).
+- **1,657 Lean source files, 333,251 lines** (including the comparator
+  audit surface; the library itself is 1,640 files and 325,953 lines).
 - **No `sorry`** anywhere in the library.  (Each Mathlib-only comparator
-  challenge in `Audit/` contains its single intentional statement-level
+  challenge in `HCPolyAudit/` contains its single intentional statement-level
   `sorry`, filled by the corresponding solution file.)
 - **No custom `axiom`.**  The main theorems reduce to `mathlib`'s three
   standard foundational axioms — `propext`, `Classical.choice`, `Quot.sound` —
   verified by
   [`HCPoly/Meta/AxiomsAudit.lean`](HCPoly/Meta/AxiomsAudit.lean).
-- Pinned to Lean `v4.26.0`, `mathlib` `v4.26.0`, and `CoarseGraining` at a
+- Pinned to Lean `v4.33.0`, `mathlib` `v4.33.0`, and `CoarseGraining` at a
   fixed revision.
 
 ## Main results
@@ -139,20 +139,20 @@ The development is large — about 325k lines in this repository, on top of
 the 600k+-line `CoarseGraining` library it imports.  So that the central
 claims can be checked without trusting either development, the main
 theorems are restated using **only Mathlib** — no project definitions from
-either library — in `Audit/*/Challenge.lean`; each challenge rebuilds the
+either library — in `HCPolyAudit/*/Challenge.lean`; each challenge rebuilds the
 coefficient space, its local σ-fields, the coarse-graining block formalism,
 the annealed blocks and the analytic carriers from Mathlib primitives and
 contains one intentional statement-level `sorry`, which the corresponding
 `Solution.lean` fills from the library, checked by
 [`leanprover/comparator`](https://github.com/leanprover/comparator)
-(see [`Audit/README.md`](Audit/README.md)).
+(see [`HCPolyAudit/README.md`](HCPolyAudit/README.md)).
 
 | Pair | Theorem | Checked statement |
 | --- | --- | --- |
-| `Audit/PolynomialEntry/` | A | `HCPoly.StatementAudit.PolynomialEntry.polynomial_entry` |
-| `Audit/AlgebraicConvergence/` | B | `HCPoly.StatementAudit.AlgebraicConvergence.algebraic_convergence` |
-| `Audit/UniformHomogenization/` | C | `HCPoly.StatementAudit.UniformHomogenization.uniform_homogenization` |
-| `Audit/PolynomialHomogenization/` | D | `HCPoly.StatementAudit.PolynomialHomogenization.polynomial_homogenization` |
+| `HCPolyAudit/PolynomialEntry/` | A | `HCPoly.StatementAudit.PolynomialEntry.polynomial_entry` |
+| `HCPolyAudit/AlgebraicConvergence/` | B | `HCPoly.StatementAudit.AlgebraicConvergence.algebraic_convergence` |
+| `HCPolyAudit/UniformHomogenization/` | C | `HCPoly.StatementAudit.UniformHomogenization.uniform_homogenization` |
+| `HCPolyAudit/PolynomialHomogenization/` | D | `HCPoly.StatementAudit.PolynomialHomogenization.polynomial_homogenization` |
 
 ## Building
 
@@ -189,7 +189,7 @@ HCPoly/
   Provider/           the proofs, organized by the paper's sections
   Meta/               AxiomsAudit.lean
 HCPoly.lean           the root module (imports the whole library)
-Audit/                Mathlib-only comparator challenges and solutions
+HCPolyAudit/          Mathlib-only comparator challenges and solutions
 ```
 
 ## How this was built
@@ -198,8 +198,9 @@ The Lean code in this repository was written by AI agents under the close
 supervision of the authors.  Claude Fable 5.1 orchestrated the campaign —
 planning, statement design, dispatch and review — and the agents that wrote
 the proofs, ran the audits and did the rewriting were mostly Claude Opus 5
-and GPT-5.6 Sol (at low reasoning effort).  The models, tooling, cost, and
-review status are disclosed in
+and GPT-5.6 Sol (at low reasoning effort); the upgrade to Lean v4.33.0 was
+carried out by DeepSeek V4.1 Flash workers with Claude Sonnet 5 on the
+escalations.  The models, tooling, cost, and review status are disclosed in
 [`formalization.yaml`](formalization.yaml), following the
 [mathlib-initiative](https://github.com/mathlib-initiative/formalization.yaml)
 standard.

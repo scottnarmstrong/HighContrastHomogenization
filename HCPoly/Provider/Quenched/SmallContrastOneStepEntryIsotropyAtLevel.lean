@@ -101,7 +101,7 @@ theorem exists_account_one_step_entry_of_block_at_level (d : ℕ) (hd : 2 ≤ d)
             t lAl V V0 (meanDrop2ValueIsotropy P lAl cF mAl E F t) Vmean) +
         2 * ((3 * (d : ℝ) + 4) * eps ^ 2) := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨Cpre, hCpre, hhub⟩ := exists_hatted_one_step_of_profile_caps d
   obtain ⟨H, eta, hH4, heta, habsorb⟩ := exists_absorption_lag_choice hCpre
   refine ⟨Cpre, H, eta, hCpre, hH4, heta, ?_⟩

@@ -44,33 +44,33 @@ private theorem finiteTrialHarmonicGradient_add
       finiteTrialHarmonicGradient a hqm e +
         finiteTrialHarmonicGradient a hqm e' := by
   apply Subtype.ext
-  simp only [finiteTrialHarmonicGradient,
-    AHarmonicGradientHilbert.field_ofAHarmonicFunction]
+  simp only [finiteTrialHarmonicGradient]
+  have hqmZ : (q : ℤ) ≤ (m : ℤ) := by exact_mod_cast hqm
   change
-    (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+    (finiteCubeSolutionRestriction a hqmZ
         (finiteAffineCubeSolution a (m : ℤ) (e + e'))).toH1.gradToHilbertVectorL2 =
-      (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+      (finiteCubeSolutionRestriction a hqmZ
         (finiteAffineCubeSolution a (m : ℤ) e)).toH1.gradToHilbertVectorL2 +
-      (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+      (finiteCubeSolutionRestriction a hqmZ
         (finiteAffineCubeSolution a (m : ℤ) e')).toH1.gradToHilbertVectorL2
   apply MeasureTheory.Lp.ext
   have hadd := finiteAffineSolution_grad_add a (m : ℤ) e e'
   have hsub : openCubeSet (originCube d (q : ℤ)) ⊆
       openCubeSet (originCube d (m : ℤ)) :=
-    openCubeSet_originCube_subset_of_le (by exact_mod_cast hqm)
+    openCubeSet_originCube_subset_of_le hqmZ
   have hadd' := ae_mono
     (Measure.restrict_mono hsub (le_refl volume)) hadd
   filter_upwards
-      [(finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+      [(finiteCubeSolutionRestriction a hqmZ
           (finiteAffineCubeSolution a (m : ℤ) (e + e'))).toH1.coeFn_gradToHilbertVectorL2,
-        (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+        (finiteCubeSolutionRestriction a hqmZ
           (finiteAffineCubeSolution a (m : ℤ) e)).toH1.coeFn_gradToHilbertVectorL2,
-        (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+        (finiteCubeSolutionRestriction a hqmZ
           (finiteAffineCubeSolution a (m : ℤ) e')).toH1.coeFn_gradToHilbertVectorL2,
         MeasureTheory.Lp.coeFn_add
-          (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+          (finiteCubeSolutionRestriction a hqmZ
             (finiteAffineCubeSolution a (m : ℤ) e)).toH1.gradToHilbertVectorL2
-          (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+          (finiteCubeSolutionRestriction a hqmZ
             (finiteAffineCubeSolution a (m : ℤ) e')).toH1.gradToHilbertVectorL2,
         hadd'] with x hx hxe hxe' hsum haddx
   simp only [finiteCubeSolutionRestriction_grad] at hx hxe hxe'
@@ -85,27 +85,27 @@ private theorem finiteTrialHarmonicGradient_smul
     finiteTrialHarmonicGradient a hqm (c • e) =
       c • finiteTrialHarmonicGradient a hqm e := by
   apply Subtype.ext
-  simp only [finiteTrialHarmonicGradient,
-    AHarmonicGradientHilbert.field_ofAHarmonicFunction]
+  simp only [finiteTrialHarmonicGradient]
+  have hqmZ : (q : ℤ) ≤ (m : ℤ) := by exact_mod_cast hqm
   change
-    (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+    (finiteCubeSolutionRestriction a hqmZ
         (finiteAffineCubeSolution a (m : ℤ) (c • e))).toH1.gradToHilbertVectorL2 =
-      c • (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+      c • (finiteCubeSolutionRestriction a hqmZ
         (finiteAffineCubeSolution a (m : ℤ) e)).toH1.gradToHilbertVectorL2
   apply MeasureTheory.Lp.ext
   have hsmul := finiteAffineSolution_grad_smul a (m : ℤ) c e
   have hsub : openCubeSet (originCube d (q : ℤ)) ⊆
       openCubeSet (originCube d (m : ℤ)) :=
-    openCubeSet_originCube_subset_of_le (by exact_mod_cast hqm)
+    openCubeSet_originCube_subset_of_le hqmZ
   have hsmul' := ae_mono
     (Measure.restrict_mono hsub (le_refl volume)) hsmul
   filter_upwards
-      [(finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+      [(finiteCubeSolutionRestriction a hqmZ
           (finiteAffineCubeSolution a (m : ℤ) (c • e))).toH1.coeFn_gradToHilbertVectorL2,
-        (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+        (finiteCubeSolutionRestriction a hqmZ
           (finiteAffineCubeSolution a (m : ℤ) e)).toH1.coeFn_gradToHilbertVectorL2,
         MeasureTheory.Lp.coeFn_smul c
-          (finiteCubeSolutionRestriction a (by exact_mod_cast hqm)
+          (finiteCubeSolutionRestriction a hqmZ
             (finiteAffineCubeSolution a (m : ℤ) e)).toH1.gradToHilbertVectorL2,
         hsmul'] with x hx hxe hcoe hsmulx
   simp only [finiteCubeSolutionRestriction_grad] at hx hxe
@@ -117,28 +117,22 @@ private theorem finiteTrialHarmonicGradient_smul
 private theorem finiteAffineBoundaryH1_gradClass_eq_constantGradient
     {d : ℕ} [NeZero d] (q : ℕ) (e : Vec d) :
     (show LocalGradientL2 d q from by
-      simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-        (finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2) =
+      simp only [LocalGradientL2, localGradientCube]
+      exact (finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2) =
       (show LocalGradientL2 d q from
         constantGradientOnOriginCube e (q : ℤ)) := by
-  let b : H1Function (localGradientCube d q) := by
-    simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-      finiteAffineBoundaryH1 (q : ℤ) e
+  let b : H1Function (localGradientCube d q) := finiteAffineBoundaryH1 (q : ℤ) e
   change b.gradToHilbertVectorL2 = constantGradientOnOriginCube e (q : ℤ)
-  have hbgrad : b.grad = fun _ ↦ e := by
-    simpa only [b] using finiteAffineBoundaryH1_grad (q : ℤ) e
-  have hmem : MemVectorL2 (localGradientCube d q) (fun _ ↦ e) := by
-    simpa only [localGradientCube] using
-      (MeasureTheory.memLp_const
-        (μ := volumeMeasureOn (openCubeSet (originCube d (q : ℤ))))
-        (p := (2 : ENNReal)) (c := e))
+  have hbgrad : b.grad = fun _ ↦ e := finiteAffineBoundaryH1_grad (q : ℤ) e
+  have hmem : MemVectorL2 (openCubeSet (originCube d (q : ℤ))) (fun _ ↦ e) :=
+    MeasureTheory.memLp_const
+      (μ := volumeMeasureOn (openCubeSet (originCube d (q : ℤ))))
+      (p := (2 : ENNReal)) (c := e)
   unfold constantGradientOnOriginCube
   apply MeasureTheory.Lp.ext
-  filter_upwards
-    [b.coeFn_gradToHilbertVectorL2,
-     coeFn_toHilbertVectorL2OfVecField hmem]
-    with x hboundary hconstant
-  rw [hboundary, hbgrad, hconstant]
+  refine b.coeFn_gradToHilbertVectorL2.trans ?_
+  refine (Filter.EventuallyEq.of_eq (congrArg hilbertifyVecField hbgrad)).trans ?_
+  exact (coeFn_toHilbertVectorL2OfVecField hmem).symm
 
 /-- The finite affine full-gradient trial map in the harmonic-gradient
 Hilbert space of the inner cube. -/
@@ -176,14 +170,8 @@ theorem jointTargetHarmonicGradient_field_eq
   change
     (finiteAffineCorrectionJointLocalCubeSolution a hCauchy e q).toH1.gradToHilbertVectorL2 =
       (jointAffineFullGradientLinearMap a hCauchy q) e
-  rw [finiteAffineCorrectionJointLocalCubeSolution_toH1,
-    finiteAffineCorrectionJointLocalH1_gradToHilbertVectorL2]
-  change
-    (show LocalGradientL2 d q from by
-      simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-        (finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2) +
-        (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent q =
-      (jointAffineFullGradientLinearMap a hCauchy q) e
+  rw [finiteAffineCorrectionJointLocalCubeSolution_toH1]
+  refine (finiteAffineCorrectionJointLocalH1_gradToHilbertVectorL2 a hCauchy e q).trans ?_
   rw [finiteAffineBoundaryH1_gradClass_eq_constantGradient]
   rfl
 
@@ -292,13 +280,17 @@ theorem finiteTrialHarmonicGradientLinearMap_injective
     exact congrArg Subtype.val hTz
   have havg : cubeAverageVec (originCube d (q : ℤ))
       (finiteAffineSolution a (m : ℤ) z).toH1.grad = 0 := by
+    let u : H1Function (localGradientCube d q) :=
+      (finiteCubeSolutionRestriction a hqmZ (finiteAffineCubeSolution a (m : ℤ) z)).toH1
+    have hu0 : u.gradToHilbertVectorL2 = 0 := hfield
+    have hproj := localGradientClassAverage_grad_eq_cubeAverageVec_projection u
+    rw [hu0, localGradientClassAverage_zero] at hproj
     change cubeAverageVec (originCube d (q : ℤ))
       (finiteAffineCubeSolution a (m : ℤ) z).toH1.grad = 0
     rw [← finiteCubeSolutionRestriction_grad a
       hqmZ
       (finiteAffineCubeSolution a (m : ℤ) z)]
-    rw [← localGradientClassAverage_grad_eq_cubeAverageVec_projection]
-    rw [hfield, localGradientClassAverage_zero]
+    exact hproj.symm
   let t : ℕ := m - q - 2
   have hm : q + t + 2 = m := by dsimp only [t]; omega
   have hz := hcoercive a delta n0 hdelta hgood q t hnq z
@@ -321,7 +313,7 @@ noncomputable def finiteCorrectorWeightedProjection
     (Book.Ch03.publicCoeffField_isEllipticFieldOn_openCubeSet
       (originCube d (q : ℤ)) a)
   let hclosed : IsClosed (LinearMap.range T : Set H) := by
-    letI : FiniteDimensional ℝ (LinearMap.range T) := T.finiteDimensional_range
+    let _ : FiniteDimensional ℝ (LinearMap.range T) := T.finiteDimensional_range
     exact (LinearMap.range T).closed_of_finiteDimensional
   let B := AHarmonicGradientHilbert.symmCoeffBilin
     (PotentialSolenoidalL2Data.ofSubmoduleClosures
@@ -364,7 +356,7 @@ theorem finiteCorrectorWeightedProjection_minimizes
     (Book.Ch03.publicCoeffField_isEllipticFieldOn_openCubeSet
       (originCube d (q : ℤ)) a)
   let hclosed : IsClosed (LinearMap.range T : Set H) := by
-    letI : FiniteDimensional ℝ (LinearMap.range T) := T.finiteDimensional_range
+    let _ : FiniteDimensional ℝ (LinearMap.range T) := T.finiteDimensional_range
     exact (LinearMap.range T).closed_of_finiteDimensional
   let B := AHarmonicGradientHilbert.symmCoeffBilin
     (PotentialSolenoidalL2Data.ofSubmoduleClosures

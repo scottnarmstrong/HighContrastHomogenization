@@ -130,7 +130,7 @@ theorem blockPosDef_coarseBlock [NeZero d] (m : ℤ) (a : CoeffSpace d) :
     have h := HighContrast.EntryScale.coarseBlockMatrix_cubeSet_blockPosDef_of_aelocallyUniformlyEllipticField
       (a := regCoeffFieldOfPointwiseElliptic f hfm hfp) (originCube d m)
       (aeLocallyUniformlyEllipticField_of_pointwise hfm hlam hle hfp)
-    rwa [regCoeffFieldOfPointwiseElliptic_toFun] at h
+    exact h
   have h1 : coarseBlock (centeredCube d m) a =
       coarseBlockMatrix (openCubeSet (originCube d m)) f :=
     coarseBlockMatrix_congr_of_ae_eq hfa

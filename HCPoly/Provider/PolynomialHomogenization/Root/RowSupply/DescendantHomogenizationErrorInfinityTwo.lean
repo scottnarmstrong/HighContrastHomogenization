@@ -87,8 +87,8 @@ theorem homogenizationErrorOnCube_infinity_two_le_of_mem_descendantsAtScale
               Homogenization.geometricWeight s 2 (n + h) :=
           Homogenization.geometricWeight_shift h n
         _ = factor * Homogenization.geometricWeight s 2 (n + h) := by
-          congr 2
-          dsimp only [factor]
+          congr 1
+          rw [show factor = Real.rpow (3 : ℝ) (2 * s * (h : ℝ)) from rfl]
           congr 1
           ring
     calc

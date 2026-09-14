@@ -19,7 +19,7 @@ namespace Homogenization
 namespace HighContrast
 namespace Root
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal Topology
 
 noncomputable section
@@ -40,19 +40,19 @@ theorem matImage_smul_one_euclideanBall
     rw [matVecMul_smul_one]
     have hx' : vecNormSq x < R ^ 2 := by
       simpa only [Homogenization.HighContrast.euclideanBall,
-        euclideanBallAt, Set.mem_setOf_eq, sub_zero] using hx
+        euclideanBallAt, Set.mem_ofPred_eq, sub_zero] using hx
     have hscaled : vecNormSq (q • x) < (q * R) ^ 2 := by
       rw [Homogenization.vecNormSq_smul]
       simpa only [mul_pow] using
         (mul_lt_mul_of_pos_left hx' (sq_pos_of_pos hq))
     simpa only [Homogenization.HighContrast.euclideanBall,
-      euclideanBallAt, Set.mem_setOf_eq, sub_zero] using hscaled
+      euclideanBallAt, Set.mem_ofPred_eq, sub_zero] using hscaled
   · intro hy
     let x : Vec d := q⁻¹ • y
     refine ⟨x, ?_, ?_⟩
     · have hy' : vecNormSq y < (q * R) ^ 2 := by
         simpa only [Homogenization.HighContrast.euclideanBall,
-          euclideanBallAt, Set.mem_setOf_eq, sub_zero] using hy
+          euclideanBallAt, Set.mem_ofPred_eq, sub_zero] using hy
       have hx' : vecNormSq x < R ^ 2 := by
         dsimp only [x]
         rw [Homogenization.vecNormSq_smul]
@@ -61,7 +61,7 @@ theorem matImage_smul_one_euclideanBall
             mul_lt_mul_of_pos_left hy' (sq_pos_of_pos (inv_pos.mpr hq))
           _ = R ^ 2 := by field_simp [hq.ne']
       simpa only [Homogenization.HighContrast.euclideanBall,
-        euclideanBallAt, Set.mem_setOf_eq, sub_zero] using hx'
+        euclideanBallAt, Set.mem_ofPred_eq, sub_zero] using hx'
     · rw [matVecMul_smul_one]
       funext i
       simp [x, hq.ne']

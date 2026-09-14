@@ -377,7 +377,7 @@ private theorem exists_mem_frontier_segment {U : Set (Vec d)}
     {x y : Vec d} (hx : x ∈ U) (hy : y ∉ U) :
     ∃ z, z ∈ segment ℝ x y ∧ z ∈ frontier U := by
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have hsegment : segment ℝ x y ⊆ interior U ∪ interior Uᶜ := by
     intro z hz
     rw [← compl_frontier_eq_union_interior]
@@ -435,7 +435,7 @@ private theorem enlarged_margin_gap_lower {center x y : Vec d} {a : ℤ}
     4 * (3 : ℝ) ^ a < euclideanDist x y := by
   change ¬ ∀ i : Fin d,
       |y i - center i| < Real.rpow 3 (((a + 2 : ℤ) : ℝ)) / 2 at hy
-  push_neg at hy
+  push Not at hy
   rcases hy with ⟨i, hi⟩
   have hrTwo : Real.rpow (3 : ℝ) ((a + 2 : ℤ) : ℝ) =
       (3 : ℝ) ^ (a + 2) := Real.rpow_intCast 3 (a + 2)

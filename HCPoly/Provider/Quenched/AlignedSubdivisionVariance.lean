@@ -75,7 +75,7 @@ private theorem lqSchattenSize_adaptedCellAt_eq
         (fun _ : CoeffSpace d ↦ toFullBlockMat E α β) P :=
       aestronglyMeasurable_const
     have hm := hmA.sub hmE
-    simpa only [X, Recurrence.toFullBlockMat_blockSub_apply] using hm
+    simpa only [X, Recurrence.toFullBlockMat_blockSub_apply] using! hm
   have hmeas : AEStronglyMeasurable
       (fun a : CoeffSpace d ↦ schattenSize 2 (X a) F) P :=
     Transport.aestronglyMeasurable_schattenSize (P := P) (A := X) (F := F)
@@ -120,8 +120,8 @@ theorem exists_alignedSubdivisionVarianceConstant (d : ℕ) (hd : 2 ≤ d) :
     Recurrence.finite_range_matrix_averaging d (by omega) (Q := 2) (by norm_num)
   refine ⟨C, hC, ?_⟩
   intro P g E Ψ K S hP hstat hunit hdag l q hq j p hlj hjp F
-  letI : IsProbabilityMeasure P := hP
-  letI : NeZero d := ⟨by omega⟩
+  let : IsProbabilityMeasure P := hP
+  let : NeZero d := ⟨by omega⟩
   have hqpd : q.PosDef := Recurrence.posDef_of_isRoundedGrid hq
   have hzero : adaptedCellTranslate q j 0 = adaptedCell q j := by
     simp [adaptedCellTranslate]

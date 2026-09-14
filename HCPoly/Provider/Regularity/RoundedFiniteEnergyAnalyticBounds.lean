@@ -98,8 +98,8 @@ private theorem roundedReference_coordinate_quadratic_bounds
   change (99 / 100 : ℝ) ≤ vecDot e (matVecMul A e) ∧
     vecDot e (matVecMul A e) ≤ (101 / 100 : ℝ)
   constructor
-  · simpa only [hscalar, he, mul_one, A, e] using hlow
-  · simpa only [hscalar, he, mul_one, A, e] using hupp
+  · simpa only [hscalar, he, mul_one, A, e] using! hlow
+  · simpa only [hscalar, he, mul_one, A, e] using! hupp
 
 private theorem doubledResponseJ_le_normalizedBlockResponseMax_of_quadratic_one
     {d : ℕ} [NeZero d] (Q : TriadicCube d)
@@ -359,7 +359,7 @@ theorem coarseBMatrixNorm_le_roundedReferenceResponse
       (Book.Ch02.bCoarse (Book.Ch02.cubeDomain Q) (a.coeffOn Q)) ≤
         ∑ _i : Fin d, K := by
     exact Finset.sum_le_sum fun i _hi ↦ by
-      simpa only [K] using coarseB_diagonal_le_roundedResponse Q a abar hS i
+      simpa only [K] using! coarseB_diagonal_le_roundedResponse Q a abar hS i
   calc
     Book.Ch02.coarseBMatrixNorm Q a ≤ Matrix.trace
         (Book.Ch02.bCoarse (Book.Ch02.cubeDomain Q) (a.coeffOn Q)) := by
@@ -390,7 +390,7 @@ theorem coarseSigmaStarInvMatrixNorm_le_roundedReferenceResponse
       (Book.Ch02.sigmaStarInvCoarse (Book.Ch02.cubeDomain Q) (a.coeffOn Q)) ≤
         ∑ _i : Fin d, K := by
     exact Finset.sum_le_sum fun i _hi ↦ by
-      simpa only [K] using
+      simpa only [K, Matrix.diag_apply] using
         coarseSigmaStarInv_diagonal_le_roundedResponse Q a abar hS i
   calc
     Book.Ch02.coarseSigmaStarInvMatrixNorm Q a ≤ Matrix.trace

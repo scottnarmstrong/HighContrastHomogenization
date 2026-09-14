@@ -20,7 +20,7 @@ cancelling any potentially infinite extended-real term.
 namespace Homogenization
 namespace HighContrast
 
-open Filter MeasureTheory
+open _root_.Filter MeasureTheory
 open scoped ENNReal Matrix.Norms.L2Operator Topology
 
 noncomputable section
@@ -59,7 +59,7 @@ theorem norm_unitCubeEuclideanL2FieldHilbertL2
   rw [← normalizedCubeMeasure_originCube_zero_eq_unitCenteredCubeDomain_normalizedVolume]
   congr 1
   apply MeasureTheory.eLpNorm_congr_norm_ae
-  exact Filter.Eventually.of_forall fun x ↦ by
+  exact _root_.Filter.Eventually.of_forall fun x ↦ by
     simp only [hilbertifyVecField, euclideanNorm_eq_norm_ofVec,
       Real.norm_eq_abs, abs_of_nonneg (norm_nonneg _)]
 
@@ -70,7 +70,7 @@ theorem unitCubeEuclideanL2FieldHilbertL2_sub
       unitCubeEuclideanL2FieldHilbertL2 F -
         unitCubeEuclideanL2FieldHilbertL2 G := by
   simpa only [unitCubeEuclideanL2FieldHilbertL2,
-    unitCubeEuclideanL2FieldSub_apply] using
+    unitCubeEuclideanL2FieldSub_apply] using!
       (toHilbertVectorL2OfVecField_sub
         (unitCubeEuclideanL2Field_memVectorL2 F)
         (unitCubeEuclideanL2Field_memVectorL2 G))

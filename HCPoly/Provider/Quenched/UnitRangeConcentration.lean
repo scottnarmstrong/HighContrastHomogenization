@@ -66,10 +66,10 @@ theorem measureReal_abs_sum_standardCell_ge_le
       {a : CoeffSpace d | ε ≤ ∑ w ∈ Z, X w a} ∪
         {a : CoeffSpace d | ε ≤ -∑ w ∈ Z, X w a} := by
     intro a ha
-    simp only [Set.mem_setOf_eq] at ha
+    simp only [Set.mem_ofPred_eq] at ha
     rcases abs_cases (∑ w ∈ Z, X w a) with ⟨heq, -⟩ | ⟨heq, -⟩
-    · exact Or.inl (by simpa only [Set.mem_setOf_eq, heq] using ha)
-    · exact Or.inr (by simpa only [Set.mem_setOf_eq, heq] using ha)
+    · exact Or.inl (by simpa only [Set.mem_ofPred_eq, heq] using ha)
+    · exact Or.inr (by simpa only [Set.mem_ofPred_eq, heq] using ha)
   calc P.real {a : CoeffSpace d | ε ≤ |∑ w ∈ Z, X w a|}
       ≤ P.real ({a : CoeffSpace d | ε ≤ ∑ w ∈ Z, X w a} ∪
           {a : CoeffSpace d | ε ≤ -∑ w ∈ Z, X w a}) := measureReal_mono hsub
@@ -180,7 +180,7 @@ theorem measureReal_abs_average_standardCell_ge_le_frGauge
       {a : CoeffSpace d | frThreshold d * t * Real.sqrt (Z.card : ℝ) ≤
         |∑ w ∈ Z, X w a|} := by
     intro a ha
-    simp only [Set.mem_setOf_eq] at ha ⊢
+    simp only [Set.mem_ofPred_eq] at ha ⊢
     have hmul := mul_le_mul_of_nonneg_left ha hNpos.le
     have habs : (Z.card : ℝ) * |(Z.card : ℝ)⁻¹ * ∑ w ∈ Z, X w a| = |∑ w ∈ Z, X w a| := by
       rw [abs_mul, abs_of_nonneg (inv_nonneg.2 hNpos.le), ← mul_assoc,

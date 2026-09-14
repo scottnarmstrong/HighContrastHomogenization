@@ -211,7 +211,7 @@ private theorem weighted_root_series_le
       intro n
       exact (hfh n).symm
     _ ≤ (∑' n, f n ^ (2 : ℝ)) ^ (1 / (2 : ℝ)) *
-          (∑' n, h n ^ (2 : ℝ)) ^ (1 / (2 : ℝ)) := hcs.2
+          (∑' n, h n ^ (2 : ℝ)) ^ (1 / (2 : ℝ)) := hcs
     _ = K * Real.sqrt (∑' n, Book.Ch02.geometricWeight b 2 n * M n) := by
       rw [hfs, hKroot]
       congr 1
@@ -252,7 +252,7 @@ theorem LambdaS_le_exponentGap_mul_LambdaSq_finite_two
     have hseries := Book.Ch02.LambdaSqFinite_rpow_q_div_two_eq_tsum
       Q r 1 a (by norm_num : (0 : ℝ) < 1)
         (mul_nonneg (hb.trans hbr).le (by norm_num : (0 : ℝ) ≤ 1))
-    simpa only [Book.Ch02.LambdaS, M, Real.sqrt_eq_rpow] using hseries
+    simpa only [Book.Ch02.LambdaS, M, Real.sqrt_eq_rpow] using! hseries
   have hright : ∑' n, Book.Ch02.geometricWeight b 2 n * M n =
       Book.Ch02.LambdaSq Q b (.finite 2) a := by
     have hseries := Book.Ch02.LambdaSqFinite_rpow_q_div_two_eq_tsum
@@ -330,7 +330,7 @@ theorem lambdaS_inv_le_exponentGap_mul_lambdaSq_finite_two_inv
     have hseries := Book.Ch02.lambdaSqFinite_rpow_neg_q_div_two_eq_tsum
       Q r 1 a (by norm_num : (0 : ℝ) < 1)
         (mul_nonneg (hb.trans hbr).le (by norm_num : (0 : ℝ) ≤ 1))
-    simpa only [Book.Ch02.lambdaS, M, Real.sqrt_eq_rpow] using hseries
+    simpa only [Book.Ch02.lambdaS, M, Real.sqrt_eq_rpow] using! hseries
   have hright : ∑' n, Book.Ch02.geometricWeight b 2 n * M n =
       (Book.Ch02.lambdaSq Q b (.finite 2) a)⁻¹ := by
     have hseries := Book.Ch02.lambdaSqFinite_rpow_neg_q_div_two_eq_tsum

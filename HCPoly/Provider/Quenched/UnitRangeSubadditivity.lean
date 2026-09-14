@@ -49,13 +49,13 @@ theorem toFullBlockMat_coarseBlock_centeredCube_le_average [NeZero d] {l k : ℤ
   have hZ : (↑(centredIndexFinset d l k) : Set (Fin d → ℤ))
       = {t : Fin d → ℤ | adaptedCellCenter (1 : Mat d) l t ∈ adaptedCell (1 : Mat d) k} := by
     ext t
-    simp only [Finset.mem_coe, Set.mem_setOf_eq, Entry.adaptedCellCenter_one,
+    simp only [Finset.mem_coe, Set.mem_ofPred_eq, Entry.adaptedCellCenter_one,
       Initialization.adaptedCell_one]
     exact mem_centredIndexFinset_iff hlk
   have hbase := Recurrence.toFullBlockMat_coarseBlock_adaptedCell_le_average
     (q := (1 : Mat d)) Matrix.PosDef.one hlk hZ a
   rw [Initialization.adaptedCell_one] at hbase
-  simpa only [adaptedCellAt_one_eq_openCubeSet_translateCube] using hbase
+  simpa only [adaptedCellAt_one_eq_openCubeSet_translateCube] using! hbase
 
 /-! ## The translation to an aligned parent -/
 

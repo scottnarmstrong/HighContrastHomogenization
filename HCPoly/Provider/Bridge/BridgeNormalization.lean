@@ -232,7 +232,7 @@ theorem below_start_mean_le_terminal [NeZero d] [IsProbabilityMeasure P]
       simpa only [one_mul] using mul_le_mul_of_nonneg_right hCd hright0
     have hfinal := mul_le_mul_of_nonneg_left hinner hcommon
     rw [bridgeContCoeff]
-    convert hfinal using 1 <;> ring
+    convert hfinal using 1 <;> first | rfl | ring
   have hFsym : IsSymmetricBlockMat F :=
     Recurrence.isSymmetricBlockMat_adaptedMean P (roundedGrid jStar mr) t
   have hFpd : Book.Ch02.BlockPosDef F :=

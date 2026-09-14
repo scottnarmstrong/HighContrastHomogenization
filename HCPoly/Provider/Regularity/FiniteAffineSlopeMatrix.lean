@@ -31,7 +31,7 @@ underlying linear map. -/
     (k m : ℤ) (hkm : k ≤ m) (e : Vec d) :
     matVecMul (finiteAffineBestFitSlopeMatrix a k m hkm) e =
       finiteAffineBestFitSlope a k m hkm e := by
-  simpa only [matVecMul, finiteAffineBestFitSlopeMatrix] using
+  simpa only [matVecMul, finiteAffineBestFitSlopeMatrix] using!
     LinearMap.toMatrix'_mulVec (finiteAffineBestFitSlope a k m hkm) e
 
 /-- The slope matrix has unit determinant exactly when the slope map is
@@ -104,7 +104,7 @@ noncomputable def finiteAffineBestFitSlopeInverseMatrix
     (e : Vec d) :
     matVecMul (finiteAffineBestFitSlopeInverseMatrix a k m hkm hbij) e =
       finiteAffineBestFitSlopeInverseLinearMap a k m hkm hbij e := by
-  simpa only [matVecMul, finiteAffineBestFitSlopeInverseMatrix] using
+  simpa only [matVecMul, finiteAffineBestFitSlopeInverseMatrix] using!
     LinearMap.toMatrix'_mulVec
       (finiteAffineBestFitSlopeInverseLinearMap a k m hkm hbij) e
 

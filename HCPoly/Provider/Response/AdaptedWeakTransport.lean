@@ -118,14 +118,14 @@ theorem blockCellAverage_affinePullback {q : Mat d} (hq : q.PosDef)
         volumeAverageVec (adaptedCellAt (1 : Mat d) k w)
           (fun y ↦ (F (matVecMul q y)).1) := by
     funext i
-    simpa [matImage_adaptedCellAt_one_eq hq k w] using
+    simpa [volumeAverageVec, matImage_adaptedCellAt_one_eq hq k w] using
       (volumeAverage_matImage hdet hV (fun x ↦ (F x).1 i))
   have havg₂ :
       volumeAverageVec (adaptedCellAt q k w) (fun x ↦ (F x).2) =
         volumeAverageVec (adaptedCellAt (1 : Mat d) k w)
           (fun y ↦ (F (matVecMul q y)).2) := by
     funext i
-    simpa [matImage_adaptedCellAt_one_eq hq k w] using
+    simpa [volumeAverageVec, matImage_adaptedCellAt_one_eq hq k w] using
       (volumeAverage_matImage hdet hV (fun x ↦ (F x).2 i))
   refine Prod.ext ?_ ?_
   · simp only [blockCellAverage_fst]

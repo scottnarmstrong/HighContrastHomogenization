@@ -264,7 +264,7 @@ theorem profileAdjointWeakRoot_le_randomCentered_add_constant [NeZero d]
           ENNReal.ofReal (Real.sqrt (metricBlockNormSq m
             (blockCellAverage (adaptedCell q t)
                 (diagonalWeakAdjointState hq t a p r) - center))) := by
-  simpa only [profileAdjointWeakRoot, diagonalWeakAdjointState_eq] using
+  simpa only [profileAdjointWeakRoot, diagonalWeakAdjointState_eq] using!
     normalized_primal_weak_split hq t hm a.transpose p r center
 
 end

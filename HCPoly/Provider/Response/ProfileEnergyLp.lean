@@ -90,7 +90,7 @@ theorem rpow_half_mul_ofReal_le_of_le_sqrt_toReal
       rw [hroot]
     _ ≤ ENNReal.ofReal (Real.sqrt x.toReal) *
         ENNReal.ofReal (C * Real.sqrt x.toReal) :=
-      mul_le_mul_of_nonneg_left (ENNReal.ofReal_le_ofReal henergy) (zero_le _)
+      mul_le_mul_of_nonneg_left (ENNReal.ofReal_le_ofReal henergy) zero_le
     _ = ENNReal.ofReal (Real.sqrt x.toReal *
         (C * Real.sqrt x.toReal)) := by
       rw [← ENNReal.ofReal_mul hroot0]
@@ -141,7 +141,7 @@ theorem profileBadEnergy_le_of_complete_maximum
       eLpNorm_ofReal_mul_le hbadM C 2
     _ ≤ ENNReal.ofReal C *
         ENNReal.ofReal (profileBadMajorant Q h beta) :=
-      mul_le_mul_of_nonneg_left (by simpa only [bad] using hmaximum) (zero_le _)
+      mul_le_mul_of_nonneg_left (by simpa only [bad] using hmaximum) zero_le
     _ = ENNReal.ofReal (C * profileBadMajorant Q h beta) := by
       rw [← ENNReal.ofReal_mul hC]
 
@@ -178,7 +178,7 @@ theorem profileGoodEnergy_le_of_pointwise
     profileGoodEnergy P alpha H M energy ≤
         ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ))) *
           ENNReal.ofReal C :=
-      mul_le_mul_of_nonneg_left (hmono.trans hconst) (zero_le _)
+      mul_le_mul_of_nonneg_left (hmono.trans hconst) zero_le
     _ = ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ)) * C) := by
       rw [← ENNReal.ofReal_mul hfac0]
 
@@ -222,7 +222,7 @@ theorem profileGoodEnergyAt_le_of_pointwise
     profileGoodEnergyAt P lev alpha H M energy ≤
         ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ))) *
           ENNReal.ofReal C :=
-      mul_le_mul_of_nonneg_left (hmono.trans hconst) (zero_le _)
+      mul_le_mul_of_nonneg_left (hmono.trans hconst) zero_le
     _ = ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ)) * C) := by
       rw [← ENNReal.ofReal_mul hfac0]
 

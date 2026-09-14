@@ -109,8 +109,8 @@ theorem selectionRun_terminal_tuple (hd : 2 ≤ d)
               ENNReal.ofReal
                 (initGridConst Cd g E m0 *
                   (3 : ℝ) ^ (-initExpRhoMax d g * ((t : ℝ) - (jdag : ℝ)))) := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   have hPi : 1 ≤ aspectRatio E :=
     one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hLam : 1 ≤ Lam := by

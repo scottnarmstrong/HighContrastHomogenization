@@ -196,45 +196,76 @@ theorem eLpNorm_sqrt_blockSize_averageDefect_le_drop [NeZero d]
     intro a
     have h := (hYpsd a).conjTranspose_mul_mul_same M
     rwa [hMsym] at h
+  have hentrysum : ∀ w ∈ Z, ∀ α β : BlockCoord d,
+      Integrable (fun a =>
+        toFullBlockMat (coarseBlock (adaptedCellAt q k w) a) α β) P :=
+    fun w _ α β =>
+      (Recurrence.hasIntegrableCoarseBlock_adaptedCellAt hstat hgrid hlk hintk w
+          α β).congr
+        (Filter.Eventually.of_forall fun a =>
+          (toFullBlockMat_eq_blockMatEntry
+            (coarseBlock (adaptedCellAt q k w) a) α β).symm)
   have hsumint : Integrable (fun a => ∑ w ∈ Z,
       toFullBlockMat (coarseBlock (adaptedCellAt q k w) a)) P :=
-    integrable_finset_sum Z fun w _ =>
-      Recurrence.integrable_toFullBlockMat_coarseBlock_adaptedCellAt hstat hgrid
-        hlk hintk w
+    integrable_of_entries fun α β => by
+      simpa only [Matrix.sum_apply] using
+        integrable_finsetSum Z fun w hw => hentrysum w hw α β
   have havgint : Integrable (fun a => (Z.card : ℝ)⁻¹ •
       ∑ w ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt q k w) a)) P :=
-    (hsumint.smul ((Z.card : ℝ)⁻¹)).congr
-      (Filter.Eventually.of_forall fun _ => rfl)
+    integrable_of_entries fun α β => by
+      simp only [Matrix.smul_apply, Matrix.sum_apply, smul_eq_mul]
+      exact (integrable_finsetSum Z fun w hw => hentrysum w hw α β).const_mul _
+  have htentry : ∀ α β : BlockCoord d,
+      Integrable (fun a =>
+        toFullBlockMat (coarseBlock (adaptedCell q t) a) α β) P :=
+    fun α β => (hintt α β).congr
+      (Filter.Eventually.of_forall fun a =>
+        (toFullBlockMat_eq_blockMatEntry
+          (coarseBlock (adaptedCell q t) a) α β).symm)
   have hYint : Integrable Y P := by
     simp only [hYdef]
-    exact havgint.sub (integrable_toFullBlockMat hintt)
+    refine integrable_of_entries fun α β => ?_
+    simp only [Matrix.sub_apply, Matrix.smul_apply, Matrix.sum_apply, smul_eq_mul]
+    exact ((integrable_finsetSum Z fun w hw => hentrysum w hw α β).const_mul _).sub
+      (htentry α β)
   have hZint : Integrable (fun a => M * Y a * M) P :=
     integrable_mul_left_mul_right M M hYint
   have hYavg : ∫ a, Y a ∂P =
       toFullBlockMat (adaptedMean P q k) -
         toFullBlockMat (adaptedMean P q t) := by
-    simp only [hYdef]
-    rw [integral_sub havgint (integrable_toFullBlockMat hintt)]
-    rw [Recurrence.integral_alignedAverage_eq_adaptedMean hstat hgrid hlk hintk
+    have hsplit : ∫ a, Y a ∂P =
+        (∫ a, (Z.card : ℝ)⁻¹ • ∑ w ∈ Z,
+            toFullBlockMat (coarseBlock (adaptedCellAt q k w) a) ∂P) -
+          ∫ a, toFullBlockMat (coarseBlock (adaptedCell q t) a) ∂P := by
+      ext α β
+      rw [Matrix.sub_apply, entry_integral hYint α β,
+        entry_integral havgint α β,
+        entry_integral (integrable_toFullBlockMat hintt) α β]
+      simp only [hYdef, Matrix.sub_apply, Matrix.smul_apply, Matrix.sum_apply,
+        smul_eq_mul]
+      exact integral_sub
+        ((integrable_finsetSum Z fun w hw => hentrysum w hw α β).const_mul _)
+        (htentry α β)
+    rw [hsplit, Recurrence.integral_alignedAverage_eq_adaptedMean hstat hgrid hlk hintk
       hZne, ← Recurrence.toFullBlockMat_adaptedMean_eq_integral hintt]
   set D : FullBlockMat d := M * (toFullBlockMat (adaptedMean P q k) -
       toFullBlockMat (adaptedMean P q t)) * M with hDdef
   have hZavg : ∫ a, M * Y a * M ∂P = D := by
     rw [integral_mul_left_mul_right M M hYint, hYavg]
   have hentryint : ∀ i j : BlockCoord d,
-      Integrable (fun a => (M * Y a * M) i j) P := fun i j =>
-    ((entryCLM' i j).integrable_comp hZint :
-      Integrable (fun a => (M * Y a * M) i j) P)
+      Integrable (fun a => (M * Y a * M) i j) P := fun i j => by
+    have h := (hZint.eval i).eval j
+    convert h using 1
   have htrint : Integrable (fun a => Matrix.trace (M * Y a * M)) P := by
     have h1 : Integrable (fun a => ∑ i : BlockCoord d,
         (M * Y a * M) i i) P :=
-      integrable_finset_sum Finset.univ fun i _ => hentryint i i
+      integrable_finsetSum Finset.univ fun i _ => hentryint i i
     refine h1.congr (Filter.Eventually.of_forall fun a => ?_)
     rfl
   have htrval : ∫ a, Matrix.trace (M * Y a * M) ∂P = Matrix.trace D := by
     have h1 : ∫ a, (∑ i : BlockCoord d, (M * Y a * M) i i) ∂P =
         ∑ i : BlockCoord d, ∫ a, (M * Y a * M) i i ∂P :=
-      integral_finset_sum Finset.univ fun i _ => hentryint i i
+      integral_finsetSum Finset.univ fun i _ => hentryint i i
     have h0 : ∫ a, Matrix.trace (M * Y a * M) ∂P =
         ∫ a, (∑ i : BlockCoord d, (M * Y a * M) i i) ∂P :=
       integral_congr_ae (Filter.Eventually.of_forall fun a => rfl)

@@ -52,7 +52,7 @@ private theorem specBoundSet_isClosed (M : Mat d) :
           {t : ℝ | (1 / 2 : ℝ) * vecDot x (matVecMul M x) ≤
             (1 / 2 : ℝ) * (t * vecNormSq x)} := by
     ext t
-    simp only [Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_iInter, MatLoewnerLE,
+    simp only [Set.mem_ofPred_eq, Set.mem_inter_iff, Set.mem_iInter, MatLoewnerLE,
       matVecMul_smul_one']
     constructor
     · rintro ⟨h0, h⟩

@@ -170,13 +170,9 @@ component. -/
 @[simp] theorem originCubeComponent_natCast {d : ℕ}
     (G : LocalGradientCarrier d) (n : ℕ) :
     originCubeComponent G (n : ℤ) = component G n := by
-  calc
-    originCubeComponent G (n : ℤ) =
-        originCubeL2Restrict (le_refl (n : ℤ)) (component G n) := by
-      exact originCubeComponent_eq_restrict_component G n (le_refl _)
-    _ = component G n := by
-      rw [originCubeL2Restrict_refl]
-      rfl
+  rw [originCubeComponent_eq_restrict_component G n (le_refl (n : ℤ)),
+    originCubeL2Restrict_refl]
+  rfl
 
 end LocalGradientCarrier
 
@@ -199,8 +195,9 @@ theorem dualPairing_eq_of_ae_eq_on {d : ℕ} {U : Set (Vec d)}
   have hdot :
       (fun x => vecDot (F x) (psi x))
         =ᵐ[volume.restrict U] fun x => vecDot (G x) (psi x) := by
-    simpa only [volumeMeasureOn] using hFG.mono fun x hx => by
-      exact congrArg (fun v : Vec d => vecDot v (psi x)) hx
+    simpa only [volumeMeasureOn, Filter.EventuallyEq] using
+      hFG.mono fun x hx => by
+        exact congrArg (fun v : Vec d => vecDot v (psi x)) hx
   by_cases hF : IntegrableOn (fun x => vecDot (F x) (psi x)) U volume
   · have hG : IntegrableOn (fun x => vecDot (G x) (psi x)) U volume :=
       (integrableOn_congr_fun_ae hdot).mp hF
@@ -314,7 +311,10 @@ theorem scalarIdentityCorrectorFluxDefectOnOriginCube_toVec_ae
   let hconst := memVectorL2_const_originCube e n
   let hfull : MemVectorL2 (openCubeSet (originCube d n))
       (fun x => e + g x) := by
-    simpa only [Pi.add_apply] using hconst.add hg
+    have hfun : (fun _ => e) + g = (fun x => e + g x) := by
+      funext x
+      rfl
+    simpa only [hfun] using hconst.add hg
   have hfullClass :
       correctorFullGradientOnOriginCube Phi e n =
         toHilbertVectorL2OfVecField hfull := by

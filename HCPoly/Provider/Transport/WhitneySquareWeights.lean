@@ -59,7 +59,7 @@ private theorem volume_absLe₀ {R : ℝ} (hR : 0 ≤ R) :
     volume {x : Vec d | ∀ i, |x i| ≤ R} = ENNReal.ofReal ((2 * R) ^ d) := by
   have hpi : {x : Vec d | ∀ i, |x i| ≤ R} = Set.univ.pi fun _ : Fin d => Set.Icc (-R) R := by
     ext x
-    simp only [Set.mem_setOf_eq, Set.mem_univ_pi, Set.mem_Icc, abs_le]
+    simp only [Set.mem_ofPred_eq, Set.mem_univ_pi, Set.mem_Icc, abs_le]
   rw [hpi, volume_pi, MeasureTheory.Measure.pi_pi]
   have hterm : ∀ _i : Fin d, volume (Set.Icc (-R) R) = ENNReal.ofReal (2 * R) := by
     intro _i

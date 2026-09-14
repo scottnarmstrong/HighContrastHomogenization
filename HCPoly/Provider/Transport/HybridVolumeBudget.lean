@@ -143,7 +143,7 @@ theorem one_sub_le_sum_relative_volume_hybridPacking {q q' : Mat d}
     dsimp only [Strip, W, U, hybridStrip]
     rw [← Finset.set_biUnion_coe, hZp]
   have hdecomp : volume Strip + volume U = volume W := by
-    have h := measure_diff_add_inter (μ := volume) W hUmeas
+    have h := measure_sdiff_add_inter (μ := volume) W hUmeas
     rw [Set.inter_eq_right.mpr hUsub] at h
     rw [hStripEq]
     exact h

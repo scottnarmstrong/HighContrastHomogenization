@@ -226,12 +226,12 @@ theorem annealedBlock_centeredCube_le_one_add_entryDefect [NeZero d]
       rw [hzero] at hcell
       have hind : bad.indicator nss a = 0 := by
         refine Set.indicator_of_notMem ?_ nss
-        rw [hbaddef, Set.mem_setOf_eq]
+        rw [hbaddef, Set.mem_ofPred_eq]
         exact not_lt.mpr hS
       rw [hind]
       linarith only [hcell, hquadE X]
     · -- bad event: the crude branch at the source's own scale
-      push_neg at hS
+      push Not at hS
       have hS0 : 0 < S a := lt_trans (zpow_pos (by norm_num) _) hS
       set m : ℤ := ⌈Real.logb 3 (S a)⌉ with hmdef
       have hlogS : ((n : ℤ) : ℝ) < Real.logb 3 (S a) := by
@@ -288,7 +288,7 @@ theorem annealedBlock_centeredCube_le_one_add_entryDefect [NeZero d]
           _ = nss a := Real.rpow_one _
       have hind : bad.indicator nss a = nss a := by
         refine Set.indicator_of_mem ?_ nss
-        rw [hbaddef, Set.mem_setOf_eq]
+        rw [hbaddef, Set.mem_ofPred_eq]
         exact hS
       rw [hind]
       have hnss0 : 0 ≤ nss a := le_trans zero_le_one (hnss1 a)
@@ -298,7 +298,7 @@ theorem annealedBlock_centeredCube_le_one_add_entryDefect [NeZero d]
   have htau0 : 0 < tau := zpow_pos (by norm_num) _
   have hnss_tau : ∀ a ∈ bad, tau ≤ nss a := by
     intro a ha
-    rw [hbaddef, Set.mem_setOf_eq] at ha
+    rw [hbaddef, Set.mem_ofPred_eq] at ha
     have h1 : tau * (3 : ℝ) ^ sK ≤ S a := by
       rw [htaudef, ← zpow_add₀ (by norm_num : (3 : ℝ) ≠ 0)]
       have heq : n - sK + sK = n := by ring
@@ -332,7 +332,7 @@ theorem annealedBlock_centeredCube_le_one_add_entryDefect [NeZero d]
       positivity
   have hindint : Integrable (fun a => bad.indicator nss a) P := by
     refine (Integrable.indicator ?_ hbadmeas).congr
-      (Filter.Eventually.of_forall fun a => rfl)
+      (_root_.Filter.Eventually.of_forall fun a => rfl)
     exact integrable_normalizedSourceScale hdag hsK
   have hindmom : ∫ a, bad.indicator nss a ∂P ≤ euclideanEntryDefect K sK n := by
     have h1 : ∫ a, bad.indicator nss a ∂P ≤ ∫ a, tau⁻¹ * nss a ^ 2 ∂P := by
@@ -361,7 +361,7 @@ theorem annealedBlock_centeredCube_le_one_add_entryDefect [NeZero d]
       blockVecDot X (blockMatVecMul E X)) P := by
     have h := ((integrable_const (1 : ℝ)).add hindint).mul_const
       (blockVecDot X (blockMatVecMul E X))
-    refine h.congr (Filter.Eventually.of_forall fun a => ?_)
+    refine h.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
     simp only [Pi.add_apply]
   have hmono := integral_mono_ae hint1 hint2 (by
     filter_upwards [hscalar] with a ha using ha X)

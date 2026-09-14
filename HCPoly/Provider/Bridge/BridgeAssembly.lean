@@ -131,13 +131,13 @@ theorem Homogenization.HighContrast.Bridge.random_source_bridge_two_grid_shifted
                                     (Homogenization.HighContrast.initExpRhoDr g) E
                                     jStar mp mv nn l))
     := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   obtain ⟨C, hC, hC1, hUrow, hUsrc, hLrow, hLsrc, hSeta, hSmass, hSdrift,
       hSsrc⟩ :=
     Homogenization.HighContrast.Bridge.exists_bridge_constant d g hg
   refine ⟨C, hC, ?_⟩
   intro Cd hCd P E Ψ K S hP hstat _hunit hdag jStar M hw Y hY
-  letI : MeasureTheory.IsProbabilityMeasure P := hP
+  let : MeasureTheory.IsProbabilityMeasure P := hP
   have hg0 : 0 ≤ g := hg.1
   have hg1 : g < 1 := hg.2
   have hE : Homogenization.IsSymmetricBlockMat E := hdag.refBlock_isSymm

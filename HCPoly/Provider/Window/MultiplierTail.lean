@@ -88,7 +88,7 @@ private theorem multiplier_tail_event_subset_successor_tail {g : ℝ}
     have hoffzero : windowScaleOffset g E jStar M a = 0 := Nat.eq_zero_of_not_pos hnot
     have hzero : windowMultiplier g E jStar M a - 1 = 0 := by
       simp [windowMultiplier, hoffzero]
-    rw [IndependentSums.upperTailEvent, Set.mem_setOf_eq, hzero] at ha
+    rw [IndependentSums.upperTailEvent, Set.mem_ofPred_eq, hzero] at ha
     have hpositive : 0 < sourceRemainderScale d jStar K * t :=
       mul_pos hscale htpos
     exact (not_lt_of_ge hpositive.le) ha

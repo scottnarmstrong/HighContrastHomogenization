@@ -89,7 +89,7 @@ theorem exists_roundedGenerationFiniteLipschitzPoincareConstant
       N ≤ Book.Ch03.coarsePoincareGradientRHS Q aRounded s (.finite 2) u := by
     simpa only [N,
       scaleNormalizedNegativeBesovVectorNorm_finite_two_eq_cubeBesovNegativeVectorSeminormTwo]
-      using Book.Ch03.coarsePoincareGradient_negativeBesov_le
+      using! Book.Ch03.coarsePoincareGradient_negativeBesov_le
         Q aRounded u hs (q := .finite 2) (by norm_num)
   have hlower :
       Book.Ch03.poincareLowerEllipticityFactor Q aRounded s (.finite 2) ≤ L := by
@@ -221,7 +221,7 @@ theorem exists_roundedGenerationFiniteLipschitzTerminalSlopeConstant
   have hres₁ :
       MemLp (fun x ↦ u.toH1.toFun x - (c₁ + vecDot (0 : Vec d) x))
         (2 : ℝ≥0∞) (normalizedCubeMeasure (originCube d m)) := by
-    simpa only [c₁, vecDot_zero_left, add_zero, cubeFluctuation] using
+    simpa only [c₁, vecDot_zero_left, add_zero, cubeFluctuation] using!
       u.toH1.memL2_normalizedCubeMeasure.sub (memLp_const _)
   have htriangle := normalizedAffineCandidateError_zero_sub_le_add
     (originCube d m) u.toH1.toFun c₀ c₁ e₀ (0 : Vec d) hres₀ hres₁

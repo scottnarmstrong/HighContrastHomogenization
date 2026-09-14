@@ -65,7 +65,7 @@ theorem terminal_range_blocks (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
       ∀ k : ℤ, jS ≤ k → k ≤ tt →
         HasFiniteAdaptedMean P q k ∧ Book.Ch02.BlockPosDef (adaptedMean P q k) ∧
           BlockMatLoewnerLE (adaptedMean P q tt) (adaptedMean P q k) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   intro Cd m0 q jS tt MM Y hm0 hq hcw hY hcont k hk1 hk2
   subst hq
   have hgrid : IsRoundedGrid jS (roundedGrid jS m0) :=

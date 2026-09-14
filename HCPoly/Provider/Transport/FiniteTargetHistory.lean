@@ -70,7 +70,7 @@ theorem exists_finite_target_family_centeredHistory_le
   have hn : n ∈ Finset.Icc jStar n := Finset.mem_Icc.mpr ⟨hjn, le_rfl⟩
   have hzero : (0 : Fin d → ℤ) ∈ Z n := by
     have hzeroSet : (0 : Fin d → ℤ) ∈ (↑(Z n) : Set (Fin d → ℤ)) := by
-      rw [(hZ n hn).1, Set.mem_setOf_eq,
+      rw [(hZ n hn).1, Set.mem_ofPred_eq,
         Recurrence.adaptedCellCenter_mem_adaptedCell_iff hq (le_refl n)]
       intro i
       simp
@@ -85,7 +85,7 @@ theorem exists_finite_target_family_centeredHistory_le
     have hi' := Finset.mem_sigma.mp hi
     have hcenter : adaptedCellCenter q i.1 i.2 ∈ adaptedCell q n := by
       have hwSet : i.2 ∈ (↑(Z i.1) : Set (Fin d → ℤ)) := hi'.2
-      rw [(hZ i.1 hi'.1).1, Set.mem_setOf_eq] at hwSet
+      rw [(hZ i.1 hi'.1).1, Set.mem_ofPred_eq] at hwSet
       exact hwSet
     exact Recurrence.adaptedCellAt_subset_adaptedCell hq
       (Finset.mem_Icc.mp hi'.1).2 hcenter
@@ -98,7 +98,7 @@ theorem exists_finite_target_family_centeredHistory_le
     have hj : j ∈ Finset.Icc jStar n := Finset.mem_Icc.mpr ⟨hjStar, hjn'⟩
     have hwZ : w ∈ Z j := by
       have hwSet : w ∈ (↑(Z j) : Set (Fin d → ℤ)) := by
-        rw [(hZ j hj).1, Set.mem_setOf_eq]
+        rw [(hZ j hj).1, Set.mem_ofPred_eq]
         exact hw
       exact hwSet
     have hi : (⟨j, w⟩ : ((_ : ℤ) × (Fin d → ℤ))) ∈

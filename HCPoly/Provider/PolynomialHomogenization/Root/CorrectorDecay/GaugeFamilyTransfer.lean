@@ -146,7 +146,7 @@ theorem matSqrt_physicalGradient_pullback_ae
           (PhiRef eRef).globalGradientRepresentative y i) := by
     simpa only [q, c, mu, L, eRef, PhiRef,
       Selection.normalizedRoot_eq, smul_matVecMul, matVecMul_add,
-      Pi.smul_apply, Pi.add_apply, mul_add] using hi
+      Pi.smul_apply, Pi.add_apply, mul_add] using! hi
   exact add_left_cancel (mul_left_cancel₀ hc.ne' hi')
 
 /-- The physical skew-centered flux row pulls back to the identity-reference
@@ -230,7 +230,7 @@ theorem euclideanBall_subset_closedEuclideanBall
     euclideanBall d r ⊆ closedEuclideanBall d r := by
   intro y hy
   exact le_of_lt (by
-    simpa only [euclideanBall, euclideanBallAt, sub_zero, mem_setOf_eq]
+    simpa only [euclideanBall, euclideanBallAt, sub_zero, mem_ofPred_eq]
       using hy)
 
 theorem closedEuclideanBall_subset_euclideanBall_two_mul
@@ -240,7 +240,7 @@ theorem closedEuclideanBall_subset_euclideanBall_two_mul
   have hsq : vecNormSq y < (2 * r) ^ 2 := by
     dsimp only [closedEuclideanBall] at hy
     exact hy.trans_lt (by nlinarith only [hr])
-  simpa only [euclideanBall, euclideanBallAt, sub_zero, mem_setOf_eq]
+  simpa only [euclideanBall, euclideanBallAt, sub_zero, mem_ofPred_eq]
     using hsq
 
 theorem closedEuclideanBall_subset_outerCube
@@ -519,10 +519,10 @@ theorem physicalScaledPair_le_gaugeOriginCube
     simpa only [q, U] using matImage_closedBall_eq_ellipsoid hS r
   have h₁U : (fun y ↦ P₁ (matVecMul q y))
       =ᵐ[volume.restrict U] F := by
-    exact ae_restrict_of_ae (by simpa only [q] using h₁)
+    exact ae_restrict_of_ae (by simpa only [q] using! h₁)
   have h₂U : (fun y ↦ P₂ (matVecMul q y))
       =ᵐ[volume.restrict U] G := by
-    exact ae_restrict_of_ae (by simpa only [q] using h₂)
+    exact ae_restrict_of_ae (by simpa only [q] using! h₂)
   have hpair : negOneNorm (ellipsoid abar r) P₁ +
       negOneNorm (ellipsoid abar r) P₂ ≤
         ENNReal.ofReal A * (negOneNorm U F + negOneNorm U G) := by

@@ -257,7 +257,7 @@ doubled block is `2d`, and the hypothesis `0 < d` is the lemma's `m ≥ 1`. -/
 theorem blockTrace_le_card_rpow_mul_schattenNorm {H : BlockMat d} (hd : 0 < d)
     (hpos : (toFullBlockMat H).PosSemidef) {Q : ℝ} (hQ : 1 ≤ Q) :
     blockTrace H ≤ (2 * d : ℝ) ^ (1 - Q⁻¹) * schattenNorm Q H := by
-  haveI : Nonempty (BlockCoord d) := ⟨Sum.inl ⟨0, hd⟩⟩
+  have : Nonempty (BlockCoord d) := ⟨Sum.inl ⟨0, hd⟩⟩
   have hQ0 : (0 : ℝ) < Q := lt_of_lt_of_le zero_lt_one hQ
   have hcard : (Fintype.card (BlockCoord d) : ℝ) = 2 * d := by
     simp [BlockCoord, Fintype.card_sum, two_mul]

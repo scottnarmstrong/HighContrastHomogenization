@@ -84,7 +84,8 @@ theorem normalizedAffineCandidateError_sub_le_add
 private theorem cubeSolution_weakFluxIntegrable {d : ℕ}
     {Q : TriadicCube d} {a : Book.Ch02.TriadicCoeffFamily d}
     (u : Book.Ch03.CubeSolution Q a) :
-    weakFluxIntegrable (openCubeSet Q) (a.coeffOn Q).toCoeffField u := by
+    weakFluxIntegrable (Book.Ch02.cubeDomain Q : Set (Vec d))
+      (a.coeffOn Q).toCoeffField u := by
   intro φ
   exact integrableOn_vecDot_of_memVectorL2
     (Book.Ch02.Solution.flux_memVectorL2 u)

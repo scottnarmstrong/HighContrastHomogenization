@@ -61,15 +61,15 @@ private theorem aestronglyMeasurable_weakProfileMajorant
     funext a
     by_cases hbad : (1 : ℝ≥0∞) < M a
     · have hbadMem : a ∈ bad := by
-        simpa only [bad, Set.mem_setOf_eq] using hbad
+        simpa only [bad, Set.mem_ofPred_eq] using hbad
       have hnotGood : a ∉ good := by
-        simpa only [good, Set.mem_setOf_eq, not_le] using hbad
+        simpa only [good, Set.mem_ofPred_eq, not_le] using hbad
       rw [if_pos hbad, Set.indicator_of_mem hbadMem,
         Set.indicator_of_notMem hnotGood, add_zero]
     · have hnotBad : a ∉ bad := by
-        simpa only [bad, Set.mem_setOf_eq] using hbad
+        simpa only [bad, Set.mem_ofPred_eq] using hbad
       have hgood : a ∈ good := by
-        simpa only [good, Set.mem_setOf_eq] using le_of_not_gt hbad
+        simpa only [good, Set.mem_ofPred_eq] using le_of_not_gt hbad
       rw [if_neg hbad, Set.indicator_of_notMem hnotBad,
         Set.indicator_of_mem hgood, zero_add]
   have hbranchIf : AEMeasurable (fun a ↦
@@ -296,15 +296,15 @@ private theorem aestronglyMeasurable_weakProfileMajorantAt
     funext a
     by_cases hbad : lev < M a
     · have hbadMem : a ∈ bad := by
-        simpa only [bad, Set.mem_setOf_eq] using hbad
+        simpa only [bad, Set.mem_ofPred_eq] using hbad
       have hnotGood : a ∉ good := by
-        simpa only [good, Set.mem_setOf_eq, not_le] using hbad
+        simpa only [good, Set.mem_ofPred_eq, not_le] using hbad
       rw [if_pos hbad, Set.indicator_of_mem hbadMem,
         Set.indicator_of_notMem hnotGood, add_zero]
     · have hnotBad : a ∉ bad := by
-        simpa only [bad, Set.mem_setOf_eq] using hbad
+        simpa only [bad, Set.mem_ofPred_eq] using hbad
       have hgood : a ∈ good := by
-        simpa only [good, Set.mem_setOf_eq] using le_of_not_gt hbad
+        simpa only [good, Set.mem_ofPred_eq] using le_of_not_gt hbad
       rw [if_neg hbad, Set.indicator_of_notMem hnotBad,
         Set.indicator_of_mem hgood, zero_add]
   have hbranchIf : AEMeasurable (fun a ↦

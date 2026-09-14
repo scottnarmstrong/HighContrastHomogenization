@@ -29,10 +29,10 @@ private theorem memVectorL2_matVecMul (A : Mat d) {U : Set (Vec d)}
   let L : Vec d →L[ℝ] Vec d :=
     LinearMap.toContinuousLinearMap (Matrix.mulVecLin A)
   refine MemLp.of_le_mul (c := ‖L‖) hf ?_ ?_
-  · simpa only [L, matVecMul] using
+  · simpa only [L, matVecMul] using!
       L.continuous.comp_aestronglyMeasurable hf.aestronglyMeasurable
   · filter_upwards [] with x
-    simpa only [L, matVecMul] using L.le_opNorm (f x)
+    simpa only [L, matVecMul] using! L.le_opNorm (f x)
 
 private theorem blockDiag_apply (A B : Mat d) (X : BlockVec d) :
     blockMatVecMul (blockDiag A B) X =
@@ -53,7 +53,7 @@ private theorem integrable_of_enorm_le_finite_mul_root
   have hnorm : eLpNorm Z 2 μ ≤ C * eLpNorm root 2 μ := by
     have h := eLpNorm_le_mul_eLpNorm_of_ae_le_mul' (μ := μ)
       (f := Z) (g := root) (c := C.toNNReal) (p := (2 : ℝ≥0∞))
-      (Filter.Eventually.of_forall fun a ↦ by
+      (_root_.Filter.Eventually.of_forall fun a ↦ by
         simpa only [Real.enorm_eq_ofReal_abs, enorm_eq_self,
           ENNReal.coe_toNNReal hC] using hbound a)
     simpa only [ENNReal.smul_def, ENNReal.coe_toNNReal hC] using h
@@ -225,7 +225,7 @@ theorem centeredChild_readout_enorm_bounds [NeZero d]
     have hetaMeas := heta.aestronglyMeasurable
     have hetaBound : ∀ᵐ x ∂volume.restrict U,
         ‖eta x‖ ≤ 2 + |volumeAverage U (adaptedPreYoungCutoff q hq t)| :=
-      Filter.Eventually.of_forall fun x ↦ by
+      _root_.Filter.Eventually.of_forall fun x ↦ by
         rw [Real.norm_eq_abs, abs_le]
         constructor <;>
           linarith only [adaptedPreYoungCutoff_nonneg hq t x,
@@ -234,7 +234,7 @@ theorem centeredChild_readout_enorm_bounds [NeZero d]
             le_abs_self (volumeAverage U (adaptedPreYoungCutoff q hq t))]
     have hetaF : IntegrableOn
         (fun x ↦ eta x * toFullBlockVec (F x) alpha) U volume := by
-      simpa only [mul_comm] using hcomp.bdd_mul hetaMeas hetaBound
+      simpa only [mul_comm] using! hcomp.bdd_mul hetaMeas hetaBound
     have hetaConst : IntegrableOn
         (fun x ↦ toFullBlockVec center alpha * eta x) U volume :=
       heta.const_mul _
@@ -257,7 +257,7 @@ theorem centeredChild_readout_enorm_bounds [NeZero d]
     have havgConst : volumeAverage U
         (fun x ↦ toFullBlockVec center alpha * eta x) =
         toFullBlockVec center alpha * volumeAverage U eta := by
-      simpa only [Pi.smul_apply, smul_eq_mul] using
+      simpa only [Pi.smul_apply, smul_eq_mul] using!
         volumeAverage_smul U (toFullBlockVec center alpha) eta
     rw [hpoint, volumeAverage_add hetaF hetaConst, havgConst, havgEta,
       mul_zero, add_zero]
@@ -316,11 +316,11 @@ theorem integrable_primal_adaptedFiveTermSplit_readouts [NeZero d]
       ((Selection.aestronglyMeasurable_blockCellAverage_diagonalWeakState_subSkew_alignedIndex
         hq hst P g hg p r hw alpha).sub aestronglyMeasurable_const)
       hC hroot (fun a ↦ by
-        simpa only [C, root, center, profilePrimalWeakRoot] using
+        simpa only [C, root, center, profilePrimalWeakRoot] using!
           (centeredChild_readout_enorm_bounds hq hm0 hst hw
             (a.subSkew g hg) p r center alpha).1)
     exact (hcentered.add (integrable_const _)).congr
-      (Filter.Eventually.of_forall fun _ ↦ by dsimp; ring)
+      (_root_.Filter.Eventually.of_forall fun _ ↦ by dsimp; ring)
   · let C := ENNReal.ofReal (1024 * (d : ℝ) ^ 4 *
         (max 1 (max smoothTransitionProfile.derivBound
           smoothTransitionProfile.secondDerivBound)) ^ 2 *
@@ -338,7 +338,7 @@ theorem integrable_primal_adaptedFiveTermSplit_readouts [NeZero d]
         ENNReal.ofReal_ne_top
     let eta := fun x ↦ adaptedPreYoungCutoff q hq t x -
       volumeAverage (adaptedCellAt q s w) (adaptedPreYoungCutoff q hq t)
-    letI : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
+    let : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
       (Recurrence.isOpenBoundedConvexDomain_adaptedCell hq t).isFiniteMeasure_restrict_volume
     exact integrable_of_enorm_le_finite_mul_root
       (Selection.aestronglyMeasurable_volumeAverage_weighted_diagonalWeakState_subSkew_alignedIndex

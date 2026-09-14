@@ -57,7 +57,7 @@ theorem measureReal_stoppingGeneration_gt_real_le
   have hsub : {ω | y < (stoppingGeneration nstar qfb R m ω : ℝ)} ⊆
       {ω | q + (qfb + b) < stoppingGeneration nstar qfb R m ω} := by
     intro ω hω
-    simp only [Set.mem_setOf_eq] at hω ⊢
+    simp only [Set.mem_ofPred_eq] at hω ⊢
     rw [hqsum]
     exact (Nat.floor_lt hy0).2 hω
   have hbnd := measureReal_stoppingGeneration_gt_le
@@ -163,7 +163,7 @@ theorem measureReal_rowBadEvent_le
     obtain ⟨j, hj⟩ := exists_lt_stoppingGeneration_of_rowBadEvent
       (R := R) (B := B) (F := F) htheta hdelta hCblk hn hBpoint (hω n) hmem
     refine Set.mem_iUnion.2 ⟨j, ?_⟩
-    simp only [hE, Set.mem_setOf_eq]
+    simp only [hE, Set.mem_ofPred_eq]
     exact hj
   have hmono : P.real (rowBadEvent delta F n) ≤ P.real (⋃ j : ℕ, E j) :=
     ENNReal.toReal_mono (by finiteness) (measure_mono_ae hae)

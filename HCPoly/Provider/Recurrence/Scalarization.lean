@@ -110,7 +110,7 @@ theorem eLpNorm_schattenNorm_le (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 2 �
           eLpNorm (fun a => toFullBlockMat (H a) i.1 i.2 ^ 2) (ENNReal.ofReal (Q / 2)) P := by
     rw [hsum]
     refine eLpNorm_sum_le (fun i _ => ?_) ?_
-    · simpa [Pi.pow_apply] using (hmeas i.1 i.2).pow 2
+    · simpa [Pi.pow_apply] using! (hmeas i.1 i.2).pow 2
     · rw [ENNReal.one_le_ofReal]
       linarith only [hQ]
   have h4 : ∀ i : BlockCoord d × BlockCoord d,

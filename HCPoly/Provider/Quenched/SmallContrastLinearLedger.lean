@@ -371,7 +371,6 @@ theorem linear_ledger_descent {A alpha d0 S0 S1 S2 b0 bA b2 : ℝ}
     ?_ ?_ ?_ ?_
   · -- hsrcL
     intro j k hk
-    simp only at hk ⊢
     have hrj := hrns j
     have h1 := hsrc
       (linR ns cA A alpha b0 bA b2 S0 S1 S2 d0 j + k)
@@ -413,7 +412,6 @@ theorem linear_ledger_descent {A alpha d0 S0 S1 S2 b0 bA b2 : ℝ}
     linarith only [h1, hm1, hm2]
   · -- hsE0
     intro j
-    simp only
     have h1 : (0 : ℝ) ≤ S1 * (3 : ℝ) ^ (-(bA *
         (linR ns cA A alpha b0 bA b2 S0 S1 S2 d0 j : ℝ))) := by
       have hS1' : (0 : ℝ) ≤ S1 := by linarith only [hS1]
@@ -429,7 +427,6 @@ theorem linear_ledger_descent {A alpha d0 S0 S1 S2 b0 bA b2 : ℝ}
     linarith only [h1, h2, h3]
   · -- hstep
     intro j
-    simp only
     have hlamj := linLam_pos hA hd0 j
     have hii := linII_spec hA hlamj
     have hT := linT_spec (A := A) halpha hd0 hlamj hA
@@ -508,7 +505,6 @@ theorem linear_ledger_descent {A alpha d0 S0 S1 S2 b0 bA b2 : ℝ}
       _ = linLam A d0 (j + 1) := (linLam_succ A d0 j).symm
   · -- hspace
     intro j
-    simp only
     rw [linR_succ]
     omega
 

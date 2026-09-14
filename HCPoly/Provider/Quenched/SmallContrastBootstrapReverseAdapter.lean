@@ -127,9 +127,9 @@ theorem exists_reverse_adapter_error_bound (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
   refine ⟨CAE * (1 - g)⁻¹, mul_pos hCAE0 (inv_pos.mpr hgpos), ?_⟩
   intro P E Ψ K S hP hstat hunit hdag Cd hCd sK hsK0 hsK l hl mAl hmAl G hqnorm
     k n m hk0 hkn hnm hln hDelta
-  haveI : NeZero d := ⟨by omega⟩
-  haveI := hP
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
+  have := hP
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hn0 : (0 : ℤ) ≤ n := by omega
   obtain ⟨-, hrev⟩ := hCAE P E Ψ K S hP hstat hunit hdag l hl mAl hmAl
     k n m hk0 hkn hnm

@@ -188,7 +188,7 @@ theorem measureReal_burnSplitSource_tail [NeZero d]
       exact max_eq_left hcase
     rw [hgauge, inv_one]
     exact measureReal_le_one
-  · push_neg at hcase
+  · push Not at hcase
     have hPsis : 2 * Ψ 1 < Ψ s := by
       have hcpos : (0 : ℝ) < 2 * Ψ 1 := by linarith only [hPsi1]
       rw [lt_div_iff₀ hcpos] at hcase
@@ -196,7 +196,7 @@ theorem measureReal_burnSplitSource_tail [NeZero d]
     -- the gauge is above one, so the argument is above one
     have hs1 : (1 : ℝ) ≤ s := by
       by_contra hlt
-      push_neg at hlt
+      push Not at hlt
       have := hdag.gauge_admissible.1 (Set.mem_Ici.mpr hs0)
         (Set.mem_Ici.mpr zero_le_one) hlt.le
       linarith only [this, hPsis, hPsi1]
@@ -259,7 +259,7 @@ theorem measureReal_burnSplitSource_tail [NeZero d]
           upperTailEvent
             (fun a => (successorScale g E (M - jStar) a).toReal) u := by
       ext a
-      simp only [upperTailEvent, burnSplitSource, Set.mem_setOf_eq,
+      simp only [upperTailEvent, burnSplitSource, Set.mem_ofPred_eq,
         Set.mem_union, lt_max_iff]
     have hgauge : burnSplitGauge Ψ (A * K) u = Ψ s / (2 * Ψ 1) := by
       rw [burnSplitGauge, ← hsdef]

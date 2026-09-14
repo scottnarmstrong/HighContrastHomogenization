@@ -28,7 +28,7 @@ variable {d : ℕ}
 private theorem boundedConvexDomain_compl_nonempty
     (hd : 1 ≤ d) {U : Set (Vec d)}
     (hU : IsOpenBoundedConvexDomain U) : Uᶜ.Nonempty := by
-  letI : Nonempty (Fin d) := Fintype.card_pos_iff.mp (by simpa using hd)
+  let : Nonempty (Fin d) := Fintype.card_pos_iff.mp (by simpa using! hd)
   apply Set.nonempty_compl.mpr
   intro hUuniv
   apply NormedSpace.unbounded_univ (𝕜 := ℝ) (E := Vec d)

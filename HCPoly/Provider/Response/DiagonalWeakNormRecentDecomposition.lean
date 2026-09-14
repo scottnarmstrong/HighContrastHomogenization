@@ -82,8 +82,8 @@ theorem blockCellAverage_recent_difference [NeZero d]
     (U := adaptedDomainAt hq k w)
     (F := diagonalWeakChildState hq k w a p r)
     (G := diagonalWeakState hq t a p r)
-    (by simpa only [diagonalWeakChildState, v] using hvgrad)
-    (by simpa only [diagonalWeakChildState, b, v] using hvflux)
+    (by simpa only [diagonalWeakChildState, v] using! hvgrad)
+    (by simpa only [diagonalWeakChildState, b, v] using! hvflux)
     hpgrad' hpflux'
 
 private theorem blockAvsumL2_neg {iota : Type*}

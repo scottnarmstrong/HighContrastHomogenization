@@ -198,7 +198,7 @@ theorem lower_comparison [NeZero d] [IsProbabilityMeasure P]
         toFullBlockMat (adaptedMean P qv n) := by
     rw [sub_le_iff_le_add]
     simpa only [add_comm] using hstep
-  simpa only [neg_smul, add_comm, qp, qv, Kpv, T] using hrearranged
+  simpa only [neg_smul, add_comm, qp, qv, Kpv, T] using! hrearranged
 
 end
 

@@ -228,7 +228,7 @@ theorem euclidean_transfer (hd : 2 ≤ d) {P : Measure (CoeffSpace d)}
         (blockScale (1 + etaIso) (adaptedMean P q t)) ∧
       blockImbalance (annealedBlock P (centeredCube d ment)) ≤
         (1 + etaIso) ^ 3 / (1 - etaIso) * blockImbalance (adaptedMean P q t) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   have hEtsym := Recurrence.isSymmetricBlockMat_adaptedMean P q t
   have hEasym := Recurrence.isSymmetricBlockMat_adaptedMean P q maux
   have hFsym := Recurrence.isSymmetricBlockMat_annealedBlock P (centeredCube d ment)

@@ -62,13 +62,13 @@ theorem aemeasurable_blockSize_subdivisionDefect [NeZero d]
     refine Continuous.measurable (continuous_norm.comp ?_)
     refine continuous_matrix fun α β => ?_
     simp only [Matrix.mul_apply, Matrix.of_apply]
-    refine continuous_finset_sum _ fun δ _ => ?_
-    refine Continuous.mul (continuous_finset_sum _ fun γ _ => ?_)
+    refine continuous_finsetSum _ fun δ _ => ?_
+    refine Continuous.mul (continuous_finsetSum _ fun γ _ => ?_)
       continuous_const
     exact Continuous.mul continuous_const
       ((continuous_apply δ).comp (continuous_apply γ))
   have hcomp := hcont.comp_aemeasurable hraw
-  refine hcomp.congr (Filter.Eventually.of_forall fun a => ?_)
+  refine hcomp.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
   show ‖matSqrt (toFullBlockMat Gp)⁻¹ *
       (Matrix.of fun γ δ : BlockCoord d =>
         (Z.card : ℝ)⁻¹ *

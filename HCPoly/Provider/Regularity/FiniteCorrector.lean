@@ -53,7 +53,7 @@ private theorem finiteAffinePointwiseCoeff_ae_eq {d : ℕ}
       =ᵐ[volumeMeasureOn
         (Book.Ch02.cubeDomain (originCube d m) : Set (Vec d))]
       (a.coeffOn (originCube d m)).toCoeffField := by
-  simpa only [finiteAffinePointwiseCoeff] using
+  simpa only [finiteAffinePointwiseCoeff] using!
     Internal.Ch02.BookCh02.pointwiseCoeffOn_ae_eq
       (Book.Ch02.cubeDomain (originCube d m)) (a.coeffOn (originCube d m))
 
@@ -77,7 +77,7 @@ noncomputable def finiteAffineBoundaryH1 {d : ℕ} [NeZero d]
     (m : ℤ) (e : Vec d) :
     (finiteAffineBoundaryH1 m e).toFun = fun x => vecDot e x := by
   funext x
-  simpa only [finiteAffineBoundaryH1] using
+  simpa only [finiteAffineBoundaryH1] using!
     H1Function.affineOnIsSobolevRegularDomain_apply
       (Book.Ch02.cubeDomain (originCube d m)).isDomain.isSobolevRegularDomain e x
 
@@ -245,7 +245,7 @@ private theorem finiteAffineCorrection_grad_add {d : ℕ} [NeZero d]
         (Book.Ch02.cubeDomain (originCube d m) : Set (Vec d))]
       fun x => (finiteAffineCorrection a m e).toH1Function.grad x +
         (finiteAffineCorrection a m e').toH1Function.grad x := by
-  simpa only [H1Function.add_grad] using
+  simpa only [H1Function.add_grad] using!
     finiteAffineCorrection_grad_ae_eq_of_weakSolution a m (e + e')
       (finiteAffineCorrection a m e + finiteAffineCorrection a m e')
       (finiteAffineCorrection_add_weakSolution a m e e')
@@ -256,7 +256,7 @@ private theorem finiteAffineCorrection_grad_smul {d : ℕ} [NeZero d]
       =ᵐ[volumeMeasureOn
         (Book.Ch02.cubeDomain (originCube d m) : Set (Vec d))]
       fun x => c • (finiteAffineCorrection a m e).toH1Function.grad x := by
-  simpa only [H1Function.smul_grad] using
+  simpa only [H1Function.smul_grad] using!
     finiteAffineCorrection_grad_ae_eq_of_weakSolution a m (c • e)
       (c • finiteAffineCorrection a m e)
       (finiteAffineCorrection_smul_weakSolution a m c e)
@@ -286,7 +286,7 @@ private theorem finiteAffineCorrection_toFun_add {d : ℕ} [NeZero d]
       (finiteAffineCorrection a m e +
         finiteAffineCorrection a m e').toH1Function.memL2).mp
     exact hL2
-  simpa only [H1Function.add_toFun] using hfun
+  simpa only [H1Function.add_toFun] using! hfun
 
 private theorem finiteAffineCorrection_toFun_smul {d : ℕ} [NeZero d]
     (a : Book.Ch02.TriadicCoeffFamily d) (m : ℤ) (c : ℝ) (e : Vec d) :
@@ -310,7 +310,7 @@ private theorem finiteAffineCorrection_toFun_smul {d : ℕ} [NeZero d]
       (finiteAffineCorrection a m (c • e)).toH1Function.memL2
       (c • finiteAffineCorrection a m e).toH1Function.memL2).mp
     exact hL2
-  simpa only [H1Function.smul_toFun] using hfun
+  simpa only [H1Function.smul_toFun] using! hfun
 
 private noncomputable def finiteAffineH1 {d : ℕ} [NeZero d]
     (a : Book.Ch02.TriadicCoeffFamily d) (m : ℤ) (e : Vec d) :
@@ -683,7 +683,7 @@ private theorem finiteAffineBoundaryH1_isConstantCoeffForcedEquation
     Book.Ch03.IsConstantCoeffForcedEquation (originCube d m)
       (identityConstantCoeffMatrix d) (finiteAffineBoundaryH1 m e)
       (0 : Vec d → Vec d) := by
-  letI : MeasureTheory.IsFiniteMeasure
+  let : MeasureTheory.IsFiniteMeasure
       (volumeMeasureOn
         (Book.Ch02.cubeDomain (originCube d m) : Set (Vec d))) := by
     simpa [Book.Ch02.cubeDomain_coe, volumeMeasureOn] using
@@ -704,7 +704,7 @@ private theorem finiteAffineBoundaryH1_isConstantCoeffForcedEquation
       hvol e
   intro φ
   simpa only [identityConstantCoeffMatrix_matrix, Homogenization.matVecMul_one,
-    Pi.zero_apply, vecDot_zero_left, integral_zero] using hsol φ
+    Pi.zero_apply, vecDot_zero_left, integral_zero] using! hsol φ
 
 private noncomputable def finiteAffineComparisonDatum {d : ℕ} [NeZero d]
     (a : Book.Ch02.TriadicCoeffFamily d) (m : ℤ) (e : Vec d) :
@@ -814,8 +814,14 @@ private theorem finiteAffineCorrection_grad_eq_comparisonGradient
         (finiteAffineBoundaryH1 m e) := by
   funext x
   rw [finiteAffineSolution_toH1]
-  simp [Book.Ch03.homogenizationComparisonConstantGradientField,
+  simp only [Book.Ch03.homogenizationComparisonConstantGradientField,
     identityConstantCoeffMatrix_matrix, Homogenization.matVecMul_one]
+  have hadd :=
+    congrFun (H1Function.add_grad (finiteAffineBoundaryH1 m e)
+      (finiteAffineCorrection a m e).toH1Function) x
+  have hb := congrFun (finiteAffineBoundaryH1_grad m e) x
+  rw [hadd, hb]
+  abel
 
 /-- The coefficient-energy norm of the finite affine-boundary solution is
 controlled by the `q = 2` identity response error at the same order. -/

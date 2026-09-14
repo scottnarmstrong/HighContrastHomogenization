@@ -30,7 +30,7 @@ theorem normalizedRoot_fillingBoundaryFactor_le
     max 1
         (6 * (d : ℝ) * Real.sqrt d * ‖(Selection.normalizedRoot m)⁻¹‖) ≤
       6 * (d : ℝ) * Real.sqrt d := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hdR : (1 : ℝ) ≤ d := by exact_mod_cast hd
   have hsqrt : (1 : ℝ) ≤ Real.sqrt d := by
     rw [show (1 : ℝ) = Real.sqrt 1 by norm_num]

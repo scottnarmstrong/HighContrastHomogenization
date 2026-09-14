@@ -102,7 +102,7 @@ theorem printOrder_dual_bounds_of_identity_of_action_absorption
   have hEL2 : MemVectorL2 (cubeSet Q) (fun x ↦ matVecMul E (w x)) :=
     memVectorL2_constMatrix_mul E hwL2
   have hF'L2 : MemVectorL2 (cubeSet Q) F' := by
-    simpa only [F', Pi.add_apply] using hEL2.add hF
+    simpa only [F', Pi.add_apply] using! hEL2.add hF
   have hfield : (fun x ↦ w x + F' x) =
       (fun x ↦ matVecMul A (w x) + F x) := by
     funext x

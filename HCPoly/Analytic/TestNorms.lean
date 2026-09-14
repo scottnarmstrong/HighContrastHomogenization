@@ -234,8 +234,8 @@ theorem h1NormSq_ne_top {U : Set (Vec d)} (hUb : IsBoundedDomain U)
   -- The gradient term: a uniform bound through the bound on `fderiv ψ`.
   obtain ⟨C, hC0, hC⟩ :=
     exists_fderiv_bound_of_hasCompactSupport hψ.contDiff hψ.hasCompactSupport
-  have hone : (1 : WithTop ℕ∞) ≤ ((⊤ : ℕ∞) : WithTop ℕ∞) := by simp
-  have hdiff : Differentiable ℝ ψ := hψ.contDiff.differentiable hone
+  have hne : ((⊤ : ℕ∞) : WithTop ℕ∞) ≠ 0 := by simp
+  have hdiff : Differentiable ℝ ψ := hψ.contDiff.differentiable hne
   have hgradbd : ∀ x : Fin d → ℝ, ∀ j i : Fin d,
       |smoothGrad (fun y => ψ y j) x i| ≤ C := by
     intro x j i

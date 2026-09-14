@@ -64,10 +64,10 @@ theorem profileCenteredMaximum_ne_top [NeZero d]
                 (blockSub (adaptedResponse q k v a) (adaptedMean P q k))
                 (adaptedMean P q t)) := by
       exact Finset.single_le_sum
-        (fun v _ ↦ (zero_le _ : (0 : ℝ≥0∞) ≤ _)) hw'
+        (fun v _ ↦ (zero_le : (0 : ℝ≥0∞) ≤ _)) hw'
     _ ≤ C := by
       exact Finset.single_le_sum
-        (fun r _ ↦ (zero_le _ : (0 : ℝ≥0∞) ≤ _)) hk
+        (fun r _ ↦ (zero_le : (0 : ℝ≥0∞) ≤ _)) hk
 
 /-- The hatted all-scale maximum used by the weak estimates is finite almost
 everywhere under the source/window and terminal-geometry data. -/

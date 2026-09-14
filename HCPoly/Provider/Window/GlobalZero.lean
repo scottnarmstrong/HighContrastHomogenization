@@ -47,8 +47,8 @@ theorem ae_global_response_rows_zero
           BlockMatLoewnerLE
             (coarseStarInv (adaptedCellTranslate (roundedGrid jStar n) r y) a)
             (blockScale (boundaryConst Cd 0 n) (blockReflect E))) := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hburn : (kZero d : ℤ) ≤ sourceBurn d Q K := by
     rw [sourceBurn]
     exact le_max_left _ _

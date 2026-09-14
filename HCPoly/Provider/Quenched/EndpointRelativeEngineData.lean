@@ -23,7 +23,7 @@ the original coefficient law.
 
 namespace Homogenization.HighContrast.Quenched
 
-open Filter MeasureTheory
+open _root_.Filter MeasureTheory
 
 attribute [local instance] Classical.propDecidable
 
@@ -315,7 +315,7 @@ theorem exists_coupledWitnessEngineData_of_endpoint (d : ℕ) (hd : 2 ≤ d) :
                 (blockScale (1 + 6 * (3 : ℝ) ^ (-alpha * (j : ℝ))) Abar)) →
           Nonempty (CoupledWitnessEngineData P g E Psi K S Abar Nann
             theta deltaOut Cmix) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   intro g hg alpha halpha
   let rho : ℝ := (1 + 3 * g) / 4
   let gamma : ℝ := (g + rho) / 2
@@ -425,7 +425,7 @@ theorem exists_coupledWitnessEngineData_of_endpoint (d : ℕ) (hd : 2 ≤ d) :
   refine ⟨Cmix, theta, deltaOut, hCmix, htheta, hdeltaOut, ?_⟩
   intro P E Psi K S Abar Nann hP hstat hunit hdag hAbar hAbarPos
     _hcontrast hsandwich
-  letI : IsProbabilityMeasure P := hP
+  let : IsProbabilityMeasure P := hP
   let base : ℝ := 2 + aspectRatio E * K
   have hbase : 3 ≤ base := by
     simpa only [base] using three_le_rebaseBase hdag
@@ -437,7 +437,7 @@ theorem exists_coupledWitnessEngineData_of_endpoint (d : ℕ) (hd : 2 ≤ d) :
   let b : ℕ := B * q0
   let N0 : ℕ := nstar + qfb + b + Nfix
   let Pbase : Measure (CoeffSpace d) := triadicRebasedLaw Nann P
-  letI : IsProbabilityMeasure Pbase := isProbabilityMeasure_triadicRebasedLaw Nann P
+  let : IsProbabilityMeasure Pbase := isProbabilityMeasure_triadicRebasedLaw Nann P
   let Sbase : CoeffSpace d → ℝ := triadicRebasedSource Nann S
   let Psibase : ℝ → ℝ := triadicRebasedGauge Nann Psi
   have hstatBase : HCPoly.Frozen.IsStationaryLaw Pbase :=
@@ -687,8 +687,8 @@ theorem exists_coupledWitnessEngineData_of_endpoint (d : ℕ) (hd : 2 ≤ d) :
       (honeBaseN n hn) (hthrN n hn) (hcellN n hn)
     have hpull :=
       ((CoeffSpace.triadicDilationMeasurableEquiv Nann).measurableEmbedding.ae_map_iff).1
-        (by simpa only [Pbase] using hbaseAE)
-    simpa only [physical_scale_coeff_eq_triadicDilation] using hpull
+        (by simpa only [Pbase] using! hbaseAE)
+    simpa only [physical_scale_coeff_eq_triadicDilation] using! hpull
   have hfinAll : ∀ᵐ a ∂P, ∀ n : ℕ, nstar ≤ n →
       renormScale Sbase (Ahat n) (endpointTolerance deltaOut eta q0 L n)
         gamma (endpointWindowLength A L n) n (physical_scale_coeff Nann a) ≠ ⊤ := by
@@ -696,7 +696,7 @@ theorem exists_coupledWitnessEngineData_of_endpoint (d : ℕ) (hd : 2 ≤ d) :
     intro n
     by_cases hn : nstar ≤ n
     · exact (hfinPhysical n hn).mono fun _ ha _ => ha
-    · exact Filter.Eventually.of_forall fun _ h => (hn h).elim
+    · exact _root_.Filter.Eventually.of_forall fun _ h => (hn h).elim
   have hcoarsePhysical : ∀ᵐ a ∂P,
       ∀ M : ℤ, Sbase (physical_scale_coeff Nann a) ≤ (3 : ℝ) ^ M →
         ∀ k : ℤ, k ≤ M → ∀ w : Fin d → ℤ,
@@ -706,8 +706,8 @@ theorem exists_coupledWitnessEngineData_of_endpoint (d : ℕ) (hd : 2 ≤ d) :
             (blockScale ((3 : ℝ) ^ (g * ((M : ℝ) - (k : ℝ)))) E) := by
     have hpull :=
       ((CoeffSpace.triadicDilationMeasurableEquiv Nann).measurableEmbedding.ae_map_iff).1
-        (by simpa only [Pbase] using hdagBase.coarse_bound)
-    simpa only [physical_scale_coeff_eq_triadicDilation] using hpull
+        (by simpa only [Pbase] using! hdagBase.coarse_bound)
+    simpa only [physical_scale_coeff_eq_triadicDilation] using! hpull
   have hburnStart : 2 * kappaRef E ≤
       deltaOut * (3 : ℝ) ^ ((gamma - g) * ((A * q0 : ℕ) : ℝ)) := by
     have hbaseq : base ≤ (3 : ℝ) ^ q := by

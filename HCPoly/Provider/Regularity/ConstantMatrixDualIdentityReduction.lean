@@ -30,11 +30,13 @@ theorem memVectorL2_constMatrix_mul (A : Mat d) {U : Set (Vec d)}
     MemVectorL2 U (fun x ↦ matVecMul A (f x)) := by
   let L : Vec d →L[ℝ] Vec d :=
     LinearMap.toContinuousLinearMap (Matrix.mulVecLin A)
+  have hL : ∀ x, L x = matVecMul A x := fun x ↦ rfl
   refine MemLp.of_le_mul (c := ‖L‖) hf ?_ ?_
-  · simpa only [L, matVecMul] using
-      L.continuous.comp_aestronglyMeasurable hf.aestronglyMeasurable
+  · have h := L.continuous.comp_aestronglyMeasurable hf.aestronglyMeasurable
+    simpa only [hL] using h
   · filter_upwards [] with x
-    simpa only [L, matVecMul] using L.le_opNorm (f x)
+    have h := L.le_opNorm (f x)
+    simpa only [hL] using h
 
 end
 

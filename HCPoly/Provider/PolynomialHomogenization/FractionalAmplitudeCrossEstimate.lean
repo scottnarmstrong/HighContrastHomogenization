@@ -118,7 +118,7 @@ theorem setLIntegral_fieldDistance_le_fractionalAmplitude
       exact ofReal_distance_factorization G x y
     _ ≤ (∫⁻ y in F, f y ^ (2 : ℝ) ∂volume) ^ (1 / 2 : ℝ) *
         (∫⁻ y in F, g y ^ (2 : ℝ) ∂volume) ^ (1 / 2 : ℝ) := by
-      simpa only [one_div] using hholder
+      simpa only [one_div] using! hholder
     _ ≤ fractionalGagliardoSquareFunction U s G x ^ (1 / 2 : ℝ) *
         (volume F * ENNReal.ofReal (D ^ ((d : ℝ) + 2 * s))) ^
           (1 / 2 : ℝ) :=

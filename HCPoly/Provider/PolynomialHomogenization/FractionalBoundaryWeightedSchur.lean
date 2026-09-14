@@ -31,9 +31,13 @@ theorem measurable_fractionalBoundarySchurWeight
     {U : Set (Vec d)} (hU : IsOpenBoundedConvexDomain U) (a : ℝ) :
     Measurable (fractionalBoundarySchurWeight U a) := by
   classical
-  simpa only [fractionalBoundarySchurWeight] using
-    Measurable.ite (measurableSet_of_isOpenBoundedConvexDomain hU)
-      (measurable_euclideanBoundaryWeight U a) measurable_const
+  have h : fractionalBoundarySchurWeight U a =
+      fun x => if x ∈ U then euclideanBoundaryWeight U a x else 1 := by
+    funext x
+    by_cases hx : x ∈ U <;> simp [fractionalBoundarySchurWeight, hx]
+  rw [h]
+  exact Measurable.ite (measurableSet_of_isOpenBoundedConvexDomain hU)
+    (measurable_euclideanBoundaryWeight U a) measurable_const
 
 /-- The boundary-weighted fractional Riesz operator satisfies a squared
 `L²` Schur bound for every auxiliary exponent `s<a<1-s`. -/
@@ -54,7 +58,7 @@ theorem exists_lintegral_fractionalBoundarySchurKernel_rpow_two_le
       hd hrho hRad hs hsa hsa1
   refine ⟨A * B, ENNReal.mul_ne_top hAtop hBtop, ?_⟩
   intro U hU hsand f hf
-  letI : IsFiniteMeasure (volume.restrict U) :=
+  let : IsFiniteMeasure (volume.restrict U) :=
     hU.isFiniteMeasure_restrict_volume
   have hweightMeas := measurable_fractionalBoundarySchurWeight hU a
   have hweight0 : ∀ x, fractionalBoundarySchurWeight U a x ≠ 0 := by

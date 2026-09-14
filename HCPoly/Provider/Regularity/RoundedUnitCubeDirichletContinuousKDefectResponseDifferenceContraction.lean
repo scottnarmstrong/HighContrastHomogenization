@@ -36,6 +36,9 @@ noncomputable def unitCubeEuclideanL2FieldSub
   euclideanMemL2 := by
     have h := F.euclideanMemL2.sub G.euclideanMemL2
     convert h using 1
+    · rfl
+    · funext x
+      exact (HilbertVec.ofVecL d).map_sub _ _
 
 @[simp] theorem unitCubeEuclideanL2FieldSub_apply
     (F G : UnitCubeEuclideanL2Field d) (x : Vec d) :

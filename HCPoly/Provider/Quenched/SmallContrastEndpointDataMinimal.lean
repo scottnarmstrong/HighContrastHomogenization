@@ -66,9 +66,9 @@ theorem exists_bootstrap_smallness_uniform_minimal (d : ℕ) (hd : 2 ≤ d) (g :
   refine ⟨CB, hCB0, ?_⟩
   intro P E Ψ K S hP hstat hunit hdag Cd hCd sK hsK0 hsK mAl hmAl sigma
     delta cStar hsigma0 hcal hsmall
-  haveI := hP
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
-  haveI : NeZero d := ⟨by omega⟩
+  have := hP
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
   have hone : (1 : ℝ) ≤ euclideanReferenceRatio Cd g K E := by
     have hburn : sK + 1 ≤ sK + 1 := le_rfl
     exact (reference_le_annealedBlock_centeredCube hd hg hdag hCd hsK hburn).1

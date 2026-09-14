@@ -29,7 +29,7 @@ averages.
 namespace Homogenization
 namespace HighContrast
 
-open Filter MeasureTheory Set
+open _root_.Filter MeasureTheory Set
 
 open scoped ENNReal
 
@@ -244,7 +244,7 @@ theorem norm_cubeAverageVec_translate_sub_le_of_weakRow (d : ℕ) [NeZero d]
 
 private theorem integrableOn_const_cubeSet (Q : TriadicCube d) (c : ℝ) :
     IntegrableOn (fun _ : Vec d => c) (cubeSet Q) volume := by
-  haveI : IsFiniteMeasure (volume.restrict (cubeSet Q)) :=
+  have : IsFiniteMeasure (volume.restrict (cubeSet Q)) :=
     ⟨by rw [Measure.restrict_apply_univ]; exact volume_cubeSet_lt_top Q⟩
   exact integrable_const c
 

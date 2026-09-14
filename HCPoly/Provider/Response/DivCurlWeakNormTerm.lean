@@ -105,8 +105,12 @@ theorem abs_cutoffProductTermOnCube_le_scaledWeakNormProduct
         (by simpa [flux] using canonicalMaximizerFluxDefectOnCube_memLp Q a p q q0)
         (by
           intro N
-          simpa [u, canonicalMaximizerPotentialDefectH1OnCube_grad,
-            canonicalMaximizerGradientDefectOnCube] using hgradWeak N)
+          have h := hgradWeak N
+          change cubeBesovNegativeVectorPartialSeminorm Q s N
+            (fun x => canonicalMaximizerGradientOnCube Q a p q x - p0) ≤
+              gradWeak at h
+          simpa only [u, canonicalMaximizerPotentialDefectH1OnCube_grad,
+            canonicalMaximizerGradientDefectOnCube] using h)
         (by
           intro N
           simpa [flux] using hfluxWeak N)

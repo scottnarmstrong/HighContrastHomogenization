@@ -86,7 +86,7 @@ theorem roundedGrid_adaptedCell_subset_gridEnlargement (hd : 2 ≤ d)
       Real.exp (chop * ((Ncap + 1 : ℕ) : ℝ))) :
     adaptedCell (roundedGrid jdag m) T ⊆
       centeredCube d (T + (gridEnlargement d chop Ncap : ℤ)) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   let a : ℝ := Real.sqrt d * (100 / 99 : ℝ)
   let e : ℝ := chop * ((Ncap + 1 : ℕ) : ℝ)
   have ha : 0 < a := by dsimp [a]; positivity

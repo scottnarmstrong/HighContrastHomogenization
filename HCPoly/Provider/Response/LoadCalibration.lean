@@ -84,7 +84,7 @@ theorem response_load_calibration (hd : 2 ≤ d)
           4 * beta * Real.sqrt (relSize B SStar) ∧
         Sum.elim p (q + (h - g0) *ᵥ p) ⬝ᵥ M0 *ᵥ Sum.elim p (q + (h - g0) *ᵥ p) ≤
           4 * beta * Real.sqrt (relSize B SStar)) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   -- the Schur form of the terminal block
   have htSharp' : fullBlockSharp (schurBlock S SStar K) ≤ schurBlock S SStar K := by
     rw [← hEtform]; exact htSharp

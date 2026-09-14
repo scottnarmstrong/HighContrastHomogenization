@@ -22,7 +22,7 @@ this realizes the exact representatives as a finite centered-cube solution.
 namespace Homogenization
 namespace HighContrast
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal Topology
 
 noncomputable section
@@ -119,7 +119,7 @@ theorem exists_pos_euclideanBall_superset_openCubeSet
   have hRsq : (d : ℝ) * rho ^ 2 = R ^ 2 := by
     dsimp only [R]
     rw [mul_pow, Real.sq_sqrt hdreal.le]
-  simpa only [euclideanBall, euclideanBallAt, Set.mem_setOf_eq, sub_zero, hRsq]
+  simpa only [euclideanBall, euclideanBallAt, Set.mem_ofPred_eq, sub_zero, hRsq]
     using hnorm
 
 /-- The measurable value representative in the frozen growth condition is in
@@ -140,10 +140,10 @@ theorem memLp_normalizedCubeMeasure_of_liouvilleGrowth
   have hsub' : openCubeSet Q ⊆ euclideanBall d r := hsub.trans (by
     intro x hx
     have hxnorm : vecNormSq x < R ^ 2 := by
-      simpa only [euclideanBall, euclideanBallAt, Set.mem_setOf_eq, sub_zero]
+      simpa only [euclideanBall, euclideanBallAt, Set.mem_ofPred_eq, sub_zero]
         using hx
     have hsq : R ^ 2 < r ^ 2 := pow_lt_pow_left₀ hrR hR.le (by norm_num)
-    simpa only [euclideanBall, euclideanBallAt, Set.mem_setOf_eq, sub_zero]
+    simpa only [euclideanBall, euclideanBallAt, Set.mem_ofPred_eq, sub_zero]
       using hxnorm.trans hsq)
   have hballZero : volume (euclideanBall d r) ≠ 0 :=
     (ENNReal.toReal_ne_zero.mp
@@ -214,10 +214,10 @@ theorem exists_cubeSolution_eq_representatives_of_memLiouvilleClass
     hQball.trans (by
       intro x hx
       have hxnorm : vecNormSq x < R ^ 2 := by
-        simpa only [euclideanBall, euclideanBallAt, Set.mem_setOf_eq, sub_zero]
+        simpa only [euclideanBall, euclideanBallAt, Set.mem_ofPred_eq, sub_zero]
           using hx
       have hsq : R ^ 2 < r ^ 2 := pow_lt_pow_left₀ hrR hR.le (by norm_num)
-      simpa only [euclideanBall, euclideanBallAt, Set.mem_setOf_eq, sub_zero]
+      simpa only [euclideanBall, euclideanBallAt, Set.mem_ofPred_eq, sub_zero]
         using hxnorm.trans hsq)
   have hballZero : volume (euclideanBall d r) ≠ 0 :=
     (ENNReal.toReal_ne_zero.mp
@@ -245,7 +245,7 @@ theorem exists_cubeSolution_eq_representatives_of_memLiouvilleClass
     hv.2.1.mono (Set.subset_univ _)
   have hweakA : IsWeakSolutionOn
       (a.coeffOn Q).toCoeffField (openCubeSet Q) Dv :=
-    hweakB.congr_ae hcoeff.symm Filter.EventuallyEq.rfl
+    hweakB.congr_ae hcoeff.symm _root_.Filter.EventuallyEq.rfl
   have haeEll : IsAEEllipticFieldOn (a.coeffOn Q).lam (a.coeffOn Q).Lam
       (openCubeSet Q) (a.coeffOn Q).toCoeffField := by
     refine ⟨measurableSet_openCubeSet Q, ?_, ?_⟩

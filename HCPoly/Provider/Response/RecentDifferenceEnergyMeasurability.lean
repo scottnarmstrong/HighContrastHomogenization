@@ -178,7 +178,7 @@ theorem inner_optimizerDifferenceL2 {V W : Book.Ch02.Domain d}
               toFullBlockVec (optimizerBlockState V aV p q x) alpha -
             toFullBlockVec (Y.eval x) alpha *
               toFullBlockVec (optimizerBlockState W aW p q x) alpha) ∂volume := by
-          refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+          refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun x => ?_)
           simp only [blockVecDot_eq_sum_toFullBlockVec]
           refine Finset.sum_congr rfl fun alpha _ => ?_
           cases alpha with
@@ -189,7 +189,7 @@ theorem inner_optimizerDifferenceL2 {V W : Book.Ch02.Domain d}
               toFullBlockVec (optimizerBlockState V aV p q x) alpha -
             toFullBlockVec (Y.eval x) alpha *
               toFullBlockVec (optimizerBlockState W aW p q x) alpha) ∂volume :=
-          integral_finset_sum _ fun alpha _ => (hintV alpha).sub (hintW alpha)
+          integral_finsetSum _ fun alpha _ => (hintV alpha).sub (hintW alpha)
     _ = ∑ alpha : BlockCoord d,
           ((∫ x in (V : Set (Vec d)), toFullBlockVec (Y.eval x) alpha *
               toFullBlockVec (optimizerBlockState V aV p q x) alpha ∂volume) -
@@ -225,10 +225,10 @@ theorem stronglyMeasurable_optimizerDifferenceL2 {Om : Type*} [mOm : MeasurableS
     (p q : Vec d) :
     StronglyMeasurable fun w : Om => optimizerDifferenceL2 hV hVW (aV w) (aW w) p q := by
   classical
-  haveI : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
-  haveI : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
-  letI : MeasurableSpace (HilbertBlockL2 (V : Set (Vec d))) := borel _
-  haveI : BorelSpace (HilbertBlockL2 (V : Set (Vec d))) := ⟨rfl⟩
+  have : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
+  have : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
+  let : MeasurableSpace (HilbertBlockL2 (V : Set (Vec d))) := borel _
+  have : BorelSpace (HilbertBlockL2 (V : Set (Vec d))) := ⟨rfl⟩
   have hSliceV : ∀ w : Om,
       AEEQuantitativeEllipticSlice (V : Set (Vec d)) k (A w).toFun := fun w =>
     aeeQuantitativeEllipticSlice_subset hV hVW (hSliceW w)
@@ -367,7 +367,7 @@ theorem recentDifferenceEnergy_eq {V W : Book.Ch02.Domain d}
         toFullBlockVec ((optimizerDifferenceState V W aV aW p q).eval x) (Sum.inl i) *
           toFullBlockVec ((optimizerDifferenceState V W aV aW p q).eval x)
             (Sum.inr i) ∂volume := by
-    rw [integral_finset_sum _ fun i _ => hint i]
+    rw [integral_finsetSum _ fun i _ => hint i]
     exact Finset.sum_congr rfl fun i _ => hcoord i
   have hI : (∫ x in (V : Set (Vec d)),
       blockVecDot ((optimizerDifferenceState V W aV aW p q).eval x)
@@ -425,7 +425,7 @@ theorem continuous_coordPairingFunctional {V : Set (Vec d)}
       (volume V).toReal⁻¹ * ∑ i : Fin d,
         inner ℝ (weightedCoordOperator (U := V) hmeas hC hbound (Sum.inl i) (Sum.inr i) z)
           z := by
-  refine continuous_const.mul (continuous_finset_sum _ fun i _ => ?_)
+  refine continuous_const.mul (continuous_finsetSum _ fun i _ => ?_)
   exact continuous_inner.comp
     (((weightedCoordOperator (U := V) hmeas hC hbound (Sum.inl i)
       (Sum.inr i)).continuous).prodMk continuous_id)
@@ -479,9 +479,9 @@ theorem measurable_recentDifferenceEnergy_coeffSpace {V W : Book.Ch02.Domain d}
     (hVW : (V : Set (Vec d)) ⊆ (W : Set (Vec d))) (p q : Vec d) :
     Measurable fun a : CoeffSpace d =>
       recentDifferenceEnergy V W (a.coeffOn V) (a.coeffOn W) p q := by
-  haveI : IsFiniteMeasure (volumeMeasureOn (V : Set (Vec d))) :=
+  have : IsFiniteMeasure (volumeMeasureOn (V : Set (Vec d))) :=
     hVbdd.isFiniteMeasure_restrict_volume
-  haveI : IsFiniteMeasure (volumeMeasureOn (W : Set (Vec d))) :=
+  have : IsFiniteMeasure (volumeMeasureOn (W : Set (Vec d))) :=
     hWbdd.isFiniteMeasure_restrict_volume
   have hV : MeasurableSet (V : Set (Vec d)) := hVopen.measurableSet
   have hbase : Measurable fun a : CoeffSpace d =>
@@ -501,8 +501,8 @@ theorem measurable_recentDifferenceEnergy_coeffSpace {V W : Book.Ch02.Domain d}
       fun a : CoeffSpace d =>
         recentDifferenceEnergy V W (restrictCoeffOn hV hVW (a.coeffOn W)) (a.coeffOn W) p q := by
     funext a
-    exact recentDifferenceEnergy_congr hV hVW Filter.EventuallyEq.rfl
-      Filter.EventuallyEq.rfl p q
+    exact recentDifferenceEnergy_congr hV hVW _root_.Filter.EventuallyEq.rfl
+      _root_.Filter.EventuallyEq.rfl p q
   rw [hrw]
   exact hbase
 

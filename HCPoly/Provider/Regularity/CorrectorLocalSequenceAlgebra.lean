@@ -144,7 +144,7 @@ theorem finiteAffineCorrectionLocalSequence_toScalarL2_add {d : ℕ}
     (finiteAffineCorrectionLocalSequence a e q +
       finiteAffineCorrectionLocalSequence a e' q).memL2).2
   simpa only [finiteAffineCorrectionLocalSequence, localGradientCube,
-    Book.Ch02.cubeDomain_coe, H1Function.add_toFun] using
+    Book.Ch02.cubeDomain_coe, H1Function.add_toFun] using!
       finiteAffineCorrection_toFun_add_ae a (q : ℤ) e e'
 
 /-- Scalar local classes of finite correctors are homogeneous in the slope. -/
@@ -158,7 +158,7 @@ theorem finiteAffineCorrectionLocalSequence_toScalarL2_smul {d : ℕ}
     (finiteAffineCorrectionLocalSequence a (c • e) q).memL2
     (c • finiteAffineCorrectionLocalSequence a e q).memL2).2
   simpa only [finiteAffineCorrectionLocalSequence, localGradientCube,
-    Book.Ch02.cubeDomain_coe, H1Function.smul_toFun] using
+    Book.Ch02.cubeDomain_coe, H1Function.smul_toFun] using!
       finiteAffineCorrection_toFun_smul_ae a (q : ℤ) c e
 
 /-- Hilbert-vector gradient classes of finite correctors are additive in the
@@ -178,9 +178,9 @@ theorem finiteAffineCorrectionLocalSequence_gradient_add {d : ℕ}
         finiteAffineCorrection_grad_add_ae a (q : ℤ) e e']
     with x hleft hright hgrad
   rw [hleft, hright]
-  simp only [H1Function.add_grad, hilbertifyVecField,
-    finiteAffineCorrectionLocalSequence, localGradientCube,
-    Book.Ch02.cubeDomain_coe, id_eq, hgrad]
+  simp only [hilbertifyVecField, finiteAffineCorrectionLocalSequence,
+    localGradientCube, Book.Ch02.cubeDomain_coe, id_eq, hgrad]
+  rfl
 
 /-- Hilbert-vector gradient classes of finite correctors are homogeneous in
 the slope. -/
@@ -197,9 +197,9 @@ theorem finiteAffineCorrectionLocalSequence_gradient_smul {d : ℕ}
         finiteAffineCorrection_grad_smul_ae a (q : ℤ) c e]
     with x hleft hright hgrad
   rw [hleft, hright]
-  simp only [H1Function.smul_grad, hilbertifyVecField,
-    finiteAffineCorrectionLocalSequence, localGradientCube,
-    Book.Ch02.cubeDomain_coe, id_eq, hgrad]
+  simp only [hilbertifyVecField, finiteAffineCorrectionLocalSequence,
+    localGradientCube, Book.Ch02.cubeDomain_coe, id_eq, hgrad]
+  rfl
 
 /-- Normalized local value-gradient pairs of finite correctors are additive
 in the slope. -/

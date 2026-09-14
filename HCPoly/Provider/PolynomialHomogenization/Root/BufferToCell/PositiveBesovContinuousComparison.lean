@@ -81,7 +81,7 @@ private theorem eLpNorm_two_eq_rpow
     {E : Type*} [NormedAddCommGroup E] (f : A → E) (mu : Measure A) :
     eLpNorm f 2 mu =
       (∫⁻ x, ‖f x‖ₑ ^ (2 : ℝ) ∂mu) ^ (1 / (2 : ℝ)) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   norm_num
 
 private theorem integral_normalizedDomainMeasure_eq_volumeAverageVec
@@ -97,7 +97,7 @@ private theorem integral_normalizedDomainMeasure_eq_volumeAverageVec
 
 private theorem enorm_hilbertVec_sq (v : Vec d) :
     ‖HilbertVec.ofVec v‖ₑ ^ (2 : ℕ) = ENNReal.ofReal (vecNormSq v) := by
-  rw [← ofReal_norm_eq_enorm, ← ENNReal.ofReal_pow (norm_nonneg _)]
+  rw [← ofReal_norm, ← ENNReal.ofReal_pow (norm_nonneg _)]
   congr 1
   simpa [vecNormSq, vecDot, HilbertVec.ofVec, PiLp.toLp_apply, pow_two] using
     HilbertVec.norm_sq_eq_sum_sq (HilbertVec.ofVec v)
@@ -109,7 +109,7 @@ theorem ofReal_vecNormSq_volumeAverageVec_le_eVolumeAverage
       eVolumeAverage V (fun x => ENNReal.ofReal (vecNormSq (F x))) := by
   let mu := normalizedDomainMeasure V
   let FH : Vec d → HilbertVec d := fun x => HilbertVec.ofVec (F x)
-  haveI : IsProbabilityMeasure mu :=
+  have : IsProbabilityMeasure mu :=
     normalizedDomainMeasure_isProbability hVpos hVtop
   have hFHvol : Integrable FH (volume.restrict V) :=
     (HilbertVec.ofVecL d).integrable_comp hF
@@ -203,7 +203,7 @@ private theorem forceSobolevRegularity_of_hsNormSq_lt_top
   intro i
   have hmem : MemLp (fun x => F x i) (2 : ℝ≥0∞)
       (normalizedCubeMeasure Q) := by
-    simpa using (ContinuousLinearMap.proj (R := ℝ) i).comp_memLp' hBesov.memLp
+    simpa using! (ContinuousLinearMap.proj (R := ℝ) i).comp_memLp' hBesov.memLp
   refine ⟨hmem, ?_⟩
   rw [Gagliardo.memWsp_iff]
   constructor
@@ -220,7 +220,7 @@ private theorem forceSobolevRegularity_of_hsNormSq_lt_top
         (f := fun j : Fin d =>
           (Gagliardo.cubeGagliardoESeminorm Q sF.1 (2 : ℝ≥0∞)
             (fun x => F x j)) ^ (2 : ℝ))
-        (fun _j _ => zero_le _)
+        (fun _j _ => zero_le)
         (Finset.mem_univ i)
     have hamb := cubeCoordinateGagliardoPowerEnergy_le_dimension_mul_ambientHilbert
       Q sF FiniteLpExponent.two F
@@ -359,7 +359,7 @@ theorem positiveBesovNorm_sq_le_continuousFractionalSquare
   have hLtop : L ≠ ⊤ := (lt_of_le_of_lt hLle (ENNReal.mul_lt_top hElt
     ENNReal.ofReal_lt_top)).ne
   have hW2top : W2 ≠ ⊤ := (lt_of_le_of_lt hW2le hElt).ne
-  letI : IsFiniteMeasure (volume.restrict (openCubeSet Q)) :=
+  let : IsFiniteMeasure (volume.restrict (openCubeSet Q)) :=
     ⟨by simpa using volume_openCubeSet_lt_top Q⟩
   have hmeanENN := ofReal_vecNormSq_cubeAverageVec_le_eVolumeAverage Q
     (hFcube.integrable (by norm_num))

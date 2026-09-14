@@ -69,8 +69,11 @@ theorem volume_mul_cellSolutionEnergy_eq_physicalEnergyIntegral
       Q _ F hEll
   have hint : IntegrableOn ePublic (cubeSet Q) volume :=
     integrableOn_coefficientEnergyDensity_of_isEllipticFieldOn hEll
-      (by simpa [Q, F, forcedSolutionGradientField] using
-        (wCell i).toH1.toCubeSet.grad_memVectorL2)
+      (by
+        have hgrad : (wCell i).toH1.toCubeSet.grad = (wCell i).toH1.grad :=
+          H1Function.grad_toCubeSet (wCell i).toH1
+        simpa [Q, F, forcedSolutionGradientField, hgrad] using
+          (wCell i).toH1.toCubeSet.grad_memVectorL2)
   have hpoint : 0 ≤ᵐ[volume.restrict (cubeSet Q)] ePublic := by
     filter_upwards [ae_restrict_mem (measurableSet_cubeSet Q)] with x hx
     exact coefficientEnergyDensity_nonneg_of_isEllipticFieldOn hEll F x hx

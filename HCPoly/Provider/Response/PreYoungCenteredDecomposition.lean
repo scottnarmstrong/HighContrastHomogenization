@@ -73,15 +73,15 @@ private theorem volumeAverage_weighted_centered_vecDot
       _ = (1 / 2 : ℝ) * ∑ i, Pcen i * (eta x * F x i) :=
         (Finset.mul_sum _ _ _).symm
   have hB : IntegrableOn B U := by
-    have hsum := (integrable_finset_sum Finset.univ fun i _ ↦
+    have hsum := (integrable_finsetSum Finset.univ fun i _ ↦
       (hG i).const_mul (Qcen i)).const_mul (1 / 2 : ℝ)
     exact hsum.congr
-      (Filter.Eventually.of_forall fun x ↦ (congrFun hBeq x).symm)
+      (_root_.Filter.Eventually.of_forall fun x ↦ (congrFun hBeq x).symm)
   have hC : IntegrableOn C U := by
-    have hsum := (integrable_finset_sum Finset.univ fun i _ ↦
+    have hsum := (integrable_finsetSum Finset.univ fun i _ ↦
       (hF i).const_mul (Pcen i)).const_mul (1 / 2 : ℝ)
     exact hsum.congr
-      (Filter.Eventually.of_forall fun x ↦ (congrFun hCeq x).symm)
+      (_root_.Filter.Eventually.of_forall fun x ↦ (congrFun hCeq x).symm)
   have hK : IntegrableOn K U := heta.const_mul _
   have hpoint : (fun x ↦ eta x * ((1 / 2 : ℝ) *
       vecDot (G x - Pcen) (F x - Qcen))) =
@@ -118,7 +118,7 @@ private theorem integral_vecDot_const
     (hF : ∀ i, Integrable (fun a ↦ F a i) P) :
     ∫ a, vecDot c (F a) ∂P = vecDot c (fun i ↦ ∫ a, F a i ∂P) := by
   simp only [vecDot]
-  rw [integral_finset_sum Finset.univ (fun i _ ↦ (hF i).const_mul (c i))]
+  rw [integral_finsetSum Finset.univ (fun i _ ↦ (hF i).const_mul (c i))]
   exact Finset.sum_congr rfl fun i _ ↦ integral_const_mul (c i) (fun a ↦ F a i)
 
 private theorem centered_integral_identity
@@ -138,11 +138,11 @@ private theorem centered_integral_identity
         (1 / 2 : ℝ) * (vecDot Qcen Mgrad + vecDot Pcen Mflux) := by
   have hQG : Integrable (fun a ↦ vecDot Qcen (G a)) P := by
     simp only [vecDot]
-    exact integrable_finset_sum Finset.univ
+    exact integrable_finsetSum Finset.univ
       (fun i _ ↦ (hG i).const_mul (Qcen i))
   have hPF : Integrable (fun a ↦ vecDot Pcen (F a)) P := by
     simp only [vecDot]
-    exact integrable_finset_sum Finset.univ
+    exact integrable_finsetSum Finset.univ
       (fun i _ ↦ (hF i).const_mul (Pcen i))
   have hconst : Integrable
       (fun _ : CoeffSpace d ↦ (1 / 2 : ℝ) * vecDot Pcen Qcen) P :=
@@ -157,7 +157,7 @@ private theorem centered_integral_identity
       D a + J a - (1 / 2 : ℝ) * vecDot Qcen (G a) -
         (1 / 2 : ℝ) * vecDot Pcen (F a) +
           (1 / 2 : ℝ) * vecDot Pcen Qcen ∂P :=
-    integral_congr_ae (Filter.Eventually.of_forall hpoint)
+    integral_congr_ae (_root_.Filter.Eventually.of_forall hpoint)
   have hDJ : ∫ a, D a + J a ∂P =
       (∫ a, D a ∂P) + ∫ a, J a ∂P := integral_add hD hJ
   have hDJQ : ∫ a, (D a + J a) -
@@ -241,8 +241,8 @@ private theorem integrable_responseJ_of_finiteAdaptedMean
   let X : BlockVec d := (-p, r)
   have hquad := (integrable_coarseBlock_quadratic hint X).const_mul (1 / 2 : ℝ)
   have hsub := hquad.sub (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X] using (responseJ_eq_coarseBlock (adaptedDomain hq t) a p r).symm
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X] using! (responseJ_eq_coarseBlock (adaptedDomain hq t) a p r).symm
 
 private theorem integrable_adjointResponseJ_of_finiteAdaptedMean
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] {q : Mat d}
@@ -255,7 +255,7 @@ private theorem integrable_adjointResponseJ_of_finiteAdaptedMean
   have hquad : Integrable (fun a ↦ blockVecDot X
       (blockMatVecMul (coarseBlock (adaptedCell q t) a.transpose) X)) P := by
     have hbase := integrable_coarseBlock_quadratic hint D
-    refine hbase.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine hbase.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change blockVecDot D (blockMatVecMul (coarseBlock (adaptedCell q t) a) D) =
       blockVecDot X (blockMatVecMul (coarseBlock (adaptedCell q t) a.transpose) X)
     rw [show coarseBlock (adaptedCell q t) a.transpose =
@@ -266,8 +266,8 @@ private theorem integrable_adjointResponseJ_of_finiteAdaptedMean
       blockQuadratic_adjointSign_congr]
   have hsub := (hquad.const_mul (1 / 2 : ℝ)).sub
     (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X] using
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X, adaptedDomain_carrier, Pi.sub_apply] using
     (responseJ_eq_coarseBlock (adaptedDomain hq t) a.transpose p r).symm
 
 /-- A finite adapted mean makes the constant-skew primal terminal response
@@ -279,7 +279,7 @@ theorem integrable_responseJ_subSkew_of_finiteAdaptedMean
     Integrable (fun a ↦ responseJ (adaptedDomain hq t)
       ((a.subSkew g hg).coeffOn (adaptedDomain hq t)) p r) P := by
   refine (integrable_responseJ_of_finiteAdaptedMean hq t hint p
-    (r - matVecMul g p)).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    (r - matVecMul g p)).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   exact (responseJ_subSkew (adaptedDomain hq t) a g hg p r).symm
 
 /-- A finite adapted mean makes the independently transposed constant-skew
@@ -291,7 +291,7 @@ theorem integrable_responseJ_adjointSubSkew_of_finiteAdaptedMean
     Integrable (fun a ↦ responseJ (adaptedDomain hq t)
       ((a.subSkew g hg).transpose.coeffOn (adaptedDomain hq t)) p r) P := by
   refine (integrable_adjointResponseJ_of_finiteAdaptedMean hq t hint p
-    (r + matVecMul g p)).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    (r + matVecMul g p)).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   change responseJ (adaptedDomain hq t) (a.transpose.coeffOn
       (adaptedDomain hq t)) p (r + matVecMul g p) =
     responseJ (adaptedDomain hq t) ((a.subSkew g hg).transpose.coeffOn
@@ -315,7 +315,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_diagonalWeakState
   | inl i =>
       have hmul := integrable_coarseBlock_mulVec_apply hint X (Sum.inr i)
       have hadd := hmul.add (integrable_const (X.1 i))
-      refine hadd.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine hadd.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q t) a) X)
         (Sum.inr i) + X.1 i = toFullBlockVec (blockCellAverage (adaptedCell q t)
           (diagonalWeakState hq t a p r)) (Sum.inl i)
@@ -325,7 +325,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_diagonalWeakState
   | inr i =>
       have hmul := integrable_coarseBlock_mulVec_apply hint X (Sum.inl i)
       have hadd := hmul.add (integrable_const (X.2 i))
-      refine hadd.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine hadd.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q t) a) X)
         (Sum.inl i) + X.2 i = toFullBlockVec (blockCellAverage (adaptedCell q t)
           (diagonalWeakState hq t a p r)) (Sum.inr i)
@@ -344,7 +344,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_adjointState
   | inl i =>
       have h := (integrable_adjoint_coarseBlock_mulVec_apply
         (adaptedDomain hq t) hint X (Sum.inr i)).add (integrable_const (X.1 i))
-      refine h.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine h.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q t)
         a.transpose) X) (Sum.inr i) + X.1 i = toFullBlockVec
           (blockCellAverage (adaptedCell q t)
@@ -355,7 +355,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_adjointState
   | inr i =>
       have h := (integrable_adjoint_coarseBlock_mulVec_apply
         (adaptedDomain hq t) hint X (Sum.inl i)).add (integrable_const (X.2 i))
-      refine h.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine h.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q t)
         a.transpose) X) (Sum.inl i) + X.2 i = toFullBlockVec
           (blockCellAverage (adaptedCell q t)
@@ -369,7 +369,7 @@ private theorem integrable_matVecMul_of_integrable
     (hF : Integrable F P) : Integrable (fun a ↦ matVecMul g (F a)) P := by
   apply Integrable.of_eval
   intro i
-  simpa only [matVecMul] using integrable_finset_sum Finset.univ
+  simpa only [matVecMul] using integrable_finsetSum Finset.univ
     (fun j _ ↦ (hF.eval j).const_mul (g i j))
 
 private theorem integrable_toFullBlockVec_blockCellAverage_subSkew
@@ -393,7 +393,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_subSkew
     (hY.snd.sub (integrable_matVecMul_of_integrable g hY.fst))
   have hfull' : Integrable (fun a ↦ blockCellAverage (adaptedCell q t)
       (diagonalWeakState hq t (a.subSkew g hg) p r)) P :=
-    hfull.congr (Filter.Eventually.of_forall fun a ↦
+    hfull.congr (_root_.Filter.Eventually.of_forall fun a ↦
       (blockCellAverage_diagonalWeakState_subSkew hq t a g hg p r).symm)
   cases alpha with
   | inl i => simpa only [toFullBlockVec] using hfull'.fst.eval i
@@ -420,7 +420,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_adjointSubSkew
     (hY.snd.add (integrable_matVecMul_of_integrable g hY.fst))
   have hfull' : Integrable (fun a ↦ blockCellAverage (adaptedCell q t)
       (diagonalWeakState hq t (a.subSkew g hg).transpose p r)) P :=
-    hfull.congr (Filter.Eventually.of_forall fun a ↦ by
+    hfull.congr (_root_.Filter.Eventually.of_forall fun a ↦ by
       change ((Y a).1, (Y a).2 + matVecMul g (Y a).1) = blockCellAverage
         (adaptedCell q t)
           (diagonalWeakState hq t (a.subSkew g hg).transpose p r)
@@ -442,7 +442,7 @@ private theorem integrableOn_cut_mul_state_readout [NeZero d]
     IntegrableOn (fun x ↦ adaptedPreYoungCutoff q hq t x *
       toFullBlockVec (diagonalWeakState hq t a p r x) alpha)
       (adaptedCell q t) volume := by
-  letI : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
+  let : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
     (Recurrence.isOpenBoundedConvexDomain_adaptedCell hq t).isFiniteMeasure_restrict_volume
   obtain ⟨hgrad, hflux⟩ := diagonalWeakState_memVectorL2 hq t a p r
   have hcoord : MemScalarL2 (adaptedCell q t)
@@ -462,9 +462,9 @@ private theorem integrableOn_raw_state_readout
       (adaptedCell q t) volume := by
   obtain ⟨hgrad, hflux⟩ := diagonalWeakState_memVectorL2 hq t a p r
   cases alpha with
-  | inl i => simpa only [toFullBlockVec] using
+  | inl i => simpa only [toFullBlockVec, adaptedDomain_carrier] using
       integrableOn_component (U := adaptedDomain hq t) hgrad i
-  | inr i => simpa only [toFullBlockVec] using
+  | inr i => simpa only [toFullBlockVec, adaptedDomain_carrier] using
       integrableOn_component (U := adaptedDomain hq t) hflux i
 
 private theorem integrableOn_cut_sub_one_mul_state_readout [NeZero d]
@@ -475,7 +475,7 @@ private theorem integrableOn_cut_sub_one_mul_state_readout [NeZero d]
       (adaptedCell q t) volume := by
   have hcut := integrableOn_cut_mul_state_readout hq t a p r alpha
   have hraw := integrableOn_raw_state_readout hq t a p r alpha
-  refine hcut.sub hraw |>.congr (Filter.Eventually.of_forall fun x ↦ ?_)
+  refine hcut.sub hraw |>.congr (_root_.Filter.Eventually.of_forall fun x ↦ ?_)
   change adaptedPreYoungCutoff q hq t x *
       toFullBlockVec (diagonalWeakState hq t a p r x) alpha -
     toFullBlockVec (diagonalWeakState hq t a p r x) alpha =
@@ -491,7 +491,7 @@ private theorem integrableOn_cut_halfEnergy [NeZero d]
         (diagonalWeakState hq t a p r x).1
         (diagonalWeakState hq t a p r x).2))
       (adaptedCell q t) volume := by
-  letI : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
+  let : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
     (Recurrence.isOpenBoundedConvexDomain_adaptedCell hq t).isFiniteMeasure_restrict_volume
   obtain ⟨hgrad, hflux⟩ := diagonalWeakState_memVectorL2 hq t a p r
   have hterm : ∀ i, IntegrableOn (fun x ↦ adaptedPreYoungCutoff q hq t x *
@@ -502,10 +502,10 @@ private theorem integrableOn_cut_halfEnergy [NeZero d]
       (Selection.measurable_adaptedPreYoungCutoff hq t)
       (Selection.abs_adaptedPreYoungCutoff_le_two hq t) (hgrad.eval i)
     have hmul := MemLp.integrable_mul hweighted (hflux.eval i)
-    simpa only [IntegrableOn, volumeMeasureOn] using hmul
-  have hsum := integrable_finset_sum Finset.univ fun i _ ↦ hterm i
+    simpa only [IntegrableOn, volumeMeasureOn] using! hmul
+  have hsum := integrable_finsetSum Finset.univ fun i _ ↦ hterm i
   refine hsum.const_mul (1 / 2 : ℝ) |>.congr
-    (Filter.Eventually.of_forall fun x ↦ ?_)
+    (_root_.Filter.Eventually.of_forall fun x ↦ ?_)
   simp only [vecDot]
   calc
     (1 / 2 : ℝ) * ∑ i,
@@ -615,7 +615,7 @@ theorem ofReal_abs_profilePrimalCenteredResponse_le_cutoff_decomposition_of_inte
   have hD : Integrable D P := by
     simpa only [D, W, J, state, sample, cut, Book.Ch02.average,
       adaptedDomain_carrier, diagonalWeakState, diagonalWeakOptimizer,
-      centeredResponseOptimizer] using hcutoff
+      centeredResponseOptimizer] using! hcutoff
   have hGraw : ∀ i, Integrable (fun a ↦ Graw a i) P := by
     intro i
     simpa only [Graw, state, sample, toFullBlockVec] using
@@ -705,19 +705,19 @@ theorem ofReal_abs_profilePrimalCenteredResponse_le_cutoff_decomposition_of_inte
   have hGcut : ∀ i, Integrable (fun a ↦ Gcut a i) P := by
     intro i
     exact (hGraw i).add (hGlocal i) |>.congr
-      (Filter.Eventually.of_forall fun a ↦ (hGsplit a i).symm)
+      (_root_.Filter.Eventually.of_forall fun a ↦ (hGsplit a i).symm)
   have hFcut : ∀ i, Integrable (fun a ↦ Fcut a i) P := by
     intro i
     exact (hFraw i).add (hFlocal i) |>.congr
-      (Filter.Eventually.of_forall fun a ↦ (hFsplit a i).symm)
+      (_root_.Filter.Eventually.of_forall fun a ↦ (hFsplit a i).symm)
   have hGmean : ∀ i, ∫ a, Gcut a i ∂P = X.1 i + M.1 i := by
     intro i
-    rw [integral_congr_ae (Filter.Eventually.of_forall fun a ↦ hGsplit a i),
+    rw [integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦ hGsplit a i),
       integral_add (hGraw i) (hGlocal i)]
     rfl
   have hFmean : ∀ i, ∫ a, Fcut a i ∂P = X.2 i + M.2 i := by
     intro i
-    rw [integral_congr_ae (Filter.Eventually.of_forall fun a ↦ hFsplit a i),
+    rw [integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦ hFsplit a i),
       integral_add (hFraw i) (hFlocal i)]
     rfl
   have hpoint : ∀ a, C a = D a + J a -
@@ -743,7 +743,7 @@ theorem ofReal_abs_profilePrimalCenteredResponse_le_cutoff_decomposition_of_inte
   have hmain := ofReal_abs_le_three_of_eq hid
   simpa only [C, D, W, J, X, M, state, sample, cut, Book.Ch02.average,
     adaptedDomain_carrier, diagonalWeakState, diagonalWeakOptimizer,
-    centeredResponseOptimizer] using hmain
+    centeredResponseOptimizer] using! hmain
 
 /-- The adjoint centered response splits into the centered cutoff product, the
 terminal cutoff-energy defect, and the two cutoff-defect means. -/
@@ -827,7 +827,7 @@ theorem ofReal_abs_profileAdjointCenteredResponse_le_cutoff_decomposition_of_int
     simpa only [D, W, J, state, sample, cut, Book.Ch02.average,
       adaptedDomain_carrier, diagonalWeakAdjointState,
       diagonalWeakState, diagonalWeakOptimizer, centeredAdjointOptimizer,
-      centeredResponseOptimizer] using hcutoff
+      centeredResponseOptimizer] using! hcutoff
   have hGraw : ∀ i, Integrable (fun a ↦ Graw a i) P := by
     intro i
     simpa only [Graw, state, sample, diagonalWeakAdjointState_eq,
@@ -925,19 +925,19 @@ theorem ofReal_abs_profileAdjointCenteredResponse_le_cutoff_decomposition_of_int
   have hGcut : ∀ i, Integrable (fun a ↦ Gcut a i) P := by
     intro i
     exact (hGraw i).add (hGlocal i) |>.congr
-      (Filter.Eventually.of_forall fun a ↦ (hGsplit a i).symm)
+      (_root_.Filter.Eventually.of_forall fun a ↦ (hGsplit a i).symm)
   have hFcut : ∀ i, Integrable (fun a ↦ Fcut a i) P := by
     intro i
     exact (hFraw i).add (hFlocal i) |>.congr
-      (Filter.Eventually.of_forall fun a ↦ (hFsplit a i).symm)
+      (_root_.Filter.Eventually.of_forall fun a ↦ (hFsplit a i).symm)
   have hGmean : ∀ i, ∫ a, Gcut a i ∂P = X.1 i + M.1 i := by
     intro i
-    rw [integral_congr_ae (Filter.Eventually.of_forall fun a ↦ hGsplit a i),
+    rw [integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦ hGsplit a i),
       integral_add (hGraw i) (hGlocal i)]
     rfl
   have hFmean : ∀ i, ∫ a, Fcut a i ∂P = X.2 i + M.2 i := by
     intro i
-    rw [integral_congr_ae (Filter.Eventually.of_forall fun a ↦ hFsplit a i),
+    rw [integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦ hFsplit a i),
       integral_add (hFraw i) (hFlocal i)]
     rfl
   have hpoint : ∀ a, C a = D a + J a -
@@ -966,7 +966,7 @@ theorem ofReal_abs_profileAdjointCenteredResponse_le_cutoff_decomposition_of_int
   simpa only [C, D, W, J, X, M, state, sample, cut, Book.Ch02.average,
     adaptedDomain_carrier, diagonalWeakAdjointState, diagonalWeakState,
     diagonalWeakOptimizer, centeredAdjointOptimizer,
-    centeredResponseOptimizer] using hmain
+    centeredResponseOptimizer] using! hmain
 
 /-- Under finite primal weak quantity, response domination supplies every
 integrability premise in the centered cutoff decomposition. -/

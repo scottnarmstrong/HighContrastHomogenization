@@ -117,7 +117,7 @@ theorem finiteAffineGradientUpdatedResidual_candidateError_le
   have hbest : normalizedAffineCandidateError (originCube d r)
         v.toH1.toFun c p =
       finiteCenteredCubeBestFitErrorAt a r vR r (le_refl r) := by
-    simpa only [v, vR, c, p] using
+    simpa only [v, vR, c, p] using!
       (finiteCenteredCubeBestFitErrorAt_eq_candidate a r vR r
         (le_refl r)).symm
   have hflat : normalizedAffineCandidateError (originCube d r)

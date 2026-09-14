@@ -133,7 +133,7 @@ private theorem eccentricity_and_cells (hd : 2 ≤ d) {jStar M Tquery : ℤ}
         Real.exp (chop * ((Ncap + 1 : ℕ) : ℝ)) ∧
       ∀ T : ℤ, jStar ≤ T → T ≤ Tquery →
         adaptedCell S.q T ⊆ centeredCube d M := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hstageReal : (S.stage : ℝ) ≤ ((Ncap + 1 : ℕ) : ℝ) := by exact_mod_cast hstage
   have hprefix : projDist 1 S.mu ≤ chop * ((Ncap + 1 : ℕ) : ℝ) :=
     hproj.trans <| by
@@ -167,8 +167,8 @@ private theorem selectorStep_next_geometry (hd : 2 ≤ d)
     Sn.stage + fuel ≤ Ncap ∧ jStar ≤ Sn.base ∧ Sn.base ≤ Sn.cursor ∧
       Sn.mu.PosDef ∧ Sn.q = roundedGrid jStar Sn.mu ∧
       projDist 1 Sn.mu ≤ (Sn.stage : ℝ) * chop := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   have hadvance : ∀ (v : ℤ) (phase : Phase) (candidate : Option (BlockMat d)),
       S.base ≤ v →
       let Sn := advanceCursor P S v phase candidate
@@ -258,7 +258,7 @@ private theorem runCapped_geometry_aux (hd : 2 ≤ d)
         witnessEccentricity S'.mu ≤ Real.exp (chop * ((Ncap + 1 : ℕ) : ℝ)) ∧
         ∀ T : ℤ, jStar ≤ T → T ≤ Tquery →
           adaptedCell S'.q T ⊆ centeredCube d M := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hjStar := ShortHop.kZero_le_of_isCoupledWindow hwin
   induction fuel generalizing S with
   | zero =>
@@ -323,8 +323,8 @@ theorem selectionRun_state_geometry (hd : 2 ≤ d)
         ∀ T : ℤ, jStar ≤ T →
           T ≤ (selectionRun cc P jStar Lam r0 A0 hcen hnl).queryScale →
           adaptedCell S'.q T ⊆ centeredCube d Mexec := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   have hbudget := selectionRun_queryScale_add_gridEnlargement_le hd cc P jStar
     hLam r0 A0 hcen hnl hr0 hMexec
   have hgrid0 : (initialState r0 A0 hcen hnl).q =

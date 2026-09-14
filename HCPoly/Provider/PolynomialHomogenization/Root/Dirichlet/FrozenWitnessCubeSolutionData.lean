@@ -125,7 +125,7 @@ theorem exists_frozenWitnessCoeffFamilyAtCube
     intro y
     rw [hfam (originCube d j)]
     simp only [affineCoefficient_apply, hshift y]
-  exact ⟨aFam, hb, Filter.Eventually.of_forall fun y => (hb y).symm⟩
+  exact ⟨aFam, hb, _root_.Filter.Eventually.of_forall fun y => (hb y).symm⟩
 
 /-! ## (b) The forced equation and the cube solution -/
 
@@ -167,7 +167,7 @@ theorem isForcedEquation_zero_of_isWeakSolutionOn
     IsH1DirichletRhsWeakSolutionOn.of_residual_solenoidal
       hflux MeasureTheory.MemLp.zero
       (by simpa only [Pi.zero_apply, sub_zero] using hsol)
-  simpa only [IsForcedEquation] using hweak
+  simpa only [IsForcedEquation] using! hweak
 
 /-- **the analytic inputs (b), closed modulo the zero-trace datum.**  The gauge solution of
 the frozen witness *is* a Dirichlet forced cube solution on the origin cube of

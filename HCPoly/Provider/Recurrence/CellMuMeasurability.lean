@@ -99,9 +99,9 @@ theorem measurable_Mu_carrier_local {U : Set (Vec d)} (hUopen : IsOpen U)
       (Source.Coarse.localSigma U hUopen.measurableSet) _
       fun b : Source.Coarse.Carrier d => Mu U P0 (b.1 : CoeffField d) := by
   classical
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := hUbdd.isFiniteMeasure_restrict_volume
+  have : IsFiniteMeasure (volumeMeasureOn U) := hUbdd.isFiniteMeasure_restrict_volume
   have hUfin : volume U ≠ ⊤ := ne_of_lt hUbdd.volume_lt_top
-  letI : MeasurableSpace (Source.Coarse.Carrier d) :=
+  let : MeasurableSpace (Source.Coarse.Carrier d) :=
     Source.Coarse.localSigma U hUopen.measurableSet
   set slice : ℕ → Set (Source.Coarse.Carrier d) :=
     fun k => {b | AEEQuantitativeEllipticSlice U k b.1} with hslice

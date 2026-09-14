@@ -155,7 +155,7 @@ private theorem exists_roundedOneStepAffineExcessConstants_of_comparison
       (constantCoeffField (roundedReferenceMatrix abar hS))
       (openCubeSet (originCube d k)) W.v.grad := by
     simpa only [constantCoeffField_roundedReferenceConstantCoeffMatrix,
-      roundedSymmetricReferenceCoefficient_apply_eq_roundedReferenceMatrix] using
+      roundedSymmetricReferenceCoefficient_apply_eq_roundedReferenceMatrix] using!
       isWeakSolutionOn_of_constantCoeffForcedEquation_zero
         (originCube d k) (roundedReferenceConstantCoeffMatrix abar hS) W.v hWeq
   have hv₁weak : IsWeakSolutionOn
@@ -205,7 +205,7 @@ private theorem exists_roundedOneStepAffineExcessConstants_of_comparison
       k 1 uk.toH1.toFun c e hbestMem
     simpa only [Nat.cast_one, pow_one, R₁, E,
       finiteLipschitzAffineErrorRow, finiteLipschitzRestriction_toFun,
-      min_eq_left hkm, finiteCubeSolutionRestriction_toFun] using h
+      min_eq_left hkm, finiteCubeSolutionRestriction_toFun] using! h
   have hWcandidate : normalizedAffineCandidateError
       (originCube d (k - 1)) W.v.toFun c e ≤ H + R₁ * E := by
     have h := normalizedAffineCandidateError_le_distance_add
@@ -215,7 +215,7 @@ private theorem exists_roundedOneStepAffineExcessConstants_of_comparison
           have h := CubeCalderonZygmund.memLp_centralDescendant_of_memLp
             (Q := originCube d k) 1 hmem
           rw [centralDescendant_originCube_eq_originCube_sub] at h
-          simpa only [Nat.cast_one] using h)
+          simpa only [Nat.cast_one] using! h)
       hbestMem₁
     rw [normalizedCubeL2Distance_comm] at h
     exact h.trans (add_le_add_right hrestrictE H)
@@ -231,9 +231,10 @@ private theorem exists_roundedOneStepAffineExcessConstants_of_comparison
     originCubeAffineH1LinearMap d (k - (N : ℤ)) (c', e')
   have hcandMem : MemLp (fun x ↦ W.v.toFun x - (c' + vecDot e' x)) 2
       (normalizedCubeMeasure (originCube d (k - (N : ℤ)))) := by
-    simpa only [vChild, ellChild, H1Function.sub_toFun, H1Function.restrict,
-      originCubeAffineH1LinearMap_toFun] using
-      (vChild - ellChild).memL2_normalizedCubeMeasure
+    have hraw := (vChild - ellChild).memL2_normalizedCubeMeasure
+    rw [H1Function.sub_toFun] at hraw
+    rw [originCubeAffineH1LinearMap_toFun] at hraw
+    exact hraw
   have htransfer := normalizedAffineCandidateError_le_distance_add
     (originCube d (k - (N : ℤ))) uk.toH1.toFun W.v.toFun c' e'
       hdiffChild hcandMem

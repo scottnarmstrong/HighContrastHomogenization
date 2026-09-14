@@ -94,7 +94,7 @@ theorem exists_printFaithfulDomainFluxDefectDuality_gaugeWitness
         openCubeSet (originCube d m))) ≠ ⊤ := by
     rw [hgauge, volume_translateSet_eq]
     exact (volume_openCubeSet_lt_top (originCube d m)).ne
-  haveI : MeasureTheory.IsFiniteMeasure (volumeMeasureOn
+  have : MeasureTheory.IsFiniteMeasure (volumeMeasureOn
       (matImage (matSqrt (symmPart abar))⁻¹
         ((fun x => zc + matVecMul (matSqrt (symmPart abar)) x) ''
           openCubeSet (originCube d m)))) := by

@@ -230,7 +230,7 @@ theorem centering_caps_at_terminal [NeZero d]
       (3 * (d : ℝ) + 4) * eps ^ 2 := by
   have hint : HasIntegrableCoarseBlock P
       ((Response.adaptedDomain hq t : Domain d) : Set (Vec d)) := by
-    simpa only [Response.adaptedDomain_carrier] using hfin
+    simpa only [Response.adaptedDomain_carrier] using! hfin
   have hE : toFullBlockMat
       (annealedBlock P ((Response.adaptedDomain hq t : Domain d) : Set (Vec d))) =
       schurBlock S SStar K := by

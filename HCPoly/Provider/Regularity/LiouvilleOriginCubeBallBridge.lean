@@ -18,7 +18,7 @@ to feed the frozen continuous-radius Liouville limit into finite Caccioppoli.
 namespace Homogenization
 namespace HighContrast
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal Topology
 
 noncomputable section
@@ -54,7 +54,7 @@ theorem openCubeSet_originCube_subset_scaleMatchedEuclideanBall
   have hrSq : (d : ℝ) * ((3 : ℝ) ^ q) ^ 2 =
       (Real.sqrt d * (3 : ℝ) ^ q) ^ 2 := by
     rw [mul_pow, Real.sq_sqrt hdreal.le]
-  simpa only [euclideanBall, euclideanBallAt, Set.mem_setOf_eq, sub_zero, hrSq]
+  simpa only [euclideanBall, euclideanBallAt, Set.mem_ofPred_eq, sub_zero, hrSq]
     using hsum
 
 /-- The scale-matched ball-to-cube volume ratio is bounded by the volume of a
@@ -180,7 +180,7 @@ theorem tendsto_scaleMatchedRadius_normalizedL2Norm_originCube_of_liouvilleGrowt
             (euclideanBall d (Real.sqrt d * (3 : ℝ) ^ q)) v))
       atTop (nhds 0) := by
     have hmul := ENNReal.Tendsto.const_mul hball (Or.inr hCtop)
-    simpa only [mul_zero] using hmul
+    simpa only [mul_zero] using! hmul
   apply tendsto_zero_of_le_of_tendsto_zero (fun q => ?_) hright
   have hcube := normalizedL2Norm_originCube_le_scaleMatchedEuclideanBall q v
   dsimp only [C]

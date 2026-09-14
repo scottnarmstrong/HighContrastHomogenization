@@ -133,7 +133,7 @@ private theorem isForcedEquation_zero_of_isWeakSolutionOn_cube
     IsH1DirichletRhsWeakSolutionOn.of_residual_solenoidal
       hflux MeasureTheory.MemLp.zero
       (by simpa only [Pi.zero_apply, sub_zero] using hsol)
-  simpa only [IsForcedEquation] using hweak
+  simpa only [IsForcedEquation] using! hweak
 
 /-- A physical weak solution restricts to a zero-forcing solution on every
 triadic cube contained in its domain. -/
@@ -169,13 +169,13 @@ theorem exists_cellCoeffFamily_and_forcedEquation [NeZero d]
     IsWeakSolutionOn.mono hQ huPhysical
   have hPhysicalF : IsWeakSolutionOn f (openCubeSet Q) u.grad :=
     IsWeakSolutionOn.congr_ae
-      (ae_restrict_of_ae hfaPhysical.symm) Filter.EventuallyEq.rfl hPhysicalV
+      (ae_restrict_of_ae hfaPhysical.symm) _root_.Filter.EventuallyEq.rfl hPhysicalV
   have hForced : IsForcedEquation Q aCell uCell (0 : Vec d → Vec d) := by
     apply isForcedEquation_zero_of_isWeakSolutionOn_cube uCell
     simpa only [aCell, aReg,
       Book.Ch04.triadicCoeffFamilyOfAELocallyUniformlyEllipticField_coeffOn_toCoeffField,
       regCoeffFieldOfBallPointwiseElliptic_toFun, uCell,
-      H1Function.restrict] using hPhysicalF
+      H1Function.restrict] using! hPhysicalF
   exact ⟨aCell, uCell, hcoeff, fun _ => rfl, hForced⟩
 
 /-! ## The family over the enlarged-margin ruled system -/

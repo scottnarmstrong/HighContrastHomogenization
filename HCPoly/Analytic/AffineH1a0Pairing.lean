@@ -143,10 +143,10 @@ theorem hasWeakGradientOn_affinePullback_of_integrable {L : Mat d}
         intro j _
         ring
       _ = ∑ j, ∫ x in U, L j i * (u x * (fderiv ℝ ψ x) (basisVec j))
-            ∂volume := integral_finset_sum Finset.univ (fun j _ ↦ hleftInt j)
+            ∂volume := integral_finsetSum Finset.univ (fun j _ ↦ hleftInt j)
       _ = -∑ j, ∫ x in U, L j i * (Du x j * ψ x) ∂volume := hsum
       _ = -∫ x in U, ∑ j, L j i * (Du x j * ψ x) ∂volume := by
-        rw [integral_finset_sum Finset.univ (fun j _ ↦ hrightInt j)]
+        rw [integral_finsetSum Finset.univ (fun j _ ↦ hrightInt j)]
       _ = -∫ x in U,
           matVecMul (matTranspose L) (Du x) i * φ (matVecMul L⁻¹ x) ∂volume := by
         apply congrArg Neg.neg

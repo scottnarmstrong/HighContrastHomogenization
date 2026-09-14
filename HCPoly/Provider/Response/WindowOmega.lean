@@ -293,7 +293,7 @@ theorem imbalance_le_of_absorption {d : ℕ} {kappaT kappaS omegaRsp Rpow deltaA
     (hcomp : kappaS ≤ Rpow * kappaT) :
     kappaT ≤ 1 + deltaAd := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have hpos : 0 < kappaT - 1 := by linarith only [hcon, hAd]
   have hd0 : (0 : ℝ) ≤ 12 * (d : ℝ) := by positivity
   have hX0 : (0 : ℝ) ≤ 12 * (d : ℝ) * omegaRsp * Rpow := by positivity

@@ -95,7 +95,7 @@ private theorem vecDot_skew_self (g : Mat d) (hg : IsSkewMat g)
     (x : Vec d) : vecDot x (matVecMul g x) = 0 := by
   have hgstar : gᴴ = -g := by
     rwa [conjTranspose_eq_transpose']
-  simpa [vecDot, matVecMul] using dotProduct_mulVec_of_skew hgstar x
+  simpa [vecDot, matVecMul] using! dotProduct_mulVec_of_skew hgstar x
 
 /-- The quadratic form of the recentered coarse response is the original
 quadratic form at the shear-shifted doubled vector. -/

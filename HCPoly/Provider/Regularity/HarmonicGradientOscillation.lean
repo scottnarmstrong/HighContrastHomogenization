@@ -216,7 +216,7 @@ theorem exists_harmonic_gradient_oscillation_decay_at_integer_rate
         (fun x => HilbertVec.ofVec (fun j => HD.hess i j x))
         q.exponent (normalizedCubeMeasure D) := by
     intro i
-    simpa [D, HD, v] using G.memLp P (v i) (hv i)
+    simpa [D, HD, v] using! G.memLp P (v i) (hv i)
   have hrowBound : ∀ i : Fin d,
       MeasureTheory.eLpNorm
           (fun x => HilbertVec.ofVec (fun j => HD.hess i j x))
@@ -225,11 +225,13 @@ theorem exists_harmonic_gradient_oscillation_decay_at_integer_rate
           MeasureTheory.eLpNorm (fun x => HP.hess i j x) 2
             (normalizedCubeMeasure P) := by
     intro i
-    simpa [D, HD, v] using G.bound P (v i) (hv i)
+    simpa [D, HD, v] using! G.bound P (v i) (hv i)
   let V : CubeVectorW1pFunction D q :=
     CubeVectorW1pFunction.ofWeakHessian HD hrows
   have hVfield : V.toField = u.grad := by
-    simp [V, HD, HP, H1Function.restrict]
+    rw [show V = CubeVectorW1pFunction.ofWeakHessian HD hrows from rfl,
+      CubeVectorW1pFunction.ofWeakHessian_toField]
+    rfl
   have hjacD :
       MeasureTheory.eLpNorm
           (fun x => HilbertMat.ofMat (V.jacobian x)) q.exponent
@@ -258,7 +260,7 @@ theorem exists_harmonic_gradient_oscillation_decay_at_integer_rate
       A * ∑ j : Fin d,
         MeasureTheory.eLpNorm (fun x => u.grad x j) 2
           (normalizedCubeMeasure Q) := by
-    simpa [P, HP] using henergy
+    simpa [P, HP] using! henergy
   have hscaleDP : ENNReal.ofReal (cubeScaleFactor D) ≤
       ENNReal.ofReal (cubeScaleFactor P) := by
     simpa [D] using depthCentralDescendant_scaleFactor_le P depth
@@ -394,7 +396,7 @@ theorem exists_harmonic_gradient_oscillation_decay_at_integer_rate
       (mul_ne_zero (NeZero.ne d) (Nat.ne_of_gt hp))
     have hdp' : (1 : ℝ) ≤ (d : ℝ) * (p : ℝ) := by exact_mod_cast hdp
     nlinarith only [hdp']
-  letI : MeasureTheory.IsProbabilityMeasure (normalizedCubeMeasure R) :=
+  let _ : MeasureTheory.IsProbabilityMeasure (normalizedCubeMeasure R) :=
     ⟨normalizedCubeMeasure_apply_univ R⟩
   have htwo : MeasureTheory.eLpNorm
         (fun x => HilbertVec.ofVec

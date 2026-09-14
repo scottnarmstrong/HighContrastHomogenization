@@ -131,7 +131,7 @@ theorem cubeLpNorm_two_cubeIndicatorDifference_le (Q : TriadicCube d) {c : ℝ}
           (normalizedCubeMeasure Q) := eLpNorm_mono_ae hbound
   have hind : eLpNorm (G.indicator (fun _ => c)) (2 : ℝ≥0∞)
       (normalizedCubeMeasure Q) =
-        (‖c‖₊ : ℝ≥0∞) * (normalizedCubeMeasure Q G) ^ (1 / (2 : ℝ)) := by
+        (‖c‖ₑ) * (normalizedCubeMeasure Q G) ^ (1 / (2 : ℝ)) := by
     simpa using eLpNorm_indicator_const (μ := normalizedCubeMeasure Q) hGmeas
       (by norm_num : (2 : ℝ≥0∞) ≠ 0) (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)
   have hfin : normalizedCubeMeasure Q G ≠ ⊤ :=
@@ -195,8 +195,8 @@ theorem cubeBesovOscillation_eq_zero_of_eq_on_cubeSet (R : TriadicCube d)
       MeasureTheory.ae_restrict_iff' (measurableSet_cubeSet R)]
     exact Filter.Eventually.of_forall hzero
   have hae : cubeFluctuation R f =ᵐ[normalizedCubeMeasure R] fun _ => (0 : ℝ) := by
-    simpa only [normalizedCubeMeasure] using
-      Measure.ae_smul_measure hcube (ENNReal.ofReal ((cubeVolume R)⁻¹))
+    rw [normalizedCubeMeasure]
+    exact Measure.ae_smul_measure hcube (ENNReal.ofReal ((cubeVolume R)⁻¹))
   rw [cubeBesovOscillation, cubeLpNorm,
     eLpNorm_congr_ae (p := (2 : ℝ≥0∞)) (μ := normalizedCubeMeasure R) hae]
   simp
@@ -213,8 +213,8 @@ theorem cubeBesovOscillation_congr_on_cubeSet (R : TriadicCube d)
     refine Filter.Eventually.of_forall fun x hx => ?_
     simp [cubeFluctuation, hfg x hx, havg]
   have hae : cubeFluctuation R f =ᵐ[normalizedCubeMeasure R] cubeFluctuation R g := by
-    simpa only [normalizedCubeMeasure] using
-      Measure.ae_smul_measure hcube (ENNReal.ofReal ((cubeVolume R)⁻¹))
+    rw [normalizedCubeMeasure]
+    exact Measure.ae_smul_measure hcube (ENNReal.ofReal ((cubeVolume R)⁻¹))
   rw [cubeBesovOscillation, cubeBesovOscillation, cubeLpNorm, cubeLpNorm,
     eLpNorm_congr_ae hae]
 

@@ -66,7 +66,7 @@ theorem responseJ_eq_blockQuadratic [NeZero d] {U : Set (Vec d)}
     ResponseJ U p q f =
       1 / 2 * blockVecDot (-p, q) (blockMatVecMul (coarseBlockMatrix U f) (-p, q)) -
         vecDot p q := by
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := by
+  have : IsFiniteMeasure (volumeMeasureOn U) := by
     simpa [volumeMeasureOn] using hU.isFiniteMeasure_restrict_volume
   obtain ⟨R, _sigma0, compat, hA, _hSInv, hS, hK, hSigma, _hCanon⟩ :=
     Internal.Ch02.BookCh02.exists_oldCanonicalMatrixData_of_isOpenBoundedConvexDomain
@@ -89,7 +89,7 @@ theorem responseJ_le_sum_weight_of_aePartition {ι : Type*} {U : Set (Vec d)}
     (hcell0 : ∀ i ∈ Z, volume (c i) ≠ 0) (p q : Vec d) :
     ResponseJ U p q f ≤
       ∑ i ∈ Z, (volume (c i)).toReal / (volume U).toReal * ResponseJ (c i) p q f := by
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := by
+  have : IsFiniteMeasure (volumeMeasureOn U) := by
     simpa [volumeMeasureOn] using hU.isFiniteMeasure_restrict_volume
   refine csSup_le (responseJValueSet_nonempty U p q f) ?_
   rintro m ⟨u, rfl⟩
@@ -99,7 +99,7 @@ theorem responseJ_le_sum_weight_of_aePartition {ι : Type*} {U : Set (Vec d)}
     (fun i hi => (hc i hi).isOpen.measurableSet) hsub hdisj hnull hint hcell0
     hU.volume_lt_top.ne]
   refine Finset.sum_le_sum fun i hi => ?_
-  haveI : IsFiniteMeasure (volumeMeasureOn (c i)) := by
+  have : IsFiniteMeasure (volumeMeasureOn (c i)) := by
     simpa [volumeMeasureOn] using (hc i hi).isFiniteMeasure_restrict_volume
   have hEllc : IsEllipticFieldOn lam Lam (c i) f :=
     IsEllipticFieldOn.mono hEll (hc i hi).isOpen.measurableSet (hsub i hi)

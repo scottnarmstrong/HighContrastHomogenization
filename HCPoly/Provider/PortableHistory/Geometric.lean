@@ -49,20 +49,16 @@ theorem sum_geom_Ico_eq (a : ℝ) (b T : ℤ) :
   · intro x hx
     rw [Finset.mem_Ico] at hx
     rw [Finset.mem_range]
-    dsimp only
     omega
   · intro k hk
     rw [Finset.mem_range] at hk
     rw [Finset.mem_Ico]
-    dsimp only
     omega
   · intro x hx
     rw [Finset.mem_Ico] at hx
-    dsimp only
     omega
   · intro k hk
     rw [Finset.mem_range] at hk
-    dsimp only
     omega
   · intro x hx
     rw [Finset.mem_Ico] at hx

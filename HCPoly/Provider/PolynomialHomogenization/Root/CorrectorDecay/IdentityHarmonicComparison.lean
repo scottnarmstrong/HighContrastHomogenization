@@ -239,9 +239,9 @@ private theorem cubeLpNorm_eq_of_ae_eq_on_parent_cube
   have hvol : f =ᵐ[MeasureTheory.volume.restrict (cubeSet R)] g := by
     exact MeasureTheory.ae_restrict_of_ae_restrict_of_subset
       (cubeSet_subset_of_mem_descendantsAtDepth hR)
-      (by simpa only [volumeMeasureOn] using hfg)
+      (by simpa only [volumeMeasureOn] using! hfg)
   have hnorm : f =ᵐ[normalizedCubeMeasure R] g := by
-    simpa only [normalizedCubeMeasure, cubeMeasure] using
+    simpa only [normalizedCubeMeasure, cubeMeasure] using!
       MeasureTheory.Measure.ae_smul_measure hvol
         (ENNReal.ofReal ((cubeVolume R)⁻¹))
   unfold cubeLpNorm
@@ -327,7 +327,7 @@ theorem exists_identityHarmonicComparisonConstant
           huWeak.residual_solenoidal hEll MeasureTheory.MemLp.zero⟩ }
   let energy := scalarVariationEnergyIntegrand
     (Book.Ch03.publicCoeffField Q a) uh
-  letI := isFiniteMeasureVolumeMeasureOnCubeSet Q
+  let := isFiniteMeasureVolumeMeasureOnCubeSet Q
   have henergy0 : ∀ x ∈ cubeSet Q, 0 ≤ energy x := by
     exact scalarVariationEnergyIntegrand_nonneg_of_isEllipticFieldOn
       (cubeSet Q) _ hEll uh
@@ -336,7 +336,7 @@ theorem exists_identityHarmonicComparisonConstant
       (ResponseLinearIntegrabilityData.of_isEllipticFieldOn hEll) uh
   have hresp : CubeAverageFluxResponseControl Q
       (Book.Ch03.publicCoeffField Q a) (1 : Mat d) F energy := by
-    simpa [F, energy, uh, fluxDefect, Book.Ch03.publicH1ToCubeSet_grad] using
+    simpa [F, energy, uh, fluxDefect, Book.Ch03.publicH1ToCubeSet_grad] using!
       cubeAverageFluxResponseControl_of_aHarmonicFunction Q
         (Book.Ch03.publicCoeffField Q a) (1 : Mat d) hEll
         (identityConstantCoeffMatrix d).elliptic
@@ -374,7 +374,7 @@ theorem exists_identityHarmonicComparisonConstant
     calc
       cubeScaleNormalizedDualNegativeBesovVectorNormTwo Q s F ≤
           Kd * cubeBesovNegativeVectorSeminormTwo Q s F := by
-            simpa only [Kd] using hraw
+            simpa only [Kd] using! hraw
       _ ≤ Kd * (Kr * E * A) := mul_le_mul_of_nonneg_left hconcrete hKd
       _ = B * E * A := by dsimp only [B]; ring
   have hWu : W.u = u := by
@@ -430,9 +430,12 @@ theorem exists_identityHarmonicComparisonConstant
       (Book.Ch02.cubeDomain Q).isOpen
       (u := w.toH1Function) (v := u - W.v) (by
         simpa only [H1Function.sub_toFun] using hw)
-    simpa [wCube, Q, wdiff, Book.Ch03.publicH10ToCubeSet,
-      Book.Ch02.cubeDomain_coe, volumeMeasureOn,
-      volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hgrad
+    have hgrad' : w.toH1Function.grad =ᵐ[
+        volume.restrict (Book.Ch02.cubeDomain Q : Set (Vec d))] wdiff := by
+      simpa only [H1Function.sub_grad, wdiff] using hgrad
+    simpa only [wCube, Q, Book.Ch03.publicH10ToCubeSet_toH1Function_grad,
+      volumeMeasureOn, Book.Ch02.cubeDomain_coe,
+      volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hgrad'
   have hdualGrad : cubeScaleNormalizedDualNegativeBesovVectorNormTwo Q s
       wCube.toH1Function.grad =
       cubeScaleNormalizedDualNegativeBesovVectorNormTwo Q s wdiff :=
@@ -475,7 +478,7 @@ theorem exists_identityHarmonicComparisonConstant
       (fun x ↦ u.toFun x - W.v.toFun x) ≤
       Kc * cubeLpNorm Q (2 : ℝ≥0∞) (fun x ↦ w.toH1Function.toFun x) := by
     have hdesc : originCube d (m - 1) ∈ descendantsAtDepth Q 1 := by
-      simpa only [Q, centralDescendant_originCube_eq_originCube_sub] using
+      simpa only [Q, centralDescendant_originCube_eq_originCube_sub] using!
         CubeCalderonZygmund.centralDescendant_mem_descendantsAtDepth Q 1
     rw [← cubeLpNorm_eq_of_ae_eq_on_parent_cube hdesc hwCube]
     simpa only [Kc, Q] using cubeLpNorm_originCube_pred_le_card_mul_printOrder m

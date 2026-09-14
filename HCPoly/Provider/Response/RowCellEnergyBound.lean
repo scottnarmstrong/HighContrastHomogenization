@@ -79,7 +79,7 @@ theorem avsum_profileAnnealedCellEnergySq_eq [NeZero d]
   classical
   rw [avsum_eq]
   simp only [profileAnnealedCellEnergySq]
-  rw [← MeasureTheory.integral_finset_sum _ hint,
+  rw [← MeasureTheory.integral_finsetSum _ hint,
     ← MeasureTheory.integral_const_mul]
   have hpt : ∀ a : CoeffSpace d,
       ((alignedIndex q k t).card : ℝ)⁻¹ *
@@ -89,7 +89,7 @@ theorem avsum_profileAnnealedCellEnergySq_eq [NeZero d]
     intro a
     rw [← avsum_eq]
     exact avsum_cellQuarterEnergy_eq_responseJ hq hkt (sample a) p r
-  exact MeasureTheory.integral_congr_ae (Filter.Eventually.of_forall hpt)
+  exact MeasureTheory.integral_congr_ae (_root_.Filter.Eventually.of_forall hpt)
 
 /-! ## The row cell energy -/
 

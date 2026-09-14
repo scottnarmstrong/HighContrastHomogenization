@@ -124,7 +124,7 @@ theorem adaptedMean_le_scaled_burnsplit [NeZero d]
         blockVecDot X (blockMatVecMul E X)) P := by
     have h := ((integrable_normalizedSourceScale hdag' hsK').const_mul
       2).mul_const (blockVecDot X (blockMatVecMul E X))
-    refine h.congr (Filter.Eventually.of_forall fun a => ?_)
+    refine h.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
     ring
   have hmono := integral_mono_ae hint1 hint2 (by
     filter_upwards [hscalar] with a ha using ha X)
@@ -243,7 +243,7 @@ theorem terminal_reference_comparability_of_c1 [NeZero d]
           blockVecDot X
             (blockMatVecMul (adaptedMean P (roundedGrid l n) t) X) := by
   classical
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hq : (roundedGrid l n).PosDef := Recurrence.posDef_roundedGrid hl hn
   have hc1pos : 0 < c1 := lt_of_lt_of_le zero_lt_one hc11
   -- symmetry and positivity of the two sides

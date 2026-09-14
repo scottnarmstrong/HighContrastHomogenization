@@ -347,10 +347,8 @@ theorem integrableOn_sq_entry_of_aeUniformlyEllipticField {a : Source.AKL.Field 
     (continuous_id.matrix_elem i j).comp_aestronglyMeasurable a.aestronglyMeasurable
   have hmeas : AEStronglyMeasurable (fun x => (a x i j) ^ 2) (volume.restrict U) :=
     (hentry.pow 2).restrict
-  haveI hfin : IsFiniteMeasure (volume.restrict U) := ⟨by
-    rw [Measure.restrict_apply_univ]
-    exact hU.measure_lt_top⟩
-  refine (integrable_const (M ^ 2)).mono' hmeas ?_
+  have hfin : volume U ≠ ⊤ := hU.measure_lt_top.ne
+  refine Integrable.mono' (integrableOn_const (C := M ^ 2) hfin) hmeas ?_
   filter_upwards [ae_restrict_of_ae hM,
     ae_restrict_mem_of_subset hUR measurableSet_ball] with x hx hxb
   have h1 : |a x i j| ≤ M := hx hxb i j

@@ -25,8 +25,8 @@ noncomputable section
 /-- The finite affine full-gradient class on the fixed inner cube. -/
 noncomputable def finiteAffineInnerGradientClass
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
-    (e : Vec d) (q k : ℕ) : LocalGradientL2 d q := by
-  simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
+    (e : Vec d) (q k : ℕ) : LocalGradientL2 d q :=
+  Eq.mp (by simp only [LocalGradientL2, localGradientCube, Book.Ch02.cubeDomain_coe]; rfl)
     (finiteAffineSolutionInnerH1 a (q : ℤ)
       ((q + k : ℕ) : ℤ) (by omega) e).gradToHilbertVectorL2
 
@@ -47,8 +47,12 @@ theorem finiteAffineSolutionInnerGradient_tendsto_of_jointLocalEquation
   exact (tendsto_const_nhds.add hlimit).congr'
     (Filter.Eventually.of_forall fun k ↦
       by
-        simpa only [finiteAffineInnerGradientClass] using
-          finiteAffineFullGradientClass_eq_innerH1Gradient a e q k)
+        dsimp only
+        have hcast : finiteAffineInnerGradientClass a e q k =
+            (finiteAffineSolutionInnerH1 a (q : ℤ)
+              ((q + k : ℕ) : ℤ) (by omega) e).gradToHilbertVectorL2 := rfl
+        rw [hcast]
+        exact finiteAffineFullGradientClass_eq_innerH1Gradient a e q k)
 
 /-- A uniform coefficient-energy tail for the finite full gradients passes
 to the joint local-limit full gradient. -/

@@ -70,10 +70,10 @@ theorem unitCubeNormalizedContinuousKEnergy_le_two_mul_continuousKFullENorm_sq
   have hKsq : K ^ 2 = I := by
     simpa only [K, I] using continuousKIntegral_rpow_half_sq s F
   have hLsq : L ^ 2 ≤ (L + K) ^ 2 := by
-    exact pow_le_pow_left' (le_add_of_nonneg_right (zero_le K)) 2
+    exact pow_le_pow_left' (le_add_of_nonneg_right zero_le) 2
   have hI : I ≤ (L + K) ^ 2 := by
     rw [← hKsq]
-    exact pow_le_pow_left' (le_add_of_nonneg_left (zero_le L)) 2
+    exact pow_le_pow_left' (le_add_of_nonneg_left zero_le) 2
   have hweightedI : ENNReal.ofReal (2 * s.1) * I ≤ (L + K) ^ 2 := by
     calc
       ENNReal.ofReal (2 * s.1) * I ≤ 1 * I := by
@@ -117,7 +117,7 @@ theorem continuousKFullENorm_le_mul_unitCubeNormalizedContinuousKEnergy_rpow
   let p : ℝ≥0∞ := ENNReal.ofReal (2 * s.1)
   let E : ℝ≥0∞ := L ^ 2 + p * I
   have hLroot : (L ^ 2) ^ (1 / 2 : ℝ) = L := by
-    simpa only [one_div] using
+    simpa only [one_div] using!
       ENNReal.pow_rpow_inv_natCast (n := 2) (by norm_num) L
   have hL : L ≤ E ^ (1 / 2 : ℝ) := by
     calc
@@ -256,7 +256,7 @@ theorem exists_roundedUnitCubeDirichletEuclideanHsRegularity
       (R * (2 * D) ^ (1 / 2 : ℝ)) * continuousKFullENorm s h := by
     have hrootSq : ((continuousKFullENorm s h) ^ 2) ^ (1 / 2 : ℝ) =
         continuousKFullENorm s h := by
-      simpa only [one_div] using
+      simpa only [one_div] using!
         ENNReal.pow_rpow_inv_natCast (n := 2) (by norm_num)
           (continuousKFullENorm s h)
     calc

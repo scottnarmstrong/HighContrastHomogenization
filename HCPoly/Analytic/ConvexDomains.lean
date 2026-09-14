@@ -277,7 +277,7 @@ theorem HasBallSandwich.le_abs_of_pos_dim {d : ℕ} {U : Set (Vec d)} {ρ Rad : 
     (hd : 0 < d) (h : HasBallSandwich U ρ Rad) (hρ : 0 < ρ) : ρ ≤ |Rad| := by
   obtain ⟨-, -, c, hin, hout⟩ := h
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   set t : ℝ := (|Rad| + ρ) / 2 with ht
   have hRad0 : (0 : ℝ) ≤ |Rad| := abs_nonneg _
   have ht0 : 0 < t := by rw [ht]; linarith only [hRad0, hρ]

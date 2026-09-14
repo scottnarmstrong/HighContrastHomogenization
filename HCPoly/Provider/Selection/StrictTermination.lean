@@ -96,8 +96,8 @@ theorem selectionRun_strictly_terminates (hd : 2 ≤ d)
     ((run.transitionCount : ℝ) ≤ cc.CN * Lam) ∧
       run.transitionCount < transitionCap cc.CN Lam ∧
       run.outcome = .terminal (runFinalState run) := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   have hPi : 1 ≤ aspectRatio E :=
     one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hLam : 1 ≤ Lam := by

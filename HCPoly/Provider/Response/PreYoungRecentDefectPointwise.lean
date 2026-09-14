@@ -38,7 +38,7 @@ private theorem upper_left_pos_semidef {H : BlockMat d}
         exact hx (congrArg Prod.fst hzero)
       have hquad := (hpos ((x, 0) : BlockVec d) hX).le
       simpa only [star_trivial, ge_iff_le, blockVecDot, blockMatVecMul,
-        matVecMul_zero, add_zero, vecDot_zero_left] using hquad
+        matVecMul_zero, add_zero, vecDot_zero_left] using! hquad
 
 /-- The two coordinate pairings of a recent child--parent difference are
 controlled by its half doubled-energy and the cell Schur loads. -/
@@ -171,7 +171,7 @@ theorem abs_vec_dot_recent_difference_le [NeZero d]
   have hflux' := hflux
   rw [vecDot_neg_right, abs_neg] at hpot'
   rw [vecDot_neg_right, abs_neg] at hflux'
-  simpa only [U] using And.intro hpot' hflux'
+  simpa only [U] using! And.intro hpot' hflux'
 
 end
 

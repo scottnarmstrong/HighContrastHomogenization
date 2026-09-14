@@ -134,7 +134,7 @@ theorem euclideanNorm_le_terminal_add_sum_adjacent
         rw [Finset.sum_insert hj, Finset.sum_insert hj]
         exact (hadd.trans (add_le_add_right ih _))
   have htel : (∑ j ∈ Finset.Ico r m, (p j - p (j + 1))) = p r - p m := by
-    induction m, hrm using Int.le_induction with
+    induction m, hrm using Int.leInduction with
     | base => simp
     | succ w hw ih =>
         rw [← Finset.sum_Ico_add_eq_sum_Ico_add_one hw

@@ -49,10 +49,10 @@ private theorem memVectorL2_constMatVecMul (A : Mat d) {U : Set (Vec d)}
   let T : Vec d →L[ℝ] Vec d :=
     LinearMap.toContinuousLinearMap (Matrix.mulVecLin A)
   refine MemLp.of_le_mul (c := ‖T‖) hf ?_ ?_
-  · simpa only [T, matVecMul] using
+  · simpa only [T, matVecMul] using!
       T.continuous.comp_aestronglyMeasurable hf.aestronglyMeasurable
   · filter_upwards [] with x
-    simpa only [T, matVecMul] using T.le_opNorm (f x)
+    simpa only [T, matVecMul] using! T.le_opNorm (f x)
 
 /-- Square integrability of the literal matrix-valued affine pullback of a
 Hilbert `L²` quotient representative. -/

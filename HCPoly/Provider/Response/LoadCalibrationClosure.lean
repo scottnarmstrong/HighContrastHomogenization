@@ -95,7 +95,7 @@ theorem norm_normalized_sub_one [NeZero d] (hS : S.PosDef) (hStar : SStar.PosDef
     (hB : B = S + rᴴ * SStar⁻¹ * r)
     (hsharp : fullBlockSharp (schurBlock S SStar K) ≤ schurBlock S SStar K) :
     ‖matSqrt SStar⁻¹ * B * matSqrt SStar⁻¹ - 1‖ = relSize B SStar - 1 := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have hBpsd : B.PosSemidef := posSemidef_responseBlock hS hStar hB
   have hX : (matSqrt SStar⁻¹ * B * matSqrt SStar⁻¹).PosSemidef :=
     posSemidef_normalize hBpsd hStar

@@ -18,7 +18,7 @@ window bundle replaced by the carrier.
 
 namespace Homogenization.HighContrast.Response.FixedGrid
 
-open Book.Ch02 MeasureTheory Filter
+open Book.Ch02 MeasureTheory _root_.Filter
 open scoped ENNReal
 
 noncomputable section
@@ -99,8 +99,8 @@ theorem integrable_adjoint_gradient_projected_oscillation_and_integral_abs_le_sc
   have hintDepth : ∀ j, Integrable (depth j) P := by
     intro j
     dsimp only [depth]
-    exact (integrable_finset_sum Z fun z hz ↦
-      (integrable_finset_sum (alignedIndex q (kOf j) s) fun w hw ↦
+    exact (integrable_finsetSum Z fun z hz ↦
+      (integrable_finsetSum (alignedIndex q (kOf j) s) fun w hw ↦
         hintPair j z hz w hw).const_mul _).const_mul _
   have hcoeff : ∀ j, 0 ≤ coeff j := by
     intro j
@@ -119,7 +119,7 @@ theorem integrable_adjoint_gradient_projected_oscillation_and_integral_abs_le_sc
     exact Finset.sum_nonneg fun j hj ↦ mul_nonneg (hcoeff j) (hdepth j a)
   have hintRhs : Integrable rhs P := by
     dsimp only [rhs]
-    exact integrable_finset_sum (Finset.range N) fun j hj ↦
+    exact integrable_finsetSum (Finset.range N) fun j hj ↦
       (hintDepth j).const_mul (coeff j)
   have hpath : ∀ a, |projected a| ≤ rhs a := by
     intro a
@@ -132,7 +132,7 @@ theorem integrable_adjoint_gradient_projected_oscillation_and_integral_abs_le_sc
         (P := P) hq hst g hg p r Qcen N
   have hintProjected : Integrable projected P := by
     refine Integrable.mono' hintRhs hprojectedMeas
-      (Filter.Eventually.of_forall fun a ↦ ?_)
+      (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     simpa only [Real.norm_eq_abs, abs_of_nonneg (hrhs a)] using hpath a
   have hmono : (∫ a, |projected a| ∂P) ≤ ∫ a, rhs a ∂P :=
     integral_mono hintProjected.norm hintRhs hpath
@@ -153,7 +153,7 @@ theorem integrable_adjoint_gradient_projected_oscillation_and_integral_abs_le_sc
       (∫ a, rhs a ∂P) =
           ∑ j ∈ Finset.range N, ∫ a, coeff j * depth j a ∂P := by
         dsimp only [rhs]
-        rw [integral_finset_sum]
+        rw [integral_finsetSum]
         exact fun j hj ↦ (hintDepth j).const_mul (coeff j)
       _ = ∑ j ∈ Finset.range N,
           coeff j * ∫ a, depth j a ∂P := by
@@ -276,7 +276,7 @@ theorem lintegral_adjoint_gradient_projected_oscillation_le_row
       ENNReal.ofReal (∫ a, |projected a| ∂P) := by
         symm
         exact ofReal_integral_eq_lintegral_ofReal hbase.1.norm
-          (Filter.Eventually.of_forall fun a ↦ abs_nonneg (projected a))
+          (_root_.Filter.Eventually.of_forall fun a ↦ abs_nonneg (projected a))
     _ ≤ ENNReal.ofReal
           (preYoungRowCoefficient d *
             (3 : ℝ) ^ (-((t : ℝ) - (s : ℝ))) * Real.sqrt EJ) *
@@ -357,8 +357,8 @@ theorem integrable_adjoint_flux_projected_oscillation_and_integral_abs_le_scale_
   have hintDepth : ∀ j, Integrable (depth j) P := by
     intro j
     dsimp only [depth]
-    exact (integrable_finset_sum Z fun z hz ↦
-      (integrable_finset_sum (alignedIndex q (kOf j) s) fun w hw ↦
+    exact (integrable_finsetSum Z fun z hz ↦
+      (integrable_finsetSum (alignedIndex q (kOf j) s) fun w hw ↦
         hintPair j z hz w hw).const_mul _).const_mul _
   have hcoeff : ∀ j, 0 ≤ coeff j := by
     intro j
@@ -377,7 +377,7 @@ theorem integrable_adjoint_flux_projected_oscillation_and_integral_abs_le_scale_
     exact Finset.sum_nonneg fun j hj ↦ mul_nonneg (hcoeff j) (hdepth j a)
   have hintRhs : Integrable rhs P := by
     dsimp only [rhs]
-    exact integrable_finset_sum (Finset.range N) fun j hj ↦
+    exact integrable_finsetSum (Finset.range N) fun j hj ↦
       (hintDepth j).const_mul (coeff j)
   have hpath : ∀ a, |projected a| ≤ rhs a := by
     intro a
@@ -390,7 +390,7 @@ theorem integrable_adjoint_flux_projected_oscillation_and_integral_abs_le_scale_
         (P := P) hq hst g hg p r Pcen N
   have hintProjected : Integrable projected P := by
     refine Integrable.mono' hintRhs hprojectedMeas
-      (Filter.Eventually.of_forall fun a ↦ ?_)
+      (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     simpa only [Real.norm_eq_abs, abs_of_nonneg (hrhs a)] using hpath a
   have hmono : (∫ a, |projected a| ∂P) ≤ ∫ a, rhs a ∂P :=
     integral_mono hintProjected.norm hintRhs hpath
@@ -411,7 +411,7 @@ theorem integrable_adjoint_flux_projected_oscillation_and_integral_abs_le_scale_
       (∫ a, rhs a ∂P) =
           ∑ j ∈ Finset.range N, ∫ a, coeff j * depth j a ∂P := by
         dsimp only [rhs]
-        rw [integral_finset_sum]
+        rw [integral_finsetSum]
         exact fun j hj ↦ (hintDepth j).const_mul (coeff j)
       _ = ∑ j ∈ Finset.range N,
           coeff j * ∫ a, depth j a ∂P := by
@@ -534,7 +534,7 @@ theorem lintegral_adjoint_flux_projected_oscillation_le_row
       ENNReal.ofReal (∫ a, |projected a| ∂P) := by
         symm
         exact ofReal_integral_eq_lintegral_ofReal hbase.1.norm
-          (Filter.Eventually.of_forall fun a ↦ abs_nonneg (projected a))
+          (_root_.Filter.Eventually.of_forall fun a ↦ abs_nonneg (projected a))
     _ ≤ ENNReal.ofReal
           (preYoungRowCoefficient d *
             (3 : ℝ) ^ (-((t : ℝ) - (s : ℝ))) * Real.sqrt EJ) *

@@ -74,11 +74,11 @@ theorem exists_burnScale {g : ℝ} (hg : g ∈ Set.Ico (0 : ℝ) 1)
   · refine ⟨t, le_rfl, hS', ?_⟩
     have hind : bad.indicator nss a = 0 := by
       refine Set.indicator_of_notMem ?_ nss
-      rw [hbaddef, Set.mem_setOf_eq]
+      rw [hbaddef, Set.mem_ofPred_eq]
       exact not_lt.mpr hS'
     rw [hind, sub_self, mul_zero, Real.rpow_zero]
     norm_num
-  · push_neg at hS'
+  · push Not at hS'
     have hS0 : 0 < S a := lt_trans (zpow_pos (by norm_num) _) hS'
     set m : ℤ := ⌈Real.logb 3 (S a)⌉ with hmdef
     refine ⟨m, ?_, ?_, ?_⟩
@@ -95,7 +95,7 @@ theorem exists_burnScale {g : ℝ} (hg : g ∈ Set.Ico (0 : ℝ) 1)
       exact Real.rpow_le_rpow_of_exponent_le (by norm_num) (hmdef ▸ Int.le_ceil _)
     · have hind : bad.indicator nss a = nss a := by
         refine Set.indicator_of_mem ?_ nss
-        rw [hbaddef, Set.mem_setOf_eq]
+        rw [hbaddef, Set.mem_ofPred_eq]
         exact hS'
       rw [hind]
       have hup : ((m : ℤ) : ℝ) ≤ Real.logb 3 (S a) + 1 := by
@@ -220,7 +220,7 @@ theorem integral_indicator_normalizedSourceScale_le
   have htau0 : 0 < tau := zpow_pos (by norm_num) _
   have hnss_tau : ∀ a ∈ bad, tau ≤ nss a := by
     intro a ha
-    rw [hbaddef, Set.mem_setOf_eq] at ha
+    rw [hbaddef, Set.mem_ofPred_eq] at ha
     have h1 : tau * (3 : ℝ) ^ sK ≤ S a := by
       rw [htaudef, ← zpow_add₀ (by norm_num : (3 : ℝ) ≠ 0)]
       have heq : t - sK + sK = t := by ring
@@ -254,7 +254,7 @@ theorem integral_indicator_normalizedSourceScale_le
       positivity
   have hindint : Integrable (fun a => bad.indicator nss a) P := by
     refine (Integrable.indicator ?_ hbadmeas).congr
-      (Filter.Eventually.of_forall fun a => rfl)
+      (_root_.Filter.Eventually.of_forall fun a => rfl)
     exact integrable_normalizedSourceScale hdag hsK
   have h1 : ∫ a, bad.indicator nss a ∂P ≤ ∫ a, tau⁻¹ * nss a ^ 2 ∂P := by
     refine integral_mono hindint ?_ hindsq
@@ -303,7 +303,7 @@ theorem adaptedMean_quadratic_le_add_tiltDefect [NeZero d]
         blockVecDot X (blockMatVecMul (annealedBlock P (centeredCube d k)) X) +
           tiltDefect Cd g nu G k r * blockVecDot X (blockMatVecMul E X) := by
   classical
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hd0 : 0 < d := by omega
   set p : Mat d := roundedGrid l nu with hpdef
   have hp : p.PosDef := Recurrence.posDef_roundedGrid hl hnu
@@ -624,7 +624,7 @@ theorem adaptedMean_quadratic_le_add_tiltDefect [NeZero d]
       (hasMeasurableCoarseBlock_centeredCube P k)
   have hindint : Integrable (fun a => bad.indicator nss a) P := by
     refine (Integrable.indicator ?_ (measurableSet_lt measurable_const
-      hdag.source_measurable)).congr (Filter.Eventually.of_forall fun a => rfl)
+      hdag.source_measurable)).congr (_root_.Filter.Eventually.of_forall fun a => rfl)
     exact integrable_normalizedSourceScale hdag hsK
   have hLint : Integrable (fun a => 1 / 2 * blockVecDot X
       (blockMatVecMul (coarseBlock (adaptedCell p r) a) X)) P :=
@@ -635,11 +635,11 @@ theorem adaptedMean_quadratic_le_add_tiltDefect [NeZero d]
           (blockMatVecMul (coarseBlock (standardCell d k w) a) X))) +
         boundaryConst Cd g nu * Dcore * (1 + bad.indicator nss a) * eQuad) P := by
     refine Integrable.add ?_ ?_
-    · refine integrable_finset_sum _ fun w _ => ?_
+    · refine integrable_finsetSum _ fun w _ => ?_
       exact ((integrable_blockVecDot_coarseBlock (hintCell w) X).const_mul _).const_mul _
     · have h := (((integrable_const (1 : ℝ)).add hindint).const_mul
         (boundaryConst Cd g nu * Dcore)).mul_const eQuad
-      refine h.congr (Filter.Eventually.of_forall fun a => ?_)
+      refine h.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
       simp only [Pi.add_apply]
   have hmono := integral_mono_ae hLint hRint hpath
   have hLeq : ∫ a, 1 / 2 * blockVecDot X
@@ -659,15 +659,15 @@ theorem adaptedMean_quadratic_le_add_tiltDefect [NeZero d]
         boundaryConst Cd g nu * Dcore *
           (1 + ∫ a, bad.indicator nss a ∂P) * eQuad := by
     rw [integral_add
-      (integrable_finset_sum _ fun w _ =>
+      (integrable_finsetSum _ fun w _ =>
         ((integrable_blockVecDot_coarseBlock (hintCell w) X).const_mul _).const_mul _)
       (by
         have h := (((integrable_const (1 : ℝ)).add hindint).const_mul
           (boundaryConst Cd g nu * Dcore)).mul_const eQuad
-        refine h.congr (Filter.Eventually.of_forall fun a => ?_)
+        refine h.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
         simp only [Pi.add_apply])]
     congr 1
-    · rw [integral_finset_sum _ fun w _ =>
+    · rw [integral_finsetSum _ fun w _ =>
         ((integrable_blockVecDot_coarseBlock (hintCell w) X).const_mul _).const_mul _,
         Finset.sum_mul]
       refine Finset.sum_congr rfl fun w _ => ?_
@@ -829,7 +829,7 @@ theorem adaptedMean_near_reference [NeZero d]
         (adaptedMean P (roundedGrid l nu) r) ∧
       BlockMatLoewnerLE (adaptedMean P (roundedGrid l nu) r)
         (blockScale (1 + nearIdentityDefect cEnt sigma) E) := by
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hCd1 : (1 : ℝ) ≤ Cd := (le_max_left _ _).trans hCd
   have hq : (roundedGrid l nu).PosDef := Recurrence.posDef_roundedGrid hl hnu
   have hcEnt2 : (0 : ℝ) < cEnt / 2 := by linarith only [hcEnt]

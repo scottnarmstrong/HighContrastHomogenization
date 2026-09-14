@@ -19,7 +19,7 @@ namespace Homogenization
 namespace HighContrast
 namespace Root
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 
 noncomputable section
 
@@ -30,7 +30,7 @@ private theorem normalizedRoot_transpose_eq
     {m : Mat d} (hm : m.PosDef) :
     matTranspose (Selection.normalizedRoot m) = Selection.normalizedRoot m := by
   have hq := normalizedRoot_posDef_of_posDef hm
-  simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+  simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using!
     hq.isHermitian
 
 private theorem vecDot_matVecMul_of_symm
@@ -109,7 +109,7 @@ theorem CanonicalPullbackCorrectorFamily.physicalLiouvilleDoubleInclusion
         (aRef.coeffOn (originCube d (q : ℤ))).toCoeffField
           =ᵐ[volumeMeasureOn (localGradientCube d q)]
             affineCoefficient L hL ⇑normalized.1 := by
-      exact Filter.Eventually.of_forall fun y ↦ by
+      exact _root_.Filter.Eventually.of_forall fun y ↦ by
         simpa only [L, hL, normalized] using
           congrFun (haRef (originCube d (q : ℤ))) y
     have hpublic' : Book.Ch03.publicCoeffField

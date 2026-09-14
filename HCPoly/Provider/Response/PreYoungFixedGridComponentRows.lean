@@ -365,7 +365,7 @@ theorem profile_adjoint_cutoff_mean_rows_le_of_recent_defect [NeZero d]
             (preYoungRowCoefficient d * (3 : ℝ) ^ (-(H : ℝ)) *
               Real.sqrt EJ) *
           profileAdjointHattedEarlierRow P q g s Pcen Qcen ^ (1 / 2 : ℝ) := by
-      simpa only [hq, EJ, cut, parent, oscGrad] using h0
+      simpa only [hq, EJ, cut, parent, oscGrad] using! h0
     refine h1.trans ?_
     gcongr
   have hoscFlux : ENNReal.ofReal |oscFlux| ≤ ENNReal.ofReal gain *
@@ -377,7 +377,7 @@ theorem profile_adjoint_cutoff_mean_rows_le_of_recent_defect [NeZero d]
             (preYoungRowCoefficient d * (3 : ℝ) ^ (-(H : ℝ)) *
               Real.sqrt EJ) *
           profileAdjointHattedEarlierRow P q g s Pcen Qcen ^ (1 / 2 : ℝ) := by
-      simpa only [hq, EJ, cut, parent, oscFlux] using h0
+      simpa only [hq, EJ, cut, parent, oscFlux] using! h0
     refine h1.trans ?_
     gcongr
   constructor

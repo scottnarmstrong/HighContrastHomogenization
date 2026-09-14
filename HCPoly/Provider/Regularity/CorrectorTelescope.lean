@@ -61,7 +61,7 @@ theorem ScalarIdentityGoodTail.summable_nat_shift {d : ℕ} [NeZero d]
       rw [Finset.mem_Icc]
       constructor
       · exact le_add_of_nonneg_right (Int.natCast_nonneg j)
-      · simpa only [shift, intNatShiftEmbedding, add_comm] using
+      · simpa only [shift, intNatShiftEmbedding, add_comm] using!
           add_le_add_left (Int.ofNat_le.mpr (Nat.le_of_lt hjlt)) n
     calc
       (∑ j ∈ Finset.range N,
@@ -123,7 +123,7 @@ theorem ScalarIdentityGoodTail.sum_Ico_corrected_nat_shift_le
     rw [Finset.mem_Icc]
     constructor
     · exact le_add_of_nonneg_right (Int.natCast_nonneg j)
-    · simpa only [shift, intNatShiftEmbedding, add_comm] using
+    · simpa only [shift, intNatShiftEmbedding, add_comm] using!
         add_le_add_left (Int.ofNat_le.mpr (Nat.le_of_lt hjlt)) n
   have hraw :
       (∑ j ∈ Finset.Ico k m,

@@ -33,7 +33,7 @@ theorem translateSet_adaptedCellAt_eq_translate
       adaptedCellTranslate q k (z + adaptedCellCenter q k w) := by
   ext x
   simp only [translateSet, adaptedCellAt_eq_adaptedCellTranslate,
-    adaptedCellTranslate, Set.mem_setOf_eq, Set.mem_image]
+    adaptedCellTranslate, Set.mem_ofPred_eq, Set.mem_image]
   constructor
   · rintro ⟨y, ⟨v, hv, rfl⟩, rfl⟩
     exact ⟨v, hv, by abel⟩
@@ -85,14 +85,14 @@ theorem doubledResponseJ_observation_epsilonAffine_eq
         affineCoefficient q
           ((Matrix.isUnit_iff_isUnit_det q).mp hq.isUnit)
           (⇑aMicro.1 : CoeffField d) := by
-    simpa only [q, aMicro] using ae_restrict_of_ae hreal.symm
+    simpa only [q, aMicro] using! ae_restrict_of_ae hreal.symm
   have haRefLocal :
       affineCoefficient q
           ((Matrix.isUnit_iff_isUnit_det q).mp hq.isUnit)
           (⇑aMicro.1 : CoeffField d) =ᵐ[
         volumeMeasureOn (openCubeSet R)]
           (aRef.coeffOn R).toCoeffField :=
-    Filter.Eventually.of_forall fun x ↦ congrFun (haRef R).symm x
+    _root_.Filter.Eventually.of_forall fun x ↦ congrFun (haRef R).symm x
   have hObsRef : Book.Ch02.CoeffOn.AEEq aObs (aRef.coeffOn R) := by
     exact hObs.trans (hrealLocal.trans haRefLocal)
   let P0 := scalarNormalizedPrimalLoad (Real.sqrt c)

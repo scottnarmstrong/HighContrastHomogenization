@@ -25,7 +25,7 @@ namespace Homogenization
 namespace HighContrast
 namespace RowSupply
 
-open MeasureTheory Filter
+open MeasureTheory _root_.Filter
 open scoped ENNReal
 
 noncomputable section
@@ -116,7 +116,7 @@ theorem tendsto_eLpNorm_transpose_comp_zero {L : Mat d} (hL : IsUnit L.det)
             eLpNorm (fun y => D n (matVecMul L y) j) 2 (volume.restrict V) := by
       intro n
       exact eLpNorm_le_mul_eLpNorm_of_ae_le_mul
-        (Filter.Eventually.of_forall (fun y => by
+        (_root_.Filter.Eventually.of_forall (fun y => by
           simp)) 2
     have hmul : Tendsto (fun n => ENNReal.ofReal (|L j i|) *
         eLpNorm (fun y => D n (matVecMul L y) j) 2 (volume.restrict V))
@@ -124,16 +124,16 @@ theorem tendsto_eLpNorm_transpose_comp_zero {L : Mat d} (hL : IsUnit L.det)
       simpa only [mul_zero] using
         ENNReal.Tendsto.const_mul hbase (Or.inr ENNReal.ofReal_ne_top)
     exact tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hmul
-      (Filter.Eventually.of_forall (fun _ => zero_le _))
-      (Filter.Eventually.of_forall hle)
+      (_root_.Filter.Eventually.of_forall (fun _ => zero_le))
+      (_root_.Filter.Eventually.of_forall hle)
   have hsum : Tendsto (fun n => ∑ j : Fin d, eLpNorm
       (fun y => L j i * D n (matVecMul L y) j) 2 (volume.restrict V))
       atTop (nhds 0) := by
-    simpa using tendsto_finset_sum (Finset.univ : Finset (Fin d))
+    simpa using tendsto_finsetSum (Finset.univ : Finset (Fin d))
       (fun j _ => hterm j)
   exact tendsto_of_tendsto_of_tendsto_of_le_of_le' tendsto_const_nhds hsum
-    (Filter.Eventually.of_forall (fun _ => zero_le _))
-    (Filter.Eventually.of_forall hbound)
+    (_root_.Filter.Eventually.of_forall (fun _ => zero_le))
+    (_root_.Filter.Eventually.of_forall hbound)
 
 end
 

@@ -122,7 +122,7 @@ private theorem isZeroTraceDirichletRhsWeakSolution_affinePullback
       _ = |L.det| * ∫ y in V, lhsTarget y ∂volume := by
         congr 1
         exact integral_congr_ae
-          (Filter.Eventually.of_forall fun y ↦ (hlhsPointwise y).symm)
+          (_root_.Filter.Eventually.of_forall fun y ↦ (hlhsPointwise y).symm)
   have hrhsChange :
       ∫ x in U, rhsSource x ∂volume =
         |L.det| * ∫ y in V, rhsTarget y ∂volume := by
@@ -135,7 +135,7 @@ private theorem isZeroTraceDirichletRhsWeakSolution_affinePullback
       _ = |L.det| * ∫ y in V, rhsTarget y ∂volume := by
         congr 1
         exact integral_congr_ae
-          (Filter.Eventually.of_forall fun y ↦ (hrhsPointwise y).symm)
+          (_root_.Filter.Eventually.of_forall fun y ↦ (hrhsPointwise y).symm)
   have hsource :
       ∫ x in U, lhsSource x ∂volume =
         ∫ x in U, rhsSource x ∂volume := by
@@ -200,6 +200,8 @@ theorem exists_roundedPhysicalDirichletAffineResponse [NeZero d]
     simpa only [U] using measurableSet_openCubeSet (originCube d m)
   have hV : V = matImage q U := by
     rfl
+  have hUV : MeasurableSet V := hV ▸ measurableSet_matImage hq hU
+  have hVinv : U = matImage q⁻¹ V := hV ▸ (matImage_inv_matImage hq U).symm
   have hwPhysicalBundle :
       ∃ wPhysical : H10Function (matImage (q⁻¹)⁻¹ U),
         wPhysical.toH1Function.toFun =
@@ -245,10 +247,8 @@ theorem exists_roundedPhysicalDirichletAffineResponse [NeZero d]
     rw [← hcoeff]
     simpa only [roundedPhysicalDirichletDatum, q, matVecMul_neg] using
       hweakAffine
-  have hquotient : wPhysical.toH1Function.gradToHilbertVectorL2 =
-      affineGradientQuotientPushforward hq
-        (measurableSet_matImage hq hU)
-        (matImage_inv_matImage hq U).symm q⁻¹
+  have hquotient' : wPhysical.toH1Function.gradToHilbertVectorL2 =
+      affineGradientQuotientPushforward hq hUV hVinv q⁻¹
         w.toH1Function.gradToHilbertVectorL2 := by
     apply Lp.ext
     have hsourceRaw := ae_affinePullback hqInv hU
@@ -258,12 +258,17 @@ theorem exists_roundedPhysicalDirichletAffineResponse [NeZero d]
           hilbertifyVecField w.toH1Function.grad (matVecMul q⁻¹ x) := by
       simpa only [Matrix.nonsing_inv_nonsing_inv q hq, ← hV] using hsourceRaw
     filter_upwards [wPhysical.toH1Function.coeFn_gradToHilbertVectorL2,
-      coeFn_affineGradientQuotientPushforward hq
-        (measurableSet_matImage hq hU) (matImage_inv_matImage hq U).symm q⁻¹
+      coeFn_affineGradientQuotientPushforward hq hUV hVinv q⁻¹
         w.toH1Function.gradToHilbertVectorL2,
       hsource] with x hphysical hquot hsrc
     rw [hphysical, hwPhysicalGrad', hquot, hsrc]
     rfl
+  have hquotient : wPhysical.toH1Function.gradToHilbertVectorL2 =
+      affineGradientQuotientPushforward hq
+        (measurableSet_matImage hq hU)
+        (matImage_inv_matImage hq U).symm q⁻¹
+        w.toH1Function.gradToHilbertVectorL2 :=
+    hquotient'
   have hHs (s : FractionalOrder) :
       hsNormSq V s.1 wPhysical.toH1Function.grad ≤
         roundedPhysicalGradientHsLoss abar s.1 *

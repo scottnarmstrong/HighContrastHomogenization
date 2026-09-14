@@ -67,10 +67,10 @@ private theorem measureReal_iUnion_nat_le_tsum {Omega : Type*} [MeasurableSpace 
   let nu : FiniteMeasure Omega := ⟨mu, inferInstance⟩
   have hAnn : Summable fun q => nu (A q) := by
     rw [← NNReal.summable_coe]
-    simpa only [nu, Measure.real] using hA
+    simpa only [nu, Measure.real] using! hA
   have hnu := FiniteMeasure.apply_iUnion_le (μ := nu) (f := A) hAnn
   have hnur : (nu (⋃ q, A q) : ℝ) ≤ ∑' q, (nu (A q) : ℝ) := by exact_mod_cast hnu
-  simpa only [nu, Measure.real] using hnur
+  simpa only [nu, Measure.real] using! hnur
 
 /-! ## The minimal scale -/
 
@@ -95,14 +95,14 @@ theorem renormScale_gt_subset {S : CoeffSpace d → ℝ} {Ahat : BlockMat d}
         renormScale S Ahat delta rho h n a} ⊆
       ⋃ j : ℕ, renormBadGeneration S Ahat delta rho h (N + 1 + (j : ℤ)) := by
   intro a ha
-  simp only [Set.mem_setOf_eq, renormScale, lt_iSup_iff] at ha
+  simp only [Set.mem_ofPred_eq, renormScale, lt_iSup_iff] at ha
   obtain ⟨m, ⟨hnm, hbad⟩, hlt⟩ := ha
   have hpos : (0 : ℝ) < (3 : ℝ) ^ m := by positivity
   have hreal : (3 : ℝ) ^ N < (3 : ℝ) ^ m :=
     (ENNReal.ofReal_lt_ofReal_iff hpos).1 hlt
   have hNm : N < m := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     exact absurd (zpow_le_zpow_right₀ (by norm_num : (1 : ℝ) ≤ 3) hcon) (not_le.2 hreal)
   refine Set.mem_iUnion.2 ⟨(m - N - 1).toNat, ?_⟩
   have hidx : N + 1 + ((m - N - 1).toNat : ℤ) = m := by omega
@@ -293,7 +293,7 @@ theorem measureReal_renormRadius_gt_le {P : Measure (CoeffSpace d)}
       {a : CoeffSpace d | ENNReal.ofReal ((3 : ℝ) ^ N) <
         renormScale S Ahat delta rho h n a} := by
     intro a ha
-    simp only [Set.mem_setOf_eq, renormRadius, hpowsplit] at ha
+    simp only [Set.mem_ofPred_eq, renormRadius, hpowsplit] at ha
     have hmax : (3 : ℝ) ^ N < max 1 (renormScale S Ahat delta rho h n a).toReal := by
       linarith only [ha]
     have htoReal : (3 : ℝ) ^ N < (renormScale S Ahat delta rho h n a).toReal := by
@@ -302,7 +302,7 @@ theorem measureReal_renormRadius_gt_le {P : Measure (CoeffSpace d)}
       · rw [heq] at hmax
         linarith only [hmax, hNone]
       · rwa [heq] at hmax
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     by_cases htop : renormScale S Ahat delta rho h n a = ⊤
     · rw [htop]
       exact ENNReal.ofReal_lt_top

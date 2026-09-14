@@ -144,7 +144,7 @@ theorem caps_bundle_entry_rows_isotropy [NeZero d]
           (rowSplitConstant cIso (capsDeepConstant Cd g mAl G k0 s t))
           kap eps) := by
   classical
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hCd1 : (1 : ℝ) ≤ Cd := (le_max_left _ _).trans hCd
   have hq : (roundedGrid lAl mAl).PosDef := Recurrence.posDef_of_isRoundedGrid hgrid
   have hcrow0 : 0 ≤

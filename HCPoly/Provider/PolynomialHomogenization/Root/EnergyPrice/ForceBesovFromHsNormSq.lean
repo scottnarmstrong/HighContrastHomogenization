@@ -79,7 +79,7 @@ theorem forceSobolevRegularity_of_hsNormSq_lt_top'
   intro i
   have hmemi : MemLp (fun x => F x i) (2 : ℝ≥0∞)
       (normalizedCubeMeasure Q) := by
-    simpa using (ContinuousLinearMap.proj (R := ℝ) i).comp_memLp' hmem
+    simpa using! (ContinuousLinearMap.proj (R := ℝ) i).comp_memLp' hmem
   refine ⟨hmemi, ?_⟩
   rw [Gagliardo.memWsp_iff]
   constructor
@@ -97,7 +97,7 @@ theorem forceSobolevRegularity_of_hsNormSq_lt_top'
         (f := fun j : Fin d =>
           (Gagliardo.cubeGagliardoESeminorm Q sF.1 (2 : ℝ≥0∞)
             (fun x => F x j)) ^ (2 : ℝ))
-        (fun _j _ => zero_le _)
+        (fun _j _ => zero_le)
         (Finset.mem_univ i)
     have hamb := cubeCoordinateGagliardoPowerEnergy_le_dimension_mul_ambientHilbert
       Q sF FiniteLpExponent.two F

@@ -61,7 +61,7 @@ theorem memVectorL2_constMatrix_mul_gradient
   rw [MemVectorL2, MeasureTheory.memLp_pi_iff]
   intro i
   change MemL2On U (fun x ↦ ∑ j, h i j * u.grad x j)
-  exact MeasureTheory.memLp_finset_sum Finset.univ fun j _ ↦
+  exact MeasureTheory.memLp_finsetSum Finset.univ fun j _ ↦
     (u.gradMemL2 j).const_mul (h i j)
 
 /-- Multiplication of a weak gradient by a constant skew matrix gives a
@@ -78,7 +78,7 @@ theorem isSolenoidalOn_constSkew_mul_gradient
     H10Function.ofContDiff hU hψ hψcompact hψsub
   have hDmem (i : Fin d) : MemScalarL2 U (D i) := by
     simpa [D, ψ₀, H10Function.ofContDiff, H1Function.ofContDiff,
-      euclideanCoordDeriv] using ψ₀.toH1Function.gradMemL2 i
+      euclideanCoordDeriv] using! ψ₀.toH1Function.gradMemL2 i
   have hterm (i j : Fin d) :
       IntegrableOn (fun x ↦ h i j * u.grad x j * D i x) U :=
     ((u.gradMemL2 j).const_mul (h i j)).integrable_mul (hDmem i)
@@ -105,7 +105,7 @@ theorem isSolenoidalOn_constSkew_mul_gradient
     linarith only [hw]
   have hinnerInt (i : Fin d) :
       IntegrableOn (fun x ↦ ∑ j, h i j * u.grad x j * D i x) U :=
-    MeasureTheory.integrable_finset_sum Finset.univ fun j _ ↦ hterm i j
+    MeasureTheory.integrable_finsetSum Finset.univ fun j _ ↦ hterm i j
   calc
     ∫ x in U,
         vecDot (matVecMul h (u.grad x))
@@ -119,11 +119,11 @@ theorem isSolenoidalOn_constSkew_mul_gradient
           rw [Finset.sum_mul]
     _ = ∑ i, ∑ j,
         ∫ x in U, h i j * u.grad x j * D i x ∂volume := by
-          rw [MeasureTheory.integral_finset_sum Finset.univ
+          rw [MeasureTheory.integral_finsetSum Finset.univ
             (fun i _ ↦ hinnerInt i)]
           apply Finset.sum_congr rfl
           intro i _
-          exact MeasureTheory.integral_finset_sum Finset.univ
+          exact MeasureTheory.integral_finsetSum Finset.univ
             (fun j _ ↦ hterm i j)
     _ = ∑ i, ∑ j, -(h i j * F i j) := by
           apply Finset.sum_congr rfl

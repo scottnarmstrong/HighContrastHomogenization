@@ -95,9 +95,9 @@ theorem exists_bootstrap_tilt_bound (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
   refine ⟨CAE * (1 - g)⁻¹, mul_pos hCAE0 (inv_pos.mpr hgpos), ?_⟩
   intro P E Ψ K S hP hstat hunit hdag Cd hCd sK hsK0 hsK lq hlq mAl hmAl sigma
     cStar hsmall gap hgap hsigma n hn
-  haveI : NeZero d := ⟨by omega⟩
-  haveI := hP
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
+  have := hP
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   set k : ℤ := n - gap with hkdef
   have hk0 : 0 ≤ k := by omega
   have hkn : k < n := by omega

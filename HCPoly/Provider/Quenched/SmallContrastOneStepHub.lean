@@ -315,10 +315,10 @@ theorem exists_hatted_one_step_of_profile_caps (d : ℕ) [NeZero d] :
     (fun e he ↦ ((hcaps e he).2.2.2.2.2))
   -- the hatted response lower bound at the same domain and loads
   have hintU : HasIntegrableCoarseBlock P (U : Set (Vec d)) := by
-    simpa only [U, Response.adaptedDomain_carrier] using hintt
+    simpa only [U, Response.adaptedDomain_carrier] using! hintt
   have hEU : toFullBlockMat (annealedBlock P (U : Set (Vec d))) =
       schurBlock S SStar K := by
-    simpa only [U, Response.adaptedDomain_carrier] using hform
+    simpa only [U, Response.adaptedDomain_carrier] using! hform
   have hlower :=
     hattedContrast_annealedBlock_sub_one_le_absoluteCenteredResponseSup
       U hintU hS hStar hEU

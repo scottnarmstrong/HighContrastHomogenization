@@ -120,9 +120,9 @@ theorem vecDot_matVecMul_pos_of_posDef {M : Mat d} (hM : M.PosDef) {x : Vec d}
 theorem continuous_vecDot_matVecMul (M : Mat d) :
     Continuous fun x : Vec d => vecDot x (matVecMul M x) := by
   simp only [vecDot, matVecMul]
-  exact continuous_finset_sum _ fun i _ =>
+  exact continuous_finsetSum _ fun i _ =>
     (continuous_apply i).mul
-      (continuous_finset_sum _ fun j _ => continuous_const.mul (continuous_apply j))
+      (continuous_finsetSum _ fun j _ => continuous_const.mul (continuous_apply j))
 
 /-- The ellipsoid is closed. -/
 theorem isClosed_ellipsoid (abar : Mat d) (r : ℝ) : IsClosed (ellipsoid abar r) :=

@@ -124,7 +124,7 @@ theorem exists_bound_lintegral_ball_rpow_scaled (d : ℕ) {e : ℝ}
           have hdist : r * q ^ (k + 1) ≤ ‖x - y‖ := by
             have h := hy.2
             rw [Metric.mem_ball'] at h
-            push_neg at h
+            push Not at h
             rwa [dist_eq_norm] at h
           exact ENNReal.ofReal_le_ofReal
             (Real.rpow_le_rpow_of_nonpos hinner hdist he0.le)
@@ -132,7 +132,7 @@ theorem exists_bound_lintegral_ball_rpow_scaled (d : ℕ) {e : ℝ}
             volume (shell k) := setLIntegral_const _ _
         _ ≤ ENNReal.ofReal ((r * q ^ (k + 1)) ^ e) *
             volume (Metric.ball x (r * q ^ k)) :=
-          mul_le_mul' le_rfl (measure_mono diff_subset)
+          mul_le_mul' le_rfl (measure_mono sdiff_subset)
         _ = ENNReal.ofReal ((r * q ^ (k + 1)) ^ e) *
             ENNReal.ofReal ((2 * (r * q ^ k)) ^ d) := by
           rw [volume_ball_eq x houter]
@@ -159,7 +159,7 @@ theorem exists_bound_lintegral_ball_rpow_scaled (d : ℕ) {e : ℝ}
           rcases Nat.eq_zero_or_pos n with hn | hn
           · simpa only [hn, pow_zero, mul_one] using Metric.mem_ball.mp hy
           · have hmin := Nat.find_min hex (Nat.pred_lt hn.ne')
-            push_neg at hmin
+            push Not at hmin
             have hnid : n.pred + 1 = n := Nat.succ_pred_eq_of_pos hn
             rwa [hnid] at hmin
         refine Set.mem_iUnion.mpr ⟨n, Metric.mem_ball.mpr hnouter, ?_⟩

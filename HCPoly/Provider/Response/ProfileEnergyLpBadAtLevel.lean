@@ -73,7 +73,7 @@ theorem profileBadEnergyAt_le_of_complete_maximum
       eLpNorm_ofReal_mul_le hbadM C 2
     _ ≤ ENNReal.ofReal C *
         ENNReal.ofReal (profileBadMajorantAt Q h beta lev) :=
-      mul_le_mul_of_nonneg_left (by simpa only [bad] using hmaximum) (zero_le _)
+      mul_le_mul_of_nonneg_left (by simpa only [bad] using hmaximum) (zero_le)
     _ = ENNReal.ofReal (C * profileBadMajorantAt Q h beta lev) := by
       rw [← ENNReal.ofReal_mul hC]
 

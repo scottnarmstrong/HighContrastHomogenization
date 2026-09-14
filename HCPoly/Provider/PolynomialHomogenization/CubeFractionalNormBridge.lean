@@ -32,7 +32,7 @@ theorem normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage
   unfold BoundedMeasurableDomain.normalizedEuclideanLpENorm
     BoundedMeasurableDomain.normalizedLpENorm
   rw [cubeBoundedMeasurableDomain_normalizedVolume_eq_normalizedCubeMeasure]
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num : (2 : ℝ≥0∞) ≠ 0)
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num : (2 : ℝ≥0∞) ≠ 0)
     (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)]
   norm_num only [ENNReal.toReal_ofNat]
   rw [← ENNReal.rpow_natCast]
@@ -82,7 +82,7 @@ private theorem enorm_cubeEuclideanWspKernel_two_sq_eq
       ENNReal.ofReal
         (vecNormSq (F z.1 - F z.2) /
           euclideanDist z.1 z.2 ^ ((d : ℝ) + 2 * s.1)) := by
-  rw [← ofReal_norm_eq_enorm]
+  rw [← ofReal_norm]
   rw [ENNReal.ofReal_rpow_of_nonneg (norm_nonneg _)
     (by norm_num : (0 : ℝ) ≤ 2)]
   rw [norm_cubeEuclideanWspKernel]
@@ -118,7 +118,8 @@ private theorem enorm_cubeEuclideanWspKernel_two_unfolded_sq_eq
   rw [← ENNReal.rpow_natCast]
   simpa only [cubeEuclideanWspKernel_apply,
     FiniteLpExponent.two_exponent, ENNReal.toReal_ofNat, map_sub,
-    neg_add_rev, add_comm] using
+    neg_add_rev, add_comm, HilbertVec.ofVec, WithLp.toLp_sub,
+    Nat.cast_ofNat] using
       enorm_cubeEuclideanWspKernel_two_sq_eq s F z
 
 theorem cubeEuclideanWspESeminorm_two_sq_eq_fracSeminormSq
@@ -130,7 +131,7 @@ theorem cubeEuclideanWspESeminorm_two_sq_eq_fracSeminormSq
       fracSeminormSq (openCubeSet Q) s.1 F := by
   unfold cubeEuclideanWspESeminorm
   norm_num only [FiniteLpExponent.two_exponent]
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num : (2 : ℝ≥0∞) ≠ 0)
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num : (2 : ℝ≥0∞) ≠ 0)
     (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)]
   norm_num only [FiniteLpExponent.two_exponent, ENNReal.toReal_ofNat]
   rw [← ENNReal.rpow_natCast, ← ENNReal.rpow_mul]

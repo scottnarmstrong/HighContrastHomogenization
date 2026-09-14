@@ -77,12 +77,10 @@ theorem exists_common_jointSlope_of_liouvilleFixedCubeExcess
   have hgRep : ∀ q : ℕ, g q =ᵐ[volumeMeasureOn (localGradientCube d q)]
       fun x => HilbertVec.ofVec (Dv x) := by
     intro q
-    filter_upwards
-      [(finiteCubeSolutionRestriction a (by omega) (u (q + 4))).toH1.coeFn_gradToHilbertVectorL2]
-      with x hx
-    rw [hx]
-    change HilbertVec.ofVec ((u (q + 4)).toH1.grad x) = HilbertVec.ofVec (Dv x)
-    rw [huGrad (q + 4)]
+    have hcoe :=
+      (finiteCubeSolutionRestriction a (n := (q : ℤ)) (by omega) (u (q + 4))).toH1.coeFn_gradToHilbertVectorL2
+    rw [finiteCubeSolutionRestriction_grad, huGrad (q + 4)] at hcoe
+    exact hcoe
   have hcompat : ∀ {q r : ℕ} (hqr : q ≤ r),
       localGradientRestrict hqr (g r) = g q := by
     intro q r hqr
@@ -121,18 +119,17 @@ theorem exists_common_jointSlope_of_liouvilleFixedCubeExcess
     obtain ⟨e, he⟩ := exists_jointSlope_of_fixedCubeExcess
       hthreshold hdelta hgood hCauchy q hnq uq Dv huqGrad hexcessq
     refine ⟨e, ?_⟩
-    rw [← he]
-    apply MeasureTheory.Lp.ext
-    filter_upwards
-      [hgRep q,
-       (finiteCubeSolutionRestriction a (by omega) (uq 0)).toH1.coeFn_gradToHilbertVectorL2]
-      with x hg huq
-    rw [hg, huq]
-    change HilbertVec.ofVec (Dv x) = HilbertVec.ofVec ((uq 0).toH1.grad x)
-    rw [huqGrad 0]
+    have hcoe0 :=
+      (finiteCubeSolutionRestriction a (n := (q : ℤ)) (by omega) (uq 0)).toH1.coeFn_gradToHilbertVectorL2
+    rw [finiteCubeSolutionRestriction_grad, huqGrad 0] at hcoe0
+    have hgq : g q =
+        (finiteCubeSolutionRestriction a (n := (q : ℤ)) (by omega) (uq 0)).toH1.gradToHilbertVectorL2 := by
+      apply MeasureTheory.Lp.ext
+      exact (hgRep q).trans hcoe0.symm
+    exact hgq.trans he
   obtain ⟨e, he⟩ := exists_common_jointSlope_of_compatible_localGradients
     hcoercive hCauchy g hcompat hslope
-  exact ⟨e, by simpa only [g] using he⟩
+  exact ⟨e, by simpa only [g] using! he⟩
 
 end
 

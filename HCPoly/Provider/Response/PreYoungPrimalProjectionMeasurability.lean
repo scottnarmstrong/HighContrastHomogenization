@@ -67,12 +67,12 @@ theorem memScalarL2_indicator_pulled_cubeProjection_cutoff
   have hetaMeas : Measurable eta :=
     (measurable_cubeProjection R N f).comp
       (continuous_matVecMul q⁻¹).measurable
-  letI : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
+  let : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
     (Recurrence.isOpenBoundedConvexDomain_adaptedCell hq t).isFiniteMeasure_restrict_volume
   refine MemLp.of_bound
     (hetaMeas.aestronglyMeasurable.indicator
       (Recurrence.isOpenBoundedConvexDomain_adaptedCellAt hq s z).isOpen.measurableSet)
-    2 (Filter.Eventually.of_forall fun x ↦ ?_)
+    2 (_root_.Filter.Eventually.of_forall fun x ↦ ?_)
   by_cases hx : x ∈ adaptedCellAt q s z
   · simpa only [Set.indicator_of_mem hx, Real.norm_eq_abs, eta] using
       hprojBound (matVecMul q⁻¹ x)
@@ -262,8 +262,8 @@ theorem aestronglyMeasurable_cutoff_projected_primal_pairing_subSkew
           (diagonalWeakState hq t (a.subSkew g hg) p r (matVecMul q y)).1 i)
           (volume.restrict (cubeSet R))
         rw [volume_restrict_cubeSet_eq_volume_restrict_openCubeSet]
-        simpa only [adaptedDomainAt_carrier, hidentityCell] using hiOpen
-      simpa only [vecDot] using integrable_finset_sum
+        simpa only [adaptedDomainAt_carrier, hidentityCell] using! hiOpen
+      simpa only [vecDot] using! integrable_finsetSum
         (s := (Finset.univ : Finset (Fin d)))
         (fun i hiMem ↦ (hi i).const_mul (Qcen i))
     simpa only [R, phi, f, eta] using

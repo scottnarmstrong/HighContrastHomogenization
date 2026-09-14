@@ -18,7 +18,7 @@ field.
 namespace Homogenization
 namespace HighContrast
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal Topology
 
 noncomputable section
@@ -52,7 +52,7 @@ theorem NormalizedLocalH1Carrier.tendsto_affineAdd_normalizedL2Norm_sublinear_of
         simpa only [Q, Book.Ch02.cubeDomain_coe] using
           finiteAffineBoundaryH1 (q : ℤ) e
       have hfun : u.toFun = fun x => vecDot e x := by
-        simpa only [u] using finiteAffineBoundaryH1_toFun (m := (q : ℤ)) e
+        simpa only [u] using! finiteAffineBoundaryH1_toFun (m := (q : ℤ)) e
       rw [← hfun]
       exact u.memL2_normalizedCubeMeasure
     have hcorrector : MemLp z.globalValueRepresentative 2

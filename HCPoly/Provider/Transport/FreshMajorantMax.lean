@@ -422,7 +422,7 @@ theorem fresh_majorant_max_moment_le [NeZero d]
         (fun x => toFullBlockMat
           (blockSub (coarseBlock (adaptedCellAt q r w) x)
             (adaptedMean P q r)) alpha beta) P := by
-      simpa only [Recurrence.toFullBlockMat_blockSub_apply] using
+      simpa only [Recurrence.toFullBlockMat_blockSub_apply] using!
         hm'.sub (aestronglyMeasurable_const
           (b := toFullBlockMat (adaptedMean P q r) alpha beta))
     exact hsub.const_mul (c i r)

@@ -70,7 +70,7 @@ theorem exists_grid_transport_nonlinear_bound
               (CnlS * (3 : ℝ) ^ (a * (l0 : ℝ)) *
                 transportSrcRemainder Cd g (Q : ℝ) a E jStar mu mu'
                   (u + (l0 : ℤ))) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   have hd1 : 1 ≤ d := le_trans (by omega) hd
   have hdR0 : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
   have hdR1 : (1 : ℝ) ≤ (d : ℝ) := by exact_mod_cast hd1
@@ -135,7 +135,7 @@ theorem exists_grid_transport_nonlinear_bound
   refine ⟨Cnl, CnlS, hCnl0, hCnlS0, ?_⟩
   intro l0 hl0 Cd hCd P E Ψ K S hPprob hPstat hced jStar M hw Y hY mu mu'
     hmu hmu' hKgrid rchk u hjr hru hcont etaX heta0 heta4 hlo hhi
-  letI : IsProbabilityMeasure P := hPprob
+  let : IsProbabilityMeasure P := hPprob
   have hl0z : (1 : ℤ) ≤ (l0 : ℤ) := by exact_mod_cast hl0
   have hl0z0 : (0 : ℤ) ≤ (l0 : ℤ) := le_trans (by omega) hl0z
   have hCd0 : (0 : ℝ) ≤ Cd := le_trans zero_le_one hCd

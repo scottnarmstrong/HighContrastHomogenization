@@ -23,7 +23,7 @@ theorem WeakPoissonEquationOn.exists_sub_affine_harmonic
       v.toFun = (fun x => u.toFun x - (c + vecDot e x)) ∧
       v.grad = (fun x => u.grad x - e) ∧
       WeakPoissonEquationOn (openCubeSet Q) v (fun _ => 0) := by
-  letI : MeasureTheory.IsFiniteMeasure
+  let : MeasureTheory.IsFiniteMeasure
       (volumeMeasureOn (openCubeSet Q)) := by
     simpa [volumeMeasureOn] using
       (isOpenBoundedConvexDomain_openCubeSet Q).isFiniteMeasure_restrict_volume

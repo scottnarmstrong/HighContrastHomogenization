@@ -148,7 +148,7 @@ theorem twoGridShiftedDrift_enlargeConstant (hd : 2 ≤ d)
                 (3 : ℝ) ^ (2 * initExpRhoDr g * (l : ℝ)) *
                 linearDrift P (initExpRhoDr g) (roundedGrid jStar mp) jStar (nn + l) +
               bridgeShiftedRemainder C' Cd g (initExpRhoDr g) E jStar mp mv nn l) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   intro mp mv hmp hmv nn l hj hscale hsmall hcont
   let K : ℝ := gridRatio (roundedGrid jStar mp) (roundedGrid jStar mv)
   have hK : 1 ≤ K := Transport.one_le_gridRatio _ _

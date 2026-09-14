@@ -52,7 +52,7 @@ theorem integral_sq_normalizedSourceScale_le
         growthBar K ^ IndependentSums.natTriangular 2 := by
     rw [sourceMomentTwo]
   rw [integral_eq_lintegral_of_nonneg_ae
-    (Filter.Eventually.of_forall h0)
+    (_root_.Filter.Eventually.of_forall h0)
     ((hmeas.pow_const 2).aestronglyMeasurable)]
   rw [hCK]
   refine ENNReal.toReal_le_of_le_ofReal ?_ hlint
@@ -132,7 +132,7 @@ theorem annealedBlock_adaptedCell_le_scaled_entry [NeZero d]
   -- on the bad event the normalized scale exceeds the threshold
   have hnss_tau : ∀ a ∈ bad, tau ≤ nss a := by
     intro a ha
-    rw [hbaddef, Set.mem_setOf_eq] at ha
+    rw [hbaddef, Set.mem_ofPred_eq] at ha
     have h3sK : (0 : ℝ) < (3 : ℝ) ^ sK :=
       lt_of_lt_of_le (by norm_num) ((le_max_left 2 K).trans hsK)
     have h1 : tau * (3 : ℝ) ^ sK ≤ S a := by
@@ -171,12 +171,12 @@ theorem annealedBlock_adaptedCell_le_scaled_entry [NeZero d]
       rw [Sharp.blockVecDot_blockMatVecMul_blockScale] at hcell
       have hind : bad.indicator nss a = 0 := by
         refine Set.indicator_of_notMem ?_ nss
-        rw [hbaddef, Set.mem_setOf_eq]
+        rw [hbaddef, Set.mem_ofPred_eq]
         exact not_lt.mpr hS
       rw [hind, hc0]
       nlinarith only [hcell, hquad, hbC0]
     · -- bad event: run the crude branch of the established envelope
-      push_neg at hS
+      push Not at hS
       have hS0 : 0 < S a := lt_trans (zpow_pos (by norm_num) _) hS
       set m : ℤ := ⌈Real.logb 3 (S a)⌉ with hmdef
       have hlogS : ((t + (G : ℤ) : ℤ) : ℝ) < Real.logb 3 (S a) := by
@@ -263,7 +263,7 @@ theorem annealedBlock_adaptedCell_le_scaled_entry [NeZero d]
           _ = nss a := Real.rpow_one _
       have hind : bad.indicator nss a = nss a := by
         refine Set.indicator_of_mem ?_ nss
-        rw [hbaddef, Set.mem_setOf_eq]
+        rw [hbaddef, Set.mem_ofPred_eq]
         exact hS
       calc
         boundaryConst Cd g n * (3 : ℝ) ^ (g * ((m : ℝ) - (k : ℝ))) ≤
@@ -296,7 +296,7 @@ theorem annealedBlock_adaptedCell_le_scaled_entry [NeZero d]
       positivity
   have hindint : Integrable (fun a => bad.indicator nss a) P := by
     refine (Integrable.indicator ?_ hbadmeas).congr
-      (Filter.Eventually.of_forall fun a => rfl)
+      (_root_.Filter.Eventually.of_forall fun a => rfl)
     exact integrable_normalizedSourceScale hdag hsK
   have hindmom : ∫ a, bad.indicator nss a ∂P ≤ 1 := by
     have h1 : ∫ a, bad.indicator nss a ∂P ≤
@@ -329,7 +329,7 @@ theorem annealedBlock_adaptedCell_le_scaled_entry [NeZero d]
       blockVecDot X (blockMatVecMul E X)) P := by
     have h := (((integrable_const (1 : ℝ)).add hindint).const_mul
       c0).mul_const (blockVecDot X (blockMatVecMul E X))
-    refine h.congr (Filter.Eventually.of_forall fun a => ?_)
+    refine h.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
     simp only [Pi.add_apply]
   have hmono := integral_mono_ae hint1 hint2 (by
     filter_upwards [hscalar] with a ha using ha X)

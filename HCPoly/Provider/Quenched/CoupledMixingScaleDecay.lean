@@ -29,14 +29,14 @@ def triadicCeilingIndex (x : ℝ) : ℕ :=
 theorem le_pow_triadicCeilingIndex {x : ℝ} (hx : 1 ≤ x) :
     x ≤ (3 : ℝ) ^ triadicCeilingIndex x := by
   rw [← Real.rpow_natCast]
-  simpa only [triadicCeilingIndex] using
+  simpa only [triadicCeilingIndex] using!
     Book.Ch05.Section57.le_rpow_three_natCeil_log_div_log hx
 
 /-- The triadic ceiling is less than three times the original scale. -/
 theorem pow_triadicCeilingIndex_le_three_mul {x : ℝ} (hx : 1 ≤ x) :
     (3 : ℝ) ^ triadicCeilingIndex x ≤ 3 * x := by
   rw [← Real.rpow_natCast]
-  simpa only [triadicCeilingIndex] using
+  simpa only [triadicCeilingIndex] using!
     Book.Ch05.Section57.rpow_three_natCeil_log_div_log_le_three_mul hx
 
 /-- Any natural generation whose triadic scale dominates `x` lies above the

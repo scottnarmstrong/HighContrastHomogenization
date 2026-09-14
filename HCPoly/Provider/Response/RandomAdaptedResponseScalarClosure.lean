@@ -28,7 +28,7 @@ theorem weak_quantity_le_of_root_bound
   rw [hW]
   calc
     N ^ (2 : ℕ) ≤ ENNReal.ofReal (R * Real.sqrt kappa) ^ (2 : ℕ) :=
-      pow_le_pow_left₀ (zero_le N) hroot 2
+      pow_le_pow_left₀ zero_le hroot 2
     _ = ENNReal.ofReal ((R * Real.sqrt kappa) ^ (2 : ℕ)) := by
       rw [ENNReal.ofReal_pow (mul_nonneg hR (Real.sqrt_nonneg kappa))]
     _ = ENNReal.ofReal (R ^ 2 * kappa) := by

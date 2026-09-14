@@ -33,13 +33,12 @@ omit [NeZero d] in
 private theorem memVectorL2_matVecMul (A : Mat d) {U : Set (Vec d)}
     {f : Vec d → Vec d} (hf : MemVectorL2 U f) :
     MemVectorL2 U (fun x ↦ matVecMul A (f x)) := by
-  let L : Vec d →L[ℝ] Vec d :=
-    LinearMap.toContinuousLinearMap (Matrix.mulVecLin A)
-  refine MemLp.of_le_mul (c := ‖L‖) hf ?_ ?_
-  · simpa only [L, matVecMul] using
-      L.continuous.comp_aestronglyMeasurable hf.aestronglyMeasurable
+  refine MemLp.of_le_mul (c := ‖matContinuousLinearMap A‖) hf ?_ ?_
+  · simpa only [matContinuousLinearMap_apply] using
+      (matContinuousLinearMap A).continuous.comp_aestronglyMeasurable hf.aestronglyMeasurable
   · filter_upwards [] with x
-    simpa only [L, matVecMul] using L.le_opNorm (f x)
+    simpa only [matContinuousLinearMap_apply] using
+      (matContinuousLinearMap A).le_opNorm (f x)
 
 omit [NeZero d] in
 private theorem blockDiag_apply (A B : Mat d) (X : BlockVec d) :

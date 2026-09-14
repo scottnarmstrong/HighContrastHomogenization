@@ -51,7 +51,7 @@ theorem measurable_coeffSpace_of_slicewise {U : Book.Ch02.Domain d}
   have hlocal : @Measurable (Source.Coarse.Carrier d) ℝ
       (Source.Coarse.localSigma (U : Set (Vec d)) hUopen.measurableSet) _
       (fun b => R (sourceCoeffOn U hUbdd b)) := by
-    letI : MeasurableSpace (Source.Coarse.Carrier d) :=
+    let : MeasurableSpace (Source.Coarse.Carrier d) :=
       Source.Coarse.localSigma (U : Set (Vec d)) hUopen.measurableSet
     set slice : ℕ → Set (Source.Coarse.Carrier d) :=
       fun k => {b | AEEQuantitativeEllipticSlice (U : Set (Vec d)) k b.1} with hslicedef
@@ -138,7 +138,7 @@ theorem memScalarL2_bounded_mul {U : Set (Vec d)} {eta w : Vec d → ℝ}
     (hw : MemScalarL2 U w) : MemScalarL2 U (fun x => eta x * w x) := by
   refine MeasureTheory.MemLp.mono' (MeasureTheory.MemLp.const_mul hw.norm C)
     (hmeas.aestronglyMeasurable.mul hw.aestronglyMeasurable)
-    (Filter.Eventually.of_forall fun x => ?_)
+    (_root_.Filter.Eventually.of_forall fun x => ?_)
   rw [Real.norm_eq_abs, abs_mul, Real.norm_eq_abs]
   exact mul_le_mul_of_nonneg_right (hbound x) (abs_nonneg _)
 
@@ -191,7 +191,7 @@ theorem weightedOptimizerEnergy_eq {U : Book.Ch02.Domain d}
         (fun x => (optimizerBlockState U aU p q x).2 i) :=
       MeasureTheory.MemLp.eval hflux i
     have hmul := MeasureTheory.MemLp.integrable_mul h1 h2
-    simpa [MeasureTheory.IntegrableOn, volumeMeasureOn, Pi.mul_apply] using hmul
+    simpa [MeasureTheory.IntegrableOn, volumeMeasureOn, Pi.mul_apply] using! hmul
   have hcoord : ∀ i : Fin d,
       inner ℝ (weightedCoordOperator (U := (U : Set (Vec d))) hmeas hC hbound
           (Sum.inl i) (Sum.inr i) (optimizerStateL2 U aU p q))
@@ -224,17 +224,17 @@ theorem weightedOptimizerEnergy_eq {U : Book.Ch02.Domain d}
       _ = ∫ x in (U : Set (Vec d)), ∑ i : Fin d,
             eta x * (optimizerBlockState U aU p q x).1 i *
               (optimizerBlockState U aU p q x).2 i ∂volume :=
-            (integral_finset_sum _ fun i _ => hterm i).symm
+            (integral_finsetSum _ fun i _ => hterm i).symm
       _ = ∫ x in (U : Set (Vec d)), eta x *
             vecDot (optimizerBlockState U aU p q x).1
               (matVecMul (aU.toCoeffField x) (optimizerBlockState U aU p q x).1) ∂volume := by
-            refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+            refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun x => ?_)
             simp only [vecDot, Finset.mul_sum, optimizerBlockState_snd]
             exact Finset.sum_congr rfl fun i _ => by ring
   rw [hsum]
   congr 1
   rw [← integral_const_mul]
-  exact integral_congr_ae (Filter.Eventually.of_forall fun x => by ring)
+  exact integral_congr_ae (_root_.Filter.Eventually.of_forall fun x => by ring)
 
 /-! ## Measurability of the localized optimizer energy -/
 
@@ -246,7 +246,7 @@ theorem continuous_weightedEnergyFunctional {U : Set (Vec d)}
       (volume U).toReal⁻¹ * ((1 / 2 : ℝ) *
         ∑ i : Fin d, inner ℝ
           (weightedCoordOperator (U := U) hmeas hC hbound (Sum.inl i) (Sum.inr i) z) z) := by
-  refine continuous_const.mul (continuous_const.mul (continuous_finset_sum _ fun i _ => ?_))
+  refine continuous_const.mul (continuous_const.mul (continuous_finsetSum _ fun i _ => ?_))
   exact continuous_inner.comp
     (((weightedCoordOperator (U := U) hmeas hC hbound (Sum.inl i)
       (Sum.inr i)).continuous).prodMk continuous_id)
@@ -306,7 +306,7 @@ theorem measurable_weightedOptimizerEnergy_coeffSpace {U : Book.Ch02.Domain d}
     (hbound : ∀ x, |eta x| ≤ C) :
     Measurable fun a : CoeffSpace d =>
       weightedOptimizerEnergy U (a.coeffOn U) p q eta := by
-  haveI : IsFiniteMeasure (volumeMeasureOn (U : Set (Vec d))) :=
+  have : IsFiniteMeasure (volumeMeasureOn (U : Set (Vec d))) :=
     hUbdd.isFiniteMeasure_restrict_volume
   refine measurable_coeffSpace_of_slicewise hUopen hUbdd _
     (fun aU bU h => weightedOptimizerEnergy_congr h p q eta) ?_
@@ -327,7 +327,7 @@ theorem responseJ_eq_weightedOptimizerEnergy (U : Book.Ch02.Domain d)
     Book.Ch02.average, ← mul_assoc, mul_comm (1 / 2 : ℝ), mul_assoc]
   congr 1
   rw [← integral_const_mul]
-  refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+  refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun x => ?_)
   simp only [Book.Ch02.variationEnergyIntegrand, vecDot_matVecMul_symmPart,
     optimizerBlockState_fst]
   ring

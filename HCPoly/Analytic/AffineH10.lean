@@ -53,7 +53,7 @@ theorem exists_h10Function_affinePullback {L : Mat d} (hL : IsUnit L.det)
     { toH1Function := uL
       approx := fun n y ↦ u.approx n (T y)
       approx_smooth := fun n ↦ by
-        simpa [T, Function.comp_def] using
+        simpa [T, Function.comp_def] using!
           (u.approx_smooth n).comp
             (LinearMap.toContinuousLinearMap (Matrix.mulVecLin L)).contDiff
       approx_hasCompactSupport := fun n ↦ by
@@ -129,9 +129,9 @@ theorem exists_h10Function_affinePullback {L : Mat d} (hL : IsUnit L.det)
           have hj := ((memL2On_affinePullback hL hU
             (hsourceMem n j)).const_mul (L j i)).aestronglyMeasurable
           simpa only [pulledError, Pi.smul_apply, smul_eq_mul] using hj
-        have hpulledTend : ∀ j, Filter.Tendsto
+        have hpulledTend : ∀ j, _root_.Filter.Tendsto
             (fun n ↦ eLpNorm (pulledError n j) 2 (volume.restrict V))
-            Filter.atTop (nhds 0) := by
+            _root_.Filter.atTop (nhds 0) := by
           intro j
           have heq :
               (fun n ↦ eLpNorm (pulledError n j) 2 (volume.restrict V)) =
@@ -143,7 +143,7 @@ theorem exists_h10Function_affinePullback {L : Mat d} (hL : IsUnit L.det)
                   ‖L j i‖ₑ * eLpNorm
                     (fun y ↦ sourceError n j (matVecMul L y)) 2
                     (volume.restrict V) := by
-                simpa only [pulledError, Pi.smul_apply, smul_eq_mul] using
+                simpa only [pulledError, Pi.smul_apply, smul_eq_mul] using!
                   eLpNorm_const_smul (L j i)
                     (fun y ↦ sourceError n j (matVecMul L y)) 2
                     (volume.restrict V)
@@ -155,7 +155,7 @@ theorem exists_h10Function_affinePullback {L : Mat d} (hL : IsUnit L.det)
           rw [heq]
           have hconst : ‖L j i‖ₑ * C ≠ ⊤ :=
             ENNReal.mul_ne_top (by simp) hC_ne_top
-          simpa using ENNReal.Tendsto.const_mul (u.tendsto_approx_grad j)
+          simpa using! ENNReal.Tendsto.const_mul (u.tendsto_approx_grad j)
             (Or.inr hconst)
         have hsum := tendsto_eLpNorm_finset_sum_zero pulledError
           (volume.restrict V) hpulledMeas hpulledTend

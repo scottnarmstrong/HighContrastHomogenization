@@ -78,18 +78,18 @@ private theorem integral_affineResponseCell_eq_physical_of_covariance
     rw [hcube, hdomain] at hcell
     exact hcell
   have hJ₀ : Integrable J₀ P :=
-    hbase.congr (Filter.Eventually.of_forall fun a ↦ (hzero a).symm)
+    hbase.congr (_root_.Filter.Eventually.of_forall fun a ↦ (hzero a).symm)
   calc
     (∫ a, Book.Ch02.responseJ
         (Book.Ch02.cubeDomain (translateCube w (originCube d k)))
         ((A a).coeffOn (translateCube w (originCube d k)))
         (matVecMul (matTranspose q) p) (matVecMul q⁻¹ r) ∂P) =
         ∫ a, J₀ (translateCoeff z a) ∂P := by
-      exact integral_congr_ae (Filter.Eventually.of_forall hz)
+      exact integral_congr_ae (_root_.Filter.Eventually.of_forall hz)
     _ = ∫ a, J₀ a ∂P := integral_comp_translateCoeff hP z hJ₀
     _ = ∫ a, Book.Ch02.responseJ (adaptedDomain hq k)
         ((S a).coeffOn (adaptedDomain hq k)) p r ∂P := by
-      exact integral_congr_ae (Filter.Eventually.of_forall hzero)
+      exact integral_congr_ae (_root_.Filter.Eventually.of_forall hzero)
 
 /-! ## Terminal and aligned-cell identifications -/
 
@@ -108,7 +108,7 @@ theorem integral_affineSubSkewResponseJ_eq_physical
         (matVecMul (matTranspose q) p) (matVecMul q⁻¹ r) ∂P) =
       ∫ a, Book.Ch02.responseJ (adaptedDomain hq t)
         ((a.subSkew g hg).coeffOn (adaptedDomain hq t)) p r ∂P := by
-  exact integral_congr_ae (Filter.Eventually.of_forall fun a ↦
+  exact integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦
     responseJ_affineResponse hq t (hA a (originCube d t)) p r)
 
 /-- The terminal response identification for the independently transported
@@ -126,7 +126,7 @@ theorem integral_affineAdjointSubSkewResponseJ_eq_physical
         (matVecMul (matTranspose q) p) (matVecMul q⁻¹ r) ∂P) =
       ∫ a, Book.Ch02.responseJ (adaptedDomain hq t)
         (((a.subSkew g hg).transpose).coeffOn (adaptedDomain hq t)) p r ∂P := by
-  exact integral_congr_ae (Filter.Eventually.of_forall fun a ↦
+  exact integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦
     responseJ_affineResponse hq t (hA a (originCube d t)) p r)
 
 /-- Every aligned primal reference child has the expectation of the centered
@@ -203,14 +203,14 @@ private theorem integral_responseJPartitionDefect_eq_sub_of_child_integrals
   have havgInt : Integrable (fun a ↦ descendantsAverage Q j
       (fun R ↦ Child R a)) P := by
     unfold descendantsAverage
-    exact (integrable_finset_sum (descendantsAtDepth Q j)
+    exact (integrable_finsetSum (descendantsAtDepth Q j)
       (fun R hR ↦ hchildInt R hR)).const_mul _
   have hswap : (∫ a, descendantsAverage Q j (fun R ↦ Child R a) ∂P) =
       descendantsAverage Q j (fun R ↦ ∫ a, Child R a ∂P) := by
     unfold descendantsAverage
     rw [integral_const_mul]
     congr 1
-    rw [integral_finset_sum _ (fun R hR ↦ hchildInt R hR)]
+    rw [integral_finsetSum _ (fun R hR ↦ hchildInt R hR)]
   rw [show (∫ a, responseJPartitionDefectOnFamilyAtDepth (A a) Q j p r ∂P) =
       (∫ a, descendantsAverage Q j (fun R ↦ Child R a) ∂P) -
         ∫ a, Book.Ch02.responseJ (Book.Ch02.cubeDomain Q)
@@ -243,7 +243,7 @@ theorem integral_affineSubSkewResponseJPartitionDefect_eq_profilePrimal
     (∫ a, responseJPartitionDefectOnFamilyAtDepth (A a)
         (originCube d t) j (matVecMul (matTranspose q) p) (matVecMul q⁻¹ r) ∂P) =
       profilePrimalResponseDefect P hq g hg s t p r := by
-  have hparentInt := ht.congr (Filter.Eventually.of_forall fun a ↦
+  have hparentInt := ht.congr (_root_.Filter.Eventually.of_forall fun a ↦
     (responseJ_affineResponse hq t (hA a (originCube d t)) p r).symm)
   rw [profilePrimalResponseDefect_eq_sub_integral P hq g hg s t p r hs ht]
   apply integral_responseJPartitionDefect_eq_sub_of_child_integrals A
@@ -294,7 +294,7 @@ theorem integral_affineAdjointSubSkewResponseJPartitionDefect_eq_profileAdjoint
     (∫ a, responseJPartitionDefectOnFamilyAtDepth (A a)
         (originCube d t) j (matVecMul (matTranspose q) p) (matVecMul q⁻¹ r) ∂P) =
       profileAdjointResponseDefect P hq g hg s t p r := by
-  have hparentInt := ht.congr (Filter.Eventually.of_forall fun a ↦
+  have hparentInt := ht.congr (_root_.Filter.Eventually.of_forall fun a ↦
     (responseJ_affineResponse hq t (hA a (originCube d t)) p r).symm)
   rw [profileAdjointResponseDefect_eq_sub_integral P hq g hg s t p r hs ht]
   apply integral_responseJPartitionDefect_eq_sub_of_child_integrals A

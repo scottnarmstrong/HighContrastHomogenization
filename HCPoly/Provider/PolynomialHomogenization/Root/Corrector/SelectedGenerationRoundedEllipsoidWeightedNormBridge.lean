@@ -76,7 +76,7 @@ theorem euclideanBall_half_subset_selectedRoundedPullbackEllipsoid
   rw [selectedRoundedPullbackEllipsoid_eq geom abar hS r]
   intro y hy
   have hynorm : vecNormSq y < (r / 2) ^ 2 := by
-    simpa only [euclideanBall, euclideanBallAt, sub_zero, Set.mem_setOf_eq]
+    simpa only [euclideanBall, euclideanBallAt, sub_zero, Set.mem_ofPred_eq]
       using hy
   have hquad := vecDot_matVecMul_le_of_matrix_le_weighted
     (selectedRoundedReferenceMatrix_inv_le_weighted geom abar hS) y
@@ -645,7 +645,7 @@ theorem weightedGradNorm_selectedRoundedCenteredPullback
   rw [matImage_matImage_inv hQ] at hnorm
   have htranspose : matTranspose Q = Q := geom.grid_transpose hS
   simpa only [Q, b,
-    roundedCenteredCoefficientAtGeneration, htranspose] using hnorm
+    roundedCenteredCoefficientAtGeneration, htranspose] using! hnorm
 
 end
 

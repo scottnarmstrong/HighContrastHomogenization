@@ -44,13 +44,15 @@ private noncomputable def originCubeAffineH1OfCoefficients
     (originCubeAffineH1OfCoefficients d k p).toFun =
       fun x => p.1 + vecDot p.2 x := by
   funext x
-  simp [originCubeAffineH1OfCoefficients, vecDot]
+  simp only [originCubeAffineH1OfCoefficients, H1Function.add_toFun,
+    H1Function.const_apply, H1Function.affineOnIsSobolevRegularDomain_apply, vecDot]
 
 @[simp] private theorem originCubeAffineH1OfCoefficients_grad
     (d : ℕ) [NeZero d] (k : ℤ) (p : AffineCoefficients d) :
     (originCubeAffineH1OfCoefficients d k p).grad = fun _ => p.2 := by
   funext x
-  simp [originCubeAffineH1OfCoefficients]
+  simp only [originCubeAffineH1OfCoefficients, H1Function.add_grad,
+    H1Function.grad_const, H1Function.affineOnIsSobolevRegularDomain_grad, zero_add]
 
 private theorem originCubeAffineH1OfCoefficients_add
     (d : ℕ) [NeZero d] (k : ℤ)
@@ -60,10 +62,11 @@ private theorem originCubeAffineH1OfCoefficients_add
         originCubeAffineH1OfCoefficients d k q := by
   apply H1Function.ext
   · funext x
-    simp [vecDot_add_left]
+    simp only [originCubeAffineH1OfCoefficients_toFun, H1Function.add_toFun,
+      vecDot_add_left, Prod.fst_add, Prod.snd_add]
     ring
   · funext x
-    simp
+    simp only [originCubeAffineH1OfCoefficients_grad, H1Function.add_grad, Prod.snd_add]
 
 private theorem originCubeAffineH1OfCoefficients_smul
     (d : ℕ) [NeZero d] (k : ℤ) (r : ℝ)
@@ -72,10 +75,11 @@ private theorem originCubeAffineH1OfCoefficients_smul
       r • originCubeAffineH1OfCoefficients d k p := by
   apply H1Function.ext
   · funext x
-    simp [vecDot_smul_left, smul_eq_mul]
+    simp only [originCubeAffineH1OfCoefficients_toFun, H1Function.smul_toFun,
+      vecDot_smul_left, smul_eq_mul, Prod.smul_fst, Prod.smul_snd]
     ring
   · funext x
-    simp
+    simp only [originCubeAffineH1OfCoefficients_grad, H1Function.smul_grad, Prod.smul_snd]
 
 /-- The affine-coefficient embedding into `H¹` on a centered cube. -/
 noncomputable def originCubeAffineH1LinearMap
@@ -137,7 +141,7 @@ private theorem continuous_affineCoefficients_toFun
     Continuous (fun x : Vec d => p.1 + vecDot p.2 x) := by
   unfold vecDot
   exact continuous_const.add
-    (continuous_finset_sum _ fun i _ =>
+    (continuous_finsetSum _ fun i _ =>
       continuous_const.mul (continuous_apply i))
 
 private theorem zero_mem_originCubeDomain
@@ -243,9 +247,9 @@ noncomputable def originCubeAffineL2Submodule
 noncomputable local instance originCubeAffineL2SubmoduleHasOrthogonalProjection
     (d : ℕ) [NeZero d] (k : ℤ) :
     (originCubeAffineL2Submodule d k).HasOrthogonalProjection := by
-  letI : FiniteDimensional ℝ (originCubeAffineL2Submodule d k) :=
+  let : FiniteDimensional ℝ (originCubeAffineL2Submodule d k) :=
     (originCubeAffineL2LinearMap d k).finiteDimensional_range
-  letI : CompleteSpace (originCubeAffineL2Submodule d k) :=
+  let : CompleteSpace (originCubeAffineL2Submodule d k) :=
     FiniteDimensional.complete ℝ _
   infer_instance
 
@@ -264,7 +268,7 @@ noncomputable def originCubeAffineBestFitCoefficients
         (Book.Ch02.cubeDomain (originCube d k) : Set (Vec d)) →ₗ[ℝ]
       AffineCoefficients d :=
   (originCubeAffineL2EquivRange d k).symm.toLinearMap.comp
-    (originCubeAffineL2Submodule d k).orthogonalProjection.toLinearMap
+    (originCubeAffineL2Submodule d k).orthogonalProjectionOnto.toLinearMap
 
 /-- Intercept of the unique affine `L²` best fit. -/
 noncomputable def originCubeAffineBestFitIntercept
@@ -305,12 +309,12 @@ the affine range. -/
       (originCubeAffineL2Submodule d k).starProjection F := by
   change originCubeAffineL2LinearMap d k
       ((originCubeAffineL2EquivRange d k).symm
-        ((originCubeAffineL2Submodule d k).orthogonalProjection F)) = _
+        ((originCubeAffineL2Submodule d k).orthogonalProjectionOnto F)) = _
   calc
     _ = ↑((originCubeAffineL2EquivRange d k)
         ((originCubeAffineL2EquivRange d k).symm
-          ((originCubeAffineL2Submodule d k).orthogonalProjection F))) := rfl
-    _ = ↑((originCubeAffineL2Submodule d k).orthogonalProjection F) := by
+          ((originCubeAffineL2Submodule d k).orthogonalProjectionOnto F))) := rfl
+    _ = ↑((originCubeAffineL2Submodule d k).orthogonalProjectionOnto F) := by
       exact congrArg Subtype.val
         ((originCubeAffineL2EquivRange d k).apply_symm_apply _)
     _ = (originCubeAffineL2Submodule d k).starProjection F := rfl
@@ -399,10 +403,9 @@ theorem normalizedAffineCandidateError_eq_affineL2Norm
   have hvfun :
       (fun x => u.toFun x - (c + vecDot e x)) =
         fun x => v.toFun x := by
-    funext x
-    simp [v]
-    exact
-      (congrFun (originCubeAffineH1LinearMap_toFun d k (c, e)) x).symm
+    have hraw := H1Function.sub_toFun u (originCubeAffineH1LinearMap d k (c, e))
+    rw [originCubeAffineH1LinearMap_toFun] at hraw
+    exact hraw.symm
   have hvMem :
       MeasureTheory.MemLp (fun x => v.toFun x) (2 : ℝ≥0∞)
         (normalizedCubeMeasure Q) := by
@@ -421,10 +424,9 @@ theorem normalizedAffineCandidateError_eq_affineL2Norm
   have hvL2 :
       v.toScalarL2 =
         u.toScalarL2 - originCubeAffineL2LinearMap d k (c, e) := by
-    dsimp [v]
-    rw [h1Function_toScalarL2_sub]
-    exact congrArg (fun z => u.toScalarL2 - z)
-      (originCubeAffineL2LinearMap_apply d k (c, e)).symm
+    show (u - originCubeAffineH1LinearMap d k (c, e)).toScalarL2 =
+        u.toScalarL2 - originCubeAffineL2LinearMap d k (c, e)
+    rw [h1Function_toScalarL2_sub, originCubeAffineL2LinearMap_apply]
   unfold normalizedAffineCandidateError normalizedCubeL2Distance
   change cubeBesovScaleWeight (1 : ℝ) Q *
       cubeLpNorm Q (2 : ℝ≥0∞)

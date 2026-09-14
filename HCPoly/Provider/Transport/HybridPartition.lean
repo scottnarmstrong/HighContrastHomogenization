@@ -225,7 +225,7 @@ theorem exists_blockQuadratic_coarseBlock_le_hybrid_rows [NeZero d]
     dsimp only [W, S, c, Sigma, R]
     rw [union_hybrid_family hZp hZ]
     ext x
-    simp only [hybridStrip, Set.mem_diff, Set.mem_union]
+    simp only [hybridStrip, Set.mem_sdiff, Set.mem_union]
     tauto
   rw [hres]
   have hsum : ∑ i ∈ S, (volume (c i)).toReal / (volume W).toReal *

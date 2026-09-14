@@ -64,18 +64,21 @@ theorem identityHarmonicReplacementDatum_affine_grad_ae
     Book.Ch03.isH1DirichletRhsWeakSolutionOn_cubeSet_of_openCubeSet hBopen
   have hWsol : IsSolenoidalOn U (fun x ↦ W.v.grad x) := by
     have h := hWweak.residual_solenoidal hEll₀ MeasureTheory.MemLp.zero
-    simpa only [a₀, identityConstantCoeffMatrix_matrix,
-      H1Function.grad_toCubeSet, constantCoeffField,
-      Homogenization.matVecMul_one, Pi.zero_apply, sub_zero] using h
+    simp only [U, Q, a₀, identityConstantCoeffMatrix_matrix,
+      constantCoeffField,
+      Homogenization.matVecMul_one, Pi.zero_apply, sub_zero] at h
+    rwa [show W.v.toCubeSet.grad = W.v.grad from H1Function.grad_toCubeSet W.v] at h
   have hBsol : IsSolenoidalOn U (fun _x ↦ e) := by
     have h := hBweak.residual_solenoidal hEll₀ MeasureTheory.MemLp.zero
-    simpa only [a₀, identityConstantCoeffMatrix_matrix,
-      H1Function.grad_toCubeSet, finiteAffineBoundaryH1_grad,
+    simp only [U, Q, a₀, identityConstantCoeffMatrix_matrix,
       constantCoeffField, Homogenization.matVecMul_one,
-      Pi.zero_apply, sub_zero] using h
+      Pi.zero_apply, sub_zero] at h
+    rwa [show (finiteAffineBoundaryH1 m e).toCubeSet.grad = fun _ ↦ e from
+        (H1Function.grad_toCubeSet (finiteAffineBoundaryH1 m e)).trans
+          (finiteAffineBoundaryH1_grad m e)] at h
   have hWmem : MemVectorL2 U (fun x ↦ W.v.grad x) := by
-    simpa only [H1Function.grad_toCubeSet] using
-      W.v.toCubeSet.grad_memVectorL2
+    have hg : W.v.toCubeSet.grad = W.v.grad := H1Function.grad_toCubeSet W.v
+    simpa only [U, Q, hg] using W.v.toCubeSet.grad_memVectorL2
   have hBmem : MemVectorL2 U (fun _x ↦ e) := memVectorL2_const e
   have hsol : IsSolenoidalOn U (fun x ↦ W.v.grad x - e) := by
     have hsum := isSolenoidalOn_add_of_memVectorL2 hWmem
@@ -97,7 +100,7 @@ theorem identityHarmonicReplacementDatum_affine_grad_ae
     simpa only [Book.Ch03.publicH1ToCubeSet_grad] using hpair.2
   have hBpot : IsPotentialZeroTraceOn U (fun x ↦ u.grad x - e) := by
     exact isPotentialZeroTraceOn_cubeSet_triadicCube_of_openCubeSet
-      (by simpa only [u, Q] using
+      (by simpa only [u, Q, Book.Ch02.cubeDomain_coe] using
         (finiteAffineSolution_isAffineDirichletSolution a m e).2)
   have hpot : IsPotentialZeroTraceOn U (fun x ↦ W.v.grad x - e) := by
     have hsum := isPotentialZeroTraceOn_add hBpot
@@ -178,18 +181,24 @@ theorem identityHarmonicReplacementDatum_affine_toFun_ae
       (Book.Ch02.cubeDomain Q).isOpen
       (u := wW.toH1Function) (v := u - W.v) (by
         simpa only [H1Function.sub_toFun] using hwW)
+    have hraw' : wW.toH1Function.grad =ᵐ[
+        volume.restrict (Book.Ch02.cubeDomain Q : Set (Vec d))]
+          fun x ↦ u.grad x - W.v.grad x := by
+      simpa only [H1Function.sub_grad] using hraw
     simpa only [U, Q, volumeMeasureOn, Book.Ch02.cubeDomain_coe,
-      volume_restrict_cubeSet_eq_volume_restrict_openCubeSet,
-      H1Function.sub_grad] using hraw
+      volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hraw'
   have hwBgrad : wB.toH1Function.grad
       =ᵐ[volumeMeasureOn U] fun x ↦ u.grad x - e := by
     have hraw := Book.Ch03.H1Function.grad_ae_eq_of_toFun_ae_eq
       (Book.Ch02.cubeDomain Q).isOpen
       (u := wB.toH1Function) (v := u - finiteAffineBoundaryH1 m e) (by
         simpa only [H1Function.sub_toFun] using hwB)
+    have hraw' : wB.toH1Function.grad =ᵐ[
+        volume.restrict (Book.Ch02.cubeDomain Q : Set (Vec d))]
+          fun x ↦ u.grad x - e := by
+      simpa only [H1Function.sub_grad, finiteAffineBoundaryH1_grad] using hraw
     simpa only [U, Q, volumeMeasureOn, Book.Ch02.cubeDomain_coe,
-      volume_restrict_cubeSet_eq_volume_restrict_openCubeSet,
-      H1Function.sub_grad, finiteAffineBoundaryH1_grad] using hraw
+      volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hraw'
   have hWgrad : W.v.grad
       =ᵐ[volumeMeasureOn U] fun _ ↦ e := by
     simpa only [U, Q, u, hu, W, volumeMeasureOn,

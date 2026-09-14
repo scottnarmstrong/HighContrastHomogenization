@@ -31,8 +31,8 @@ noncomputable def finiteAffineCorrectionJointLocalH1 {d : ℕ} [NeZero d]
     (hCauchy : FiniteAffineCorrectionLocalCauchy a)
     (e : Vec d) (n : ℕ) : H1Function (localGradientCube d n) :=
   (show H1Function (localGradientCube d n) from by
-    simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-      finiteAffineBoundaryH1 (n : ℤ) e) +
+    simp only [localGradientCube]
+    exact finiteAffineBoundaryH1 (n : ℤ) e) +
     (finiteAffineCorrectionJointLocalLimit a hCauchy e).localH1Function n
 
 /-- The gradient class of the local full solution is the constant affine
@@ -43,20 +43,20 @@ gradient plus the stored corrector-gradient component. -/
     (e : Vec d) (n : ℕ) :
     (finiteAffineCorrectionJointLocalH1 a hCauchy e n).gradToHilbertVectorL2 =
       (show LocalGradientL2 d n from by
-        simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-          (finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2) +
+        simp only [LocalGradientL2, localGradientCube]
+        exact (finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2) +
         (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent n := by
   rw [finiteAffineCorrectionJointLocalH1,
     H1Function.gradToHilbertVectorL2_add,
     NormalizedLocalH1Carrier.localH1Function_gradToHilbertVectorL2]
-  simp only [id_eq]
+  rfl
 
 private noncomputable def finiteAffineNormalizedLocalFullH1
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
     (e : Vec d) (n k : ℕ) : H1Function (localGradientCube d n) :=
   (show H1Function (localGradientCube d n) from by
-    simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-      finiteAffineBoundaryH1 (n : ℤ) e) +
+    simp only [localGradientCube]
+    exact finiteAffineBoundaryH1 (n : ℤ) e) +
     normalizedLocalH1 (finiteAffineCorrectionLocalSequence a e) n k
 
 private theorem finiteAffineNormalizedLocalFullH1_grad_eq
@@ -101,32 +101,32 @@ private theorem finiteAffineNormalizedLocalFullH1_tendsto
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
     (hCauchy : FiniteAffineCorrectionLocalCauchy a)
     (e : Vec d) (n : ℕ) :
-    Filter.Tendsto
+    _root_.Filter.Tendsto
       (fun k =>
         (finiteAffineNormalizedLocalFullH1 a e n k).gradToHilbertVectorL2)
-      Filter.atTop
+      _root_.Filter.atTop
       (nhds
         (finiteAffineCorrectionJointLocalH1 a hCauchy e n).gradToHilbertVectorL2) := by
   let g0 : LocalGradientL2 d n :=
     (show H1Function (localGradientCube d n) from by
-      simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-        finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2
+      simp only [localGradientCube]
+      exact finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2
   have hlimit :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k =>
           (normalizedLocalPair
             (finiteAffineCorrectionLocalSequence a e) n k).2)
-        Filter.atTop
+        _root_.Filter.atTop
         (nhds
           ((finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent n)) :=
     (finiteAffineCorrectionJointLocalLimit_isLimit a hCauchy e n).snd_nhds
   have hsum :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k =>
           g0 +
             (normalizedLocalPair
               (finiteAffineCorrectionLocalSequence a e) n k).2)
-        Filter.atTop
+        _root_.Filter.atTop
         (nhds
           (g0 +
             (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent n)) :=
@@ -147,8 +147,7 @@ private theorem finiteAffineNormalizedLocalFullH1_tendsto
         g0 +
           (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent n := by
     rw [finiteAffineCorrectionJointLocalH1_gradToHilbertVectorL2]
-    dsimp only [g0]
-    simp only [id_eq]
+    rfl
   rw [hsource, htarget]
   exact hsum
 
@@ -166,7 +165,7 @@ private theorem isAHarmonicGradient_of_grad_mem_closedSubmodule
   have hvectorL2 :
       AHarmonicGradientHilbert.vectorField z = u.gradToVectorL2 := by
     simpa [H1Function.gradToHilbertVectorL2,
-      H1Function.gradToVectorL2] using
+      H1Function.gradToVectorL2] using!
         (hilbertVectorL2ToVectorL2_toHilbertVectorL2
           (U := U) u.grad_memVectorL2)
   have hvector :
@@ -231,7 +230,7 @@ theorem finiteAffineCorrectionJointLocalH1_isHarmonic
         AHarmonicGradientHilbert.closedSubmodule M hEll :=
     (AHarmonicGradientHilbert.closedSubmodule M hEll).isClosed.mem_of_tendsto
       (finiteAffineNormalizedLocalFullH1_tendsto a hCauchy e n)
-      (Filter.Eventually.of_forall hmemApprox)
+      (_root_.Filter.Eventually.of_forall hmemApprox)
   have hpointwise :
       IsAHarmonicGradient b.toCoeffField (localGradientCube d n)
         (finiteAffineCorrectionJointLocalH1 a hCauchy e n).grad :=
@@ -239,7 +238,7 @@ theorem finiteAffineCorrectionJointLocalH1_isHarmonic
   have hAE :
       b.toCoeffField =ᵐ[volumeMeasureOn (localGradientCube d n)]
         (a.coeffOn (originCube d (n : ℤ))).toCoeffField := by
-    simpa only [U, b, localGradientCube, Book.Ch02.cubeDomain_coe] using
+    simpa only [U, b, localGradientCube, Book.Ch02.cubeDomain_coe] using!
       Internal.Ch02.BookCh02.pointwiseCoeffOn_ae_eq U
         (a.coeffOn (originCube d (n : ℤ)))
   exact IsAHarmonicGradient.of_ae_eq_coeff hAE hpointwise

@@ -151,8 +151,8 @@ theorem selectorStep_next_invariants (hd : 2 ≤ d)
           HasFiniteAdaptedMean P (cert'.grids i) (cert'.terminals i)) ∧
         (∀ i : ℕ, i < S'.stage → cert'.eta i ≤ c.etaX) ∧
         cert'.starts 0 = r0 := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   have hh : 1 ≤ c.h := c.one_le_h
   have hl0 : (0 : ℤ) ≤ (c.l0 : ℤ) := by omega
   have hguard := selectedRule_guard P (initExpQ d g : ℝ) (initExpA g)

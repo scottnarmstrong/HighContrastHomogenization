@@ -183,7 +183,7 @@ private theorem h1sNormSqOn_const_mul (b : CoeffField d) (U : Set (Vec d))
 private theorem isLocalTest_const_mul {U : Set (Vec d)} {f : Vec d → ℝ}
     (hf : IsLocalTest U f) (c : ℝ) : IsLocalTest U (fun x ↦ c * f x) := by
   refine ⟨contDiff_const.mul hf.contDiff, ?_, ?_⟩
-  · simpa [Pi.smul_apply, smul_eq_mul] using
+  · simpa [Pi.smul_apply, smul_eq_mul] using!
       hf.hasCompactSupport.smul_left (f := fun _ : Vec d ↦ c)
   · simpa [Pi.smul_apply, smul_eq_mul] using
       (tsupport_smul_subset_right (fun _ : Vec d ↦ c) f).trans hf.tsupport_subset

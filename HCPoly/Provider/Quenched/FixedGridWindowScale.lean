@@ -37,7 +37,7 @@ theorem norm_roundedGrid_mul_sqrt_le_canonicalGridEnlargement
     (hecc : witnessEccentricity m ≤ Pi) :
     ‖roundedGrid l m‖ * Real.sqrt d ≤
       (3 : ℝ) ^ canonicalGridEnlargement d Pi := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hd0 : (0 : ℝ) < d := by exact_mod_cast (show 0 < d by omega)
   have hsqrt0 : 0 < Real.sqrt d := Real.sqrt_pos.2 hd0
   have hPi0 : 0 < Pi := lt_of_lt_of_le zero_lt_one hPi

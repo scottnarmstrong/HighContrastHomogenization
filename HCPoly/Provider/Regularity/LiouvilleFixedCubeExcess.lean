@@ -18,7 +18,7 @@ exactly, and their excess on every fixed cube tends to zero.
 namespace Homogenization
 namespace HighContrast
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal Topology
 
 noncomputable section
@@ -108,7 +108,7 @@ theorem exists_scalarIdentityLiouvilleFiniteTopEnergyGrowth
                 (originCube d ((q : ℤ) - 2)) a (u q).toH1 := by
           have hcancel : Real.rpow (Real.sqrt d) theta *
               Real.rpow (Real.sqrt d) (-theta) = 1 := by
-            simpa only [add_neg_cancel, Real.rpow_zero] using
+            simpa only [add_neg_cancel, Real.rpow_zero, Real.rpow_eq_pow] using
               (Real.rpow_add hsqrt theta (-theta)).symm
           have hthree : Real.rpow ((3 : ℝ) ^ q) (-theta) =
               Real.rpow 3 (-theta * (q : ℝ)) := by

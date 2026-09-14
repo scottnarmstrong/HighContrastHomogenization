@@ -124,6 +124,15 @@ theorem annealedBlock_le_blockScale_burn (hE : IsSymmetricBlockMat E)
       (annealedBlock P (adaptedCellTranslate (roundedGrid jStar nu) r y))
       (blockScale (boundaryConst Cd g nu * burnDiscount g jStar r * ∫ a, Y a ∂P) E) := by
   have hint := Transport.hasIntegrableCoarseBlock_adaptedCellTranslate hY hnu hq r y hcont
+  have hYconst : Integrable
+      (fun a => boundaryConst Cd g nu * burnDiscount g jStar r * Y a) P :=
+    (Transport.integrable_of_isWindowMultiplier hY).const_mul _
+  have hrhsInt : Integrable
+      (fun a => (boundaryConst Cd g nu * burnDiscount g jStar r * Y a) •
+        toFullBlockMat E) P :=
+    integrable_of_entries fun i j => by
+      simpa only [Matrix.smul_apply, smul_eq_mul] using
+        hYconst.mul_const (toFullBlockMat E i j)
   refine blockMatLoewnerLE_of_le ?_
   rw [toFullBlockMat_annealedBlock hint, toFullBlockMat_blockScale,
     show (boundaryConst Cd g nu * burnDiscount g jStar r * ∫ a, Y a ∂P) •
@@ -131,8 +140,7 @@ theorem annealedBlock_le_blockScale_burn (hE : IsSymmetricBlockMat E)
       ∫ a, (boundaryConst Cd g nu * burnDiscount g jStar r * Y a) •
         toFullBlockMat E ∂P by
       rw [integral_smul_const, integral_const_mul]]
-  refine integral_mono' (integrable_toFullBlockMat hint)
-    (((Transport.integrable_of_isWindowMultiplier hY).const_mul _).smul_const _) ?_
+  refine integral_mono' (integrable_toFullBlockMat hint) hrhsInt ?_
   filter_upwards
     [Transport.ae_blockMatLoewnerLE_coarseBlock_adaptedCellTranslate hY hnu r y hcont] with a ha
   have h := le_of_blockMatLoewnerLE (isSymmetricBlockMat_coarseBlock _ a)

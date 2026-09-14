@@ -90,7 +90,7 @@ private noncomputable def pulledTestCompetitor
   have hderiv := fderiv_comp_smul
     (𝕜 := ℝ) (f := fun y : Vec d => psi y i) (x := x)
     (centeredCubeScale n)
-  simpa only [smoothGrad, Pi.smul_apply, smul_eq_mul] using
+  simpa only [smoothGrad, smul_apply, smul_eq_mul] using
     congrArg (fun L : Vec d →L[ℝ] ℝ => L (basisVec j)) hderiv
 
 private theorem lintegral_centeredNormalizedVolume_eq_eVolumeAverage
@@ -116,7 +116,7 @@ private theorem eLpNorm_two_sq_eq_lintegral_enorm
     {α E : Type*} [MeasurableSpace α] [ENorm E]
     (mu : Measure α) (F : α → E) :
     eLpNorm F 2 mu ^ (2 : ℕ) = ∫⁻ x, ‖F x‖ₑ ^ (2 : ℝ) ∂mu := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   norm_num only [ENNReal.toReal_ofNat]
   rw [← ENNReal.rpow_natCast (_ ^ (1 / (2 : ℝ))) 2,
     ← ENNReal.rpow_mul]
@@ -561,7 +561,7 @@ private theorem add_sq_le_sq_add (x y : ℝ≥0∞) :
         x ^ (2 : ℕ) + 0 + y ^ (2 : ℕ) := by simp
     _ ≤ x ^ (2 : ℕ) + (x * y + y * x) + y ^ (2 : ℕ) := by
       gcongr
-      exact zero_le _
+      exact zero_le
     _ = (x + y) ^ (2 : ℕ) := by ring
 
 private theorem hsNormSq_le_centeredHsFull_sq

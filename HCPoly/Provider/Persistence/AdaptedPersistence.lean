@@ -70,7 +70,7 @@ theorem one_le_canonImbalance [Nonempty (Fin d)] {E : FullBlockMat d} (hE : E.Po
     (hle : fullBlockSharp E ≤ E) : 1 ≤ canonImbalance E := by
   have hd : 0 < d := Fin.pos_iff_nonempty.mpr ‹Nonempty (Fin d)›
   by_contra hlt
-  push_neg at hlt
+  push Not at hlt
   have hpow := pow_lt_one₀ (canonImbalance_pos hE).le hlt hd.ne'
   have hdet := one_le_det_of_fullBlockSharp_le hE hle
   have hupper := det_le_canonImbalance_pow hE hle
@@ -148,8 +148,8 @@ theorem adaptedMean_le_blockScale (hd : 2 ≤ d) [IsProbabilityMeasure P]
     (himb : blockImbalance (adaptedMean P q t) ≤ 1 + deltaAd) {u : ℤ} (htu : t ≤ u) :
     BlockMatLoewnerLE (adaptedMean P q t)
       (blockScale ((1 + deltaAd) ^ d) (adaptedMean P q u)) := by
-  haveI : NeZero d := ⟨by omega⟩
-  haveI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
+  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hfinu : HasFiniteAdaptedMean P q u := hasFiniteAdaptedMean_of_le hP hq hlt hfin htu
   have hEt : (toFullBlockMat (adaptedMean P q t)).PosDef :=
     Recurrence.posDef_toFullBlockMat_adaptedMean hq t hfin
@@ -180,7 +180,7 @@ theorem adapted_persistence (hd : 2 ≤ d) [IsProbabilityMeasure P]
     BlockMatLoewnerLE (adaptedMean P q u) (adaptedMean P q t) ∧
       BlockMatLoewnerLE (adaptedMean P q t)
         (blockScale ((1 + deltaAd) ^ d) (adaptedMean P q u)) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   exact ⟨Recurrence.adaptedMean_le hP hq hlt htu hfin
       (hasFiniteAdaptedMean_of_le hP hq hlt hfin htu),
     adaptedMean_le_blockScale hd hP hq hlt hfin himb htu⟩

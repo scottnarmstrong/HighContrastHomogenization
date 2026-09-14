@@ -1,6 +1,6 @@
 name: Comparator audit
 
-# Runs the official leanprover/comparator on every Audit/<X> pair: for each
+# Runs the official leanprover/comparator on every HCPolyAudit/<X> pair: for each
 # pair it checks that Solution proves a statement whose full dependency
 # closure matches Challenge's, uses only the permitted axioms, and is
 # accepted by BOTH the Lean kernel (replay) and the independent nanoda
@@ -21,7 +21,7 @@ concurrency:
 
 env:
   COMPARATOR_REV: "5756749"      # leanprover/comparator commit
-  LEAN4EXPORT_REV: "v4.26.0"     # MUST match ./lean-toolchain
+  LEAN4EXPORT_REV: "v4.33.0"     # MUST match ./lean-toolchain
   NANODA_REV: "6ae1f0c"          # ammkrn/nanoda_lib commit
   LANDRUN_REV: "811cfff"         # Zouuup/landrun commit (v0.1.18)
 
@@ -60,7 +60,7 @@ jobs:
             lake-build-${{ hashFiles('lean-toolchain', 'lake-manifest.json') }}-
 
       - name: Build the library and the audit surfaces
-        run: lake build Audit
+        run: lake build HCPolyAudit
 
       - name: Restore verification tools
         id: tools-cache
@@ -115,7 +115,7 @@ jobs:
 
       - name: Enable the nanoda kernel check (CI-only, on the workspace copy)
         run: |
-          sed -i 's/"enable_nanoda": false/"enable_nanoda": true/' Audit/*/comparator.json
+          sed -i 's/"enable_nanoda": false/"enable_nanoda": true/' HCPolyAudit/*/comparator.json
 
       - name: Run the comparator on every pair
         run: |
@@ -129,7 +129,7 @@ jobs:
           # differently versioned binary found first rejects the oleans.
           export PATH="$HOME/tools/lean4export/.lake/build/bin:$HOME/tools/bin:$PATH"
           fail=0
-          for cfg in Audit/*/comparator.json; do
+          for cfg in HCPolyAudit/*/comparator.json; do
             X=$(basename "$(dirname "$cfg")")
             echo "::group::$X"
             if lake env ~/tools/comparator/.lake/build/bin/comparator "$cfg" \

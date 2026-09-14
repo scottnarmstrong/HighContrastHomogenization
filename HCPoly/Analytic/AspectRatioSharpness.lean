@@ -150,7 +150,7 @@ theorem blockPosDef_diagBlock {c : ℝ} (hc : 0 < c) :
       quad_smul_one_ar, quad_smul_one_ar]
   have hpq : p ≠ 0 ∨ q ≠ 0 := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     exact hX (by rw [hcon.1, hcon.2]; rfl)
   rw [hquad]
   rcases hpq with h | h
@@ -255,8 +255,8 @@ theorem coarseEllipticityDagger_counterexampleBlock :
     rw [upperTailEvent_zero ht, measureReal_empty]
     positivity
   coarse_bound := by
-    rw [Filter.Eventually, MeasureTheory.ae_zero]
-    exact Filter.mem_bot
+    rw [_root_.Filter.Eventually, MeasureTheory.ae_zero]
+    exact _root_.Filter.mem_bot
 
 /-- **The frozen assumption structure does not force `1 ≤ Π`.** -/
 theorem exists_coarseEllipticityDagger_aspectRatio_lt_one :

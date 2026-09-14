@@ -141,7 +141,7 @@ theorem cubeScaleFactor_le_two_mul_of_translateSet_subset [NeZero d]
     have h2 : -(w hi - t) ≤ |w hi - t| := neg_le_abs _
     linarith only [h1, h2, hp, hm]
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   set t : ℝ := (r + (1 / 2 : ℝ) * (3 : ℝ) ^ j) / 2 with htdef
   have hpow : (0 : ℝ) < (3 : ℝ) ^ j := by positivity
   have ht : 0 < t := by

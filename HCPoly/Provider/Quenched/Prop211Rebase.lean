@@ -64,7 +64,7 @@ theorem exists_prop211_rebase_provider (d : ℕ) (hd : 2 ≤ d) :
               (2 + aspectRatio E * K) ^ Crebase ∧
             2 + aspectRatio Ebase * Kbase ≤
               (2 + aspectRatio E * K) ^ Crebase := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   intro cSc g cStar Centry hcStar hg hCentry
   let rho : ℝ := (1 + g) / 2
   let mu : ℝ := (d : ℝ) / 2 - g
@@ -105,7 +105,7 @@ theorem exists_prop211_rebase_provider (d : ℕ) (hd : 2 ≤ d) :
     (le_max_left _ _).trans (le_max_right _ _)
   refine ⟨Crebase, hCrebase, hCentryCrebase, ?_⟩
   intro P E Psi K S hprob hstat hunit hdag hentry
-  letI : IsProbabilityMeasure P := hprob
+  let : IsProbabilityMeasure P := hprob
   let base : ℝ := 2 + aspectRatio E * K
   have hbase : 3 ≤ base := by
     simpa only [base] using three_le_rebaseBase hdag
@@ -122,7 +122,7 @@ theorem exists_prop211_rebase_provider (d : ℕ) (hd : 2 ≤ d) :
   let Ahat : BlockMat d := annealedBlock P (centeredCube d (inner : ℤ))
   let Ebase : BlockMat d := blockScale (1 + delta) Ahat
   let Pbase : Measure (CoeffSpace d) := triadicRebasedLaw nBase P
-  letI : IsProbabilityMeasure Pbase :=
+  let : IsProbabilityMeasure Pbase :=
     isProbabilityMeasure_triadicRebasedLaw nBase P
   let PsiBase : ℝ → ℝ := renormalizedCombinedGauge d nBase b mu Psi
   let Kbase : ℝ := renormalizedCombinedGrowthWitness d b mu K
@@ -330,9 +330,9 @@ theorem exists_prop211_rebase_provider (d : ℕ) (hd : 2 ≤ d) :
   · exact annealedContrast_triadicRebasedLaw_zero_sub_one_le_of_le hstat hdag
       (show mEnt ≤ nBase by dsimp only [nBase]; omega) hsmall
   · intro j
-    simpa only [Pbase, add_comm] using annealedContrast_triadicRebasedLaw nBase P (j : ℤ)
+    simpa only [Pbase, add_comm] using! annealedContrast_triadicRebasedLaw nBase P (j : ℤ)
   · intro j
-    simpa only [Pbase, add_comm] using annealedBlock_triadicRebasedLaw nBase P (j : ℤ)
+    simpa only [Pbase, add_comm] using! annealedBlock_triadicRebasedLaw nBase P (j : ℤ)
   · simpa only [base] using hnCost
   · simpa only [base] using hrefCost
 

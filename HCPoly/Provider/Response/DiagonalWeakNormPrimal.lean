@@ -160,7 +160,8 @@ theorem diagonalWeakNorm_primal_le [NeZero d]
       (ENNReal.ofReal_le_ofReal (add_le_add hrecent hold))
     convert hfinal using 1
     congr 1
-    ring
+    dsimp only [K, L, U, G, R, En]
+    ring_nf
 
 /-! ## The released split level -/
 

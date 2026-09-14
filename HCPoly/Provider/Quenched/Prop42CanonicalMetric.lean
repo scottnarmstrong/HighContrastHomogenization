@@ -36,7 +36,7 @@ theorem witnessEccentricity_canonicalMetric_le_aspectRatio [NeZero d]
     {S : CoeffSpace d → ℝ}
     (hdag : HCPoly.Frozen.CoarseEllipticityDagger P g E Ψ K S) :
     witnessEccentricity (canonicalMetric E) ≤ aspectRatio E := by
-  haveI : Nonempty (Fin d) :=
+  have : Nonempty (Fin d) :=
     ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   let EF : FullBlockMat d := toFullBlockMat E
   let s : Mat d := schurSigma E

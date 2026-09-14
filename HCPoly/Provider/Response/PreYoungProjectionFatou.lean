@@ -15,7 +15,7 @@ has an expectation bounded by the same extended-nonnegative constant.
 
 namespace Homogenization.HighContrast.Response
 
-open Filter MeasureTheory
+open _root_.Filter MeasureTheory
 
 open scoped ENNReal
 
@@ -32,7 +32,7 @@ theorem integral_avsum_eq_avsum_integral
     (∫ a, avsum Z (fun z ↦ F z a) ∂μ) =
       avsum Z (fun z ↦ ∫ a, F z a ∂μ) := by
   unfold avsum
-  rw [integral_const_mul, integral_finset_sum Z hF]
+  rw [integral_const_mul, integral_finsetSum Z hF]
 
 /-- A finite normalized average preserves pointwise convergence. -/
 theorem tendsto_avsum {ι : Type*} (Z : Finset ι)
@@ -41,7 +41,7 @@ theorem tendsto_avsum {ι : Type*} (Z : Finset ι)
     Tendsto (fun n ↦ avsum Z (fun z ↦ F n z)) atTop
       (nhds (avsum Z f)) := by
   unfold avsum
-  exact tendsto_const_nhds.mul (tendsto_finset_sum Z hF)
+  exact tendsto_const_nhds.mul (tendsto_finsetSum Z hF)
 
 /-- A finite normalized average of almost-everywhere measurable observables
 is almost-everywhere measurable. -/

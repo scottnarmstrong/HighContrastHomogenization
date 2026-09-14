@@ -48,7 +48,7 @@ theorem NormalizedLocalH1Carrier.exists_cubeLpNorm_affineAdd_globalValueRepresen
       simpa only [Q, Book.Ch02.cubeDomain_coe] using
         finiteAffineBoundaryH1 (q : ℤ) e
     have hfun : u.toFun = fun x => vecDot e x := by
-      simpa only [u] using finiteAffineBoundaryH1_toFun (m := (q : ℤ)) e
+      simpa only [u] using! finiteAffineBoundaryH1_toFun (m := (q : ℤ)) e
     rw [← hfun]
     exact u.memL2_normalizedCubeMeasure
   have hcorrectorMem : MemLp z.globalValueRepresentative 2

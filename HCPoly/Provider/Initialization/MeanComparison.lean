@@ -71,8 +71,10 @@ theorem adaptedMean_le_two_boundary_reference
     integrable_toFullBlockMat hint
   have hRint : Integrable
       (fun a => (B * Y a) • toFullBlockMat E) P := by
-    have h := hYint.smul_const (B • toFullBlockMat E)
-    simpa only [smul_smul, mul_comm B] using h
+    refine integrable_of_entries fun i j => ?_
+    have hij : Integrable (fun a => (B * Y a) * toFullBlockMat E i j) P :=
+      (hYint.const_mul B).mul_const _
+    simpa only [Matrix.smul_apply, smul_eq_mul] using hij
   have hmono : toFullBlockMat (adaptedMean P (roundedGrid jStar mu) r) ≤
       ∫ a, (B * Y a) • toFullBlockMat E ∂P := by
     rw [Recurrence.toFullBlockMat_adaptedMean_eq_integral hint]

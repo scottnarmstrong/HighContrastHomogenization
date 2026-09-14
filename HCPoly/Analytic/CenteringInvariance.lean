@@ -267,7 +267,7 @@ theorem HasBallSandwich.nonempty {U : Set (Vec d)} {ρ Rad : ℝ}
   have : (c - c) = (0 : Vec d) := by
     funext i
     simp
-  simp only [euclideanBallAt, Set.mem_setOf_eq, this, vecNormSq_zero_vec]
+  simp only [euclideanBallAt, Set.mem_ofPred_eq, this, vecNormSq_zero_vec]
   positivity
 
 end

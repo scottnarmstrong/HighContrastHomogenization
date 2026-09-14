@@ -76,7 +76,7 @@ theorem mu_eq_half_blockQuadratic [NeZero d] {U : Set (Vec d)}
     (hU : IsOpenBoundedConvexDomain U) {lam Lam : ℝ} {f : CoeffField d}
     (hEll : IsEllipticFieldOn lam Lam U f) (hvol : 0 < (volume U).toReal) (P : BlockVec d) :
     Mu U P f = 1 / 2 * blockVecDot P (blockMatVecMul (coarseBlockMatrix U f) P) := by
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := by
+  have : IsFiniteMeasure (volumeMeasureOn U) := by
     simpa [volumeMeasureOn] using hU.isFiniteMeasure_restrict_volume
   obtain ⟨_R, _sigma0, _compat, hA, -, -, -, -, -⟩ :=
     Internal.Ch02.BookCh02.exists_oldCanonicalMatrixData_of_isOpenBoundedConvexDomain
@@ -91,7 +91,7 @@ theorem pairing_le_half_blockQuadratic [NeZero d] {U : Set (Vec d)}
     (hU : IsOpenBoundedConvexDomain U) {lam Lam : ℝ} {f : CoeffField d}
     (hEll : IsEllipticFieldOn lam Lam U f) (hvol : 0 < (volume U).toReal) (P : BlockVec d) :
     vecDot P.1 P.2 ≤ 1 / 2 * blockVecDot P (blockMatVecMul (coarseBlockMatrix U f) P) := by
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := by
+  have : IsFiniteMeasure (volumeMeasureOn U) := by
     simpa [volumeMeasureOn] using hU.isFiniteMeasure_restrict_volume
   rw [← mu_eq_half_blockQuadratic hU hEll hvol]
   exact IsBlockMuAdmissible.mu_ge_vecDot_of_isEllipticFieldOn_of_isSobolevRegularDomain
@@ -104,7 +104,7 @@ theorem neg_pairing_le_half_blockQuadratic [NeZero d] {U : Set (Vec d)}
     (hU : IsOpenBoundedConvexDomain U) {lam Lam : ℝ} {f : CoeffField d}
     (hEll : IsEllipticFieldOn lam Lam U f) (hvol : 0 < (volume U).toReal) (P : BlockVec d) :
     -vecDot P.1 P.2 ≤ 1 / 2 * blockVecDot P (blockMatVecMul (coarseBlockMatrix U f) P) := by
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := by
+  have : IsFiniteMeasure (volumeMeasureOn U) := by
     simpa [volumeMeasureOn] using hU.isFiniteMeasure_restrict_volume
   have hadj := IsBlockMuAdmissible.mu_ge_vecDot_of_isEllipticFieldOn_of_isSobolevRegularDomain
     (P := blockVecFlipFlux P) (a := adjointCoeffField f)
@@ -138,7 +138,7 @@ theorem blockMatLoewnerLE_blockSharp_coarseBlock {U : Set (Vec d)}
   rcases Nat.eq_zero_or_pos d with hd | hd
   · subst hd
     exact blockMatLoewnerLE_of_dim_zero _ _
-  · haveI : NeZero d := ⟨hd.ne'⟩
+  · have : NeZero d := ⟨hd.ne'⟩
     obtain ⟨lam, Lam, f, -, -, hfm, hfp, hfa⟩ :=
       exists_pointwise_elliptic_representative a.2 hU.isBoundedDomain.isBounded
     have hEll : IsEllipticFieldOn lam Lam U f :=

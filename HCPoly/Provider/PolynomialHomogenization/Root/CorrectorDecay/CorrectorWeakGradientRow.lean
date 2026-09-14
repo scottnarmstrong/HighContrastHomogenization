@@ -87,7 +87,7 @@ theorem exists_scalarIdentityGoodTailCorrectorWeakGradientRowConstant
       (show H1Function (localGradientCube d q) from by
         simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
           finiteAffineBoundaryH1 (q : ℤ) e).grad = fun _ => e := by
-    simpa only using finiteAffineBoundaryH1_grad (m := (q : ℤ)) e
+    simpa only using! finiteAffineBoundaryH1_grad (m := (q : ℤ)) e
   have hdecomp : ∀ x : Vec d,
       u.toH1.grad x = e + (Phi.localH1Function q).grad x := by
     intro x

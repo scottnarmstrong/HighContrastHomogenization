@@ -61,15 +61,12 @@ theorem exists_jointSlope_of_fixedCubeExcess
   let rho : ℕ → ℕ := fun k => φ k + 2
   let u' : ∀ k : ℕ,
       Book.Ch03.CubeSolution (originCube d ((q + rho k : ℕ) : ℤ)) a :=
-    fun k => by
-      simpa only [rho, add_assoc] using u (φ k)
+    fun k => Eq.mp (by simp only [rho, add_assoc]) (u (φ k))
   have hrho : Tendsto rho atTop atTop := by
     exact tendsto_add_atTop_nat 2 |>.comp hφ.tendsto_atTop
-  have hu'Grad : ∀ k, (u' k).toH1.grad = Dv := by
-    intro k
-    simpa only [u'] using huGrad (φ k)
+  have hu'Grad : ∀ k, (u' k).toH1.grad = Dv := fun k => huGrad (φ k)
   have heLim' : Tendsto (fun k => e (φ k)) atTop (nhds eLim) := by
-    simpa only [Function.comp_apply] using heLim
+    simpa only [Function.comp_apply] using! heLim
   have heResidual' : Tendsto
       (fun k => weightedGradNorm
         (a.coeffOn (originCube d (q : ℤ))).toCoeffField
@@ -77,24 +74,20 @@ theorem exists_jointSlope_of_fixedCubeExcess
         (fun x ↦ (u' k).toH1.grad x -
           (finiteAffineSolution a ((q + rho k : ℕ) : ℤ) (e (φ k))).toH1.grad x))
       atTop (nhds 0) := by
-    simpa only [u', rho, add_assoc] using heResidual.comp hφ.tendsto_atTop
+    simpa only [u', rho, add_assoc] using! heResidual.comp hφ.tendsto_atTop
   have hid := finiteAffineResidual_identifies_jointLocalGradient_along
     a hCauchy q rho hrho u' Dv hu'Grad (fun k => e (φ k)) eLim
       heLim' heResidual'
-  refine ⟨eLim, ?_⟩
-  calc
-    (finiteCubeSolutionRestriction a (by omega) (u 0)).toH1.gradToHilbertVectorL2 =
-        (finiteCubeSolutionRestriction a (by omega) (u' 0)).toH1.gradToHilbertVectorL2 := by
-      apply MeasureTheory.Lp.ext
-      filter_upwards
-        [(finiteCubeSolutionRestriction a (by omega) (u 0)).toH1.coeFn_gradToHilbertVectorL2,
-         (finiteCubeSolutionRestriction a (by omega) (u' 0)).toH1.coeFn_gradToHilbertVectorL2]
-        with x hu hu'
-      rw [hu, hu']
-      change HilbertVec.ofVec ((u 0).toH1.grad x) =
-        HilbertVec.ofVec ((u' 0).toH1.grad x)
-      rw [huGrad 0, hu'Grad 0]
-    _ = (jointAffineFullGradientLinearMap a hCauchy q) eLim := hid
+  refine ⟨eLim, Eq.trans ?_ hid⟩
+  apply MeasureTheory.Lp.ext
+  filter_upwards
+    [(finiteCubeSolutionRestriction a (by omega) (u 0)).toH1.coeFn_gradToHilbertVectorL2,
+     (finiteCubeSolutionRestriction a (by omega) (u' 0)).toH1.coeFn_gradToHilbertVectorL2]
+    with x hu hu'
+  rw [hu, hu']
+  change HilbertVec.ofVec ((u 0).toH1.grad x) =
+    HilbertVec.ofVec ((u' 0).toH1.grad x)
+  rw [huGrad 0, hu'Grad 0]
 
 end
 

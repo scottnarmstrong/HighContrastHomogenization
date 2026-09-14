@@ -54,7 +54,7 @@ private theorem epsilonAffineTarget_descendant_subset_fixed
       rw [adaptedCellAt_one_eq_openCubeSet_translateCube,
         adaptedCellAt_one_eq_openCubeSet_translateCube]
       rw [hRrepr]
-      simpa only [translateCube, originCube, Pi.zero_apply, add_zero] using hopen
+      simpa only [translateCube, originCube, Pi.zero_apply, add_zero] using! hopen
     rw [Recurrence.adaptedCellAt_eq_image, Recurrence.adaptedCellAt_eq_image] at hadaptedOne
     have hone : matVecMul (1 : Mat d) = id := funext fun x ↦ matVecMul_one x
     rw [hone, Set.image_id, Set.image_id] at hadaptedOne

@@ -3,6 +3,7 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
+import HCPoly.Provider.Recurrence.SchattenEntries
 import HCPoly.Provider.Response.ConstantSkewBlock
 import HCPoly.Provider.Sharp.CoarseBlockPositivity
 
@@ -124,15 +125,87 @@ theorem blockSharp_skewBlockCongr_annealedBlock_le
     rw [Matrix.mul_apply, Finset.sum_mul]
     refine Finset.sum_congr rfl fun i _ => ?_
     ring
-  have hmeas2 : AEStronglyMeasurable (fun a => fullBlockSharp (A2 a)) P := by
+  -- entrywise integrability of the coarse response and of the recentered
+  -- pathwise block, at the scalar level where the ambient matrix norm plays
+  -- no role
+  have hintEntryF : ∀ p q, Integrable
+      (fun a => toFullBlockMat (coarseBlock (U : Set (Vec d)) a) p q) P := by
+    intro p q
+    simpa only [toFullBlockMat_eq_blockMatEntry] using hint p q
+  have hintEntryA2 : ∀ p q, Integrable (fun a => A2 a p q) P := by
+    intro p q
+    have hsum : Integrable
+        (∑ j : BlockCoord d, ∑ i : BlockCoord d,
+          fun a : CoeffSpace d =>
+            (fullBlockShear g)ᴴ p i *
+              (toFullBlockMat (coarseBlock (U : Set (Vec d)) a) i j *
+                fullBlockShear g j q)) P :=
+      integrable_finsetSum' _ fun j _ =>
+        integrable_finsetSum' _ fun i _ =>
+          ((hintEntryF i j).mul_const _).const_mul _
+    refine hsum.congr (Filter.Eventually.of_forall fun a => ?_)
+    simp only [Finset.sum_apply]
+    rw [hA2eq a, Matrix.mul_apply]
+    refine Finset.sum_congr rfl fun j _ => ?_
+    rw [Matrix.mul_apply, Finset.sum_mul]
+    refine Finset.sum_congr rfl fun i _ => ?_
+    ring
+  have hintTraceA2 : Integrable (fun a => Matrix.trace (A2 a)) P := by
+    have hEq : (fun a => Matrix.trace (A2 a)) = fun a => ∑ i, A2 a i i := by
+      funext a
+      simp only [Matrix.trace, Matrix.diag_apply]
+    rw [hEq]
+    exact integrable_finsetSum _ fun i _ => hintEntryA2 i i
+  -- per-entry measurability of the pathwise sharp, reusing the entrywise
+  -- toolkit for a two-sided constant conjugate of an inverse
+  have hmeasRefl : ∀ i j : BlockCoord d, AEStronglyMeasurable
+      (fun _ : CoeffSpace d => fullBlockRefl d i j) P :=
+    fun _ _ => aestronglyMeasurable_const
+  have hmeasInvA2 : ∀ i j, AEStronglyMeasurable (fun a => (A2 a)⁻¹ i j) P :=
+    aestronglyMeasurable_inv_of_entries hentry2
+  have hmeasLinvA2 : ∀ i j, AEStronglyMeasurable
+      (fun a => (fullBlockRefl d * (A2 a)⁻¹) i j) P :=
+    aestronglyMeasurable_entry_mul (F := fun _ => fullBlockRefl d)
+      (G := fun a => (A2 a)⁻¹) hmeasRefl hmeasInvA2
+  have hmeasSharp2 : ∀ p q, AEStronglyMeasurable
+      (fun a => fullBlockSharp (A2 a) p q) P := by
+    intro p q
     simpa only [fullBlockSharp] using
-      aestronglyMeasurable_conj_inv_of_entries (fullBlockRefl d)
-        (fullBlockRefl d) hentry2
+      aestronglyMeasurable_entry_mul (F := fun a => fullBlockRefl d * (A2 a)⁻¹)
+        (G := fun _ => fullBlockRefl d) hmeasLinvA2 hmeasRefl p q
+  -- every entry of the pathwise sharp is bounded by the trace of the
+  -- recentered pathwise block: the sharp is positive semidefinite with
+  -- eigenvalues below its own trace, itself below the trace of the
+  -- dominating block
+  have hboundSharp2 : ∀ a p q,
+      |fullBlockSharp (A2 a) p q| ≤ Matrix.trace (A2 a) := by
+    intro a p q
+    have hBherm : (fullBlockSharp (A2 a)).IsHermitian :=
+      (posDef_fullBlockSharp (hpos2 a)).isHermitian
+    have hBnn : ∀ i, 0 ≤ hBherm.eigenvalues i :=
+      (posDef_fullBlockSharp (hpos2 a)).posSemidef.eigenvalues_nonneg
+    have hBtrace : Matrix.trace (fullBlockSharp (A2 a)) = ∑ i, hBherm.eigenvalues i := by
+      simpa using hBherm.trace_eq_sum_eigenvalues
+    have hmono : Matrix.trace (fullBlockSharp (A2 a)) ≤ Matrix.trace (A2 a) := by
+      have hsub : (A2 a - fullBlockSharp (A2 a)).PosSemidef := Matrix.le_iff.mp (hsharp2 a)
+      have htn := hsub.trace_nonneg
+      rw [Matrix.trace_sub] at htn
+      linarith only [htn]
+    have htraceNonneg : (0 : ℝ) ≤ Matrix.trace (A2 a) :=
+      le_trans (hBtrace ▸ Finset.sum_nonneg fun i _ => hBnn i) hmono
+    refine Recurrence.abs_apply_le_of_abs_eigenvalues_le hBherm htraceNonneg
+      (fun i => ?_) p q
+    rw [abs_of_nonneg (hBnn i)]
+    calc hBherm.eigenvalues i ≤ Matrix.trace (fullBlockSharp (A2 a)) := by
+          rw [hBtrace]
+          exact Finset.single_le_sum (fun j _ => hBnn j) (Finset.mem_univ i)
+      _ ≤ Matrix.trace (A2 a) := hmono
   have hintSharp2 : Integrable (fun a => fullBlockSharp (A2 a)) P := by
-    refine Integrable.mono' hint2.norm hmeas2
+    refine integrable_of_entries fun p q => ?_
+    refine Integrable.mono' hintTraceA2 (hmeasSharp2 p q)
       (Filter.Eventually.of_forall fun a => ?_)
-    exact norm_le_norm_of_le (posDef_fullBlockSharp (hpos2 a)).posSemidef
-      (hpos2 a).posSemidef (hsharp2 a)
+    rw [Real.norm_eq_abs]
+    exact hboundSharp2 a p q
   -- the recentered mean and its positivity
   have hmean2 : (∫ a, A2 a ∂P) =
       toFullBlockMat

@@ -67,12 +67,16 @@ theorem abs_cubeAverage_cubeProjection_mul_cubeProjectionResidual_le
   set μ : Measure (Vec d) := normalizedCubeMeasure Q with hμ
   set u : Vec d → ℝ := cubeProjection Q (j + 1) G with hu
   set w : Vec d → ℝ := cubeProjectionResidual Q j f with hw
+  have hwdef : w = fun x => f x - cubeProjection Q j f x := by
+    rw [hw]
+    rfl
   have hae : ∀ᵐ x ∂μ, ‖w x‖ ≤ K := by
     filter_upwards [ae_mem_cubeSet_normalizedCubeMeasure Q] with x hx
     simpa [Real.norm_eq_abs] using hres x hx
   have hu1 : MemLp u 1 μ := cubeProjection_memLp Q (j + 1) 1 G
   have hw1 : MemLp w 1 μ := by
-    simpa [hw, cubeProjectionResidual] using hf.sub (cubeProjection_memLp Q j 1 f)
+    rw [hwdef]
+    exact hf.sub (cubeProjection_memLp Q j 1 f)
   have huInt : Integrable u μ := hu1.integrable le_rfl
   have hprod : Integrable (fun x => w x * u x) μ :=
     huInt.bdd_mul hw1.aestronglyMeasurable hae

@@ -69,7 +69,7 @@ private theorem tendsto_eLpNorm_one_of_tendsto_eLpNorm_two
   have hscaled := ENNReal.Tendsto.mul_const h (Or.inr hM)
   rw [zero_mul] at hscaled
   exact tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds
-    hscaled (fun _ ↦ zero_le _) hbound
+    hscaled (fun _ ↦ zero_le) hbound
 
 /-- On a bounded open convex domain, every coefficient-weighted zero-trace
 pair is represented, with its literal scalar and gradient fields, by an actual
@@ -91,7 +91,7 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
     fun n ↦ memScalarL2_of_isLocalTest hU.isOpen (hvtest n)
   have hvgrad : ∀ n, MemVectorL2 U (smoothGrad (v n)) := by
     intro n
-    simpa [w, H10Function.ofContDiff, H1Function.ofContDiff, smoothGrad] using
+    simpa [w, H10Function.ofContDiff, H1Function.ofContDiff, smoothGrad] using!
       (w n).toH1Function.grad_memVectorL2
   have hunweighted : Tendsto
       (fun n ↦ h1NormSqOnUnweighted U (fun x ↦ v n x - u x)
@@ -103,7 +103,7 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
       atTop (nhds 0) := by
     exact tendsto_zero_of_le_of_tendsto_zero (fun n ↦ by
       unfold h1NormSqOnUnweighted
-      exact le_add_of_nonneg_left (zero_le _)) hunweighted
+      exact le_add_of_nonneg_left (zero_le)) hunweighted
   have hgradELp : Tendsto
       (fun n ↦ eLpNorm
         (hilbertifyVecField (fun x ↦ smoothGrad (v n) x - Du x)) 2
@@ -141,7 +141,7 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
       (hilbertifyVecField w0.toH1Function.grad) hwhilb).2 hgradELp'
     simpa [w, H10Function.ofContDiff, H1Function.ofContDiff, smoothGrad,
       H1Function.gradToHilbertVectorL2, toHilbertVectorL2OfVecField,
-      toHilbertVectorL2] using ht
+      toHilbertVectorL2] using! ht
   rcases h10GraphClosedSubmodule_exists_norm_value_le_mul_norm_gradient hU with
     ⟨C, hC, hPoincare⟩
   have hscalarDist : Tendsto
@@ -178,8 +178,8 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
       w0.toH1Function.toFun w0.toH1Function.memL2).mp (by
         simpa [w, H10Function.ofContDiff, H1Function.ofContDiff,
           H1Function.toScalarL2, toScalarL2] using hscalar)
-    simpa only [Pi.sub_apply] using ht
-  letI : IsFiniteMeasure (volume.restrict U) := by
+    simpa only [Pi.sub_apply] using! ht
+  let : IsFiniteMeasure (volume.restrict U) := by
     simpa using hU.isFiniteMeasure_restrict_volume
   have hvalueL1 : Tendsto
       (fun n ↦ eLpNorm (fun x ↦ v n x - w0.toH1Function.toFun x) 1
@@ -192,7 +192,7 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
       atTop (nhds 0) := by
     exact tendsto_zero_of_le_of_tendsto_zero (fun n ↦ by
       unfold h1NormSqOnUnweighted
-      exact le_add_of_nonneg_right (zero_le _)) hunweighted
+      exact le_add_of_nonneg_right (zero_le)) hunweighted
   have hvalueIntegral : Tendsto
       (fun n ↦ ∫⁻ x in U, ENNReal.ofReal |v n x - u x| ∂volume)
       atTop (nhds 0) := tendsto_self_of_tendsto_sq hvalueIntegralSq
@@ -204,7 +204,7 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
     rw [eLpNorm_one_eq_lintegral_enorm]
     apply lintegral_congr
     intro x
-    rw [← ofReal_norm_eq_enorm]
+    rw [← ofReal_norm]
     simp only [Real.norm_eq_abs]
   have hsum : Tendsto
       (fun n ↦ eLpNorm (fun x ↦ v n x - w0.toH1Function.toFun x) 1
@@ -214,7 +214,7 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
     simpa using hvalueL1.add hsourceL1
   have hvalueZero : eLpNorm
       (fun x ↦ w0.toH1Function.toFun x - u x) 1 (volume.restrict U) = 0 := by
-    apply le_antisymm ?_ (zero_le _)
+    apply le_antisymm ?_ (zero_le)
     exact le_of_tendsto_of_tendsto' tendsto_const_nhds hsum (fun n ↦ by
       calc
         eLpNorm (fun x ↦ w0.toH1Function.toFun x - u x) 1
@@ -237,7 +237,7 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
               (volume.restrict U) +
             eLpNorm (fun x ↦ v n x - u x) 1 (volume.restrict U) := by
           congr 1
-          simpa only [Pi.sub_apply] using
+          simpa only [Pi.sub_apply] using!
             (eLpNorm_sub_comm w0.toH1Function.toFun (v n) 1
               (volume.restrict U)))
   have hvalueAE : w0.toH1Function.toFun =ᵐ[volume.restrict U] u := by

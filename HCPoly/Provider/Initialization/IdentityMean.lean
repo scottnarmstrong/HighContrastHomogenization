@@ -74,8 +74,11 @@ theorem identity_mean_reference_comparison
       (fun a => toFullBlockMat
         (coarseBlock (adaptedCell (roundedGrid jStar (1 : Mat d)) r) a)) P :=
     integrable_toFullBlockMat hint
-  have hRint : Integrable (fun a => Y a • toFullBlockMat E) P :=
-    hYint.smul_const (toFullBlockMat E)
+  have hRint : Integrable (fun a => Y a • toFullBlockMat E) P := by
+    refine integrable_of_entries fun i j => ?_
+    have hij : Integrable (fun a => Y a * toFullBlockMat E i j) P :=
+      hYint.mul_const _
+    simpa only [Matrix.smul_apply, smul_eq_mul] using hij
   have hmono :
       toFullBlockMat (adaptedMean P (roundedGrid jStar (1 : Mat d)) r) ≤
         ∫ a, Y a • toFullBlockMat E ∂P := by

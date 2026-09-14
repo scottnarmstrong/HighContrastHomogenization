@@ -196,7 +196,7 @@ theorem integrable_cellQuarterEnergy_of_integrable_responseJ [NeZero d]
   let card : ℝ := ((alignedIndex q k t).card : ℝ)
   refine (hintJ.const_mul card).mono'
     ((measurable_cellQuarterEnergy hq hkt hw p r).comp hsample).aestronglyMeasurable
-    (Filter.Eventually.of_forall fun a ↦ ?_)
+    (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   have henergy : 0 ≤ cellQuarterEnergy hq k t w (sample a) p r :=
     mul_nonneg (by norm_num)
       (diagonalWeakState_cellEnergy_nonneg hq k t w (sample a) p r)
@@ -377,7 +377,7 @@ theorem abs_vecDot_blockCellAverage_diagonalWeakState_le [NeZero d]
           exact hx (congrArg Prod.fst hzero)
         have hquad := (hpos ((x, 0) : BlockVec d) hX).le
         simpa only [star_trivial, ge_iff_le, blockVecDot, blockMatVecMul,
-          matVecMul_zero, add_zero, vecDot_zero_left] using hquad
+          matVecMul_zero, add_zero, vecDot_zero_left] using! hquad
   have hpot : Book.Ch02.averageVec U Y.potential =
       (blockCellAverage (adaptedCellAt q k w)
         (diagonalWeakState hq t a p r)).1 := by
@@ -546,12 +546,12 @@ private theorem half_integral_pairing_le
   have hmeasLoad : AEStronglyMeasurable load P := by
     apply AEStronglyMeasurable.congr
       hintLoadSq.aestronglyMeasurable.aemeasurable.sqrt.aestronglyMeasurable
-    exact Filter.Eventually.of_forall fun a ↦ Real.sqrt_sq (hload a)
+    exact _root_.Filter.Eventually.of_forall fun a ↦ Real.sqrt_sq (hload a)
   have hrootMeas : AEStronglyMeasurable
       (fun a ↦ Real.sqrt (energy a)) P :=
     Real.continuous_sqrt.comp_aestronglyMeasurable hintEnergy.aestronglyMeasurable
   have hrootSq : (fun a ↦ Real.sqrt (energy a) ^ (2 : ℕ)) =ᵐ[P] energy :=
-    Filter.Eventually.of_forall fun a ↦ Real.sq_sqrt (henergy a)
+    _root_.Filter.Eventually.of_forall fun a ↦ Real.sq_sqrt (henergy a)
   have hrootL2 : MemLp (fun a ↦ Real.sqrt (energy a)) 2 P :=
     (memLp_two_iff_integrable_sq hrootMeas).2 (hintEnergy.congr hrootSq.symm)
   have hloadL2 : MemLp load 2 P :=
@@ -560,7 +560,7 @@ private theorem half_integral_pairing_le
     hrootL2.integrable_mul hloadL2
   have hintPair : Integrable pair P := by
     refine Integrable.mono' (hintProd.const_mul 2) hmeasPair
-      (Filter.Eventually.of_forall fun a ↦ ?_)
+      (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     simpa only [Real.norm_eq_abs, abs_of_nonneg (hpair a), abs_of_nonneg
       (mul_nonneg (show (0 : ℝ) ≤ 2 by norm_num)
         (mul_nonneg (Real.sqrt_nonneg _) (hload a))), mul_assoc] using hpoint a
@@ -568,10 +568,10 @@ private theorem half_integral_pairing_le
     fun a ↦ Real.sq_sqrt (henergy a)
   have hintSqE : Integrable (fun a ↦ Real.sqrt (energy a) ^ 2) P := by
     refine hintEnergy.congr ?_
-    exact Filter.Eventually.of_forall fun a ↦ (hsqE a).symm
+    exact _root_.Filter.Eventually.of_forall fun a ↦ (hsqE a).symm
   have hcs := integral_mul_le_sqrt_mul_sqrt hintSqE hintLoadSq hintProd
   have hEint : ∫ a, Real.sqrt (energy a) ^ 2 ∂P = ∫ a, energy a ∂P :=
-    integral_congr_ae (Filter.Eventually.of_forall hsqE)
+    integral_congr_ae (_root_.Filter.Eventually.of_forall hsqE)
   rw [hEint, hloadIntegral, Real.sqrt_sq hannealedLoad] at hcs
   have hmono : ∫ a, pair a ∂P ≤
       ∫ a, 2 * (Real.sqrt (energy a) * load a) ∂P := by
@@ -603,7 +603,7 @@ private theorem upperLeft_posSemidef {H : BlockMat d}
         exact hx (congrArg Prod.fst hzero)
       have hquad := (hpos ((x, 0) : BlockVec d) hX).le
       simpa only [star_trivial, ge_iff_le, blockVecDot, blockMatVecMul,
-        matVecMul_zero, add_zero, vecDot_zero_left] using hquad
+        matVecMul_zero, add_zero, vecDot_zero_left] using! hquad
 
 private theorem integrable_sq_profileSchurLoadFlux_hatted
     {P : Measure (CoeffSpace d)} {q : Mat d} (hq : q.PosDef)
@@ -614,7 +614,7 @@ private theorem integrable_sq_profileSchurLoadFlux_hatted
         (profileHattedBlock g (coarseBlock (adaptedCellAt q k w) a)) Qcen ^ 2) P := by
   refine (integrable_coarseBlock_quadratic hint
     ((0, Qcen) : BlockVec d)).congr
-      (Filter.Eventually.of_forall fun a ↦ ?_)
+      (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   have hsymm := isSymmetricBlockMat_skewBlockCongr (g := g)
     (Recurrence.isSymmetricBlockMat_coarseBlock_adaptedCellAt q k w a)
   have hpos := blockPosDef_skewBlockCongr (g := g)
@@ -631,7 +631,7 @@ private theorem integrable_sq_profileSchurLoadGradient_hatted
         (profileHattedBlock g (coarseBlock (adaptedCellAt q k w) a)) Pcen ^ 2) P := by
   refine (integrable_coarseBlock_quadratic hint
     ((Pcen, matVecMul g Pcen) : BlockVec d)).congr
-      (Filter.Eventually.of_forall fun a ↦ ?_)
+      (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   have hsymm := isSymmetricBlockMat_skewBlockCongr (g := g)
     (Recurrence.isSymmetricBlockMat_coarseBlock_adaptedCellAt q k w a)
   have hpos := blockPosDef_skewBlockCongr (g := g)

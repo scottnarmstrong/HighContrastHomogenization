@@ -53,6 +53,9 @@ noncomputable def unitCubeEuclideanL2FieldAdd
   euclideanMemL2 := by
     have h := F.euclideanMemL2.add G.euclideanMemL2
     convert h using 1
+    funext x
+    simpa only [HilbertVec.ofVecL_apply, Pi.add_apply] using
+      (HilbertVec.ofVecL d).map_add (F.toField x) (G.toField x)
 
 @[simp] theorem unitCubeEuclideanL2FieldAdd_apply
     (F G : UnitCubeEuclideanL2Field d) (x : Vec d) :
@@ -107,11 +110,11 @@ private theorem continuousKResidualNorm_add_le
   have hfMem : MemLp f (2 : ℝ≥0∞) mu := by
     have hsub := F.euclideanMemL2.sub G.euclideanMemL2
     simpa only [f, mu, euclideanNorm_eq_norm_ofVec, HilbertVec.ofVec,
-      PiLp.toLp_apply, Pi.sub_apply] using hsub.norm
+      PiLp.toLp_apply, Pi.sub_apply] using! hsub.norm
   have hhMem : MemLp h (2 : ℝ≥0∞) mu := by
     have hsub := H.euclideanMemL2.sub V.euclideanMemL2
     simpa only [h, mu, euclideanNorm_eq_norm_ofVec, HilbertVec.ofVec,
-      PiLp.toLp_apply, Pi.sub_apply] using hsub.norm
+      PiLp.toLp_apply, Pi.sub_apply] using! hsub.norm
   have hENorm :
       eLpNorm
           (fun x ↦ euclideanNorm
@@ -441,7 +444,7 @@ theorem unitCubeNormalizedEuclideanLpENorm_add_le
   simpa only [centeredCubeDomain, unitCenteredCubeDomain,
     centeredCubeEuclideanL2FieldAdd_apply,
     unitCubeEuclideanL2FieldToCenteredCubeZero_apply,
-    unitCubeEuclideanL2FieldAdd_apply] using hbound
+    unitCubeEuclideanL2FieldAdd_apply] using! hbound
 
 private theorem ennreal_add_sq_le_two_sq_add_two_sq (a b : ℝ≥0∞) :
     (a + b) ^ 2 ≤ 2 * a ^ 2 + 2 * b ^ 2 := by

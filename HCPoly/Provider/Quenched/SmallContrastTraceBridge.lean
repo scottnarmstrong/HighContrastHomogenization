@@ -154,7 +154,7 @@ theorem normalized_schur_norm_gaps_le_hattedContrast_drop
         ‖matSqrt C.lowerRight⁻¹ * F.lowerRight *
           matSqrt C.lowerRight⁻¹ - 1‖ ≤
       (d : ℝ) * (hattedContrast F - hattedContrast C) := by
-  haveI : Nonempty (Fin d) :=
+  have : Nonempty (Fin d) :=
     ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have hCright : C.lowerRight.PosDef := posDef_lowerRight hCsymm hCpos
   have hFright : F.lowerRight.PosDef := posDef_lowerRight hFsymm hFpos

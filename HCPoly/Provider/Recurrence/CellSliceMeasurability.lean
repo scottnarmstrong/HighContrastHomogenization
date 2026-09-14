@@ -75,7 +75,8 @@ theorem exists_smooth_cutoff_seq {U B : Set (Vec d)} (hUopen : IsOpen U)
     (self_subset_thickening (hdeltapos n) B).trans
       (thickening_subset_interior_cthickening (delta n) B)
   choose psi hpsione hpsizero hpsirange using fun n =>
-    exists_smooth_one_nhds_of_subset_interior (I := 𝓘(ℝ, Vec d)) hBcpt.isClosed (hBint n)
+    exists_contMDiffMap_one_nhds_of_subset_interior (I := 𝓘(ℝ, Vec d)) (n := (⊤ : ℕ∞))
+      hBcpt.isClosed (hBint n)
   refine ⟨cthickening eps B, fun n => psi n, hBcpt.cthickening, hepsU, ?_, ?_⟩
   · intro n
     have hsupp : Function.support (fun x => psi n x) ⊆ cthickening (delta n) B := by
@@ -98,7 +99,7 @@ theorem exists_smooth_cutoff_seq {U B : Set (Vec d)} (hUopen : IsOpen U)
       exact tendsto_const_nhds
     · have hxcl : x ∉ closure B := by simpa [hBcpt.isClosed.closure_eq] using hx
       obtain ⟨rho, ⟨hrhopos, hrholt⟩⟩ :=
-        EMetric.exists_real_pos_lt_infEdist_of_notMem_closure hxcl
+        Metric.exists_real_pos_lt_infEDist_of_notMem_closure hxcl
       have hdeltatend : Tendsto delta atTop (𝓝 0) := by
         simpa only [hdelta, div_eq_mul_inv, one_mul, mul_zero] using
           (tendsto_const_nhds.mul tendsto_one_div_add_atTop_nhds_zero_nat :
@@ -135,7 +136,7 @@ theorem exists_smooth_entryTestR_approximation {U B : Set (Vec d)} (hUopen : IsO
   intro i j a
   have hbound_integrable : Integrable (K.indicator fun x => |a.toFun x i j|) volume := by
     rw [integrable_indicator_iff hKcpt.measurableSet]
-    simpa only [Real.norm_eq_abs] using
+    simpa only [Real.norm_eq_abs] using!
       ((a.entry_locInt i j).integrableOn_isCompact hKcpt).norm
   have hF_measurable : ∀ n, AEStronglyMeasurable (fun x => a.toFun x i j * psi n x) volume :=
     fun n => ((a.entry_measurable i j).mul (hpsi n).1.continuous.measurable).aestronglyMeasurable
@@ -165,7 +166,7 @@ for the smooth entry-test sigma-field of the cell. -/
 theorem measurable_avgMat_smoothLocalSigmaR {U B : Set (Vec d)} (hUopen : IsOpen U)
     (hBcpt : IsCompact B) (hBU : B ⊆ U) :
     @Measurable (RegCoeffField d) (Mat d) (SmoothLocalSigmaR U) _ (avgMat B) := by
-  letI : MeasurableSpace (RegCoeffField d) := SmoothLocalSigmaR U
+  let : MeasurableSpace (RegCoeffField d) := SmoothLocalSigmaR U
   obtain ⟨psi, hpsi, hlim⟩ := exists_smooth_entryTestR_approximation hUopen hBcpt hBU
   refine @measurable_matrix_of_entries d (RegCoeffField d) (SmoothLocalSigmaR U) (avgMat B) ?_
   intro i j
@@ -217,7 +218,7 @@ theorem measurableSet_smoothLocalSigmaR_aeeSlice {U : Set (Vec d)} (hUopen : IsO
           ∀ᵐ x ∂volume.restrict U,
             IsEllipticMatrix ((k + 1 : ℝ)⁻¹) (k + 1 : ℝ) (a.toFun x)} := by
     ext a
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     exact aeeQuantitativeEllipticSlice_carrier_iff U hUopen.measurableSet k a
   rw [hEvent, setOf_aeRestrict_isEllipticMatrix_eq_slicePart hUopen]
   exact measurableSet_slicePart_smoothLocalSigmaR hUopen _ _

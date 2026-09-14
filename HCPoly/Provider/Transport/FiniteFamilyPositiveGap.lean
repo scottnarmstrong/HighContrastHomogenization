@@ -205,28 +205,39 @@ theorem finite_family_positive_gap [NeZero d] {ι : Type*} [DecidableEq ι]
       simp only [D, Yc, Bm, Recurrence.toFullBlockMat_normalizedBlock,
         Recurrence.toFullBlockMat_blockSub]
       noncomm_ring
-    simpa only [cellF, cellY, cellD, cellB, Kdim] using
+    simpa only [cellF, cellY, cellD, cellB, Kdim] using!
       Recurrence.schattenNorm_le_mul_add_blockTrace hHc (hYsym i hi x)
         (hDsym i hi x) (hBsym i hi) (hBpos i hi) hQ1 hid
+  have hGintEntry : ∀ i ∈ s, ∀ α β : BlockCoord d,
+      Integrable (fun x => toFullBlockMat (G i x) α β) P := fun i hi α β =>
+    ((hGint i hi).eval α).eval β
+  have hFintEntry : ∀ i ∈ s, ∀ α β : BlockCoord d,
+      Integrable (fun x => toFullBlockMat (F i x) α β) P := fun i hi α β =>
+    ((hFint i hi).eval α).eval β
+  have hGFsubInt : ∀ i ∈ s,
+      Integrable (fun x => toFullBlockMat (G i x) - toFullBlockMat (F i x)) P := by
+    intro i hi
+    exact integrable_of_entries fun α β => by
+      have h := (hGintEntry i hi α β).sub (hFintEntry i hi α β)
+      simp only [Matrix.sub_apply]
+      exact h
+  have hGFmean : ∀ i ∈ s, ∫ x, toFullBlockMat (G i x) - toFullBlockMat (F i x) ∂P =
+      toFullBlockMat (K i) - toFullBlockMat (H i) := by
+    intro i hi
+    ext α β
+    rw [entry_integral (hGFsubInt i hi) α β]
+    simp only [Matrix.sub_apply]
+    rw [integral_sub (hGintEntry i hi α β) (hFintEntry i hi α β),
+      ← entry_integral (hGint i hi) α β, ← entry_integral (hFint i hi) α β,
+      hGmean i hi, hFmean i hi]
   have hDint : ∀ i ∈ s, Integrable (fun x => toFullBlockMat (D i x)) P := by
     intro i hi
     simp only [D, Recurrence.toFullBlockMat_normalizedBlock, Recurrence.toFullBlockMat_blockSub]
-    apply integrable_mul_left_mul_right
-    change Integrable
-      ((fun x => toFullBlockMat (G i x)) - fun x => toFullBlockMat (F i x)) P
-    exact (hGint i hi).sub (hFint i hi)
+    exact integrable_mul_left_mul_right _ _ (hGFsubInt i hi)
   have hDmean : ∀ i ∈ s, ∫ x, toFullBlockMat (D i x) ∂P = toFullBlockMat (Bm i) := by
     intro i hi
-    have hsub : Integrable
-        ((fun x => toFullBlockMat (G i x)) - fun x => toFullBlockMat (F i x)) P :=
-      (hGint i hi).sub (hFint i hi)
-    have hsub' : Integrable
-        (fun x => toFullBlockMat (G i x) - toFullBlockMat (F i x)) P := by
-      simpa only [Pi.sub_apply] using hsub
     simp only [D, Bm, Recurrence.toFullBlockMat_normalizedBlock, Recurrence.toFullBlockMat_blockSub]
-    rw [integral_mul_left_mul_right _ _ hsub',
-      integral_sub (hGint i hi) (hFint i hi),
-      hGmean i hi, hFmean i hi]
+    rw [integral_mul_left_mul_right _ _ (hGFsubInt i hi), hGFmean i hi]
     noncomm_ring
   have htraceEq := eLpNorm_defect_trace_sum_eq (Q := (Q : ℝ)) s wt pm D
     (fun i => normalizedBlock (H i) F0) (fun i => normalizedBlock (K i) F0)
@@ -239,7 +250,7 @@ theorem finite_family_positive_gap [NeZero d] {ι : Type*} [DecidableEq ι]
         (hcellT0 i hi x)
   have htraceInt : Integrable tsum P := by
     simp only [tsum, cellT]
-    refine integrable_finset_sum s fun i hi => ?_
+    refine integrable_finsetSum s fun i hi => ?_
     have hiInt := (Recurrence.integrable_blockTrace (hDint i hi)).const_mul
       (wt i ^ (Q : ℝ) * pm i ^ ((Q : ℝ) - 1))
     simpa only [mul_assoc] using hiInt
@@ -351,7 +362,7 @@ theorem finite_family_positive_gap [NeZero d] {ι : Type*} [DecidableEq ι]
       refine (add_le_add htraceBudget le_rfl).trans ?_
       rw [← ENNReal.ofReal_add hB hB]
       exact ENNReal.ofReal_le_ofReal (by ring_nf; exact le_rfl)
-  simpa only [cellF, cellY, f, v, Kdim, C] using hlin
+  simpa only [cellF, cellY, f, v, Kdim, C] using! hlin
 
 end
 

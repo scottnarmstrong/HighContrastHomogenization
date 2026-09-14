@@ -142,26 +142,43 @@ theorem annealedBlock_le_of_ae_le {P : Measure (CoeffSpace d)} {W : Set (Vec d)}
   have hintcell : ∀ r ∈ R, ∀ w ∈ Z r,
       Integrable (fun a => toFullBlockMat (coarseBlock (adaptedCellAt q r w) a)) P :=
     fun r hr w hw => integrable_toFullBlockMat (hcell r hr w hw)
-  have hintrow : ∀ r ∈ R, Integrable (fun a => ∑ w ∈ Z r,
-      theta r w • toFullBlockMat (coarseBlock (adaptedCellAt q r w) a)) P := fun r hr =>
-    integrable_finset_sum _ fun w hw => (hintcell r hr w hw).smul (theta r w)
-  have hintsum : Integrable (fun a => ∑ r ∈ R, ∑ w ∈ Z r,
-      theta r w • toFullBlockMat (coarseBlock (adaptedCellAt q r w) a)) P :=
-    integrable_finset_sum _ hintrow
+  -- The generic finite-sum integral lemma resolves its ambient norm on the
+  -- flattened carrier through the operator-norm scope, while the coarse
+  -- response's own integrability comes from the entrywise one; the two
+  -- interfaces are bridged entry by entry rather than at the matrix level.
+  have hentryCell : ∀ r ∈ R, ∀ w ∈ Z r, ∀ α β : BlockCoord d,
+      Integrable (fun a => toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) α β) P :=
+    fun r hr w hw α β => ((hintcell r hr w hw).eval α).eval β
+  have hentryTerm : ∀ r ∈ R, ∀ w ∈ Z r, ∀ α β : BlockCoord d,
+      Integrable (fun a =>
+        theta r w * toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) α β) P :=
+    fun r hr w hw α β => (hentryCell r hr w hw α β).const_mul (theta r w)
+  have hGentry : ∀ α β : BlockCoord d, Integrable (fun a => Gm a α β) P :=
+    fun α β => (hG.eval α).eval β
   have hintmaj : Integrable (fun a => ∑ r ∈ R, ∑ w ∈ Z r,
       theta r w • toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) + Gm a) P :=
-    hintsum.add hG
+    integrable_of_entries fun α β => by
+      simp only [Matrix.add_apply, Matrix.sum_apply, Matrix.smul_apply, smul_eq_mul]
+      exact (integrable_finsetSum R fun r hr =>
+        integrable_finsetSum (Z r) fun w hw => hentryTerm r hr w hw α β).add (hGentry α β)
   have hmono := integral_mono' (integrable_toFullBlockMat hW) hintmaj hpath
   rw [toFullBlockMat_annealedBlock hW]
   refine hmono.trans (le_of_eq ?_)
-  rw [integral_add hintsum hG, integral_finset_sum _ hintrow]
-  refine congrArg (· + ∫ a, Gm a ∂P) (Finset.sum_congr rfl fun r hr => ?_)
-  have hrow := integral_finset_sum (μ := P) (Z r)
-    (f := fun w a => theta r w • toFullBlockMat (coarseBlock (adaptedCellAt q r w) a))
-    fun w hw => (hintcell r hr w hw).smul (theta r w)
-  rw [hrow]
-  exact Finset.sum_congr rfl fun w hw => by
-    rw [integral_smul, toFullBlockMat_annealedBlock (hcell r hr w hw)]
+  ext α β
+  rw [Matrix.add_apply, entry_integral hintmaj α β, entry_integral hG α β]
+  simp only [Matrix.add_apply, Matrix.sum_apply, Matrix.smul_apply, smul_eq_mul]
+  rw [integral_add
+      (integrable_finsetSum R fun r hr =>
+        integrable_finsetSum (Z r) fun w hw => hentryTerm r hr w hw α β)
+      (hGentry α β)]
+  refine congrArg (· + ∫ a, Gm a α β ∂P) ?_
+  rw [integral_finsetSum R fun r hr =>
+    integrable_finsetSum (Z r) fun w hw => hentryTerm r hr w hw α β]
+  refine Finset.sum_congr rfl fun r hr => ?_
+  rw [integral_finsetSum (Z r) fun w hw => hentryTerm r hr w hw α β]
+  refine Finset.sum_congr rfl fun w hw => ?_
+  rw [integral_const_mul, ← entry_integral (hintcell r hr w hw) α β,
+    ← toFullBlockMat_annealedBlock (hcell r hr w hw)]
 
 /-! ## The bridge normalization of the mean domination -/
 

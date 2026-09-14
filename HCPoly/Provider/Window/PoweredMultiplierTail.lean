@@ -106,7 +106,7 @@ private theorem powered_tail_event_subset_successor_tail {g : ℝ}
     have hoffzero : windowScaleOffset g E jStar M a = 0 := Nat.eq_zero_of_not_pos hnot
     have hzero : windowMultiplier g E jStar M a - 1 = 0 := by
       simp [windowMultiplier, hoffzero]
-    rw [IndependentSums.upperTailEvent, Set.mem_setOf_eq, hzero] at ha
+    rw [IndependentSums.upperTailEvent, Set.mem_ofPred_eq, hzero] at ha
     exact (not_lt_of_ge (mul_pos hpowered htpos).le) ha
   have hpbound : poweredRemainderScale d jStar g K * t <
       (3 : ℝ) ^ (g * (windowScaleOffset g E jStar M a : ℝ)) := by

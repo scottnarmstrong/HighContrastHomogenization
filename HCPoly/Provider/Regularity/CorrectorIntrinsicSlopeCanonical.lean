@@ -44,9 +44,9 @@ theorem continuous_localGradientClassAverage {d n : ℕ} :
 average on the centered exhaustion. -/
 def HasVanishingCorrectorGradientAverage {d : ℕ}
     (z : NormalizedLocalH1Carrier d) : Prop :=
-  Filter.Tendsto
+  _root_.Filter.Tendsto
     (fun n => localGradientClassAverage (z.gradientComponent n))
-    Filter.atTop (nhds 0)
+    _root_.Filter.atTop (nhds 0)
 
 /-- Vanishing corrector averages imply the intrinsic full-gradient slope. -/
 theorem HasVanishingCorrectorGradientAverage.hasIntrinsicNormalizedSlope
@@ -54,7 +54,7 @@ theorem HasVanishingCorrectorGradientAverage.hasIntrinsicNormalizedSlope
     (h : HasVanishingCorrectorGradientAverage z) :
     HasIntrinsicNormalizedSlope e z := by
   have hsum := (tendsto_const_nhds :
-    Filter.Tendsto (fun _n : ℕ => e) Filter.atTop (nhds e)).add h
+    _root_.Filter.Tendsto (fun _n : ℕ => e) _root_.Filter.atTop (nhds e)).add h
   simpa only [HasIntrinsicNormalizedSlope, localGradientClassAverage_add,
     localGradientClassAverage_finiteAffineBoundaryH1, Pi.zero_apply,
     add_zero] using hsum
@@ -66,7 +66,7 @@ theorem HasIntrinsicNormalizedSlope.hasVanishingCorrectorGradientAverage
     (h : HasIntrinsicNormalizedSlope e z) :
     HasVanishingCorrectorGradientAverage z := by
   have hsub := h.sub (tendsto_const_nhds :
-    Filter.Tendsto (fun _n : ℕ => e) Filter.atTop (nhds e))
+    _root_.Filter.Tendsto (fun _n : ℕ => e) _root_.Filter.atTop (nhds e))
   simpa only [HasIntrinsicNormalizedSlope, HasVanishingCorrectorGradientAverage,
     localGradientClassAverage_add,
     localGradientClassAverage_finiteAffineBoundaryH1, add_sub_cancel_left,
@@ -78,11 +78,11 @@ classes converge to the average of the canonical joint-limit component. -/
 theorem finiteAffineCorrectionLocalGradientAverage_tendsto
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
     (hCauchy : FiniteAffineCorrectionLocalCauchy a) (e : Vec d) (n : ℕ) :
-    Filter.Tendsto
+    _root_.Filter.Tendsto
       (fun k => localGradientClassAverage
         (normalizedLocalPair
           (finiteAffineCorrectionLocalSequence a e) n k).2)
-      Filter.atTop
+      _root_.Filter.atTop
       (nhds (localGradientClassAverage
         ((finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent n))) := by
   exact

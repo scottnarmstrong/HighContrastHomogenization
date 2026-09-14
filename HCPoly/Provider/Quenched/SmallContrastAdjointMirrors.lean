@@ -82,7 +82,7 @@ theorem profileAdjointCenterVariance_le_variance [NeZero d]
     have h := hmA.sub
       (aestronglyMeasurable_const
         (b := toFullBlockMat (adaptedMean P q t) α β))
-    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using h
+    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using! h
   -- the pathwise Lipschitz bound
   have hpoint : ∀ a, ENNReal.ofReal
       (Real.sqrt (Response.metricBlockNormSq m
@@ -167,8 +167,8 @@ theorem profileAdjointCenterVariance_le_variance [NeZero d]
       congr 1
       have heq : eLpNorm (fun a => ENNReal.ofReal (Z a)) 2 P =
           eLpNorm Z 2 P := by
-        rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num),
-          eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+        rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num),
+          eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
         congr 1
         refine lintegral_congr fun a => ?_
         congr 1

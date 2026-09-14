@@ -89,7 +89,7 @@ theorem exists_lt_stoppingGeneration_of_rowBadEvent
       (j : ℝ) / 4 + ((n : ℝ) - (nstar : ℝ)) - rowSplitOffset theta Cblk <
         (stoppingGeneration nstar qfb R (n + j) ω : ℝ) := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   set rr : ℝ := (3 : ℝ) ^ (-theta / 4) with hrr
   have hrrpos : 0 < rr := Real.rpow_pos_of_pos (by norm_num) _
   have hrrlt : rr < 1 := rpow_neg_div_lt_one htheta

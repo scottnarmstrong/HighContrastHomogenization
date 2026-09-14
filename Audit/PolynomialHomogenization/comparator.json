@@ -1,9 +1,0 @@
-{
-  "challenge_module": "Audit.PolynomialHomogenization.Challenge",
-  "solution_module": "Audit.PolynomialHomogenization.Solution",
-  "theorem_names": [
-    "HCPoly.StatementAudit.PolynomialHomogenization.polynomial_homogenization"
-  ],
-  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
-  "enable_nanoda": false
-}

@@ -98,8 +98,8 @@ private theorem integrable_responseJ
   let X : BlockVec d := (-p, r)
   have hquad := (integrable_coarseBlock_quadratic hint X).const_mul (1 / 2 : ℝ)
   have hsub := hquad.sub (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X] using (responseJ_eq_coarseBlock U a p r).symm
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X] using! (responseJ_eq_coarseBlock U a p r).symm
 
 private theorem integrable_adjoint_responseJ
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] {U : Domain d}
@@ -119,8 +119,8 @@ private theorem integrable_adjoint_responseJ
     rw [coarseBlock_transpose a U, blockQuadratic_adjointSign_congr]
   have hsub := (hquad.const_mul (1 / 2 : ℝ)).sub
     (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X] using (responseJ_eq_coarseBlock U a.transpose p r).symm
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X] using! (responseJ_eq_coarseBlock U a.transpose p r).symm
 
 /-- Constant-skew covariance and integrability turn the primal expectation of
 a difference into the difference of the two corrected-load expectations. -/

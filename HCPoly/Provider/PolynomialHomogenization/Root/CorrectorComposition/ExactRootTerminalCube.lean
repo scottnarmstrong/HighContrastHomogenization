@@ -100,7 +100,7 @@ theorem exists_exactRootTerminalCubeSolution [NeZero d] (a : CoeffSpace d)
   have hUdomain : IsOpenBoundedConvexDomain U :=
     isOpenBoundedConvexDomain_matImage hLmat
       (isOpenBoundedConvexDomain_openCubeSet Q)
-  letI : IsFiniteMeasure (volumeMeasureOn U) :=
+  let : IsFiniteMeasure (volumeMeasureOn U) :=
     hUdomain.isFiniteMeasure_restrict_volume
   have hUsub : U ⊆ ellipsoid abar R := hm
   obtain ⟨lam, Lam, c, hlam, _hlamLam, hell, hac⟩ :=
@@ -147,7 +147,7 @@ theorem exists_exactRootTerminalCubeSolution [NeZero d] (a : CoeffSpace d)
   have hweakRoot :
       IsWeakSolutionOn (aRef.coeffOn Q).toCoeffField
         (openCubeSet Q) uRoot.grad :=
-    hweakRootRaw.congr_ae hcoeffAE Filter.EventuallyEq.rfl
+    hweakRootRaw.congr_ae hcoeffAE _root_.Filter.EventuallyEq.rfl
   have hEll : IsAEEllipticFieldOn
       (aRef.coeffOn Q).lam (aRef.coeffOn Q).Lam
       (openCubeSet Q) (aRef.coeffOn Q).toCoeffField := by

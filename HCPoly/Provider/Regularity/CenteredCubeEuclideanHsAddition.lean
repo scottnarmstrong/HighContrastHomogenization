@@ -32,6 +32,9 @@ noncomputable def centeredCubeEuclideanL2FieldAdd
   euclideanMemL2 := by
     have h := F.euclideanMemL2.add G.euclideanMemL2
     convert h using 1
+    funext x
+    simp only [Pi.add_apply, ← HilbertVec.ofVecL_apply]
+    exact (HilbertVec.ofVecL d).map_add _ _
 
 @[simp] theorem centeredCubeEuclideanL2FieldAdd_apply
     (F G : CenteredCubeEuclideanL2Field d m) (x : Vec d) :

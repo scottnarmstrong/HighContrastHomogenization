@@ -131,8 +131,8 @@ theorem rowConvertedFluxScheduledRateAtWitness_of_head_le [NeZero d]
           (((D * ENNReal.ofReal Kflux) ^ (1 / 2 : ℝ) * rateE) *
             boundaryEnergy ^ (1 / 2 : ℝ)) * hardyConstant ^ (1 / 2 : ℝ) :=
           add_le_add
-            (mul_le_mul_of_nonneg_right hroot (zero_le _))
-            (mul_le_mul_of_nonneg_right hroot (zero_le _))
+            (mul_le_mul_of_nonneg_right hroot (zero_le))
+            (mul_le_mul_of_nonneg_right hroot (zero_le))
       _ = (((D * ENNReal.ofReal Kflux) ^ (1 / 2 : ℝ) *
               hardyConstant ^ (1 / 2 : ℝ)) +
             ((D * ENNReal.ofReal Kflux) ^ (1 / 2 : ℝ) *
@@ -157,7 +157,7 @@ theorem rowConvertedFluxScheduledRateAtWitness_of_head_le [NeZero d]
                       hardyConstant ^ (1 / 2 : ℝ))) * rateE *
                     boundaryEnergy ^ (1 / 2 : ℝ))) :=
               mul_le_mul_of_nonneg_left
-                (mul_le_mul_of_nonneg_left hTwoRow (zero_le _)) (zero_le _)
+                (mul_le_mul_of_nonneg_left hTwoRow (zero_le)) (zero_le)
           _ = scheduledRateHead d outputFactor Cdual Kflux hardyConstant *
               rateE * boundaryEnergy ^ (1 / 2 : ℝ) := by
             rw [scheduledRateHead]
@@ -212,7 +212,7 @@ theorem scheduledRateHead_le_ofReal (d : ℕ) [NeZero d]
       hardyConstant ^ (1 / 2 : ℝ) ≤
       ENNReal.ofReal (Cb.toReal * (Real.sqrt Kflux * Real.sqrt hardyReal)) := by
     rw [hpow]
-    refine (mul_le_mul_of_nonneg_left hhroot (zero_le _)).trans (le_of_eq ?_)
+    refine (mul_le_mul_of_nonneg_left hhroot (zero_le)).trans (le_of_eq ?_)
     rw [← ENNReal.ofReal_mul (mul_nonneg hCb0 hsqK)]
     congr 1
     ring
@@ -229,7 +229,7 @@ theorem scheduledRateHead_le_ofReal (d : ℕ) [NeZero d]
     congr 1
     ring
   rw [scheduledRateHead, ← hCb]
-  refine (mul_le_mul_of_nonneg_left hsum (zero_le _)).trans (le_of_eq ?_)
+  refine (mul_le_mul_of_nonneg_left hsum (zero_le)).trans (le_of_eq ?_)
   rw [← ENNReal.ofReal_mul hout, ← ENNReal.ofReal_mul (mul_nonneg hout hCdual)]
 
 end

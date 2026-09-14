@@ -16,7 +16,8 @@ noncomputable section
 private theorem cubeSolution_weakFluxIntegrable
     {d : ℕ} {Q : TriadicCube d} {a : Book.Ch02.TriadicCoeffFamily d}
     (u : Book.Ch03.CubeSolution Q a) :
-    weakFluxIntegrable (openCubeSet Q) (a.coeffOn Q).toCoeffField u := by
+    weakFluxIntegrable (Book.Ch02.cubeDomain Q : Set (Vec d))
+      (a.coeffOn Q).toCoeffField u := by
   intro phi
   exact integrableOn_vecDot_of_memVectorL2
     (Book.Ch02.Solution.flux_memVectorL2 u)
@@ -34,7 +35,7 @@ noncomputable def jointAffineCubeSolution
       (Phi e).localH1Function q
   { toH1 := finiteAffineBoundaryH1 (q : ℤ) e + phiLocal
     isHarmonic := by
-      simpa only [phiLocal, localGradientCube, Book.Ch02.cubeDomain_coe] using
+      simpa only [phiLocal, localGradientCube, Book.Ch02.cubeDomain_coe] using!
         hPhi.2 e q }
 
 noncomputable def finiteAffineInnerCubeSolution
@@ -74,7 +75,8 @@ theorem jointFiniteRemainder_grad
   simp only [jointAffineCubeSolution,
     finiteAffineInnerCubeSolution, H1Function.add_grad,
     finiteAffineBoundaryH1_grad, finiteCubeSolutionRestriction_grad,
-    finiteAffineCubeSolution, id_eq]
+    finiteAffineCubeSolution]
+  rfl
 
 theorem jointFiniteRemainder_energy_eq
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
@@ -103,10 +105,17 @@ theorem jointFiniteRemainder_energy_eq
         finiteAffineInnerGradientClass a e q (m - q) =
           (finiteAffineSolutionInnerH1 a (q : ℤ) (m : ℤ)
             (by exact_mod_cast hqm) e).gradToHilbertVectorL2 := by
-      unfold finiteAffineInnerGradientClass
-      simp only [Nat.add_sub_of_le hqm, id_eq]
+      have hcast : finiteAffineInnerGradientClass a e q (m - q) =
+          (finiteAffineSolutionInnerH1 a (q : ℤ)
+            ((q + (m - q) : ℕ) : ℤ) (by omega) e).gradToHilbertVectorL2 := rfl
+      rw [hcast]
+      simp only [Nat.add_sub_of_le hqm]
+      rfl
     rw [hfiniteClass]
     let z := jointFiniteRemainderCubeSolution a Phi hPhi e q m hqm
+    let w : H1Function (localGradientCube d q) :=
+      Eq.mp (by simp only [localGradientCube, Book.Ch02.cubeDomain_coe]) z.toH1
+    have hwgrad : w.grad = z.toH1.grad := rfl
     let c : LocalGradientL2 d q := constantGradientOnOriginCube e (q : ℤ)
     let p : LocalGradientL2 d q :=
       ((Phi e).localH1Function q).gradToHilbertVectorL2
@@ -120,24 +129,36 @@ theorem jointFiniteRemainder_energy_eq
           (Phi e).localH1Function q |>.coeFn_gradToHilbertVectorL2,
           (finiteAffineSolutionInnerH1 a (q : ℤ) (m : ℤ)
             (by exact_mod_cast hqm) e).coeFn_gradToHilbertVectorL2,
-          z.toH1.coeFn_gradToHilbertVectorL2,
+          w.coeFn_gradToHilbertVectorL2,
           Lp.coeFn_add c p,
           Lp.coeFn_sub (c + p) f]
-      with x hc hp hf hz hadd hsub
-    rw [hsub, Pi.sub_apply, hadd, Pi.add_apply]
-    rw [hz, jointFiniteRemainder_grad]
-    dsimp only [c, p, f] at hc hp hf ⊢
-    simp only [constantGradientOnOriginCube] at hc ⊢
-    rw [hc, hp, hf]
+      with x hc hp hf hw hadd hsub
+    have hsub' : (c + p - f) x = (c + p) x - f x := hsub
+    have hadd' : (c + p) x = c x + p x := hadd
+    rw [hsub', hadd']
+    show _ = w.gradToHilbertVectorL2 x
+    rw [hw, hwgrad, jointFiniteRemainder_grad]
+    have hc' : c x = hilbertifyVecField (fun _ : Vec d ↦ e) x := hc
+    have hf' : f x = hilbertifyVecField
+        (finiteAffineSolutionInnerH1 a (q : ℤ) (m : ℤ)
+          (by exact_mod_cast hqm) e).grad x := hf
+    rw [hc', hp, hf']
     simp only [finiteAffineSolutionInnerH1_grad]
     simp [hilbertifyVecField]
   rw [hclass]
   symm
+  let wOuter : H1Function (openCubeSet (originCube d (q : ℤ))) :=
+    Eq.mp (by simp only [Book.Ch02.cubeDomain_coe])
+      (jointFiniteRemainderCubeSolution a Phi hPhi e q m hqm).toH1
+  change Real.sqrt (normalizedLocalSymmetricEnergy _
+    wOuter.gradToHilbertVectorL2) = _
   rw [Root.sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
   rw [weightedGradNorm_congr_coeff_ae_on _
     (Book.Ch03.publicCoeffField_ae_eq_openCubeSet
       (originCube d (q : ℤ)) a)]
-  rw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
+  have houterGrad : wOuter.grad =
+      (jointFiniteRemainderCubeSolution a Phi hPhi e q m hqm).toH1.grad := rfl
+  rw [houterGrad, weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
   rw [ENNReal.toReal_ofReal]
   unfold Book.Ch03.h1EnergyNormOnCube
   exact Real.sqrt_nonneg _

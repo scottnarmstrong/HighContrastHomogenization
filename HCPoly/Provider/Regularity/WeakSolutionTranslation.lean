@@ -41,7 +41,7 @@ theorem IsWeakSolutionOn.translateCoeffField_univ {d : ℕ}
   let psi : Vec d → ℝ := fun y => phi (y - z)
   have hpsi : IsLocalTest Set.univ psi := by
     refine ⟨?_, ?_, fun _ _ => Set.mem_univ _⟩
-    · simpa only [psi] using
+    · simpa only [psi] using!
         hphi.contDiff.comp (contDiff_id.sub contDiff_const)
     · show HasCompactSupport (phi ∘ Homeomorph.subRight z)
       simpa only [psi, Function.comp_apply] using
@@ -68,7 +68,7 @@ theorem IsWeakSolutionOn.translateCoeffField_univ {d : ℕ}
       |>.integrable_comp_of_integrable hintf
   refine ⟨?_, ?_⟩
   · rw [integrableOn_univ]
-    exact hintcomp.congr (Filter.Eventually.of_forall hfg)
+    exact hintcomp.congr (_root_.Filter.Eventually.of_forall hfg)
   · have huniv : translateSet z (Set.univ : Set (Vec d)) = Set.univ := by
       ext y
       constructor
@@ -82,7 +82,7 @@ theorem IsWeakSolutionOn.translateCoeffField_univ {d : ℕ}
       ∫ x in Set.univ, g x ∂volume =
           ∫ x in Set.univ, f (x + z) ∂volume := by
         exact integral_congr_ae
-          (Filter.Eventually.of_forall fun x => (hfg x).symm)
+          (_root_.Filter.Eventually.of_forall fun x => (hfg x).symm)
       _ = ∫ y in translateSet z (Set.univ : Set (Vec d)), f y ∂volume :=
         setIntegral_comp_addRight_translateSet z Set.univ f
       _ = ∫ y in Set.univ, f y ∂volume := by rw [huniv]

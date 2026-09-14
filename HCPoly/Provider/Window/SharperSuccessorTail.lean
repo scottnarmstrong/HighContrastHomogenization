@@ -10,7 +10,7 @@ namespace Homogenization
 namespace HighContrast
 namespace Window
 
-open MeasureTheory Filter
+open MeasureTheory _root_.Filter
 open scoped ENNReal BigOperators
 
 noncomputable section
@@ -24,11 +24,11 @@ private theorem measureReal_iUnion_nat_le_tsum_sharp
   let ν : FiniteMeasure Ω := ⟨μ, inferInstance⟩
   have hAnn : Summable fun q => ν (A q) := by
     rw [← NNReal.summable_coe]
-    simpa only [ν, Measure.real] using hA
+    simpa only [ν, Measure.real] using! hA
   have hν := FiniteMeasure.apply_iUnion_le (μ := ν) (f := A) hAnn
   have hνr : (ν (⋃ q, A q) : ℝ) ≤ ∑' q, (ν (A q) : ℝ) := by
     exact_mod_cast hν
-  simpa only [ν, Measure.real] using hνr
+  simpa only [ν, Measure.real] using! hνr
 
 private theorem zpow_tail_split_sharp (n h : ℤ) (q : ℕ) :
     (3 : ℝ) ^ (-(n + (q : ℤ) - h)) =
@@ -115,7 +115,7 @@ private theorem successor_event_subset_bad_tail_sharp {g : ℝ} {E : BlockMat d}
       ⋃ q : ℕ, {a : CoeffSpace d | badScaleEvent g E h (n + (q : ℤ)) a} := by
   intro a ha
   by_contra hmem
-  simp only [Set.mem_iUnion, Set.mem_setOf_eq, not_exists] at hmem
+  simp only [Set.mem_iUnion, Set.mem_ofPred_eq, not_exists] at hmem
   have hall : ∀ m : ℤ, badScaleEvent g E h m a → m ≤ n - 1 := by
     intro m hm
     by_contra hmn

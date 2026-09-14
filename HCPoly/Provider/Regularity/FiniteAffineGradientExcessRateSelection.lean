@@ -51,7 +51,6 @@ theorem exists_nat_integer_rate_deterministic_le
   have hrate : (2 * (p : ℝ)) * eta < (2 * p - 1 : ℕ) := by
     have hpReal : (0 : ℝ) < 2 * p := by positivity
     have h := mul_lt_mul_of_pos_left heta hpReal
-    push_cast at h ⊢
     field_simp [show (2 : ℝ) * p ≠ 0 by positivity] at h ⊢
     have hcast : (((2 * p - 1 : ℕ) : ℝ)) = 2 * (p : ℝ) - 1 := by
       rw [Nat.cast_sub (by omega : 1 ≤ 2 * p)]
@@ -161,7 +160,9 @@ theorem exists_scalarIdentityFiniteAffineGradientExcessRateContractionConstants
       ((C₀ * ((1 : ℝ) / 3) ^ ((2 * p - 1) * t)) * Ce) ≤
         (1 / 4 : ℝ) * T := by
     dsimp [T, H, N]
-    convert hdet using 1
+    have hNeq : depth + 2 * p * t + 2 + 2 = depth + 2 * p * t + 4 := by ring
+    rw [hNeq]
+    exact hdet
   have hqcoef : qcoef ≤ (1 / 2 : ℝ) * T := by
     calc
       qcoef = Cc *
@@ -345,7 +346,7 @@ theorem exists_scalarIdentityFiniteAffineGradientExcessRateDiscreteDecayConstant
   have hdivCast : ((t * H : ℕ) : ℤ) + (R : ℤ) = m - n := by
     have h := congrArg (fun z : ℕ ↦ (z : ℤ)) hdiv
     push_cast at h
-    simpa only [hgapCast] using h
+    simpa only [hgapCast] using! h
   have hj : j = n + (R : ℤ) := by dsimp [j]; omega
   have hjm : j ≤ m := by dsimp [j]; omega
   have hjmem : j ∈ Finset.Icc n m :=

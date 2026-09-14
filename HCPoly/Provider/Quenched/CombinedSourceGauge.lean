@@ -94,7 +94,7 @@ theorem sourceTail_flooredSource {P : Measure Omega} [IsProbabilityMeasure P]
   · have h1t : 1 <= t := le_of_not_gt ht1
     have hevent : upperTailEvent (flooredSource S) t = upperTailEvent S t := by
       ext omega
-      simp only [upperTailEvent, Set.mem_setOf_eq, flooredSource]
+      simp only [upperTailEvent, Set.mem_ofPred_eq, flooredSource]
       exact lt_max_iff.trans <| or_iff_right (not_lt_of_ge h1t)
     rw [flooredSourceGauge, if_neg ht1, hevent]
     exact htail t h1t
@@ -228,7 +228,7 @@ theorem sourceTail_combinedSource {P : Measure Omega} [IsProbabilityMeasure P]
   have hsub : upperTailEvent (combinedSource S₁ S₂) t <=
       upperTailEvent S₁ t ∪ upperTailEvent S₂ t := by
     intro omega homega
-    simp only [upperTailEvent, Set.mem_setOf_eq, combinedSource] at homega ⊢
+    simp only [upperTailEvent, Set.mem_ofPred_eq, combinedSource] at homega ⊢
     exact (lt_max_iff.mp homega)
   have hunion : P.real (upperTailEvent (combinedSource S₁ S₂) t) <=
       P.real (upperTailEvent S₁ t) + P.real (upperTailEvent S₂ t) :=

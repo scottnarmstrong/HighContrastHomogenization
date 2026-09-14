@@ -215,7 +215,7 @@ theorem finiteCorrectorWeightedProjection_eq_exactMinimizer_of_target
     (Book.Ch03.publicCoeffField_isEllipticFieldOn_openCubeSet
       (originCube d (q : ℤ)) a)
   let hclosed : IsClosed (LinearMap.range T : Set H) := by
-    letI : FiniteDimensional ℝ (LinearMap.range T) := T.finiteDimensional_range
+    let _ : FiniteDimensional ℝ (LinearMap.range T) := T.finiteDimensional_range
     exact (LinearMap.range T).closed_of_finiteDimensional
   let B := AHarmonicGradientHilbert.symmCoeffBilin
     (PotentialSolenoidalL2Data.ofSubmoduleClosures (localGradientCube d q)) hEll
@@ -250,8 +250,13 @@ theorem finiteCorrectorWeightedProjection_eq_exactMinimizer_of_target
     dsimp only [B]
     have hinv : 0 < (volume (openCubeSet (originCube d (q : ℤ)))).toReal⁻¹ :=
       inv_pos.mpr hvol
-    rw [AHarmonicGradientHilbert.symmCoeffBilin_apply,
-      AHarmonicGradientHilbert.symmCoeffBilin_apply]
+    have hzb := AHarmonicGradientHilbert.symmCoeffBilin_apply
+      (M := PotentialSolenoidalL2Data.ofSubmoduleClosures (localGradientCube d q))
+      (hEll := hEll) (J e - T bExact) (J e - T bExact)
+    have hzp := AHarmonicGradientHilbert.symmCoeffBilin_apply
+      (M := PotentialSolenoidalL2Data.ofSubmoduleClosures (localGradientCube d q))
+      (hEll := hEll) (J e - T (P e)) (J e - T (P e))
+    rw [hzb, hzp]
     exact le_of_mul_le_mul_left henergy' hinv
   have hquad : quadraticEnergy B (J e - T bExact) ≤
       quadraticEnergy B (J e - T (P e)) := by

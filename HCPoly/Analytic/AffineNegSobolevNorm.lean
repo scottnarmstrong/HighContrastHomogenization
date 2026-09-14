@@ -71,7 +71,7 @@ theorem dualPairing_const_smul (V : Set (Vec d)) (F ψ : Vec d → Vec d) {c : �
   · have h' : ¬ IntegrableOn (fun x => c * vecDot (F x) (ψ x)) V volume := by
       intro hcon
       exact h (by
-        simpa only [inv_mul_cancel_left₀ hc.ne'] using hcon.const_mul c⁻¹)
+        simpa only [IntegrableOn, inv_mul_cancel_left₀ hc.ne'] using hcon.const_mul c⁻¹)
     rw [if_neg h', if_neg h,
       ENNReal.mul_top (ENNReal.ofReal_ne_zero_iff.mpr hc)]
 

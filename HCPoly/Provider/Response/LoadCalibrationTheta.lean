@@ -131,7 +131,7 @@ theorem one_le_response_ratio [NeZero d] (hS : S.PosDef) (hStar : SStar.PosDef)
     (hB : B = S + rᴴ * SStar⁻¹ * r)
     (hsharp : fullBlockSharp (schurBlock S SStar K) ≤ schurBlock S SStar K) :
     1 ≤ relSize B SStar := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have h := relSize_mono_left hStar.posSemidef
     (posSemidef_responseBlock hS hStar hB) hStar
     (schurStar_le_responseBlock hS hStar hB hsharp)

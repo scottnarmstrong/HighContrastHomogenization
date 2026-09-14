@@ -48,7 +48,8 @@ theorem memLp_originCube_pred
       (normalizedCubeMeasure (originCube d (m - 1))) := by
   have hmem := CubeCalderonZygmund.memLp_centralDescendant_of_memLp
     (Q := originCube d m) 1 hf
-  simpa only [centralDescendant_originCube_eq_originCube_sub] using hmem
+  have hsub : m - ((1 : ℕ) : ℤ) = m - 1 := by norm_num
+  simpa only [centralDescendant_originCube_eq_originCube_sub, hsub] using hmem
 
 /-- The normalized child `L²` norm costs at most the child count. -/
 theorem cubeLpNorm_originCube_pred_le

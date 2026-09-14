@@ -177,7 +177,8 @@ private theorem high_cell_bound [NeZero d]
     have hsum : ∑ u ∈ Z, toFullBlockMat (coarseBlock (adaptedCellAt (1 : Mat d) j u)
         (translateCoeff v a)) ≤ ∑ _u ∈ Z, toFullBlockMat E :=
       Finset.sum_le_sum fun u hu => hchild u hu
-    have hs := smul_le_smul_of_nonneg_left hsum (by positivity : 0 ≤ (Z.card : ℝ)⁻¹)
+    have hs := smul_le_smul_of_nonneg_left hsum
+      (inv_nonneg.mpr (Nat.cast_nonneg Z.card) : 0 ≤ (Z.card : ℝ)⁻¹)
     rw [Finset.sum_const, ← Nat.cast_smul_eq_nsmul ℝ, smul_smul,
       inv_mul_cancel₀ (by exact_mod_cast hZne.card_pos.ne'), one_smul] at hs
     exact hs
@@ -280,7 +281,7 @@ private theorem badScaleEvent_imp_exists_source_tail [NeZero d]
       (3 : ℝ) ^ (m - h) <
         S (translateCoeff (fun i => (3 : ℤ) ^ (m - h).toNat * y i) a) := by
   by_contra hn
-  push_neg at hn
+  push Not at hn
   apply not_badScaleEvent_of_tile_sources hE hEpd hh0 hhm hcoarse
     (fun y hy => hn y hy) hbad
 
@@ -309,7 +310,7 @@ theorem measureReal_badScaleEvent_le_tiles [NeZero d]
     have hyZ : y ∈ Z := by
       have : y ∈ (↑Z : Set (Fin d → ℤ)) := by
         rw [hZ]
-        simpa only [adaptedCellCenter_one, Initialization.adaptedCell_one] using hy
+        simpa only [adaptedCellCenter_one, Initialization.adaptedCell_one] using! hy
       exact Finset.mem_coe.mp this
     exact Set.mem_iUnion.mpr ⟨y, Set.mem_iUnion.mpr ⟨hyZ, htail⟩⟩
   have hmono : P.real {a : CoeffSpace d | badScaleEvent g E h m a} ≤

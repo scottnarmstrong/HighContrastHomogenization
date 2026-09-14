@@ -33,11 +33,11 @@ private theorem eLpNorm_two_eq_rpow_normalizedL2
     (f : A → ℝ) (mu : Measure A) :
     eLpNorm f 2 mu =
       (∫⁻ x, ENNReal.ofReal (f x ^ 2) ∂mu) ^ (1 / 2 : ℝ) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   congr 1
   apply lintegral_congr
   intro x
-  rw [← ofReal_norm_eq_enorm, Real.norm_eq_abs]
+  rw [← ofReal_norm, Real.norm_eq_abs]
   norm_num [ENNReal.rpow_two]
   calc
     ENNReal.ofReal |f x| ^ 2 = ENNReal.ofReal (|f x| ^ 2) :=
@@ -118,7 +118,7 @@ theorem NormalizedLocalH1Carrier.memLp_globalValueRepresentative_normalizedCubeM
       =ᵐ[normalizedCubeMeasure (originCube d (q : ℤ))]
         (z.localH1Function q).toFun := by
     simpa only [localGradientCube, volumeMeasureOn, normalizedCubeMeasure,
-      cubeMeasure, volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using
+      cubeMeasure, volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using!
       Measure.ae_smul_measure haeVolume
         (ENNReal.ofReal ((cubeVolume (originCube d (q : ℤ)))⁻¹))
   exact (memLp_congr_ae haeNormalized).mpr

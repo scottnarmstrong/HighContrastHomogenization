@@ -48,7 +48,7 @@ theorem centeredCubeDirichletDivergence_normalizedEuclideanLpENorm_grad_sub_le
         (fun x ↦ h x - k x) := by
   have hsubProblem : CubeDirichletDivergenceProblem (originCube d m)
       (w - v) (centeredCubeEuclideanL2FieldSub h k) := by
-    simpa only [centeredCubeEuclideanL2FieldSub_apply] using
+    simpa only [centeredCubeEuclideanL2FieldSub_apply] using!
       (cubeDirichletDivergenceProblem_sub
         (centeredCubeEuclideanL2Field_memLp_normalizedCubeMeasure h)
         (centeredCubeEuclideanL2Field_memLp_normalizedCubeMeasure k) hw hv)

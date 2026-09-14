@@ -178,7 +178,7 @@ theorem exists_euclideanBall_superset_of_isCompact {K : Set (Vec d)}
   have hd0 : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
   have hlt : (d : ℝ) * r' ^ 2 < (((d : ℝ) + 1) * (r' + 1)) ^ 2 := by
     nlinarith only [sq_nonneg r', mul_nonneg hd0 hr'0, hd0, hr'0]
-  simp only [euclideanBall, euclideanBallAt, Set.mem_setOf_eq, sub_zero]
+  simp only [euclideanBall, euclideanBallAt, Set.mem_ofPred_eq, sub_zero]
   exact lt_of_le_of_lt hsum hlt
 
 /-- **The `H¹_{s,loc}` class gives local square integrability of the weak

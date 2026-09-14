@@ -71,7 +71,7 @@ theorem terminal_reference_comparability [NeZero d]
           blockVecDot X
             (blockMatVecMul (adaptedMean P (roundedGrid l n) t) X) := by
   classical
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hq : (roundedGrid l n).PosDef := Recurrence.posDef_roundedGrid hl hn
   have hCd1 : (1 : ℝ) ≤ Cd := (le_max_left _ _).trans hCd
   have hbC0 : 0 < boundaryConst Cd g n :=

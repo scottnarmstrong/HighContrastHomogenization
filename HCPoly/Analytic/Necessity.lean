@@ -57,9 +57,9 @@ def MemH1sLocOld (b : CoeffField d) (v : Vec d → ℝ) (Dv : Vec d → Vec d) :
     HasWeakGradientOn (euclideanBall d R) v Dv ∧
       ∃ w : ℕ → Vec d → ℝ,
         (∀ n, ContDiff ℝ (⊤ : ℕ∞) (w n)) ∧
-        Filter.Tendsto
+        _root_.Filter.Tendsto
           (fun n => h1sNormSqOn b (euclideanBall d R) (fun x => w n x - v x)
-            (fun x => smoothGrad (w n) x - Dv x)) Filter.atTop (nhds 0)
+            (fun x => smoothGrad (w n) x - Dv x)) _root_.Filter.atTop (nhds 0)
 
 /-- `MemH1sLoc` is that class together with the measurability of the pair, and
 nothing else: the two sides are the same proposition, so the measurability
@@ -219,7 +219,7 @@ theorem eq_zero_ae_of_lintegral_abs_eq_zero {v : Vec d → ℝ}
         (volume.restrict (euclideanBall d R)) {x : Vec d | ¬ v x = 0} :=
       Measure.le_restrict_apply _ _
     rw [hres] at hle
-    exact le_antisymm hle (zero_le _)
+    exact le_antisymm hle zero_le
   have hcover : {x : Vec d | ¬ v x = 0} ⊆
       ⋃ n : ℕ, ({x : Vec d | ¬ v x = 0} ∩ euclideanBall d ((n : ℝ) + 1)) := by
     intro x hx
@@ -243,7 +243,7 @@ theorem eq_zero_ae_and_grad_of_lintegral_abs_eq_zero {v : Vec d → ℝ}
     (hz : ∀ R : ℝ, 0 < R →
       (∫⁻ x in euclideanBall d R, ENNReal.ofReal |v x| ∂volume) = 0) :
     v =ᵐ[volume] 0 ∧ (fun _ : Vec d => (0 : Vec d)) =ᵐ[volume] 0 :=
-  ⟨eq_zero_ae_of_lintegral_abs_eq_zero hmeas hz, Filter.EventuallyEq.rfl⟩
+  ⟨eq_zero_ae_of_lintegral_abs_eq_zero hmeas hz, _root_.Filter.EventuallyEq.rfl⟩
 
 end
 

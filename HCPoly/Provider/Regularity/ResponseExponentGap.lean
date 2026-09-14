@@ -236,7 +236,7 @@ theorem homogenizationErrorOnCube_infinity_one_le_gap_mul_infinity_two
   calc
     ∑' n, f n * g n ≤
         (∑' n, f n ^ (2 : ℝ)) ^ (1 / (2 : ℝ)) *
-          (∑' n, g n ^ (2 : ℝ)) ^ (1 / (2 : ℝ)) := hcs.2
+          (∑' n, g n ^ (2 : ℝ)) ^ (1 / (2 : ℝ)) := hcs
     _ = K * Book.Ch02.HomogenizationErrorOnCube Q b .infinity
         (.finite 2) a a0 := by rw [hfs, hKroot, hright]
 

@@ -313,7 +313,7 @@ theorem fracSeminormSq_le_supported_bounded_lipschitz
     calc
       dist y x ≤ dist y (cubeCenter Q) + dist (cubeCenter Q) x := dist_triangle _ _ _
       _ < cubeRadius Q + cubeRadius Q := by
-        exact add_lt_add hy (by simpa only [dist_comm] using hx)
+        exact add_lt_add hy (by simpa only [dist_comm] using! hx)
       _ = R := by dsimp only [R]; ring
   have hDtop : D ≠ ⊤ := ENNReal.ofReal_ne_top
   have hboundinner (x : Vec d) (hx : x ∈ A) :

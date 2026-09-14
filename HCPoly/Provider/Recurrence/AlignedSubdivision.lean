@@ -78,7 +78,7 @@ theorem centeredCube_subset_iUnion_standardCell_union_gridFaces {j p : ℤ} (hjp
   by_cases hface : ∃ (i : Fin d) (k : ℤ), x i = ((k : ℝ) + 1 / 2) * (3 : ℝ) ^ j
   · obtain ⟨i, k, hik⟩ := hface
     exact Or.inr (Set.mem_iUnion.mpr ⟨i, Set.mem_iUnion.mpr ⟨k, hik⟩⟩)
-  push_neg at hface
+  push Not at hface
   have hc : (0 : ℝ) < (3 : ℝ) ^ j := by positivity
   obtain ⟨m, hm⟩ := odd_three_pow (p - j).toNat
   rw [mem_centeredCube_iff] at hx
@@ -183,7 +183,7 @@ theorem volume_adaptedCell_diff_iUnion_adaptedCellAt {q : Mat d} (hq : q.PosDef)
       = matVecMul q '' (centeredCube d p \
         ⋃ w ∈ {w : Fin d → ℤ | ∀ i, 2 * |w i| < (3 : ℤ) ^ (p - j).toNat},
           standardCell d j w) := by
-    rw [Set.image_diff (matVecMul_injective hq), hunion]
+    rw [Set.image_sdiff (matVecMul_injective hq), hunion]
     rfl
   rw [himage]
   exact volume_image_matVecMul_eq_zero q (volume_centeredCube_diff_iUnion_standardCell hjp)

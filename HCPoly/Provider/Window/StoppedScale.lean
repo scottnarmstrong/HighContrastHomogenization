@@ -119,9 +119,9 @@ theorem measurable_windowScaleOffset (g : ℝ) (E : BlockMat d)
           {a : CoeffSpace d | p a 0} ∪ ⋂ ℓ : ℕ, {a : CoeffSpace d | ¬p a ℓ} := by
         ext a
         simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.mem_union,
-          Set.mem_setOf_eq, Set.mem_iInter]
+          Set.mem_ofPred_eq, Set.mem_iInter]
         rw [windowScaleOffset, Nat.sInf_eq_zero]
-        simp only [Set.mem_setOf_eq, Set.eq_empty_iff_forall_notMem]
+        simp only [Set.mem_ofPred_eq, Set.eq_empty_iff_forall_notMem]
         rfl
       rw [heq]
       exact (hp 0).union (MeasurableSet.iInter fun ℓ => (hp ℓ).compl)
@@ -129,7 +129,7 @@ theorem measurable_windowScaleOffset (g : ℝ) (E : BlockMat d)
       have heq : windowScaleOffset g E jStar M ⁻¹' {n + 1} =
           {a : CoeffSpace d | p a (n + 1)} \ {a : CoeffSpace d | p a n} := by
         ext a
-        simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.mem_diff, Set.mem_setOf_eq]
+        simp only [Set.mem_preimage, Set.mem_singleton_iff, Set.mem_sdiff, Set.mem_ofPred_eq]
         change sInf {ℓ : ℕ | p a ℓ} = n + 1 ↔ p a (n + 1) ∧ ¬p a n
         exact Nat.sInf_upward_closed_eq_succ_iff
           (offsetPredicate_upwardClosed g E jStar M a) n

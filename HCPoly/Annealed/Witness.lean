@@ -77,7 +77,7 @@ instance instIsProbabilityMeasureWitnessLaw :
 every integer translation. -/
 theorem isStationaryLaw_witnessLaw : HCPoly.Frozen.IsStationaryLaw (witnessLaw d) := by
   intro z
-  rw [witnessLaw, Measure.map_dirac (measurable_translateCoeff z), translateCoeff_constIdentity]
+  rw [witnessLaw, Measure.map_dirac' (measurable_translateCoeff z), translateCoeff_constIdentity]
 
 /-- **Every atomic law has unit range of dependence**: under a Dirac law the
 indicator of an intersection is the product of the indicators, so any two
@@ -102,7 +102,7 @@ theorem isUnitRangeLaw_witnessLaw : HCPoly.Frozen.IsUnitRangeLaw (witnessLaw d) 
 theorem upperTailEvent_zero {t : ℝ} (ht : 0 < t) :
     IndependentSums.upperTailEvent (fun _ : CoeffSpace d => (0 : ℝ)) t = ∅ := by
   ext a
-  simp only [IndependentSums.upperTailEvent, Set.mem_setOf_eq, Set.mem_empty_iff_false,
+  simp only [IndependentSums.upperTailEvent, Set.mem_ofPred_eq, Set.mem_empty_iff_false,
     iff_false, not_lt]
   exact ht.le
 
@@ -151,7 +151,7 @@ theorem coarseEllipticityDagger_witnessLaw_of_mem_Ico {g : ℝ} (hg : g ∈ Set.
       intro m _ k hkm w _
       exact blockMatLoewnerLE_coarseBlock_constIdentity_blockScale
         (one_le_discount hg.1 hkm) k w
-    rw [witnessLaw, Filter.Eventually, MeasureTheory.ae_dirac_eq]
+    rw [witnessLaw, _root_.Filter.Eventually, MeasureTheory.ae_dirac_eq]
     exact hpoint
 
 /-- The witness law at the exponent `g = 0`, at which the discount factor is

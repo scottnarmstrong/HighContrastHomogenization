@@ -109,7 +109,7 @@ theorem norm_le_of_sandwich {X : Matrix n n ℝ} (hX : Xᴴ = X) {t : ℝ} (ht :
   have hcs : ‖X‖ * ‖X‖ = ‖X * X‖ := by
     rw [← CStarRing.norm_star_mul_self, hstar]
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have hlt : t * t < ‖X‖ * ‖X‖ :=
     mul_lt_mul' hcon.le hcon ht (lt_of_le_of_lt ht hcon)
   rw [hcs] at hlt
@@ -185,7 +185,7 @@ theorem blockSize_eq_norm {H F : BlockMat d} (hH : IsSymmetricBlockMat H)
       BlockMatLoewnerLE (blockScale (-t) F) H} =
         Set.Ici ‖toFullBlockMat (normalizedBlock H F)‖ := by
     ext t
-    simp only [Set.mem_setOf_eq, Set.mem_Ici]
+    simp only [Set.mem_ofPred_eq, Set.mem_Ici]
     constructor
     · rintro ⟨ht, hup, hlo⟩
       have hup' := (blockMatLoewnerLE_iff_le hH (isSymmetricBlockMat_blockScale t hF)).mp hup

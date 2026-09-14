@@ -47,7 +47,7 @@ private theorem positiveRow_eLpNorm_two_eq_rpow
     {E : Type*} [NormedAddCommGroup E] (f : A → E) (mu : Measure A) :
     eLpNorm f 2 mu =
       (∫⁻ x, ‖f x‖ₑ ^ (2 : ℝ) ∂mu) ^ (1 / (2 : ℝ)) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   norm_num
 
 private theorem integral_positiveRowNormalizedDomainMeasure_eq_volumeAverageVec
@@ -63,7 +63,7 @@ private theorem integral_positiveRowNormalizedDomainMeasure_eq_volumeAverageVec
 
 private theorem enorm_hilbertVec_sq_positiveRow (v : Vec d) :
     ‖HilbertVec.ofVec v‖ₑ ^ (2 : ℕ) = ENNReal.ofReal (vecNormSq v) := by
-  rw [← ofReal_norm_eq_enorm, ← ENNReal.ofReal_pow (norm_nonneg _)]
+  rw [← ofReal_norm, ← ENNReal.ofReal_pow (norm_nonneg _)]
   congr 1
   simpa [vecNormSq, vecDot, HilbertVec.ofVec, PiLp.toLp_apply, pow_two] using
     HilbertVec.norm_sq_eq_sum_sq (HilbertVec.ofVec v)
@@ -77,7 +77,7 @@ theorem ofReal_vecNormSq_volumeAverageVec_le_eVolumeAverage
       eVolumeAverage U (fun x => ENNReal.ofReal (vecNormSq (F x))) := by
   let mu := positiveRowNormalizedDomainMeasure U
   let FH : Vec d → HilbertVec d := fun x => HilbertVec.ofVec (F x)
-  haveI : IsProbabilityMeasure mu :=
+  have : IsProbabilityMeasure mu :=
     isProbabilityMeasure_positiveRowNormalizedDomainMeasure hUpos hUtop
   have hFHvol : Integrable FH (volume.restrict U) :=
     (HilbertVec.ofVecL d).integrable_comp hF

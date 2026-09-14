@@ -108,7 +108,7 @@ theorem eLpNorm_rpow_le_add_mul (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 2 �
       rw [Pi.smul_apply, smul_eq_mul]
     rw [hfun, eLpNorm_const_smul, Real.enorm_eq_ofReal hβ]
   -- Hölder's inequality at the conjugate pair.
-  haveI := holderTriple_div_sub_one hQ
+  have := holderTriple_div_sub_one hQ
   have hholder : eLpNorm (fun a => v a ^ (Q - 1) * u a) 1 P ≤
       eLpNorm (fun a => v a ^ (Q - 1)) (ENNReal.ofReal (Q / (Q - 1))) P *
         eLpNorm u (ENNReal.ofReal Q) P := by

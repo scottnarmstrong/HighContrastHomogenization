@@ -31,8 +31,9 @@ theorem HasWeakGradientOn.untranslate {d : ℕ} {U : Set (Vec d)}
   intro i phi hphi hphiCompact hphiSupport
   let psi : Vec d → ℝ := fun x => phi (x - z)
   have hpsiSmooth : ContDiff ℝ (⊤ : ℕ∞) psi := by
-    simpa only [psi] using
+    have : ContDiff ℝ (⊤ : ℕ∞) (fun x : Vec d => phi (x - z)) :=
       hphi.comp (contDiff_id.sub contDiff_const)
+    simpa only [psi] using this
   have hpsiCompact : HasCompactSupport psi := by
     show HasCompactSupport (phi ∘ Homeomorph.subRight z)
     simpa only [psi, Function.comp_apply] using

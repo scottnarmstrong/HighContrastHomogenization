@@ -132,7 +132,7 @@ theorem isSolenoidalOn_of_isWeakSolutionOn {U : Set (Vec d)}
       filter_upwards with x
       exact vecDot_comm _ _
     _ = 0 := by
-      simpa only [smoothGrad] using hzero
+      simpa only [smoothGrad] using! hzero
 
 /-! ## The two transports -/
 

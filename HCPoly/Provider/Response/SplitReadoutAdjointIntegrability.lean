@@ -31,7 +31,7 @@ private theorem integrable_of_enorm_le_finite_mul_root
   have hnorm : eLpNorm Z 2 μ ≤ C * eLpNorm root 2 μ := by
     have h := eLpNorm_le_mul_eLpNorm_of_ae_le_mul' (μ := μ)
       (f := Z) (g := root) (c := C.toNNReal) (p := (2 : ℝ≥0∞))
-      (Filter.Eventually.of_forall fun a ↦ by
+      (_root_.Filter.Eventually.of_forall fun a ↦ by
         simpa only [Real.enorm_eq_ofReal_abs, enorm_eq_self,
           ENNReal.coe_toNNReal hC] using hbound a)
     simpa only [ENNReal.smul_def, ENNReal.coe_toNNReal hC] using h
@@ -81,11 +81,11 @@ theorem integrable_adjoint_adaptedFiveTermSplit_readouts [NeZero d]
         hq hst P g hg p r hw alpha).sub aestronglyMeasurable_const)
       hC hroot (fun a ↦ by
         simpa only [C, root, center, profileAdjointWeakRoot,
-          diagonalWeakAdjointState_eq] using
+          diagonalWeakAdjointState_eq, Pi.sub_apply] using
           (centeredChild_readout_enorm_bounds hq hm0 hst hw
             (a.subSkew g hg).transpose p r center alpha).1)
     exact (hcentered.add (integrable_const _)).congr
-      (Filter.Eventually.of_forall fun _ ↦ by dsimp; ring)
+      (_root_.Filter.Eventually.of_forall fun _ ↦ by dsimp; ring)
   · let C := ENNReal.ofReal (1024 * (d : ℝ) ^ 4 *
         (max 1 (max smoothTransitionProfile.derivBound
           smoothTransitionProfile.secondDerivBound)) ^ 2 *
@@ -103,7 +103,7 @@ theorem integrable_adjoint_adaptedFiveTermSplit_readouts [NeZero d]
         ENNReal.ofReal_ne_top
     let eta := fun x ↦ adaptedPreYoungCutoff q hq t x -
       volumeAverage (adaptedCellAt q s w) (adaptedPreYoungCutoff q hq t)
-    letI : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
+    let : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
       (Recurrence.isOpenBoundedConvexDomain_adaptedCell hq t).isFiniteMeasure_restrict_volume
     exact integrable_of_enorm_le_finite_mul_root
       (Selection.aestronglyMeasurable_volumeAverage_weighted_diagonalWeakAdjointState_subSkew_alignedIndex

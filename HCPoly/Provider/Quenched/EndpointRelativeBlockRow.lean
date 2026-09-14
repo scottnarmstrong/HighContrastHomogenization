@@ -335,7 +335,7 @@ theorem measurable_quenched_block_row [NeZero d]
     simpa only [term, endpointCellExcessSup, endpointCellExcessSet] using
       summable_endpoint_block_row hF hFpd hrho a m
   have henn : Measurable fun a => ∑' n, ENNReal.ofReal (term n a) :=
-    Measurable.ennreal_tsum fun n => ENNReal.measurable_ofReal.comp (hterm n)
+    Measurable.tsum fun n => ENNReal.measurable_ofReal.comp (hterm n)
   have hreal : Measurable fun a => ∑' n, term n a := by
     have heq : (fun a => ∑' n, term n a) =
         fun a => ENNReal.toReal (∑' n, ENNReal.ofReal (term n a)) := by

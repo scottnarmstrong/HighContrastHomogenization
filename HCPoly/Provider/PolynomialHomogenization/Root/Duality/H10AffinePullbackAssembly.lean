@@ -24,7 +24,7 @@ namespace Homogenization
 namespace HighContrast
 namespace RowSupply
 
-open MeasureTheory Filter
+open MeasureTheory _root_.Filter
 open scoped ENNReal
 
 noncomputable section
@@ -52,7 +52,7 @@ private theorem gradMemL2On_affinePullbackTranspose {L : Mat d} (hL : IsUnit L.d
   intro i
   change MemL2On (matImage L⁻¹ U)
     (fun y => ∑ j, L j i * Du (matVecMul L y) j)
-  exact memLp_finset_sum Finset.univ fun j _ =>
+  exact memLp_finsetSum Finset.univ fun j _ =>
     (memL2On_affinePullback hL hU (hDu j)).const_mul (L j i)
 
 /-- Almost-everywhere strong measurability survives the affine pullback. -/

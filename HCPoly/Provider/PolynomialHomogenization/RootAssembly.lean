@@ -474,7 +474,7 @@ theorem polynomial_homogenization_of_quenched_scale
                             Homogenization.HighContrast.weightedGradNorm (fun x => a.1
                               x)
                               (Homogenization.HighContrast.ellipsoid abar R) Du)) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨cd, hcd, hquenched⟩ := hquenched
   obtain ⟨C₀, hC₀, hdirichlet⟩ := hdirichlet
   refine ⟨cd, C₀, hcd, hC₀, ?_⟩
@@ -499,7 +499,7 @@ theorem polynomial_homogenization_of_quenched_scale
       (le_add_of_nonneg_right hexp),
     hcSrc, lt_min hkappaRate hκcor, hC₁, ?_⟩
   intro P E Ψ K S hP hstationary hunit hdagger
-  letI : MeasureTheory.IsProbabilityMeasure P := hP
+  let : MeasureTheory.IsProbabilityMeasure P := hP
   obtain ⟨Abar, Nann, alpha, Lpoly, -, X, halpha, hAbarSymm, hAbarPos,
     hlower, hupper, hcontrast, -, hLpolyOne,
     hLpolyBound, -, -, hXMeasurable, hXOne, hburn, htail,

@@ -104,7 +104,8 @@ theorem exists_scalarIdentityFiniteBestFitIntegerRateStepConstants
   refine ⟨C, hC, ?_⟩
   intro a m u k hkm
   simpa only [N, theta, finiteCenteredCubeBestFitErrorAt,
-    finiteCenteredCubeSolutionEnergy, finiteLipschitzEnergyRow] using
+    finiteCenteredCubeSolutionEnergy, finiteLipschitzEnergyRow,
+    finiteLipschitzRestriction] using
       hstep a m u k hkm
 
 /-- One fixed-step contraction for the canonical best-affine error.  This is
@@ -124,7 +125,8 @@ theorem exists_scalarIdentityFiniteBestFitOneStepConstant
   refine ⟨N, hN, C, hC, ?_⟩
   intro a m u k hkm
   simpa only [finiteCenteredCubeBestFitErrorAt,
-    finiteCenteredCubeSolutionEnergy, finiteLipschitzEnergyRow] using
+    finiteCenteredCubeSolutionEnergy, finiteLipschitzEnergyRow,
+    finiteLipschitzRestriction] using
       hstep a m u k hkm
 
 /-- Affine Caccioppoli control two centered scales below a cube. -/

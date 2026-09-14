@@ -283,7 +283,7 @@ theorem exists_initialWork_le_of_budget
           ENNReal.ofReal_mul hcoef0]
         exact add_le_add (mul_le_mul' le_rfl (ih (by omega))) le_rfl
   by_contra hnone
-  push_neg at hnone
+  push Not at hnone
   have htail : ∀ n : ℕ, n < K → eta < x (m + n) := by
     intro n hn
     have hnot := hnone n hn

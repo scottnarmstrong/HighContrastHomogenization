@@ -367,7 +367,7 @@ theorem finiteLipschitzBestResidual_memLp
   have hv := v.memL2_normalizedCubeMeasure
   simpa only [v, p, H1Function.sub_toFun,
     finiteCubeSolutionRestriction_toFun,
-    originCubeAffineH1LinearMap_toFun] using hv
+    originCubeAffineH1LinearMap_toFun] using! hv
 
 theorem finiteLipschitzAffineErrorRow_best_le
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
@@ -631,7 +631,7 @@ theorem caccioppoliPrefactor_weakError_le_one
     calc
       Real.rpow (3 : ℝ) (-2 * (k : ℝ)) =
           cubeBesovScaleWeight 2 (originCube d k) := by
-        simpa using Book.Ch03.publicDualBesovScaleWeight_eq_cubeBesovScaleWeight
+        simpa using! Book.Ch03.publicDualBesovScaleWeight_eq_cubeBesovScaleWeight
           (originCube d k) (2 : ℝ)
       _ = cubeBesovScaleWeight 1 (originCube d k) *
           cubeBesovScaleWeight 1 (originCube d k) := by
@@ -771,8 +771,13 @@ theorem exists_finiteLipschitzCaccioppoliAffineConstant
     simpa only [Q, W, D, α, K] using
       caccioppoliPrefactor_weakError_le_one hC₀ hs hsr hr_lt herror
   have hoscEq : Book.Ch03.interiorCaccioppoliParentOscillationL2Sq Q a u = L ^ 2 := by
+    have hfun : (fun x => u.toH1.toFun x - Book.Ch01.Legacy.normalizedAverage Q u.toH1.toFun) =
+        cubeFluctuation Q u.toH1.toFun := by
+      funext x
+      simp [Book.Ch01.Legacy.normalizedAverage]
     unfold Book.Ch03.interiorCaccioppoliParentOscillationL2Sq
-    simpa [L, cubeFluctuation, Book.Ch01.Legacy.normalizedAverage] using
+    rw [hfun]
+    simpa [L] using
       Book.Ch03.normalizedL2SqOnSet_openCubeSet_eq_cubeLpNorm_two_sq Q
         (cubeFluctuation Q u.toH1.toFun)
         (u.toH1.memL2_normalizedCubeMeasure.sub (memLp_const _))
@@ -909,7 +914,7 @@ theorem exists_finiteLipschitzOneStepConstant_of_harmonic_decay
         (v.memL2_normalizedCubeMeasure.sub uk.toH1.memL2_normalizedCubeMeasure) hbestMem
     rw [normalizedCubeL2Distance_comm] at h
     simpa only [H, E, uk, finiteLipschitzAffineErrorRow,
-      finiteLipschitzRestriction_toFun, min_eq_left hkm] using h
+      finiteLipschitzRestriction_toFun, min_eq_left hkm] using! h
   have hdec' :
       normalizedAffineCandidateError (originCube d (k - (N : ℤ))) v.toFun c' e' ≤
         theta * (H + E) := hdec.trans
@@ -922,9 +927,14 @@ theorem exists_finiteLipschitzOneStepConstant_of_harmonic_decay
     originCubeAffineH1LinearMap d (k - (N : ℤ)) (c', e')
   have hcandMem : MemLp (fun x ↦ v.toFun x - (c' + vecDot e' x)) (2 : ℝ≥0∞)
       (normalizedCubeMeasure (originCube d (k - (N : ℤ)))) := by
-    simpa only [vR, ellR, H1Function.sub_toFun, H1Function.restrict,
-      originCubeAffineH1LinearMap_toFun] using
-      (vR - ellR).memL2_normalizedCubeMeasure
+    have hvR : MemLp v.toFun (2 : ℝ≥0∞)
+        (normalizedCubeMeasure (originCube d (k - (N : ℤ)))) :=
+      vR.memL2_normalizedCubeMeasure
+    have hellR : MemLp (fun x => c' + vecDot e' x) (2 : ℝ≥0∞)
+        (normalizedCubeMeasure (originCube d (k - (N : ℤ)))) := by
+      simpa only [ellR, originCubeAffineH1LinearMap_toFun] using
+        ellR.memL2_normalizedCubeMeasure
+    exact hvR.sub hellR
   have htransfer := normalizedAffineCandidateError_le_distance_add
     (originCube d (k - (N : ℤ))) uk.toH1.toFun v.toFun c' e' hdiffChild hcandMem
   have hHchild : normalizedCubeL2Distance (originCube d (k - (N : ℤ)))
@@ -1036,9 +1046,9 @@ theorem exists_finiteLipschitzPoincareConstant
     simpa only [Q, P, G, Book.Ch02.cubeDomain_coe,
       Book.Ch01.Legacy.fullVectorPoincareConstant,
       fullVectorPoincareCubeConstant_eq_dimensionConstant,
-      show 2 * (s / 2) = s by ring] using hfluctRaw
+      show 2 * (s / 2) = s by ring] using! hfluctRaw
   have hnegative : N ≤ Book.Ch03.coarsePoincareGradientRHS Q a s (.finite 2) u := by
-    simpa only [N,
+    simpa only [N, solutionGradientField,
       scaleNormalizedNegativeBesovVectorNorm_finite_two_eq_cubeBesovNegativeVectorSeminormTwo] using
       Book.Ch03.coarsePoincareGradient_negativeBesov_le Q a u hs (q := .finite 2) (by norm_num)
   have hlower :

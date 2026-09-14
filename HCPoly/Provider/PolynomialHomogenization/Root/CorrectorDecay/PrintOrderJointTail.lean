@@ -61,12 +61,25 @@ private theorem sqrt_innerGradient_succ_sub_eq_energy
           (show (q : ℤ) ≤ ((q + j : ℕ) : ℤ) by omega)
           (finiteAffineSuccessorDifference a
             ((q + j : ℕ) : ℤ) e)).toH1 := by
+  let w : H1Function (openCubeSet (originCube d (q : ℤ))) :=
+    Eq.mp (by simp only [Book.Ch02.cubeDomain_coe])
+      (finiteCubeSolutionRestriction a
+        (show (q : ℤ) ≤ ((q + j : ℕ) : ℤ) by omega)
+        (finiteAffineSuccessorDifference a
+          ((q + j : ℕ) : ℤ) e)).toH1
   rw [finiteAffineInnerGradientClass_succ_sub_eq]
+  change Real.sqrt (normalizedLocalSymmetricEnergy _
+    w.gradToHilbertVectorL2) = _
   rw [Root.sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
   rw [weightedGradNorm_congr_coeff_ae_on _
     (Book.Ch03.publicCoeffField_ae_eq_openCubeSet
       (originCube d (q : ℤ)) a)]
-  rw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
+  have hgrad : w.grad =
+      (finiteCubeSolutionRestriction a
+        (show (q : ℤ) ≤ ((q + j : ℕ) : ℤ) by omega)
+        (finiteAffineSuccessorDifference a
+          ((q + j : ℕ) : ℤ) e)).toH1.grad := rfl
+  rw [hgrad, weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
   rw [ENNReal.toReal_ofReal]
   unfold Book.Ch03.h1EnergyNormOnCube
   exact Real.sqrt_nonneg _

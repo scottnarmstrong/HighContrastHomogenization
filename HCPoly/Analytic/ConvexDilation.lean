@@ -134,7 +134,7 @@ mollification in `L²` is the expensive part: the ambient library carries no
 previous section delivers smoothness on an *open* set containing `closure U`, a smooth Urysohn
 cutoff turns the dilate into a genuinely globally smooth function that agrees
 with it *exactly* on `closure U`, not merely approximately.  The cutoff is
-`exists_smooth_zero_one_nhds_of_isClosed` read through `contMDiff_iff_contDiff`
+`exists_contMDiffMap_zero_one_nhds_of_isClosed` read through `contMDiff_iff_contDiff`
 for the model `modelWithCornersSelf ℝ (Vec d)`. -/
 
 /-- **Global smooth realization.**  A function smooth on an open `S` is realized
@@ -146,8 +146,8 @@ theorem exists_contDiff_eqOn_of_contDiffOn_isOpen {S : Set (Vec d)} (hS : IsOpen
     ∃ g : Vec d → ℝ, ContDiff ℝ (⊤ : ℕ∞) g ∧ Set.EqOn g w K := by
   classical
   obtain ⟨χ, h0, h1, -⟩ :=
-    exists_smooth_zero_one_nhds_of_isClosed
-      (I := modelWithCornersSelf ℝ (Vec d)) (isClosed_compl_iff.2 hS) hK
+    exists_contMDiffMap_zero_one_nhds_of_isClosed
+      (I := modelWithCornersSelf ℝ (Vec d)) (n := ⊤) (isClosed_compl_iff.2 hS) hK
       (Set.disjoint_left.mpr fun a ha hb => ha (hKS hb))
   have hχ : ContDiff ℝ (⊤ : ℕ∞) (χ : Vec d → ℝ) :=
     contMDiff_iff_contDiff.1 χ.contMDiff

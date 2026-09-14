@@ -46,7 +46,7 @@ theorem measureReal_scaled_max_one_tail_le_of_source_lt
     intro ω hω
     have hmax : C * t ≤ max 1 (max (Rmix ω) (Ssrc ω)) := by
       apply le_of_mul_le_mul_left _ hL
-      simpa only [mul_assoc, mul_left_comm, mul_comm] using hω
+      simpa only [mul_assoc, mul_left_comm, mul_comm, Set.mem_ofPred_eq] using hω
     have hrs : C * t ≤ max (Rmix ω) (Ssrc ω) := by
       rcases le_max_iff.mp hmax with hone | hrs
       · exact False.elim (hCt.not_ge hone)

@@ -48,7 +48,7 @@ variable {d : ℕ} {s : ℝ}
 scale-`m+1` cube. -/
 theorem originCube_mem_childCubes_succ (d : ℕ) (m : ℤ) :
     originCube d m ∈ childCubes (originCube d (m + 1)) := by
-  simpa [originCube] using middleChild_mem_childCubes (originCube d (m + 1))
+  simpa [originCube] using! middleChild_mem_childCubes (originCube d (m + 1))
 
 end
 

@@ -291,7 +291,7 @@ theorem exists_scalarIdentityFiniteEnergyRecurrenceConstant
                 C * ∑ j ∈ Finset.Ioc h m,
                   scalarIdentityWeakError a s j *
                     finiteCenteredCubeSolutionEnergy a m u j := by
-  simpa only [finiteCenteredCubeSolutionEnergy, finiteLipschitzEnergyRow] using
+  simpa only [finiteCenteredCubeSolutionEnergy, finiteLipschitzEnergyRow] using!
     exists_finiteLipschitzEnergyRecurrenceConstant d s hs hs_lt
 
 

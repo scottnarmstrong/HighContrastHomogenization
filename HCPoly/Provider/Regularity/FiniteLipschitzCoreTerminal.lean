@@ -91,7 +91,7 @@ theorem exists_finiteLipschitzTerminalSlopeConstant
       finiteLipschitzBestResidual_memLp a m u (le_refl m)
   have hres₁ : MemLp (fun x ↦ u.toH1.toFun x - (c₁ + vecDot (0 : Vec d) x))
       (2 : ℝ≥0∞) (normalizedCubeMeasure (originCube d m)) := by
-    simpa only [c₁, vecDot_zero_left, add_zero, cubeFluctuation] using
+    simpa only [c₁, vecDot_zero_left, add_zero, cubeFluctuation] using!
       u.toH1.memL2_normalizedCubeMeasure.sub (memLp_const _)
   have htriangle := normalizedAffineCandidateError_zero_sub_le_add
     (originCube d m) u.toH1.toFun c₀ c₁ e₀ (0 : Vec d) hres₀ hres₁

@@ -105,7 +105,7 @@ private theorem canonicalGradient_affineAE_of_isMaximizer {q : Mat d}
   simpa only [canonicalMaximizerGradientOnCube,
     canonicalMaximizerSolutionOnCube, Book.Ch02.cubeDomain_coe,
     volumeMeasureOn,
-    volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hsame
+    volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using! hsame
 
 private theorem affineResponseDefects_of_isMaximizer {q : Mat d}
     (hq : q.PosDef) (t : ℤ)

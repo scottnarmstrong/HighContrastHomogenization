@@ -121,7 +121,7 @@ theorem outerFiniteGradient_toVec_ae
       fun x ↦ (finiteAffineSolution a m e).toH1.grad x - e := by
   exact (coeFn_toHilbertVectorL2OfVecField _).mono fun _ hx ↦ by
     simpa only [outerFiniteGradientClass, hilbertifyVecField,
-      HilbertVec.toVec_ofVec, Pi.sub_apply] using
+      HilbertVec.toVec_ofVec, Pi.sub_apply] using!
         congrArg HilbertVec.toVec hx
 
 theorem outerFiniteFlux_toVec_ae
@@ -134,7 +134,7 @@ theorem outerFiniteFlux_toVec_ae
         ((finiteAffineSolution a m e).toH1.grad x) - e := by
   exact (coeFn_toHilbertVectorL2OfVecField _).mono fun _ hx ↦ by
     simpa only [outerFiniteFluxClass, hilbertifyVecField,
-      HilbertVec.toVec_ofVec, Pi.sub_apply] using
+      HilbertVec.toVec_ofVec, Pi.sub_apply] using!
         congrArg HilbertVec.toVec hx
 
 private theorem correctorGradient_toVec_ae
@@ -149,10 +149,11 @@ private theorem correctorGradient_toVec_ae
       LocalGradientCarrier.originCubeComponent_natCast,
       NormalizedLocalH1Carrier.gradientComponent,
       NormalizedLocalH1Carrier.localH1Function_gradToHilbertVectorL2]
+    rfl
   rw [hclass]
   exact ((Phi e).localH1Function q).coeFn_gradToHilbertVectorL2.mono
     fun _ hx ↦ by
-      simpa only [hilbertifyVecField, HilbertVec.toVec_ofVec] using
+      simpa only [hilbertifyVecField, HilbertVec.toVec_ofVec] using!
         congrArg HilbertVec.toVec hx
 
 /-- The quotient remainder has the literal finite-to-joint gradient
@@ -223,9 +224,10 @@ theorem jointFluxRemainder_toVec_ae
       LocalGradientCarrier.originCubeComponent_natCast,
       NormalizedLocalH1Carrier.gradientComponent,
       NormalizedLocalH1Carrier.localH1Function_gradToHilbertVectorL2]
+    rfl
   have hcorrector := scalarIdentityCorrectorFluxDefectOnOriginCube_toVec_ae
     a Phi e (q : ℤ)
-      (by simpa only [Book.Ch02.cubeDomain_coe] using
+      (by simpa only [Book.Ch02.cubeDomain_coe] using!
         ((Phi e).localH1Function q).grad_memVectorL2)
       (by
         rw [hgradClass]

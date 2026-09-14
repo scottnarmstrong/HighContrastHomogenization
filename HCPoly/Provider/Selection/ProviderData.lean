@@ -232,8 +232,8 @@ theorem ShortHopProviderData.shrink {d : ℕ}
   intro P E Ψ K S hprob hstat hunit hdag jStar M hwin Y hY hbridge
     k mus ss r0 hmus hmus0 hjump hratio hr0 hstep hentry u hsku hdrift hdet
     mu' hmu' hcont
-  haveI : MeasureTheory.IsProbabilityMeasure P := hprob
-  letI : NeZero d := ⟨by omega⟩
+  have : MeasureTheory.IsProbabilityMeasure P := hprob
+  let : NeZero d := ⟨by omega⟩
   have hmuk : (mus k).PosDef := hmus k le_rfl
   have hjr0 : jStar < r0 := ShortHop.lt_entry_scale hdag hB hentry
   have hss0k : ss 0 + (k : ℤ) * (l0 : ℤ) ≤ ss k := ShortHop.scale_recursion hstep
@@ -270,7 +270,7 @@ theorem ShortHopProviderData.enlargeCutoff {d : ℕ}
   intro P E Ψ K S hprob hstat hunit hdag jStar M hwin Y hY hbridge
     k mus ss r0 hmus hmus0 hjump hratio hr0 hstep hentry u hsku hdrift hdet
     mu' hmu' hcont
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hPi : 1 ≤ aspectRatio E := one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hLam : 0 ≤ Real.logb 3 (2 + aspectRatio E) :=
     le_trans zero_le_one (ShortHop.one_le_logb_two_add_aspectRatio hPi)

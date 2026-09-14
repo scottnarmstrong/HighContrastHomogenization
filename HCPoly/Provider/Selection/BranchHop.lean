@@ -235,7 +235,7 @@ theorem branchT5_of_alignedConstant (hd : 2 ≤ d)
     (hmean S.base t0 hjbase hbaseT le_rfl)
   have hcharge : 0 ≤ transitionCharge P c.h c.l0 H S .t5 := by
     simpa [transitionCharge, t0] using add_nonneg hcurLoss hbaseLoss
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   have hmus : S.mu.PosDef := by rw [← hmu]; exact cert.mus_pos k le_rfl
   have hbaseCanonPos := ShortHop.posDef_canonicalMetric
     (posDef_toFullBlockMat (Recurrence.isSymmetricBlockMat_adaptedMean P S.q S.base)

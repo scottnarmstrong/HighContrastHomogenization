@@ -99,7 +99,7 @@ theorem blockSize_eq_relSize {H F : BlockMat d} (hH : IsSymmetricBlockMat H)
       BlockMatLoewnerLE (blockScale (-t) F) H} =
         {t : ℝ | 0 ≤ t ∧ toFullBlockMat H ≤ t • toFullBlockMat F} := by
     ext t
-    simp only [Set.mem_setOf_eq]
+    simp only [Set.mem_ofPred_eq]
     constructor
     · rintro ⟨ht, hup, -⟩
       refine ⟨ht, ?_⟩
@@ -147,7 +147,7 @@ theorem blockExcess_eq {H F : BlockMat d} (hH : IsSymmetricBlockMat H)
   have hset : {t : ℝ | 0 ≤ t ∧ BlockMatLoewnerLE H (blockScale (1 + t) F)} =
       Set.Ici (max (relSize (toFullBlockMat H) (toFullBlockMat F) - 1) 0) := by
     ext t
-    simp only [Set.mem_setOf_eq, Set.mem_Ici, max_le_iff]
+    simp only [Set.mem_ofPred_eq, Set.mem_Ici, max_le_iff]
     constructor
     · rintro ⟨ht, hle⟩
       have h := (blockMatLoewnerLE_iff_le hH (isSymmetricBlockMat_blockScale (1 + t) hF)).mp hle

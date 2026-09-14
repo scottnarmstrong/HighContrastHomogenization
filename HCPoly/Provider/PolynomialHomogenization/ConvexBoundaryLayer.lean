@@ -29,7 +29,6 @@ private theorem one_sub_pow_le_nat_mul_one_sub {lam : ℝ}
     (hlam0 : 0 ≤ lam) :
     1 - lam ^ d ≤ (d : ℝ) * (1 - lam) := by
   have h := one_add_mul_sub_le_pow (n := d) (a := lam) (by linarith only [hlam0])
-  push_cast at h
   linarith only [h]
 
 private theorem euclideanBallAt_dilate_subset_of_convex
@@ -96,9 +95,9 @@ theorem volume_innerBoundaryLayer_le (hd : 1 ≤ d)
   · simp only [mul_zero, zero_div, ENNReal.ofReal_zero, zero_mul]
     have hempty : {x : Vec d | x ∈ U ∧ ¬ euclideanBallAt x 0 ⊆ U} = ∅ := by
       ext x
-      simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false, not_and]
+      simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false, not_and]
       intro _hx
-      push_neg
+      push Not
       intro z hz
       have hz' := (mem_euclideanBallAt_iff z).mp hz
       norm_num at hz'
@@ -145,7 +144,7 @@ theorem volume_innerBoundaryLayer_le (hd : 1 ≤ d)
       have hRtop : ENNReal.ofReal ((d : ℝ) * t / rho) * volume U ≠ ⊤ :=
         ENNReal.mul_ne_top ENNReal.ofReal_ne_top hUtop
       refine (measure_mono hlayer).trans ?_
-      rw [measure_diff hVsub hVmeas.nullMeasurableSet hVtop]
+      rw [measure_sdiff hVsub hVmeas.nullMeasurableSet hVtop]
       rw [← ENNReal.toReal_le_toReal
         (ne_top_of_le_ne_top hUtop tsub_le_self) hRtop]
       rw [ENNReal.toReal_sub_of_le (measure_mono hVsub) hUtop, hVvol,

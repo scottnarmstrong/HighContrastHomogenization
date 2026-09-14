@@ -178,7 +178,7 @@ theorem kappaRef_le_of_matLoewnerLE_skewCorrectedForm [NeZero d] {E : BlockMat d
     (hsharp : BlockMatLoewnerLE (blockSharp E) E) {h0 : Mat d} (hskew : IsSkewMat h0)
     (hchain : MatLoewnerLE (skewCorrectedForm E h0) (t • schurSigmaStar E)) :
     kappaRef E ≤ 1 + 6 * (t - 1) := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   -- the Schur data and its positivity
   have hEfull : (toFullBlockMat E).PosDef := posDef_toFullBlockMat hsymm hpos
   have hdet : IsUnit E.lowerRight.det := isUnit_det_lowerRight hpos

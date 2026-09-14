@@ -40,7 +40,7 @@ theorem isWeakSolutionOn_finiteAffineSolution
     simpa only [← hpsiGrad] using psi.toH1Function.grad_memVectorL2
   refine ⟨integrableOn_vecDot_of_memVectorL2 htest hflux, ?_⟩
   have hzero := (finiteAffineCubeSolution a m e).isHarmonic.2 psi
-  simpa only [Q, U, b, hpsiGrad, vecDot_comm] using hzero
+  simpa only [Q, U, b, hpsiGrad, vecDot_comm] using! hzero
 
 end
 

@@ -116,7 +116,7 @@ theorem responseBoundEnergyRow_le_frame_mul_solutionEnergyRow
             responseBound aCell wCell i) ^ 2 ≤
           ENNReal.ofReal
             ((Kframe * (epsilon * Xval) ^ kappaRate) * E) ^ 2 :=
-        pow_le_pow_left₀ (zero_le _) (ENNReal.ofReal_le_ofReal hproduct) 2
+        pow_le_pow_left₀ zero_le (ENNReal.ofReal_le_ofReal hproduct) 2
       _ = ENNReal.ofReal (Kframe * (epsilon * Xval) ^ kappaRate) ^ 2 *
           ENNReal.ofReal E ^ 2 := by
         rw [ENNReal.ofReal_mul hfront, mul_pow]
@@ -172,7 +172,7 @@ theorem physicalFluxResponseRateAggregation
         responseBound aCell wCell hbase hframe
     _ ≤ ENNReal.ofReal (Kframe * (epsilon * Xval) ^ kappaRate) ^ 2 *
         (ENNReal.ofReal Kenergy * boundaryEnergy) :=
-      mul_le_mul_of_nonneg_left henergy (zero_le _)
+      mul_le_mul_of_nonneg_left henergy zero_le
     _ = ENNReal.ofReal
           ((Kframe ^ 2 * Kenergy) *
             (epsilon * Xval) ^ (2 * kappaRate)) * boundaryEnergy := by

@@ -147,7 +147,7 @@ theorem eLpNorm_profileTotalMaximum_eq
   have hp0 : ENNReal.ofReal Q ≠ 0 := by
     rw [ne_eq, ENNReal.ofReal_eq_zero, not_le]
     exact hQ
-  rw [eLpNorm_eq_lintegral_rpow_enorm hp0 ENNReal.ofReal_ne_top,
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top,
     ENNReal.toReal_ofReal hQ.le, one_div]
   simp only [enorm_eq_self]
   rfl

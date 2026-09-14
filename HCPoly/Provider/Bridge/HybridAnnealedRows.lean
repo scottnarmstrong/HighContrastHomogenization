@@ -123,24 +123,75 @@ theorem adaptedMean_le_hybrid_rows [NeZero d] [IsProbabilityMeasure P]
   let FG : CoeffSpace d → FullBlockMat d := fun a =>
     (3 * Cg * gridRatio q q' * boundaryConst Cd g mq * zetaG g *
       (3 : ℝ) ^ (jStar - (n + l)) * Y a) • toFullBlockMat E
-  have hpackI : Integrable Fp P := by
-    dsimp only [Fp]
-    simpa only [Pi.smul_apply] using integrable_finset_sum Zp (fun w hw =>
-      (integrable_toFullBlockMat (hpackint w hw)).smul
-        ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal))
-  have hrowI : Integrable Fr P := by
-    dsimp only [Fr]
-    simpa only [Pi.smul_apply] using
-      integrable_finset_sum (Finset.Icc jStar n) (fun r hr =>
-        integrable_finset_sum (Z r) fun w hw =>
-          (integrable_toFullBlockMat (hrowint r hr w hw)).smul
-            ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal))
-  have hGI : Integrable FG P := by
-    dsimp only [FG]
-    exact (hYint.const_mul (3 * Cg * gridRatio q q' *
-      boundaryConst Cd g mq * zetaG g *
-        (3 : ℝ) ^ (jStar - (n + l)))).smul_const (toFullBlockMat E)
-  have hsumI : Integrable (fun a => Fp a + Fr a) P := hpackI.add hrowI
+  -- The scalar-entry route around the ambient `FullBlockMat d` norm instance: every
+  -- integrability fact below is proved one real-valued entry at a time and then
+  -- reassembled, so no combinator ever has to compare two `ContinuousENorm` instances
+  -- on the matrix type itself.
+  have hentry : ∀ U : Set (Vec d), HasIntegrableCoarseBlock P U → ∀ i j : BlockCoord d,
+      Integrable (fun a => toFullBlockMat (coarseBlock U a) i j) P := fun U hU i j => by
+    simpa only [toFullBlockMat_eq_blockMatEntry] using hU i j
+  have hscaledEntry : ∀ (c : ℝ) (U : Set (Vec d)), HasIntegrableCoarseBlock P U →
+      ∀ i j : BlockCoord d,
+      Integrable (fun a => (c • toFullBlockMat (coarseBlock U a)) i j) P := by
+    intro c U hU i j
+    have heq : (fun a => (c • toFullBlockMat (coarseBlock U a)) i j) =
+        fun a => c * toFullBlockMat (coarseBlock U a) i j :=
+      funext fun a => by rw [Matrix.smul_apply, smul_eq_mul]
+    rw [heq]
+    exact (hentry U hU i j).const_mul c
+  have hscaled : ∀ (c : ℝ) (U : Set (Vec d)), HasIntegrableCoarseBlock P U →
+      Integrable (fun a => c • toFullBlockMat (coarseBlock U a)) P :=
+    fun c U hU => integrable_of_entries (hscaledEntry c U hU)
+  have hpackEntry : ∀ i j : BlockCoord d, Integrable (fun a => Fp a i j) P := by
+    intro i j
+    have heq : (fun a => Fp a i j) = fun a => ∑ w ∈ Zp,
+        ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal) *
+          toFullBlockMat (coarseBlock (adaptedCellAt q' n w) a) i j := by
+      funext a
+      dsimp only [Fp]
+      rw [Matrix.sum_apply]
+      exact Finset.sum_congr rfl fun w _ => by rw [Matrix.smul_apply, smul_eq_mul]
+    rw [heq]
+    exact integrable_finsetSum Zp fun w hw =>
+      (hentry _ (hpackint w hw) i j).const_mul
+        ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal)
+  have hrowEntry : ∀ i j : BlockCoord d, Integrable (fun a => Fr a i j) P := by
+    intro i j
+    have heq : (fun a => Fr a i j) = fun a =>
+        ∑ r ∈ Finset.Icc jStar n, ∑ w ∈ Z r,
+          ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) *
+            toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) i j := by
+      funext a
+      dsimp only [Fr]
+      rw [Matrix.sum_apply]
+      refine Finset.sum_congr rfl fun r _ => ?_
+      rw [Matrix.sum_apply]
+      exact Finset.sum_congr rfl fun w _ => by rw [Matrix.smul_apply, smul_eq_mul]
+    rw [heq]
+    exact integrable_finsetSum (Finset.Icc jStar n) fun r hr =>
+      integrable_finsetSum (Z r) fun w hw =>
+        (hentry _ (hrowint r hr w hw) i j).const_mul
+          ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal)
+  have hGEntry : ∀ i j : BlockCoord d, Integrable (fun a => FG a i j) P := by
+    intro i j
+    have heq : (fun a => FG a i j) = fun a =>
+        (3 * Cg * gridRatio q q' * boundaryConst Cd g mq * zetaG g *
+          (3 : ℝ) ^ (jStar - (n + l)) * Y a) * toFullBlockMat E i j := by
+      funext a
+      dsimp only [FG]
+      rw [Matrix.smul_apply, smul_eq_mul]
+    rw [heq]
+    exact (hYint.const_mul (3 * Cg * gridRatio q q' * boundaryConst Cd g mq * zetaG g *
+      (3 : ℝ) ^ (jStar - (n + l)))).mul_const (toFullBlockMat E i j)
+  have hpackI : Integrable Fp P := integrable_of_entries hpackEntry
+  have hrowI : Integrable Fr P := integrable_of_entries hrowEntry
+  have hGI : Integrable FG P := integrable_of_entries hGEntry
+  have hsumI : Integrable (fun a => Fp a + Fr a) P := by
+    refine integrable_of_entries fun i j => ?_
+    have heq : (fun a => (Fp a + Fr a) i j) = fun a => Fp a i j + Fr a i j := by
+      funext a; rw [Matrix.add_apply]
+    rw [heq]
+    exact (hpackEntry i j).add (hrowEntry i j)
   have hrightInt : Integrable (fun a : CoeffSpace d =>
       (∑ w ∈ Zp, ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal) •
         toFullBlockMat (coarseBlock (adaptedCellAt q' n w) a)) +
@@ -150,15 +201,40 @@ theorem adaptedMean_le_hybrid_rows [NeZero d] [IsProbabilityMeasure P]
       (3 * Cg * gridRatio q q' * boundaryConst Cd g mq * zetaG g *
         (3 : ℝ) ^ (jStar - (n + l)) * Y a) • toFullBlockMat E) P := by
     change Integrable (Fp + Fr + FG) P
-    exact (hpackI.add hrowI).add hGI
+    refine integrable_of_entries fun i j => ?_
+    have heq : (fun a => (Fp + Fr + FG) a i j) =
+        fun a => Fp a i j + Fr a i j + FG a i j := by
+      funext a
+      rw [Pi.add_apply, Pi.add_apply, Matrix.add_apply, Matrix.add_apply]
+    rw [heq]
+    exact ((hpackEntry i j).add (hrowEntry i j)).add (hGEntry i j)
   have hint := integral_mono' (integrable_toFullBlockMat hWint) hrightInt hraw
   rw [← toFullBlockMat_annealedBlock hWint] at hint
   change toFullBlockMat (annealedBlock P W) ≤
     ∫ a, (Fp a + Fr a) + FG a ∂P at hint
   have houter : (∫ a, (Fp a + Fr a) + FG a ∂P) =
-      (∫ a, Fp a + Fr a ∂P) + ∫ a, FG a ∂P := integral_add hsumI hGI
+      (∫ a, Fp a + Fr a ∂P) + ∫ a, FG a ∂P := by
+    apply Matrix.ext
+    intro i j
+    rw [Matrix.add_apply, entry_integral hrightInt i j, entry_integral hsumI i j,
+      entry_integral hGI i j]
+    have heq : (fun a => ((Fp a + Fr a) + FG a) i j) = fun a => (Fp a + Fr a) i j + FG a i j :=
+      funext fun a => by rw [Matrix.add_apply]
+    have hpr : Integrable (fun a => (Fp a + Fr a) i j) P := by
+      have heq2 : (fun a => (Fp a + Fr a) i j) = fun a => Fp a i j + Fr a i j :=
+        funext fun a => by rw [Matrix.add_apply]
+      rw [heq2]
+      exact (hpackEntry i j).add (hrowEntry i j)
+    rw [heq, integral_add hpr (hGEntry i j)]
   have hinner : (∫ a, Fp a + Fr a ∂P) =
-      (∫ a, Fp a ∂P) + ∫ a, Fr a ∂P := integral_add hpackI hrowI
+      (∫ a, Fp a ∂P) + ∫ a, Fr a ∂P := by
+    apply Matrix.ext
+    intro i j
+    rw [Matrix.add_apply, entry_integral hsumI i j, entry_integral hpackI i j,
+      entry_integral hrowI i j]
+    have heq : (fun a => (Fp a + Fr a) i j) = fun a => Fp a i j + Fr a i j :=
+      funext fun a => by rw [Matrix.add_apply]
+    rw [heq, integral_add (hpackEntry i j) (hrowEntry i j)]
   rw [houter, hinner] at hint
   dsimp only [Fp, Fr, FG] at hint
   have hpackSum :
@@ -168,10 +244,19 @@ theorem adaptedMean_le_hybrid_rows [NeZero d] [IsProbabilityMeasure P]
         ∑ w ∈ Zp, ∫ a,
           ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal) •
             toFullBlockMat (coarseBlock (adaptedCellAt q' n w) a) ∂P := by
-    simpa only [Pi.smul_apply] using
-      (integral_finset_sum Zp fun w hw =>
-        (integrable_toFullBlockMat (hpackint w hw)).smul
-          ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal))
+    apply Matrix.ext
+    intro i j
+    rw [Matrix.sum_apply, entry_integral hpackI i j]
+    have heqL : (fun a => Fp a i j) = fun a => ∑ w ∈ Zp,
+        (((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal) •
+          toFullBlockMat (coarseBlock (adaptedCellAt q' n w) a)) i j := by
+      funext a; dsimp only [Fp]; rw [Matrix.sum_apply]
+    rw [heqL,
+      integral_finsetSum Zp fun w hw =>
+        hscaledEntry ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal)
+          (adaptedCellAt q' n w) (hpackint w hw) i j]
+    exact Finset.sum_congr rfl fun w hw =>
+      (entry_integral (hscaled _ _ (hpackint w hw)) i j).symm
   have hrowSum :
       (∫ a, ∑ r ∈ Finset.Icc jStar n, ∑ w ∈ Z r,
         ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) •
@@ -179,20 +264,29 @@ theorem adaptedMean_le_hybrid_rows [NeZero d] [IsProbabilityMeasure P]
         ∑ r ∈ Finset.Icc jStar n, ∑ w ∈ Z r, ∫ a,
           ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) •
             toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) ∂P := by
-    calc
-      _ = ∑ r ∈ Finset.Icc jStar n, ∫ a, ∑ w ∈ Z r,
-          ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) •
-            toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) ∂P := by
-        simpa only [Pi.smul_apply] using
-          (integral_finset_sum (Finset.Icc jStar n) fun r hr =>
-            integrable_finset_sum (Z r) fun w hw =>
-              (integrable_toFullBlockMat (hrowint r hr w hw)).smul
-                ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal))
-      _ = _ := Finset.sum_congr rfl fun r hr => by
-        simpa only [Pi.smul_apply] using
-          (integral_finset_sum (Z r) fun w hw =>
-            (integrable_toFullBlockMat (hrowint r hr w hw)).smul
-              ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal))
+    apply Matrix.ext
+    intro i j
+    rw [Matrix.sum_apply, entry_integral hrowI i j]
+    have heqL : (fun a => Fr a i j) = fun a =>
+        ∑ r ∈ Finset.Icc jStar n, ∑ w ∈ Z r,
+          (((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) •
+            toFullBlockMat (coarseBlock (adaptedCellAt q r w) a)) i j := by
+      funext a
+      dsimp only [Fr]
+      rw [Matrix.sum_apply]
+      exact Finset.sum_congr rfl fun r _ => by rw [Matrix.sum_apply]
+    rw [heqL,
+      integral_finsetSum (Finset.Icc jStar n) fun r hr =>
+        integrable_finsetSum (Z r) fun w hw =>
+          hscaledEntry ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal)
+            (adaptedCellAt q r w) (hrowint r hr w hw) i j]
+    refine Finset.sum_congr rfl fun r hr => ?_
+    rw [Matrix.sum_apply,
+      integral_finsetSum (Z r) fun w hw =>
+        hscaledEntry ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal)
+          (adaptedCellAt q r w) (hrowint r hr w hw) i j]
+    exact Finset.sum_congr rfl fun w hw =>
+      (entry_integral (hscaled _ _ (hrowint r hr w hw)) i j).symm
   rw [hpackSum, hrowSum] at hint
   have hmeasp : HasMeasurableCoarseBlock P (adaptedCell q' n) :=
     Recurrence.hasMeasurableCoarseBlock_adaptedCell P hq'pd n
@@ -204,20 +298,59 @@ theorem adaptedMean_le_hybrid_rows [NeZero d] [IsProbabilityMeasure P]
         ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal) •
           toFullBlockMat (adaptedMean P q' n) := by
     intro w hw
-    rw [integral_smul, ← toFullBlockMat_annealedBlock (hpackint w hw),
-      Recurrence.annealedBlock_adaptedCellAt_eq_adaptedMean hP hq' hjn hmeasp w]
+    have hbase : (∫ a, toFullBlockMat (coarseBlock (adaptedCellAt q' n w) a) ∂P) =
+        toFullBlockMat (adaptedMean P q' n) := by
+      rw [← toFullBlockMat_annealedBlock (hpackint w hw),
+        Recurrence.annealedBlock_adaptedCellAt_eq_adaptedMean hP hq' hjn hmeasp w]
+    apply Matrix.ext
+    intro i j
+    rw [Matrix.smul_apply, smul_eq_mul,
+      entry_integral (hscaled ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal)
+        (adaptedCellAt q' n w) (hpackint w hw)) i j]
+    have heqL : (fun a => (((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal) •
+        toFullBlockMat (coarseBlock (adaptedCellAt q' n w) a)) i j) =
+        fun a => ((volume (adaptedCellAt q' n w)).toReal / (volume W).toReal) *
+          toFullBlockMat (coarseBlock (adaptedCellAt q' n w) a) i j :=
+      funext fun a => by rw [Matrix.smul_apply, smul_eq_mul]
+    rw [heqL, integral_const_mul,
+      ← entry_integral (integrable_toFullBlockMat (hpackint w hw)) i j, hbase]
   have hrmean : ∀ r ∈ Finset.Icc jStar n, ∀ w ∈ Z r,
       ∫ a, ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) •
           toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) ∂P =
         ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) •
           toFullBlockMat (adaptedMean P q r) := by
     intro r hr w hw
-    rw [integral_smul, ← toFullBlockMat_annealedBlock (hrowint r hr w hw),
-      Recurrence.annealedBlock_adaptedCellAt_eq_adaptedMean hP hq
-        (Finset.mem_Icc.mp hr).1 (hmeasq r) w]
+    have hbase : (∫ a, toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) ∂P) =
+        toFullBlockMat (adaptedMean P q r) := by
+      rw [← toFullBlockMat_annealedBlock (hrowint r hr w hw),
+        Recurrence.annealedBlock_adaptedCellAt_eq_adaptedMean hP hq
+          (Finset.mem_Icc.mp hr).1 (hmeasq r) w]
+    apply Matrix.ext
+    intro i j
+    rw [Matrix.smul_apply, smul_eq_mul,
+      entry_integral (hscaled ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal)
+        (adaptedCellAt q r w) (hrowint r hr w hw)) i j]
+    have heqL : (fun a => (((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) •
+        toFullBlockMat (coarseBlock (adaptedCellAt q r w) a)) i j) =
+        fun a => ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) *
+          toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) i j :=
+      funext fun a => by rw [Matrix.smul_apply, smul_eq_mul]
+    rw [heqL, integral_const_mul,
+      ← entry_integral (integrable_toFullBlockMat (hrowint r hr w hw)) i j, hbase]
+  have hYE : (∫ a, (3 * Cg * gridRatio q q' * boundaryConst Cd g mq * zetaG g *
+        (3 : ℝ) ^ (jStar - (n + l)) * Y a) • toFullBlockMat E ∂P) =
+      (3 * Cg * gridRatio q q' * boundaryConst Cd g mq * zetaG g *
+        (3 : ℝ) ^ (jStar - (n + l)) * (∫ a, Y a ∂P)) • toFullBlockMat E := by
+    apply Matrix.ext
+    intro i j
+    rw [Matrix.smul_apply, smul_eq_mul, entry_integral hGI i j]
+    have heqL : (fun a => FG a i j) = fun a =>
+        (3 * Cg * gridRatio q q' * boundaryConst Cd g mq * zetaG g *
+          (3 : ℝ) ^ (jStar - (n + l)) * Y a) * toFullBlockMat E i j := by
+      funext a; dsimp only [FG]; rw [Matrix.smul_apply, smul_eq_mul]
+    rw [heqL, integral_mul_const, integral_const_mul]
   rw [Finset.sum_congr rfl hpmean,
-    Finset.sum_congr rfl fun r hr => Finset.sum_congr rfl (hrmean r hr),
-    integral_smul_const, integral_const_mul] at hint
+    Finset.sum_congr rfl fun r hr => Finset.sum_congr rfl (hrmean r hr), hYE] at hint
   have hfactor :
       (∑ r ∈ Finset.Icc jStar n, ∑ w ∈ Z r,
         ((volume (adaptedCellAt q r w)).toReal / (volume W).toReal) •

@@ -97,7 +97,7 @@ theorem coarseBlock_adaptedCell_burnsplit_nss
       nlinarith only [hcoef2, hnssg1]
     exact blockScale_loewner_mono hquadE hcoefle X
   · -- the tail event: the ceiling is paid by the normalized source scale
-    push_neg at hS
+    push Not at hS
     have hSa0 : (0 : ℝ) < Sh a :=
       lt_trans (zpow_pos (by norm_num) _) hS
     set m : ℤ := ⌈Real.logb 3 (Sh a)⌉ with hmdef

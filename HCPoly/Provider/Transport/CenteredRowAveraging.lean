@@ -208,7 +208,7 @@ theorem lqSchattenSize_filling_rows_le {P : Measure (CoeffSpace d)} [IsProbabili
     have hsum := Finset.aestronglyMeasurable_sum (Z r) fun w (_ : w ∈ Z r) =>
       Recurrence.aestronglyMeasurable_toFullBlockMat_normalizedBlock_blockSub
         (Recurrence.hasMeasurableCoarseBlock_adaptedCellAt P hqPD r w) (adaptedMean P q r) F alp bet
-    refine hsum.congr (Filter.Eventually.of_forall fun a => ?_)
+    refine hsum.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
     simp only [Finset.sum_apply]
     rfl
   have hfun : ∀ alp bet : BlockCoord d,
@@ -228,7 +228,7 @@ theorem lqSchattenSize_filling_rows_le {P : Measure (CoeffSpace d)} [IsProbabili
     rw [lqNorm, hfun alp bet]
     refine le_trans (eLpNorm_sum_le (fun r _ => (hGmeas r alp bet).const_smul (c r)) hone) ?_
     refine Finset.sum_le_sum fun r hr => ?_
-    rw [eLpNorm_const_smul, lqNorm, ← ofReal_norm_eq_enorm, Real.norm_of_nonneg (hc r hr)]
+    rw [eLpNorm_const_smul, lqNorm, ← ofReal_norm, Real.norm_of_nonneg (hc r hr)]
   -- the per-row estimate of the finite-range averaging lemma
   have hrow : ∀ (alp bet : BlockCoord d), ∀ r ∈ R,
       ENNReal.ofReal (c r) * lqNorm P Q (G r alp bet) ≤

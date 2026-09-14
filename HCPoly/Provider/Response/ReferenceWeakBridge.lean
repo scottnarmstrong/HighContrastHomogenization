@@ -67,7 +67,7 @@ theorem image_translateCube_alignedIndex_one_eq_descendantsAtDepth
       openCubeSet_subset_cubeSet _
         (Recurrence.standardCellCenter_mem_standardCell k w)
     have hSscale : S.scale = k := by
-      simpa [k] using scale_eq_sub_of_mem_descendantsAtDepth hS
+      simpa [k] using! scale_eq_sub_of_mem_descendantsAtDepth hS
     have hscale : (translateCube w (originCube d k)).scale = S.scale := by
       change k = S.scale
       exact hSscale.symm
@@ -78,7 +78,7 @@ theorem image_translateCube_alignedIndex_one_eq_descendantsAtDepth
     simpa [k, heq] using hS
   · intro hR
     have hscale : R.scale = k := by
-      simpa [k] using scale_eq_sub_of_mem_descendantsAtDepth hR
+      simpa [k] using! scale_eq_sub_of_mem_descendantsAtDepth hR
     have hrepr : R = translateCube R.index (originCube d k) := by
       rcases R with ⟨rscale, rindex⟩
       simp only at hscale
@@ -227,7 +227,7 @@ private theorem partialSeminorm_slot_le {t : ℤ} {F : Vec d → BlockVec d}
   unfold cubeBesovNegativeVectorDepthSeminorm
   have hpow : 0 ≤ Real.rpow (3 : ℝ) (-s * (j : ℝ)) :=
     Real.rpow_nonneg (by norm_num) _
-  simpa only [neg_mul] using mul_le_mul_of_nonneg_left (hslot j) hpow
+  simpa only [neg_mul] using! mul_le_mul_of_nonneg_left (hslot j) hpow
 
 private theorem ofReal_partialSeminorm_slot_le_normalized
     {t : ℤ} {F : Vec d → BlockVec d}

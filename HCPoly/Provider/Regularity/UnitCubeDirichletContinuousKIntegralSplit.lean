@@ -45,11 +45,11 @@ private theorem unitCubeDirichletDivergence_normalizedEuclideanLpENorm_grad_le
     centeredCubeDirichletDivergence_normalizedEuclideanLpENorm_grad_le
       (unitCubeEuclideanL2FieldToCenteredCubeZero h) w
       (by
-        simpa only [unitCubeEuclideanL2FieldToCenteredCubeZero_apply] using hproblem)
+        simpa only [unitCubeEuclideanL2FieldToCenteredCubeZero_apply] using! hproblem)
   simpa only [centeredCubeDomain, unitCenteredCubeDomain,
     unitCubeEuclideanL2FieldToCenteredCubeZero_apply,
     centeredCubeGradientEuclideanL2Field_apply,
-    unitCubeGradientEuclideanL2Field_apply] using hbound
+    unitCubeGradientEuclideanL2Field_apply] using! hbound
 
 private theorem continuousKGradientNorm_default_eq_zero {d : ℕ} :
     continuousKGradientNorm (default : ContinuousKCompetitor d) = 0 := by
@@ -183,7 +183,7 @@ private theorem continuousKWeight_lintegral_inv_one
     (MeasureTheory.ofReal_integral_eq_lintegral_ofReal hintegrable hnonneg).symm
   have hinvRpow : Real.rpow A⁻¹ (-(2 * s.1)) =
       Real.rpow A (2 * s.1) := by
-    simpa only [inv_inv] using
+    simpa only [inv_inv] using!
       (Real.rpow_neg_eq_inv_rpow A⁻¹ (2 * s.1))
   have hintegral :
       (∫ t in Set.Ioo A⁻¹ (1 : ℝ), Real.rpow t r) =

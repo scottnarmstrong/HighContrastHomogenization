@@ -56,7 +56,7 @@ variable {d : ℕ}
 /-- A backward difference telescopes over `Finset.Icc (u+1) v`. -/
 private theorem sum_Icc_sub_pred {M : Type*} [AddCommGroup M] (f : ℤ → M) {u v : ℤ}
     (huv : u ≤ v) : ∑ j ∈ Finset.Icc (u + 1) v, (f (j - 1) - f j) = f u - f v := by
-  induction v, huv using Int.le_induction with
+  induction v, huv using Int.leInduction with
   | base =>
     have hempty : Finset.Icc (u + 1) u = (∅ : Finset ℤ) := by
       ext x

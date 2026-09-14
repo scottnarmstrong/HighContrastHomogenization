@@ -21,7 +21,7 @@ without separating the selected random scale from its certificate.
 
 namespace Homogenization.HighContrast.Quenched
 
-open Filter MeasureTheory
+open _root_.Filter MeasureTheory
 
 noncomputable section
 
@@ -170,7 +170,7 @@ theorem exists_quenched_minimal_scale_of_coupled_providers
                 ∀ a ∈ OmegaEnd,
                   HasAllLaterPhysicalBlockRow ((1 + 3 * g) / 4)
                     kappa delta Abar S X a := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨cd, hcd, hCoupled⟩ := hCoupled
   refine ⟨cd, hcd, ?_⟩
   intro g hg
@@ -200,7 +200,7 @@ theorem exists_quenched_minimal_scale_of_coupled_providers
   refine ⟨C, cSrc, kappa, delta, zero_lt_one.trans hC,
     zero_lt_one.trans hcSrc, hkappa, hdelta, ?_⟩
   intro P E Psi K S hP hstationary hunit hdagger
-  letI : IsProbabilityMeasure P := hP
+  let : IsProbabilityMeasure P := hP
   obtain ⟨nBase, Pbase, gBase, Ebase, PsiBase, Kbase, Sbase,
     hgBase, hPbase, hstationaryBase, hunitBase, hdaggerBase,
     hentryBase, hcontrastBase, hcontrastCovariance, hblockCovariance,

@@ -69,7 +69,8 @@ private theorem affineReferencePrimalLoad_inverseAffinePrimalLoad
   rcases X with ⟨x, y⟩
   have hqdet : IsUnit q.det := isUnit_det_of_posDef hq
   have hqT : matTranspose q = q := by
-    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial,
+      Matrix.IsHermitian] using
       hq.isHermitian
   rw [Prod.mk.injEq]
   constructor
@@ -84,7 +85,8 @@ private theorem affineReferenceDualLoad_inverseAffineDualLoad
   rcases X with ⟨x, y⟩
   have hqdet : IsUnit q.det := isUnit_det_of_posDef hq
   have hqT : matTranspose q = q := by
-    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial,
+      Matrix.IsHermitian] using
       hq.isHermitian
   rw [Prod.mk.injEq]
   constructor
@@ -210,12 +212,13 @@ private theorem roundedAffineLoad_common_iff_constantBlock
   have hq : q.PosDef := by
     simpa only [q] using posDef_baseRoundedGrid hS
   have hA : A.PosDef := by
-    simpa only [A] using roundedReferenceMatrix_posDef abar hS
+    simpa only [A] using! roundedReferenceMatrix_posDef abar hS
   have hLT : matTranspose L = L := by
-    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial,
+      Matrix.IsHermitian] using
       hL.isHermitian
   have hqT : matTranspose q = q := by
-    simpa only [q] using matTranspose_baseRoundedGrid hS
+    simpa only [q] using! matTranspose_baseRoundedGrid hS
   have hLdet : IsUnit L.det := isUnit_det_of_posDef hL
   have hqdet : IsUnit q.det := isUnit_det_of_posDef hq
   have hAeq : A = q⁻¹ * (L * L) * q⁻¹ := by
@@ -585,12 +588,13 @@ private theorem normalizedBlockResponseValueSet_eq_baseRoundedPhysical
               a abar hS U P Q
         _ = Transport.coeffSpaceDoubledResponse
             (adaptedCellAt q k w) a PPhysical QPhysical := by
-          simpa only [U, q] using
-            (Transport.coeffSpaceDoubledResponse_eq_doubledResponseJ
+          have hset : adaptedCellAt q k w = U.carrier := rfl
+          rw [hset]
+          exact (Transport.coeffSpaceDoubledResponse_eq_doubledResponseJ
               U a PPhysical QPhysical).symm
     refine ⟨ePhysical, PPhysical, QPhysical, hePhysical,
       hPPhysical, hQPhysical, ?_⟩
-    simpa only [A, R, P₀, Q₀, q] using hresponse
+    simpa only [A, R, P₀, Q₀, q] using! hresponse
   · rintro ⟨e, PPhysical, QPhysical, he,
       hPPhysical, hQPhysical, rfl⟩
     let alpha := Real.sqrt (specBound (symmPart abar)⁻¹)
@@ -656,8 +660,9 @@ private theorem normalizedBlockResponseValueSet_eq_baseRoundedPhysical
             (adaptedCellAt q k w) a PPhysical QPhysical =
           Book.Ch02.doubledResponseJ U (a.coeffOn U)
             PPhysical QPhysical := by
-          simpa only [U, q] using
-            Transport.coeffSpaceDoubledResponse_eq_doubledResponseJ
+          have hset : adaptedCellAt q k w = U.carrier := rfl
+          rw [hset]
+          exact Transport.coeffSpaceDoubledResponse_eq_doubledResponseJ
               U a PPhysical QPhysical
         _ = Book.Ch02.doubledResponseJ U
             ((normalizedCenteredCoeff a abar hS).coeffOn U) P Q :=
@@ -714,7 +719,7 @@ private theorem
       ((Matrix.isUnit_iff_isUnit_det q).mp hq.isUnit)
       (normalizedCenteredCoeff a abar hS)
     simpa only [volumeMeasureOn, roundedCenteredCoeffSpace, q,
-      CoeffSpace.coeffOn_toCoeffField] using ae_restrict_of_ae hpull
+      CoeffSpace.coeffOn_toCoeffField] using! ae_restrict_of_ae hpull
   calc
     Book.Ch02.normalizedBlockResponseMax
         (translateCube w (originCube d k)) aRounded
@@ -1021,7 +1026,7 @@ private theorem
         apply Finset.sum_congr rfl
         intro j _hj
         ring
-      rw [hfun, MeasureTheory.integral_finset_sum]
+      rw [hfun, MeasureTheory.integral_finsetSum]
       · apply Finset.sum_congr rfl
         intro j _hj
         rw [MeasureTheory.integral_const_mul]
@@ -1086,9 +1091,9 @@ private theorem cubeLpNorm_eq_of_ae_eq_on_parent_cube
   have hvol : f =ᵐ[MeasureTheory.volume.restrict (cubeSet R)] g := by
     exact MeasureTheory.ae_restrict_of_ae_restrict_of_subset
       (cubeSet_subset_of_mem_descendantsAtDepth hR)
-      (by simpa only [volumeMeasureOn] using hfg)
+      (by simpa only [volumeMeasureOn] using! hfg)
   have hnorm : f =ᵐ[normalizedCubeMeasure R] g := by
-    simpa only [normalizedCubeMeasure, cubeMeasure] using
+    simpa only [normalizedCubeMeasure, cubeMeasure, Filter.EventuallyEq] using
       MeasureTheory.Measure.ae_smul_measure hvol
         (ENNReal.ofReal ((cubeVolume R)⁻¹))
   unfold cubeLpNorm

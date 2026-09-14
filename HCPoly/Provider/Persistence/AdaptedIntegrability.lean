@@ -146,14 +146,14 @@ theorem hasFiniteAdaptedMean_of_le [NeZero d] {P : Measure (CoeffSpace d)}
       Integrable (fun a => blockEntrySum (coarseBlock (adaptedCellAt q t w) a)) P := by
     intro w
     simp only [blockEntrySum]
-    exact integrable_finset_sum _ fun γ _ =>
-      integrable_finset_sum _ fun δ _ => (hchild w γ δ).abs
+    exact integrable_finsetSum _ fun γ _ =>
+      integrable_finsetSum _ fun δ _ => (hchild w γ δ).abs
   have hdom : Integrable (fun a => 2 * ((Z.card : ℝ)⁻¹ *
       ∑ w ∈ Z, blockEntrySum (coarseBlock (adaptedCellAt q t w) a))) P :=
-    ((integrable_finset_sum Z fun w _ => hscale w).const_mul _).const_mul _
+    ((integrable_finsetSum Z fun w _ => hscale w).const_mul _).const_mul _
   refine Integrable.mono' hdom
     (Recurrence.hasMeasurableCoarseBlock_adaptedCell_of_isRoundedGrid P hq u α β)
-    (Filter.Eventually.of_forall fun a => ?_)
+    (_root_.Filter.Eventually.of_forall fun a => ?_)
   rw [Real.norm_eq_abs]
   exact abs_blockMatEntry_coarseBlock_adaptedCell_le_average
     (Recurrence.posDef_of_isRoundedGrid hq) htu hZ a α β

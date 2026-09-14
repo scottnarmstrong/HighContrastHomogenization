@@ -85,7 +85,7 @@ theorem aemeasurable_blockSize_averageDefect [NeZero d]
     have h1 := Recurrence.hasMeasurableCoarseBlock_adaptedCellAt P hq k w γ δ
     have h2 := Recurrence.hasMeasurableCoarseBlock_adaptedCell P hq t γ δ
     have h := h1.sub h2
-    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using h
+    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using! h
   have hraw : AEMeasurable (fun a => fun γ δ : BlockCoord d =>
       (((Response.alignedIndex q k t).card : ℝ))⁻¹ *
         ∑ w ∈ Response.alignedIndex q k t,
@@ -101,13 +101,13 @@ theorem aemeasurable_blockSize_averageDefect [NeZero d]
     refine Continuous.measurable (continuous_norm.comp ?_)
     refine continuous_matrix fun α β => ?_
     simp only [Matrix.mul_apply, Matrix.of_apply]
-    refine continuous_finset_sum _ fun δ _ => ?_
-    refine Continuous.mul (continuous_finset_sum _ fun γ _ => ?_)
+    refine continuous_finsetSum _ fun δ _ => ?_
+    refine Continuous.mul (continuous_finsetSum _ fun γ _ => ?_)
       continuous_const
     exact Continuous.mul continuous_const
       ((continuous_apply δ).comp (continuous_apply γ))
   have hcomp := hcont.comp_aemeasurable hraw
-  refine hcomp.congr (Filter.Eventually.of_forall fun a => ?_)
+  refine hcomp.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
   show ‖matSqrt (toFullBlockMat F)⁻¹ *
       (Matrix.of fun γ δ : BlockCoord d =>
         (((Response.alignedIndex q k t).card : ℝ))⁻¹ *

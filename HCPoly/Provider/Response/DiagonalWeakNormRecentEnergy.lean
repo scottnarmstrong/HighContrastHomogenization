@@ -41,7 +41,7 @@ theorem responseIntegrand_diagonalWeakOptimizer_integrableOn
   obtain ⟨hg, hf⟩ := diagonalWeakState_memVectorL2 hq t a p r
   change MemVectorL2 (adaptedCell q t) g at hg
   change MemVectorL2 (adaptedCell q t) f at hf
-  letI : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
+  let : IsFiniteMeasure (volumeMeasureOn (adaptedCell q t)) :=
     (Recurrence.isOpenBoundedConvexDomain_adaptedCell hq t).isFiniteMeasure_restrict_volume
   have hp : MemVectorL2 (adaptedCell q t) (fun _ => p) := memLp_const p
   have hr : MemVectorL2 (adaptedCell q t) (fun _ => r) := memLp_const r

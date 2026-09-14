@@ -60,7 +60,7 @@ theorem reference_le_annealedBlock_centeredCube [NeZero d]
         (blockScale (euclideanReferenceRatio Cd g K E)
           (annealedBlock P (centeredCube d k))) := by
   classical
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hgrid : roundedGrid ((kZero d : ℤ)) (1 : Mat d) = (1 : Mat d) :=
     roundedGrid_one_of_nonneg (Int.natCast_nonneg _)
   have hDelta : (0 : ℤ) ≤ k + ((0 : ℕ) : ℤ) - 1 - sK := by

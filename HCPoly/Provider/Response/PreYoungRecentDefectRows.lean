@@ -34,7 +34,7 @@ theorem integral_abs_pairing_le_sqrt_two_mul_energy
       (hintEnergy.const_mul 2).aestronglyMeasurable
   have hrootSq : (fun a ↦ root a ^ (2 : ℕ)) =ᵐ[P]
       fun a ↦ 2 * energy a :=
-    Filter.Eventually.of_forall fun a ↦
+    _root_.Filter.Eventually.of_forall fun a ↦
       Real.sq_sqrt (mul_nonneg (by norm_num) (henergy a))
   have hintRootSq : Integrable (fun a ↦ root a ^ (2 : ℕ)) P :=
     (hintEnergy.const_mul 2).congr hrootSq.symm
@@ -43,7 +43,7 @@ theorem integral_abs_pairing_le_sqrt_two_mul_energy
   have hloadMeas : AEStronglyMeasurable load P := by
     apply AEStronglyMeasurable.congr
       hintLoadSq.aestronglyMeasurable.aemeasurable.sqrt.aestronglyMeasurable
-    exact Filter.Eventually.of_forall fun a ↦ Real.sqrt_sq (hload a)
+    exact _root_.Filter.Eventually.of_forall fun a ↦ Real.sqrt_sq (hload a)
   have hloadL2 : MemLp load 2 P :=
     (memLp_two_iff_integrable_sq hloadMeas).2 hintLoadSq
   have hintProd : Integrable (fun a ↦ root a * load a) P :=
@@ -52,7 +52,7 @@ theorem integral_abs_pairing_le_sqrt_two_mul_energy
     simpa only [Real.norm_eq_abs] using hmeasPair.norm
   have hintAbs : Integrable (fun a ↦ |pair a|) P := by
     refine Integrable.mono' hintProd hmeasAbs
-      (Filter.Eventually.of_forall fun a ↦ ?_)
+      (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     have hprod : 0 ≤ root a * load a :=
       mul_nonneg (Real.sqrt_nonneg _) (hload a)
     simpa only [Real.norm_eq_abs, abs_abs, abs_of_nonneg hprod, root] using hpoint a
@@ -73,7 +73,7 @@ private theorem integrable_mat_vec_mul_of_integrable
     (hF : Integrable F P) : Integrable (fun a ↦ matVecMul g (F a)) P := by
   apply Integrable.of_eval
   intro i
-  simpa only [matVecMul] using integrable_finset_sum Finset.univ
+  simpa only [matVecMul] using integrable_finsetSum Finset.univ
     (fun j _ ↦ (hF.eval j).const_mul (g i j))
 
 private theorem integrable_central_sub_skew_readout
@@ -89,7 +89,7 @@ private theorem integrable_central_sub_skew_readout
     let X : BlockVec d := (-p, r - matVecMul g p)
     have hmul := integrable_coarseBlock_mulVec_apply hint X (Sum.inr i)
     have hadd := hmul.add (integrable_const (X.1 i))
-    refine hadd.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine hadd.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q s) a) X)
         (Sum.inr i) + X.1 i = (Y a).1 i
     dsimp only [Y]
@@ -100,7 +100,7 @@ private theorem integrable_central_sub_skew_readout
     let X : BlockVec d := (-p, r - matVecMul g p)
     have hmul := integrable_coarseBlock_mulVec_apply hint X (Sum.inl i)
     have hadd := hmul.add (integrable_const (X.2 i))
-    refine hadd.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine hadd.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q s) a) X)
         (Sum.inl i) + X.2 i = (Y a).2 i
     dsimp only [Y]
@@ -112,7 +112,7 @@ private theorem integrable_central_sub_skew_readout
     (hY.snd.sub (integrable_mat_vec_mul_of_integrable g hY.fst))
   have hfull' : Integrable (fun a ↦ blockCellAverage (adaptedCell q s)
       (diagonalWeakState hq s (a.subSkew g hg) p r)) P :=
-    hfull.congr (Filter.Eventually.of_forall fun a ↦
+    hfull.congr (_root_.Filter.Eventually.of_forall fun a ↦
       (blockCellAverage_diagonalWeakState_subSkew hq s a g hg p r).symm)
   cases alpha with
   | inl i => simpa only [toFullBlockVec] using hfull'.fst.eval i
@@ -132,7 +132,7 @@ private theorem integrable_central_adjoint_sub_skew_readout
     have hmul := integrable_adjoint_coarseBlock_mulVec_apply
       (adaptedDomain hq s) hint X (Sum.inr i)
     have hadd := hmul.add (integrable_const (X.1 i))
-    refine hadd.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine hadd.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change toFullBlockVec
         (blockMatVecMul (coarseBlock (adaptedCell q s) a.transpose) X)
           (Sum.inr i) + X.1 i = (Y a).1 i
@@ -145,7 +145,7 @@ private theorem integrable_central_adjoint_sub_skew_readout
     have hmul := integrable_adjoint_coarseBlock_mulVec_apply
       (adaptedDomain hq s) hint X (Sum.inl i)
     have hadd := hmul.add (integrable_const (X.2 i))
-    refine hadd.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine hadd.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change toFullBlockVec
         (blockMatVecMul (coarseBlock (adaptedCell q s) a.transpose) X)
           (Sum.inl i) + X.2 i = (Y a).2 i
@@ -158,7 +158,7 @@ private theorem integrable_central_adjoint_sub_skew_readout
     (hY.snd.add (integrable_mat_vec_mul_of_integrable g hY.fst))
   have hfull' : Integrable (fun a ↦ blockCellAverage (adaptedCell q s)
       (diagonalWeakState hq s (a.subSkew g hg).transpose p r)) P :=
-    hfull.congr (Filter.Eventually.of_forall fun a ↦ by
+    hfull.congr (_root_.Filter.Eventually.of_forall fun a ↦ by
       change ((Y a).1, (Y a).2 + matVecMul g (Y a).1) =
         blockCellAverage (adaptedCell q s)
           (diagonalWeakState hq s (a.subSkew g hg).transpose p r)
@@ -198,7 +198,7 @@ theorem integrable_child_sub_skew_readout
   have hcomp : Integrable (G ∘ translateCoeff z) P :=
     ((Recurrence.measurePreserving_translateCoeff hstat z).integrable_comp
       hG.aestronglyMeasurable).2 hG
-  refine hcomp.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+  refine hcomp.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   exact congrArg (fun X : BlockVec d ↦ toFullBlockVec X alpha) (hcov a).symm
 
 theorem integrable_child_adjoint_sub_skew_readout
@@ -224,7 +224,7 @@ theorem integrable_child_adjoint_sub_skew_readout
   have hcomp : Integrable (G ∘ translateCoeff z) P :=
     ((Recurrence.measurePreserving_translateCoeff hstat z).integrable_comp
       hG.aestronglyMeasurable).2 hG
-  refine hcomp.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+  refine hcomp.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   exact congrArg (fun X : BlockVec d ↦ toFullBlockVec X alpha) (hcov a).symm
 
 private theorem upper_left_pos_semidef {H : BlockMat d}
@@ -244,7 +244,7 @@ private theorem upper_left_pos_semidef {H : BlockMat d}
         exact hx (congrArg Prod.fst hzero)
       have hquad := (hpos ((x, 0) : BlockVec d) hX).le
       simpa only [star_trivial, ge_iff_le, blockVecDot, blockMatVecMul,
-        matVecMul_zero, add_zero, vecDot_zero_left] using hquad
+        matVecMul_zero, add_zero, vecDot_zero_left] using! hquad
 
 private theorem integrable_sq_schur_load_flux_hatted
     {P : Measure (CoeffSpace d)} {q : Mat d} (hq : q.PosDef)
@@ -256,7 +256,7 @@ private theorem integrable_sq_schur_load_flux_hatted
         (profileHattedBlock g (coarseBlock (adaptedCellAt q k w) a)) Qcen ^ 2) P := by
   refine (integrable_coarseBlock_quadratic hint
     ((0, Qcen) : BlockVec d)).congr
-      (Filter.Eventually.of_forall fun a ↦ ?_)
+      (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   have hsymm := isSymmetricBlockMat_skewBlockCongr (g := g)
     (Recurrence.isSymmetricBlockMat_coarseBlock_adaptedCellAt q k w a)
   have hpos := blockPosDef_skewBlockCongr (g := g)
@@ -275,7 +275,7 @@ private theorem integrable_sq_schur_load_gradient_hatted
         (profileHattedBlock g (coarseBlock (adaptedCellAt q k w) a)) Pcen ^ 2) P := by
   refine (integrable_coarseBlock_quadratic hint
     ((Pcen, matVecMul g Pcen) : BlockVec d)).congr
-      (Filter.Eventually.of_forall fun a ↦ ?_)
+      (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   have hsymm := isSymmetricBlockMat_skewBlockCongr (g := g)
     (Recurrence.isSymmetricBlockMat_coarseBlock_adaptedCellAt q k w a)
   have hpos := blockPosDef_skewBlockCongr (g := g)
@@ -400,17 +400,17 @@ private theorem primal_recent_cell_pairings_le [NeZero d]
       hq hst hw (a.subSkew g hg) p r)
   have hpairInt : Integrable pairQ P ∧ Integrable pairP P := by
     constructor
-    · refine (integrable_finset_sum Finset.univ (fun i _ ↦
+    · refine (integrable_finsetSum Finset.univ (fun i _ ↦
           ((integrable_child_sub_skew_readout hstat hgrid hls hints g hg p r w
             (Sum.inl i)).sub (hparent (Sum.inl i))).const_mul (Qcen i))).congr
-        (Filter.Eventually.of_forall fun a ↦ ?_)
+        (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       dsimp only [pairQ, diff, vecDot]
       rw [blockCellAverage_recent_difference hq hst hw]
       rfl
-    · refine (integrable_finset_sum Finset.univ (fun i _ ↦
+    · refine (integrable_finsetSum Finset.univ (fun i _ ↦
           ((integrable_child_sub_skew_readout hstat hgrid hls hints g hg p r w
             (Sum.inr i)).sub (hparent (Sum.inr i))).const_mul (Pcen i))).congr
-        (Filter.Eventually.of_forall fun a ↦ ?_)
+        (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       dsimp only [pairP, diff, vecDot]
       rw [blockCellAverage_recent_difference hq hst hw]
       rfl
@@ -454,7 +454,7 @@ private theorem primal_recent_cell_pairings_le [NeZero d]
       dsimp only [pairQ, diff, vecDot]
       rw [blockCellAverage_recent_difference hq hst hw]
       rfl]
-    rw [integral_finset_sum Finset.univ]
+    rw [integral_finsetSum Finset.univ]
     · apply Finset.sum_congr rfl
       intro i hi
       rw [integral_const_mul, integral_sub
@@ -479,7 +479,7 @@ private theorem primal_recent_cell_pairings_le [NeZero d]
       dsimp only [pairP, diff, vecDot]
       rw [blockCellAverage_recent_difference hq hst hw]
       rfl]
-    rw [integral_finset_sum Finset.univ]
+    rw [integral_finsetSum Finset.univ]
     · apply Finset.sum_congr rfl
       intro i hi
       rw [integral_const_mul, integral_sub
@@ -708,17 +708,17 @@ private theorem adjoint_recent_cell_pairings_le [NeZero d]
       hq hst hw (a.subSkew g hg).transpose p r)
   have hpairInt : Integrable pairQ P ∧ Integrable pairP P := by
     constructor
-    · refine (integrable_finset_sum Finset.univ (fun i _ ↦
+    · refine (integrable_finsetSum Finset.univ (fun i _ ↦
           ((integrable_child_adjoint_sub_skew_readout hstat hgrid hls hints
             g hg p r w (Sum.inl i)).sub (hparent (Sum.inl i))).const_mul
-            (Qcen i))).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+            (Qcen i))).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       dsimp only [pairQ, diff, vecDot]
       rw [blockCellAverage_recent_difference hq hst hw]
       rfl
-    · refine (integrable_finset_sum Finset.univ (fun i _ ↦
+    · refine (integrable_finsetSum Finset.univ (fun i _ ↦
           ((integrable_child_adjoint_sub_skew_readout hstat hgrid hls hints
             g hg p r w (Sum.inr i)).sub (hparent (Sum.inr i))).const_mul
-            (Pcen i))).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+            (Pcen i))).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       dsimp only [pairP, diff, vecDot]
       rw [blockCellAverage_recent_difference hq hst hw]
       rfl
@@ -777,7 +777,7 @@ private theorem adjoint_recent_cell_pairings_le [NeZero d]
       dsimp only [pairQ, diff, vecDot]
       rw [blockCellAverage_recent_difference hq hst hw]
       rfl]
-    rw [integral_finset_sum Finset.univ]
+    rw [integral_finsetSum Finset.univ]
     · apply Finset.sum_congr rfl
       intro i hi
       rw [integral_const_mul, integral_sub
@@ -804,7 +804,7 @@ private theorem adjoint_recent_cell_pairings_le [NeZero d]
       dsimp only [pairP, diff, vecDot]
       rw [blockCellAverage_recent_difference hq hst hw]
       rfl]
-    rw [integral_finset_sum Finset.univ]
+    rw [integral_finsetSum Finset.univ]
     · apply Finset.sum_congr rfl
       intro i hi
       rw [integral_const_mul, integral_sub

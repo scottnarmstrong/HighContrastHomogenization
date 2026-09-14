@@ -1,12 +1,34 @@
-version: "v0.3"
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mathlib-initiative/formalization.yaml/main/schema/formalization.schema.json
+version: "v0.4"
 
 project:
   name: "HighContrastHomogenization"
+  description: >-
+    A Lean 4 / Mathlib formalization of the paper "Homogenization at a
+    polynomial scale in high contrast" (Armstrong, Kuusi, Loher): for
+    stationary coefficient laws with unit range of dependence whose
+    coarse-grained blocks are dominated by a reference block above a random
+    source scale, entry into the small-contrast regime at a length polynomial
+    in the reference aspect ratio and the source-tail growth constant
+    (Theorem A), algebraic convergence of the annealed coarse-grained matrices
+    (Theorem B), the uniformly elliptic model (Theorem C), and quantitative
+    homogenization with correctors, a first-order Liouville theorem and
+    large-scale regularity above a single random radius with an explicit
+    two-part tail (Theorem D).  The formalization consumes the public
+    CoarseGraining homogenization library as its analytic base.
   authors:
     - "Scott Armstrong"
     - "Tuomo Kuusi"
     - "Amélie Loher"
   license: "Apache-2.0"
+  responsible_maintainers:
+    - "Scott Armstrong"
+    - "Tuomo Kuusi"
+    - "Amélie Loher"
+
+classification:
+  arxiv: ["math.AP", "math.PR"]
+  msc2020: ["35B27", "35J15", "60K37"]
 
 sources:
   - title: "Homogenization at a polynomial scale in high contrast"
@@ -14,59 +36,72 @@ sources:
       - "Scott Armstrong"
       - "Tuomo Kuusi"
       - "Amélie Loher"
-    id: ""                      # arXiv identifier, added on posting
-    url: ""
-    type: "manuscript"
+    type: "paper"
+    location: "arXiv identifier to be added on posting"
+    relationship: "formalizes"
     license: "all rights reserved"
-    author_contacted: "n/a"     # the formalizers are the authors of the source
-    prior_work: "The homogenization conclusions rest on the high-contrast theory of Armstrong and Kuusi, Renormalization Group and Elliptic Homogenization in High Contrast, Invent. Math. 242 (2025), formalized in the CoarseGraining library."
+    author_endorsement: "participated"
+  - title: "Renormalization Group and Elliptic Homogenization in High Contrast"
+    authors:
+      - "Scott Armstrong"
+      - "Tuomo Kuusi"
+    type: "paper"
+    id: "doi:10.1007/s00222-025-01370-9"
+    location: "Inventiones Mathematicae 242 (2025), 895-1086"
+    relationship: "background"
+    note: "The high-contrast homogenization theory whose deductions Section 6 of the formalized paper uses; formalized in the CoarseGraining library."
+    license: "all rights reserved"
+    author_endorsement: "participated"
+
+related_formalizations:
+  - id: "https://github.com/scottnarmstrong/CoarseGraining"
+    relationship: "builds-on"
+    note: "The CoarseGraining library (Armstrong, Kuusi) supplies the coarse-graining, Sobolev and probabilistic base; this repository supersedes its earlier polynomial-scale high-contrast development."
 
 status:
   scope: >-
-    A Lean 4 / Mathlib formalization of polynomial homogenization under
-    coarse ellipticity: for stationary coefficient laws with unit range of
-    dependence whose coarse-grained blocks are dominated by a reference
-    block above a random source scale, entry into the small-contrast regime
-    at a length polynomial in the reference aspect ratio and the source-tail
-    growth constant (Theorem A), algebraic convergence of the annealed
-    coarse-grained matrices (Theorem B), the uniformly elliptic model (Theorem C), and quantitative homogenization
-    with correctors, a first-order Liouville theorem and large-scale
-    regularity above a single random radius with an explicit two-part tail
-    (Theorem D).  The formalization consumes the public CoarseGraining
-    homogenization library as its analytic base.
-    SCOPE BOUNDARY: see the README and CORRESPONDENCE.md for the rendering
-    conventions (coefficient class, Dirichlet domains, the random radius,
-    the homogenized matrix) under which the theorems are exported.
+    All four theorems of the paper's introduction are formalized and proved:
+    Theorems A, B, C and D, exported in the paper's own form in
+    HCPoly/MainResults.lean, each checked against a Mathlib-only restatement by
+    the Lean comparator.  Rendering conventions (stated in the theorem
+    docstrings and in CORRESPONDENCE.md): the coefficient space is the class
+    of measurable fields, modulo almost-everywhere equality, that are locally
+    uniformly elliptic (the paper's qualitative class is wider; the containment
+    is proved and no constant depends on the ellipticity constants); Theorem C
+    is the instance of Theorem D for uniformly elliptic laws and its Dirichlet
+    clause is exported in Theorem D's negative-Sobolev form rather than the
+    paper's L^2 form with a forcing term; Theorem D's Dirichlet estimate is
+    stated on normalized adapted cells of the homogenized matrix for supplied
+    weak solutions, the random radius satisfies X >= 1 (the paper states
+    X >= max(1, S)), and the homogenized matrix is produced existentially
+    rather than identified with Theorem B's limit block.
   sorry_count: 0
   sorry_in_definitions: 0
-  axioms:
-    - "propext"
-    - "Classical.choice"
-    - "Quot.sound"
+  axioms: ["propext", "Classical.choice", "Quot.sound"]
   main_results:
     - declaration: "HCPoly.polynomial_entry"
       file: "HCPoly/MainResults.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
-      comparator_config: "Audit/PolynomialEntry/comparator.json"
+      comparator_config: "HCPolyAudit/PolynomialEntry/comparator.json"
       literature_dependencies: []
     - declaration: "HCPoly.algebraic_convergence"
       file: "HCPoly/MainResults.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
-      comparator_config: "Audit/AlgebraicConvergence/comparator.json"
+      comparator_config: "HCPolyAudit/AlgebraicConvergence/comparator.json"
       literature_dependencies: []
     - declaration: "HCPoly.uniform_homogenization"
       file: "HCPoly/MainResults.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
-      comparator_config: "Audit/UniformHomogenization/comparator.json"
+      comparator_config: "HCPolyAudit/UniformHomogenization/comparator.json"
       literature_dependencies: []
     - declaration: "HCPoly.polynomial_homogenization"
       file: "HCPoly/MainResults.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
-      comparator_config: "Audit/PolynomialHomogenization/comparator.json"
+      comparator_config: "HCPolyAudit/PolynomialHomogenization/comparator.json"
       literature_dependencies: []
     - declaration: "HCPoly.quenched_convergence"
       file: "HCPoly/MainResults.lean"
@@ -82,32 +117,37 @@ automation:
         - "claude-fable-5-1"
         - "claude-opus-5"
         - "gpt-5.6-sol"
+        - "deepseek-v4.1-flash"
+        - "claude-sonnet-5"
         - "claude-fable-5"
         - "gpt-5.6-terra"
       framework: >-
-        Claude Code (Anthropic) and Codex (OpenAI) agentic coding harnesses.
-        Claude Fable 5.1 orchestrated the campaign (planning, statement
-        design, dispatch and review of the work); the proving, auditing and
-        rewriting agents were mostly Claude Opus 5 and GPT-5.6 Sol at low
-        reasoning effort.
+        Claude Code (Anthropic) and Codex (OpenAI) agentic coding harnesses,
+        with DeepSeek workers driven through ollama for the Lean v4.33 upgrade.
+        Claude Fable 5.1 orchestrated the campaign (planning, statement design,
+        dispatch and review of the work); the proving, auditing and rewriting
+        agents were mostly Claude Opus 5 and GPT-5.6 Sol at low reasoning
+        effort; the toolchain upgrade was carried out by DeepSeek V4.1 Flash
+        workers with Claude Sonnet 5 on escalations.
       tool_setup: >-
-        Lake builds under leanprover/lean4:v4.26.0 with Mathlib v4.26.0 and the
+        Lake builds under leanprover/lean4:v4.33.0 with Mathlib v4.33.0 and the
         public CoarseGraining library at a pinned revision.  A frozen-statement
         manifest with content hashes bound the certified statement surface
         during development; every sealed theorem was certified by a two-key
         process (a prover chain plus an independent adversarial audit by a
         fresh model instance).  Read-only subagents were used for hostile
         statement audits, dependency-order verification, and dead-code
-        analysis.  The Lean comparator was run locally on every Audit pair.
+        analysis.  The Lean comparator was run locally on every comparator pair,
+        with the NanoDa kernel replay.
       cost:
         wall_time: >-
           about two and a half weeks of agentic work: the certified statement
           surface and the proofs of the main theorems were completed between
           21 August and 3 September 2026, followed by three days of dead-code,
-          naming and comment cleanup (4-6 September) and one day (11 September)
+          naming and comment cleanup (4-6 September), one day (11 September)
           for the public release (main-results module, the exports of Theorems B
-          and C, the four comparator pairs, and the citation rewrite)
-        accounts: "several Claude and ChatGPT subscription accounts used in parallel (up to three concurrent Claude subagent slots, plus Codex agents)"
+          and C, the four comparator pairs, and the citation rewrite), and one
+          night (13-14 September) for the upgrade to Lean v4.33.0
         spend_usd: "not separately tracked (subscription accounts)"
         hardware: "a 16-CPU / 124 GB RAM Ubuntu machine"
       prompting_notes: >-
@@ -121,9 +161,9 @@ automation:
     and GPT-5.6 Sol (low reasoning effort).  Every proof is checked by the Lean
     kernel and Mathlib; the verified library contains no sorry and no custom
     axiom.  The Mathlib-only comparator challenge files
-    (Audit/*/Challenge.lean) each contain exactly one intentional
+    (HCPolyAudit/*/Challenge.lean) each contain exactly one intentional
     statement-level sorry (the theorem body), which is filled by the
-    corresponding Audit/*/Solution.lean and checked by leanprover/comparator.
+    corresponding HCPolyAudit/*/Solution.lean and checked by leanprover/comparator.
 
 fidelity:
   divergences: >-
@@ -133,19 +173,23 @@ fidelity:
     elliptic (the paper's qualitative class is wider; the containment is
     proved and no constant depends on the ellipticity constants); Theorem A
     is exported with one tolerance sigma as in the paper, derived from a
-    calibration-triple form; Theorem D's Dirichlet estimate is stated on
-    normalized adapted cells of the homogenized matrix for supplied weak
-    solutions, with an endpoint constant depending on two trapping radii,
-    the random radius satisfies X >= 1 (the paper states X >= max{1, S}),
-    the homogenized matrix is produced existentially rather than identified
-    with Theorem B's limit block, norms are valued in the extended
-    nonnegative reals, and fluxes are written for the skew-centered field.
+    calibration-triple form; Theorem C is the instance of Theorem D for
+    uniformly elliptic laws, with the Dirichlet clause in Theorem D's
+    negative-Sobolev form rather than the paper's L^2 form with a forcing
+    term; Theorem D's Dirichlet estimate is stated on normalized adapted
+    cells of the homogenized matrix for supplied weak solutions, with an
+    endpoint constant depending on two trapping radii, the random radius
+    satisfies X >= 1 (the paper states X >= max(1, S)), the homogenized
+    matrix is produced existentially rather than identified with Theorem B's
+    limit block, norms are valued in the extended nonnegative reals, and
+    fluxes are written for the skew-centered field.
 
 review:
   status: "author-verified"
   reviewers:
     - "Scott Armstrong"
     - "Tuomo Kuusi"
+    - "Amélie Loher"
   notes: >-
     Correctness of every proof is guaranteed by the Lean kernel and Mathlib
     (no sorry, no custom axiom).  The authors reviewed the public statements
@@ -161,22 +205,22 @@ alignment:
       lean: "HCPoly.polynomial_entry"
       module: "HCPoly.MainResults"
       status: "proved"
-      note: "Comparator-audited via Audit/PolynomialEntry/."
+      note: "Comparator-audited via HCPolyAudit/PolynomialEntry/."
     - source: "Theorem B (t.algebraic.convergence)"
       lean: "HCPoly.algebraic_convergence"
       module: "HCPoly.MainResults"
       status: "proved"
-      note: "Comparator-audited via Audit/AlgebraicConvergence/."
+      note: "Comparator-audited via HCPolyAudit/AlgebraicConvergence/."
     - source: "Theorem C (t.uniform.homogenization)"
       lean: "HCPoly.uniform_homogenization"
       module: "HCPoly.MainResults"
       status: "proved"
-      note: "The instance of Theorem D for uniformly elliptic laws; the Dirichlet clause is exported in Theorem D's negative-Sobolev form. Comparator-audited via Audit/UniformHomogenization/."
+      note: "The instance of Theorem D for uniformly elliptic laws; the Dirichlet clause is exported in Theorem D's negative-Sobolev form. Comparator-audited via HCPolyAudit/UniformHomogenization/."
     - source: "Theorem D (t.random.homogenization)"
       lean: "HCPoly.polynomial_homogenization"
       module: "HCPoly.MainResults"
       status: "proved"
-      note: "Comparator-audited via Audit/PolynomialHomogenization/."
+      note: "Comparator-audited via HCPolyAudit/PolynomialHomogenization/."
 
 acknowledgements: >-
   Scott Armstrong and Tuomo Kuusi were supported by the European Research

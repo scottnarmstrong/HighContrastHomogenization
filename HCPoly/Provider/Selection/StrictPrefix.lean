@@ -87,8 +87,8 @@ theorem selectionRun_state_prefixLoss_le (hd : 2 ≤ d)
     (hT : T ∈ (selectionRun cc P jStar Lam r0 A0 hcen hnl).states) :
     T.prefixLoss ≤ Real.log (24 * aspectRatio E) +
       2 * (T.stage : ℝ) * Real.log (1 + c.etaX) := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   obtain ⟨hexact, -, hcursor, -, -, cert, -, hq, hs, hloss, hcertBridge,
       -, -, hfinStarts, hfinTerminals, hcertEta, hstartsZero⟩ :=
     selectionRun_state_invariants hd hg hCd hstat hunit hdag hwin hY hbridge

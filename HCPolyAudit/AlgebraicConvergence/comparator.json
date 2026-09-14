@@ -1,0 +1,9 @@
+{
+  "challenge_module": "HCPolyAudit.AlgebraicConvergence.Challenge",
+  "solution_module": "HCPolyAudit.AlgebraicConvergence.Solution",
+  "theorem_names": [
+    "HCPoly.StatementAudit.AlgebraicConvergence.algebraic_convergence"
+  ],
+  "permitted_axioms": ["propext", "Quot.sound", "Classical.choice"],
+  "enable_nanoda": false
+}

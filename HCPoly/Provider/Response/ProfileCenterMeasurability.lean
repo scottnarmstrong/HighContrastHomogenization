@@ -34,11 +34,11 @@ theorem continuous_metricBlockNormSq (m : Mat d) :
     funext X
     rw [metricBlockNormSq_eq]
     simp only [vecDot, matVecMul]]
-  exact (continuous_finset_sum _ fun i _ ↦
-      (hfst i).mul (continuous_finset_sum _ fun j _ ↦
+  exact (continuous_finsetSum _ fun i _ ↦
+      (hfst i).mul (continuous_finsetSum _ fun j _ ↦
         continuous_const.mul (hfst j))).add
-    (continuous_finset_sum _ fun i _ ↦
-      (hsnd i).mul (continuous_finset_sum _ fun j _ ↦
+    (continuous_finsetSum _ fun i _ ↦
+      (hsnd i).mul (continuous_finsetSum _ fun j _ ↦
         continuous_const.mul (hsnd j)))
 
 /-- The square-root metric fluctuation of an a.e. measurable doubled vector

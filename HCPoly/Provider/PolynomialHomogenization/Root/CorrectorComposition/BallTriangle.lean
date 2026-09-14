@@ -183,7 +183,7 @@ theorem memVectorL2_affineCorrector_closedNormBall [NeZero d]
   have hz : MemVectorL2 (closedNormBall d R) z.globalGradientRepresentative :=
     MemLp.mono_measure (Measure.restrict_mono hn le_rfl)
       (z.memLp_globalGradientRepresentative n)
-  haveI hfin : IsFiniteMeasure (volume.restrict (closedNormBall d R)) := by
+  have hfin : IsFiniteMeasure (volume.restrict (closedNormBall d R)) := by
     refine ⟨?_⟩
     rw [Measure.restrict_apply_univ]
     exact lt_of_le_of_ne le_top (volume_closedNormBall_ne_top' R)

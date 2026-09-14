@@ -73,7 +73,7 @@ theorem isClosed_setOf_nonneg : IsClosed {A : Matrix n n ℝ | (0 : Matrix n n �
       (⋂ i : n, ⋂ j : n, {A : Matrix n n ℝ | A j i = A i j}) ∩
         ⋂ x : n → ℝ, {A : Matrix n n ℝ | 0 ≤ quadFormCLM x A} := by
     ext A
-    simp only [Set.mem_setOf_eq, Set.mem_inter_iff, Set.mem_iInter, quadFormCLM_apply,
+    simp only [Set.mem_ofPred_eq, Set.mem_inter_iff, Set.mem_iInter, quadFormCLM_apply,
       Matrix.nonneg_iff_posSemidef, Matrix.posSemidef_iff_dotProduct_mulVec,
       Matrix.IsHermitian, ← Matrix.ext_iff, Matrix.conjTranspose_apply, star_trivial]
   rw [hset]
@@ -95,10 +95,59 @@ attribute [scoped instance] instOrderClosedTopology
 
 variable {α : Type*} [MeasurableSpace α] {μ : Measure α}
 
+/-! ### Bridging the coordinatewise and operator-norm topologies
+
+`Integrable` no longer bundles a norm with its topology, so a bare `Matrix n n ℝ`-valued
+`Integrable` hypothesis is read against the coordinatewise (finite-product) topology that is
+always active on `Matrix n n ℝ`, rather than the operator-norm topology this file opens to
+build continuous linear maps out of it.  The identity between the two presentations is
+continuous in both directions — matrices over a finite index type being finite-dimensional —
+and that lets a hypothesis read in one presentation feed a lemma stated in the other. -/
+
+/-- The identity, read as a continuous linear map from the coordinatewise (finite-product)
+presentation of `Matrix n n ℝ` into the matrix type itself. -/
+private def piToMatCLM : (n → n → ℝ) →L[ℝ] Matrix n n ℝ :=
+  LinearMap.toContinuousLinearMap
+    { toFun := fun M => M, map_add' := fun _ _ => rfl, map_smul' := fun _ _ => rfl }
+
+omit [DecidableEq n] in
+private theorem piToMatCLM_apply (M : n → n → ℝ) : piToMatCLM M = M := rfl
+
+/-- The identity, read as a continuous linear map from `Matrix n n ℝ` into its coordinatewise
+(finite-product) presentation. -/
+private def matToPiCLM : Matrix n n ℝ →L[ℝ] (n → n → ℝ) :=
+  LinearMap.toContinuousLinearMap
+    { toFun := fun M => M, map_add' := fun _ _ => rfl, map_smul' := fun _ _ => rfl }
+
+omit [DecidableEq n] in
+/-- **Entrywise integrability is integrability**, read through the generic finite-product
+API rather than through a `Matrix`-valued continuous linear map. -/
+private theorem mat_integrable_iff {F : α → Matrix n n ℝ} :
+    Integrable F μ ↔ ∀ i j : n, Integrable (fun a => F a i j) μ := by
+  constructor
+  · intro hF i j
+    have h := (hF.eval i).eval j
+    convert h using 1
+  · intro hF
+    refine Integrable.of_eval fun i => Integrable.of_eval fun j => ?_
+    have h := hF i j
+    convert h using 1
+
+omit [DecidableEq n] in
+/-- A deterministic matrix is Bochner integrable under a finite measure. -/
+private theorem integrable_const_mat [IsFiniteMeasure μ] (c : Matrix n n ℝ) :
+    Integrable (fun _ : α => c) μ :=
+  mat_integrable_iff.mpr fun i j => integrable_const (c i j)
+
 /-- **The Bochner integral of matrices is computed entrywise.** -/
 theorem entry_integral {F : α → Matrix n n ℝ} (hF : Integrable F μ) (i j : n) :
-    (∫ a, F a ∂μ) i j = ∫ a, F a i j ∂μ :=
-  ((entryCLM i j).integral_comp_comm hF).symm
+    (∫ a, F a ∂μ) i j = ∫ a, F a i j ∂μ := by
+  have heq := ContinuousLinearMap.integral_comp_comm (E := n → n → ℝ) piToMatCLM hF
+  have hfun : (fun a : α => piToMatCLM (F a : n → n → ℝ)) = F :=
+    funext fun a => piToMatCLM_apply (F a)
+  rw [hfun] at heq
+  rw [heq, piToMatCLM_apply, congrFun (eval_integral hF.eval i) j]
+  exact eval_integral (hF.eval i).eval j
 
 /-- The average of an almost everywhere positive semidefinite matrix is positive
 semidefinite. -/
@@ -109,8 +158,12 @@ theorem integral_posSemidef {f : α → Matrix n n ℝ} (hf : ∀ᵐ a ∂μ, (f
 
 /-- Averaging is monotone for the Loewner order. -/
 theorem integral_mono' {f g : α → Matrix n n ℝ} (hf : Integrable f μ) (hg : Integrable g μ)
-    (h : f ≤ᵐ[μ] g) : ∫ a, f a ∂μ ≤ ∫ a, g a ∂μ :=
-  integral_mono_ae hf hg h
+    (h : f ≤ᵐ[μ] g) : ∫ a, f a ∂μ ≤ ∫ a, g a ∂μ := by
+  have hf' := (ContinuousLinearMap.id ℝ (Matrix n n ℝ)).integrable_comp
+    (ContinuousLinearMap.integrable_comp piToMatCLM hf)
+  have hg' := (ContinuousLinearMap.id ℝ (Matrix n n ℝ)).integrable_comp
+    (ContinuousLinearMap.integrable_comp piToMatCLM hg)
+  exact integral_mono_ae hf' hg' h
 
 /-- Two-sided multiplication by fixed matrices, as a continuous linear map. -/
 private def conjCLM (L R : Matrix n n ℝ) : Matrix n n ℝ →L[ℝ] Matrix n n ℝ :=
@@ -123,33 +176,32 @@ private def conjCLM (L R : Matrix n n ℝ) : Matrix n n ℝ →L[ℝ] Matrix n n
 /-- Multiplying an integrable function by fixed matrices keeps it integrable. -/
 theorem integrable_mul_left_mul_right (L R : Matrix n n ℝ) {F : α → Matrix n n ℝ}
     (hF : Integrable F μ) : Integrable (fun a => L * F a * R) μ :=
-  (conjCLM L R).integrable_comp hF
+  ContinuousLinearMap.integrable_comp matToPiCLM
+    ((conjCLM L R).integrable_comp (ContinuousLinearMap.integrable_comp piToMatCLM hF))
 
 /-- **Fixed two-sided factors pass through the integral.** -/
 theorem integral_mul_left_mul_right (L R : Matrix n n ℝ) {F : α → Matrix n n ℝ}
-    (hF : Integrable F μ) : ∫ a, L * F a * R ∂μ = L * (∫ a, F a ∂μ) * R :=
-  (conjCLM L R).integral_comp_comm hF
+    (hF : Integrable F μ) : ∫ a, L * F a * R ∂μ = L * (∫ a, F a ∂μ) * R := by
+  have key := (conjCLM L R).integral_comp_comm (ContinuousLinearMap.integrable_comp piToMatCLM hF)
+  have hlhs : (fun x => conjCLM L R (piToMatCLM (F x : n → n → ℝ))) = (fun a => L * F a * R) := rfl
+  have hrhs : (fun x => piToMatCLM (F x : n → n → ℝ)) = F := rfl
+  rw [hlhs, hrhs] at key
+  exact key
 
 /-! ## Doubled matrices -/
 
-/-- Assembly of a doubled matrix from its four blocks, as a linear map. -/
-private def fromBlocksL :
-    Matrix n n ℝ × Matrix n n ℝ × Matrix n n ℝ × Matrix n n ℝ →ₗ[ℝ]
-      Matrix (n ⊕ n) (n ⊕ n) ℝ where
-  toFun P := Matrix.fromBlocks P.1 P.2.1 P.2.2.1 P.2.2.2
-  map_add' P Q := by ext p q; cases p <;> cases q <;> rfl
-  map_smul' c P := by ext p q; cases p <;> cases q <;> rfl
-
-private def fromBlocksCLM :
-    Matrix n n ℝ × Matrix n n ℝ × Matrix n n ℝ × Matrix n n ℝ →L[ℝ]
-      Matrix (n ⊕ n) (n ⊕ n) ℝ :=
-  LinearMap.toContinuousLinearMap fromBlocksL
-
-/-- A doubled matrix with integrable blocks is integrable. -/
+omit [DecidableEq n] in
+/-- A doubled matrix with integrable blocks is integrable, read entrywise rather than
+through a `Matrix`-valued continuous linear map. -/
 theorem integrable_fromBlocks {A B C D : α → Matrix n n ℝ} (hA : Integrable A μ)
     (hB : Integrable B μ) (hC : Integrable C μ) (hD : Integrable D μ) :
-    Integrable (fun a => Matrix.fromBlocks (A a) (B a) (C a) (D a)) μ :=
-  fromBlocksCLM.integrable_comp (hA.prodMk (hB.prodMk (hC.prodMk hD)))
+    Integrable (fun a => Matrix.fromBlocks (A a) (B a) (C a) (D a)) μ := by
+  refine mat_integrable_iff.mpr fun p q => ?_
+  rcases p with i | i <;> rcases q with j | j
+  · simpa only [Matrix.fromBlocks_apply₁₁] using mat_integrable_iff.mp hA i j
+  · simpa only [Matrix.fromBlocks_apply₁₂] using mat_integrable_iff.mp hB i j
+  · simpa only [Matrix.fromBlocks_apply₂₁] using mat_integrable_iff.mp hC i j
+  · simpa only [Matrix.fromBlocks_apply₂₂] using mat_integrable_iff.mp hD i j
 
 /-- **Doubling commutes with the integral**, the integral being entrywise. -/
 theorem integral_fromBlocks {A B C D : α → Matrix n n ℝ} (hA : Integrable A μ)
@@ -175,7 +227,7 @@ theorem posSemidef_fromBlocks_inv {Y : Matrix n n ℝ} (hY : Y.PosDef) :
     (Matrix.fromBlocks Y 1 1 Y⁻¹).PosSemidef := by
   have hYdet : IsUnit Y.det := isUnit_det_of_posDef hY
   have hinv : (Y⁻¹).PosDef := hY.inv
-  letI : Invertible Y⁻¹ := Matrix.invertibleOfIsUnitDet _ (isUnit_det_of_posDef hinv)
+  let _ : Invertible Y⁻¹ := Matrix.invertibleOfIsUnitDet _ (isUnit_det_of_posDef hinv)
   have hone : (1 : Matrix n n ℝ)ᴴ = 1 := Matrix.conjTranspose_one
   have hiff := Matrix.PosDef.fromBlocks₂₂ Y (1 : Matrix n n ℝ) hinv
   rw [hone] at hiff
@@ -195,10 +247,10 @@ theorem inv_integral_le_integral_inv [IsProbabilityMeasure μ] {X : α → Matri
     integral_posSemidef (.of_forall fun a => posSemidef_fromBlocks_inv (hX a))
   have hconst : ∫ _ : α, (1 : Matrix n n ℝ) ∂μ = 1 := by
     rw [integral_const, probReal_univ, one_smul]
-  rw [integral_fromBlocks hXint (integrable_const 1) (integrable_const 1) hXinv, hconst]
+  rw [integral_fromBlocks hXint (integrable_const_mat 1) (integrable_const_mat 1) hXinv, hconst]
     at hblock
   -- Reading the Schur complement in the other corner is the conclusion.
-  letI : Invertible (∫ a, X a ∂μ) := Matrix.invertibleOfIsUnitDet _ (isUnit_det_of_posDef hpos)
+  let _ : Invertible (∫ a, X a ∂μ) := Matrix.invertibleOfIsUnitDet _ (isUnit_det_of_posDef hpos)
   have hone : (1 : Matrix n n ℝ)ᴴ = 1 := Matrix.conjTranspose_one
   have hiff := Matrix.PosDef.fromBlocks₁₁ (1 : Matrix n n ℝ) (∫ a, (X a)⁻¹ ∂μ) hpos
   rw [hone] at hiff

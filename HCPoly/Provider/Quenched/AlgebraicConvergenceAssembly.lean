@@ -138,7 +138,7 @@ theorem algebraic_convergence_assembly (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
           schurSigmaStar Abar = schurSigma Abar ∧
           (schurSigma Abar).PosDef ∧
           IsSkewMat (schurSkew Abar) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨cSc, hcSc, alpha, Cdelay, halpha, hCdelay, hcore⟩ :=
     endpoint_hcore_body_corrected d hd g hg
   obtain ⟨deltaEntry, cEnd, hdeltaEntry, hcEnd, hcalibration⟩ :=
@@ -161,7 +161,7 @@ theorem algebraic_convergence_assembly (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
   have hdelayOne : (0 : ℝ) < 1 + Cdelay := by linarith only [hCdelay]
   refine ⟨Crebase * (1 + Cdelay), alpha, mul_pos hCrebase hdelayOne, halpha, ?_⟩
   intro P E Ψ K S hP hstationary hunit hdagger
-  letI : IsProbabilityMeasure P := hP
+  let : IsProbabilityMeasure P := hP
   obtain ⟨nBase, Pbase, gBase, Ebase, ΨBase, Kbase, Sbase,
     hgBase, hPbase, hstationaryBase, hunitBase, hdaggerBase,
     hentryBase, hcontrastBase, hcontrastCovariance, hblockCovariance,

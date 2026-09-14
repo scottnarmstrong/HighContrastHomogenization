@@ -53,9 +53,9 @@ private theorem roundedReference_matSqrt_norm_le_two
     ‖matSqrt (geom.referenceMatrix abar hS)‖ ≤ 2 := by
   let A : Mat d := geom.referenceMatrix abar hS
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have horder : A ≤ (101 / 100 : ℝ) • (1 : Mat d) := by
-    simpa only [A] using geom.reference_upper abar hS
+    simpa only [A] using! geom.reference_upper abar hS
   have hnorm : ‖A‖ ≤ (101 / 100 : ℝ) := by
     have h := norm_le_norm_of_le hA.posSemidef
       (Matrix.PosSemidef.one.smul (by norm_num : (0 : ℝ) ≤ 101 / 100)) horder
@@ -71,9 +71,9 @@ private theorem roundedReference_matSqrt_inv_norm_le_two
     ‖(matSqrt (geom.referenceMatrix abar hS))⁻¹‖ ≤ 2 := by
   let A : Mat d := geom.referenceMatrix abar hS
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have hlower : (99 / 100 : ℝ) • (1 : Mat d) ≤ A := by
-    simpa only [A] using geom.reference_lower abar hS
+    simpa only [A] using! geom.reference_lower abar hS
   have hscalar : ((99 / 100 : ℝ) • (1 : Mat d)).PosDef :=
     Matrix.PosDef.one.smul (by norm_num)
   have hinv : A⁻¹ ≤ (100 / 99 : ℝ) • (1 : Mat d) := by
@@ -102,8 +102,9 @@ private theorem two_mul_sqrt_dimension_le_three_pow_add_two
     · positivity
     · nlinarith only [hd]
   have hbern : 1 + (d : ℝ) * 2 ≤ (3 : ℝ) ^ d := by
-    convert one_add_mul_le_pow (a := (2 : ℝ)) (by norm_num) d using 1
-    norm_num
+    have h := one_add_mul_le_pow (a := (2 : ℝ)) (by norm_num) d
+    norm_num at h
+    exact h
   calc
     (2 : ℝ) * Real.sqrt d ≤ 2 * (d : ℝ) :=
       mul_le_mul_of_nonneg_left hsqrt (by norm_num)
@@ -127,7 +128,7 @@ private theorem roundedPullback_sandwich
   let S : Mat d := matSqrt A
   let G : ℕ := d + 2
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have hSpos : S.PosDef := by simpa only [S] using posDef_matSqrt hA
   have hd : 1 ≤ d := Nat.one_le_iff_ne_zero.mpr (NeZero.ne d)
   have hlarge : (2 : ℝ) * Real.sqrt d ≤ (3 : ℝ) ^ G := by
@@ -155,7 +156,7 @@ private theorem roundedPullback_sandwich
     refine ⟨matVecMul S x, hsx, ?_⟩
     rw [matVecMul_mul, Matrix.nonsing_inv_mul S
       ((Matrix.isUnit_iff_isUnit_det S).mp hSpos.isUnit), matVecMul_one]
-  · simpa only [adaptedCell_eq_matVecMul_image_openCubeSet] using houter
+  · simpa only [adaptedCell_eq_matVecMul_image_openCubeSet] using! houter
 
 private noncomputable def roundedAffineVolumeRatioBound (d : ℕ) : ℝ :=
   (Real.sqrt d * 2) ^ d * ((3 : ℝ) ^ (d + 2)) ^ d
@@ -209,7 +210,7 @@ private theorem roundedPullback_parent_volume_ratio_le
   let S : Mat d := matSqrt A
   let G : ℕ := d + 2
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have hSpos : S.PosDef := by simpa only [S] using posDef_matSqrt hA
   have hden0 := volume_openCubeSet_ne_zero
     (originCube d (k - (G : ℤ)))
@@ -254,7 +255,7 @@ private theorem roundedPullback_child_volume_ratio_le
   let S : Mat d := matSqrt A
   let G : ℕ := d + 2
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have hSpos : S.PosDef := by simpa only [S] using posDef_matSqrt hA
   have hdetUnit : IsUnit S.det :=
     (Matrix.isUnit_iff_isUnit_det S).mp hSpos.isUnit
@@ -328,7 +329,7 @@ private theorem roundedHarmonicPullback_weakPoisson
   let U : Set (Vec d) := openCubeSet (originCube d k)
   let V : Set (Vec d) := matImage S⁻¹ U
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have hAsymm : A.IsSymm := isSymm_of_isHermitian hA.isHermitian
   have hsymm : symmPart A = A := symmPart_eq_of_isSymm hAsymm
   have hsymmPos : (symmPart A).PosDef := by simpa only [hsymm] using hA
@@ -338,7 +339,7 @@ private theorem roundedHarmonicPullback_weakPoisson
     exists_h1Function_affinePullback hSunit
       (measurableSet_openCubeSet (originCube d k)) u
   have htrans : matTranspose S = S := by
-    simpa only [S] using (isSymm_matSqrt A).eq
+    simpa only [S] using! (isSymm_matSqrt A).eq
   have hpull := (isWeakSolutionOn_affinePullback_iff hSunit
     (measurableSet_openCubeSet (originCube d k))
     (constantCoeffField A) u.grad).mp (by simpa only [A, U] using hu)
@@ -349,9 +350,9 @@ private theorem roundedHarmonicPullback_weakPoisson
     have htranspose : matTranspose S⁻¹ = S⁻¹ := by
       have hSinvHerm : (S⁻¹)ᴴ = S⁻¹ := by
         rw [Matrix.conjTranspose_nonsing_inv,
-          show Sᴴ = S by simpa only [S] using
+          show Sᴴ = S by simpa only [S] using!
             (matSqrt_spec hA.posSemidef).1.isHermitian]
-      simpa only [Matrix.conjTranspose_eq_transpose_of_trivial] using hSinvHerm
+      simpa only [Matrix.conjTranspose_eq_transpose_of_trivial] using! hSinvHerm
     rw [htranspose, show constantCoeffField A (matVecMul S y) = A from rfl,
       ← matSqrt_inv hA]
     exact matSqrt_inv_conj hA
@@ -361,7 +362,7 @@ private theorem roundedHarmonicPullback_weakPoisson
   refine ⟨v, by simpa only [S, U, V] using hvfun, ?_⟩
   intro phi hphi hcompact hsupport
   have hzero := (hvsol phi ⟨hphi, hcompact, hsupport⟩).2
-  simpa only [matVecMul_one, vecDot_comm, zero_mul, integral_zero] using hzero
+  simpa only [matVecMul_one, vecDot_comm, zero_mul, integral_zero] using! hzero
 
 private theorem volume_matImage_openCubeSet_ne_zero_roundDecay
     {d : ℕ} (L : Mat d) (hL : IsUnit L.det) (k : ℤ) :
@@ -431,7 +432,7 @@ private theorem roundedPullback_parent_candidate_cubeLpNorm_le
     v y - (c + vecDot (matVecMul S e) y)
   let g : Vec d → ℝ := fun x ↦ u x - (c + vecDot e x)
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have hSunit : IsUnit S.det := by simpa only [S] using isUnit_det_matSqrt hA
   have hPV : P ⊆ V := by
     simpa only [P, V, Q, S, A, G] using
@@ -501,13 +502,13 @@ private theorem roundedPullback_child_candidate_cubeLpNorm_le
   let g : Vec d → ℝ := fun x ↦
     u x - (c + vecDot (matVecMul S⁻¹ e) x)
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have hSunit : IsUnit S.det := by simpa only [S] using isUnit_det_matSqrt hA
   have hVR : V ⊆ R := by
     simpa only [V, R, Q, S, A, G] using
       (roundedPullback_sandwich abar hS r).2
   have htrans : matTranspose S = S := by
-    simpa only [S] using (isSymm_matSqrt A).eq
+    simpa only [S] using! (isSymm_matSqrt A).eq
   have hpair : ∀ y, vecDot (matVecMul S⁻¹ e) (matVecMul S y) =
       vecDot e y := by
     intro y
@@ -656,15 +657,17 @@ theorem exists_printOrderRoundedReference_harmonic_normalized_affine_candidate_e
     originCubeAffineH1LinearMap d kp (c, matVecMul S e)
   have hparentMem : MemLp (fun x ↦ u.toFun x - (c + vecDot e x)) 2
       (normalizedCubeMeasure (originCube d k)) := by
-    simpa only [ellU, H1Function.sub_toFun,
-      originCubeAffineH1LinearMap_toFun] using
-      (u - ellU).memL2_normalizedCubeMeasure
+    have hraw := (u - ellU).memL2_normalizedCubeMeasure
+    rw [H1Function.sub_toFun] at hraw
+    rw [originCubeAffineH1LinearMap_toFun] at hraw
+    exact hraw
   have hinnerMem : MemLp
       (fun y ↦ vP.toFun y - (c + vecDot (matVecMul S e) y)) 2
       (normalizedCubeMeasure (originCube d kp)) := by
-    simpa only [ellP, H1Function.sub_toFun,
-      originCubeAffineH1LinearMap_toFun] using
-      (vP - ellP).memL2_normalizedCubeMeasure
+    have hraw := (vP - ellP).memL2_normalizedCubeMeasure
+    rw [H1Function.sub_toFun] at hraw
+    rw [originCubeAffineH1LinearMap_toFun] at hraw
+    exact hraw
   have hparentNorm := roundedPullback_parent_candidate_cubeLpNorm_le
     abar hS k u.toFun vP.toFun (by simpa only [S, A] using hvPfun)
     c e (by simpa only [kp, G] using hinnerMem) hparentMem
@@ -704,9 +707,10 @@ theorem exists_printOrderRoundedReference_harmonic_normalized_affine_candidate_e
     originCubeAffineH1LinearMap d (kp - (M : ℤ)) (c', e')
   have houterMem : MemLp (fun y ↦ vP.toFun y - (c' + vecDot e' y)) 2
       (normalizedCubeMeasure (originCube d (kp - (M : ℤ)))) := by
-    simpa only [vR, ellVR, H1Function.sub_toFun, H1Function.restrict,
-      originCubeAffineH1LinearMap_toFun] using
-      (vR - ellVR).memL2_normalizedCubeMeasure
+    have hraw := (vR - ellVR).memL2_normalizedCubeMeasure
+    rw [H1Function.sub_toFun] at hraw
+    rw [originCubeAffineH1LinearMap_toFun] at hraw
+    exact hraw
   have hrk : r ≤ k := by dsimp [r]; omega
   let uR : H1Function (openCubeSet (originCube d r)) :=
     u.restrict (isOpen_openCubeSet _)
@@ -716,9 +720,10 @@ theorem exists_printOrderRoundedReference_harmonic_normalized_affine_candidate_e
   have hphysicalMem : MemLp
       (fun x ↦ u.toFun x - (c' + vecDot (matVecMul S⁻¹ e') x)) 2
       (normalizedCubeMeasure (originCube d r)) := by
-    simpa only [uR, ellUR, H1Function.sub_toFun, H1Function.restrict,
-      originCubeAffineH1LinearMap_toFun] using
-      (uR - ellUR).memL2_normalizedCubeMeasure
+    have hraw := (uR - ellUR).memL2_normalizedCubeMeasure
+    rw [H1Function.sub_toFun] at hraw
+    rw [originCubeAffineH1LinearMap_toFun] at hraw
+    exact hraw
   have hchildNorm := roundedPullback_child_candidate_cubeLpNorm_le
     abar hS r u.toFun vP.toFun (by simpa only [S, A] using hvPfun)
     c' e' (by simpa only [S, A] using hphysicalMem)

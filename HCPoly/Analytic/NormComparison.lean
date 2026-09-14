@@ -79,7 +79,7 @@ theorem exists_norm_bound_of_hasCompactSupport {ψ : Vec d → Vec d}
 theorem exists_fderiv_bound_of_hasCompactSupport {ψ : Vec d → Vec d}
     (hsm : ContDiff ℝ (⊤ : ℕ∞) ψ) (hcs : HasCompactSupport ψ) :
     ∃ C : ℝ, 0 ≤ C ∧ ∀ x, ‖fderiv ℝ ψ x‖ ≤ C := by
-  have hone : (1 : WithTop ℕ∞) ≤ ((⊤ : ℕ∞) : WithTop ℕ∞) := by simp
+  have hone : ((⊤ : ℕ∞) : WithTop ℕ∞) ≠ 0 := by simp
   obtain ⟨C, hC⟩ :=
     (hcs.fderiv ℝ).exists_bound_of_continuous (hsm.continuous_fderiv hone)
   exact ⟨C, le_trans (norm_nonneg _) (hC 0), hC⟩
@@ -89,7 +89,7 @@ theorem exists_fderiv_bound_of_hasCompactSupport {ψ : Vec d → Vec d}
 theorem exists_lipschitz_of_hasCompactSupport {ψ : Vec d → Vec d}
     (hsm : ContDiff ℝ (⊤ : ℕ∞) ψ) (hcs : HasCompactSupport ψ) :
     ∃ L : ℝ, 0 ≤ L ∧ ∀ x y, ‖ψ x - ψ y‖ ≤ L * ‖x - y‖ := by
-  have hone : (1 : WithTop ℕ∞) ≤ ((⊤ : ℕ∞) : WithTop ℕ∞) := by simp
+  have hone : ((⊤ : ℕ∞) : WithTop ℕ∞) ≠ 0 := by simp
   obtain ⟨C, hC0, hC⟩ := exists_fderiv_bound_of_hasCompactSupport hsm hcs
   have hlip : LipschitzWith C.toNNReal ψ := by
     refine lipschitzWith_of_nnnorm_fderiv_le (hsm.differentiable hone) fun x => ?_

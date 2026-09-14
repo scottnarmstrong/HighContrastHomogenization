@@ -15,7 +15,7 @@ zero gradient on a centered cube is almost everywhere its cube average.
 namespace Homogenization
 namespace HighContrast
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal Topology
 
 noncomputable section
@@ -64,7 +64,7 @@ theorem eq_of_const_ae_eq_const_localGradientCube
     exact lt_irrefl 0 hvolReal
   have h' : ∀ᵐ x ∂(volumeMeasureOn (localGradientCube d q)).restrict Set.univ,
       (fun _ : Vec d => c) x = (fun _ => c') x := by
-    simpa only [Measure.restrict_univ] using h
+    simpa only [Measure.restrict_univ] using! h
   obtain ⟨x, _hx, hxc⟩ :=
     Measure.exists_mem_of_measure_ne_zero_of_ae
       (s := Set.univ) hmeasure h'
@@ -104,14 +104,11 @@ private theorem gradToHilbertVectorL2_sub_additive
 
 private theorem finiteAffineBoundaryH1_gradClass_eq_constantGradient
     {d : ℕ} [NeZero d] (q : ℕ) (e : Vec d) :
-    (show H1Function (localGradientCube d q) from by
-      simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
+    (show H1Function (localGradientCube d q) from
         finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2 =
       (show LocalGradientL2 d q from
         constantGradientOnOriginCube e (q : ℤ)) := by
-  let b : H1Function (localGradientCube d q) := by
-    simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-      finiteAffineBoundaryH1 (q : ℤ) e
+  let b : H1Function (localGradientCube d q) := finiteAffineBoundaryH1 (q : ℤ) e
   change b.gradToHilbertVectorL2 = constantGradientOnOriginCube e (q : ℤ)
   have hbgrad : b.grad = fun _ => e := by
     simpa only [b] using finiteAffineBoundaryH1_grad (q : ℤ) e
@@ -120,13 +117,13 @@ private theorem finiteAffineBoundaryH1_gradClass_eq_constantGradient
       (MeasureTheory.memLp_const
         (μ := volumeMeasureOn (openCubeSet (originCube d (q : ℤ))))
         (p := (2 : ENNReal)) (c := e))
-  unfold constantGradientOnOriginCube
   apply MeasureTheory.Lp.ext
   filter_upwards
     [b.coeFn_gradToHilbertVectorL2,
      coeFn_toHilbertVectorL2OfVecField hmem]
     with x hboundary hconstant
-  rw [hboundary, hbgrad, hconstant]
+  rw [hboundary, hbgrad]
+  exact hconstant.symm
 
 /-- Equality of the Liouville gradient with one canonical joint-corrector
 gradient determines the Liouville value representative up to one global
@@ -168,13 +165,10 @@ theorem exists_additiveConstant_of_common_jointSlope
         (jointAffineFullGradientLinearMap a hCauchy q) e := by
       calc
         target.gradToHilbertVectorL2 =
-            (show LocalGradientL2 d q from by
-              simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
+            (show LocalGradientL2 d q from
                 (finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2) +
-              (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent q := by
-          simpa only [target] using
-            finiteAffineCorrectionJointLocalH1_gradToHilbertVectorL2
-              a hCauchy e q
+              (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent q :=
+          finiteAffineCorrectionJointLocalH1_gradToHilbertVectorL2 a hCauchy e q
         _ = (show LocalGradientL2 d q from
               constantGradientOnOriginCube e (q : ℤ)) +
               (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent q := by
@@ -194,14 +188,14 @@ theorem exists_additiveConstant_of_common_jointSlope
       have htransport := congrArg
         (hilbertVectorL2ToVectorL2 (U := localGradientCube d q)) hgradHilbert
       simpa [H1Function.gradToHilbertVectorL2,
-        hilbertVectorL2ToVectorL2_toHilbertVectorL2] using htransport
+        hilbertVectorL2ToVectorL2_toHilbertVectorL2] using! htransport
     have hw :=
       Homogenization.HighContrast.H1Function.ae_eq_integralAverage_of_gradToVectorL2_eq_zero
         q w hgradVector
     have hvalue : f =ᵐ[volumeMeasureOn (localGradientCube d q)] w.toFun := by
       have hz := z.globalValueRepresentative_ae_eq_localH1Function q
       have huqFun : uq.toFun = v := by
-        simpa only [uq, U, id_eq, finiteCubeSolutionRestriction_toFun] using
+        simpa only [uq, U, id_eq, finiteCubeSolutionRestriction_toFun] using!
           huFun (q + 4)
       have htargetFun : target.toFun = fun x =>
           vecDot e x + z.localH1Function q x := by

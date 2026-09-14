@@ -92,7 +92,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_diagonalWeakState
   | inl i =>
       have hmul := integrable_coarseBlock_mulVec_apply hint X (Sum.inr i)
       have hadd := hmul.add (integrable_const (X.1 i))
-      refine hadd.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine hadd.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q s) a) X)
         (Sum.inr i) + X.1 i = toFullBlockVec (blockCellAverage (adaptedCell q s)
           (diagonalWeakState hq s a p r)) (Sum.inl i)
@@ -101,7 +101,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_diagonalWeakState
   | inr i =>
       have hmul := integrable_coarseBlock_mulVec_apply hint X (Sum.inl i)
       have hadd := hmul.add (integrable_const (X.2 i))
-      refine hadd.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine hadd.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q s) a) X)
         (Sum.inl i) + X.2 i = toFullBlockVec (blockCellAverage (adaptedCell q s)
           (diagonalWeakState hq s a p r)) (Sum.inr i)
@@ -119,7 +119,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_adjointState
   | inl i =>
       have h := (integrable_adjoint_coarseBlock_mulVec_apply
         (adaptedDomain hq s) hint X (Sum.inr i)).add (integrable_const (X.1 i))
-      refine h.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine h.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q s)
         a.transpose) X) (Sum.inr i) + X.1 i = toFullBlockVec (blockCellAverage (adaptedCell q s)
           (diagonalWeakState hq s a.transpose p r)) (Sum.inl i)
@@ -128,7 +128,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_adjointState
   | inr i =>
       have h := (integrable_adjoint_coarseBlock_mulVec_apply
         (adaptedDomain hq s) hint X (Sum.inl i)).add (integrable_const (X.2 i))
-      refine h.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+      refine h.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
       change toFullBlockVec (blockMatVecMul (coarseBlock (adaptedCell q s)
         a.transpose) X) (Sum.inl i) + X.2 i = toFullBlockVec (blockCellAverage (adaptedCell q s)
           (diagonalWeakState hq s a.transpose p r)) (Sum.inr i)
@@ -140,7 +140,7 @@ private theorem integrable_matVecMul_of_integrable
     (hF : Integrable F P) : Integrable (fun a ↦ matVecMul g (F a)) P := by
   apply Integrable.of_eval
   intro i
-  simpa only [matVecMul] using integrable_finset_sum Finset.univ
+  simpa only [matVecMul] using integrable_finsetSum Finset.univ
     (fun j _ ↦ (hF.eval j).const_mul (g i j))
 
 private theorem integrable_toFullBlockVec_blockCellAverage_subSkew
@@ -164,7 +164,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_subSkew
     (hY.snd.sub (integrable_matVecMul_of_integrable g hY.fst))
   have hfull' : Integrable (fun a ↦ blockCellAverage (adaptedCell q s)
       (diagonalWeakState hq s (a.subSkew g hg) p r)) P :=
-    hfull.congr (Filter.Eventually.of_forall fun a ↦
+    hfull.congr (_root_.Filter.Eventually.of_forall fun a ↦
       (blockCellAverage_diagonalWeakState_subSkew hq s a g hg p r).symm)
   cases α with
   | inl i => simpa only [toFullBlockVec] using hfull'.fst.eval i
@@ -191,7 +191,7 @@ private theorem integrable_toFullBlockVec_blockCellAverage_adjointSubSkew
     (hY.snd.add (integrable_matVecMul_of_integrable g hY.fst))
   have hfull' : Integrable (fun a ↦ blockCellAverage (adaptedCell q s)
       (diagonalWeakState hq s (a.subSkew g hg).transpose p r)) P :=
-    hfull.congr (Filter.Eventually.of_forall fun a ↦ by
+    hfull.congr (_root_.Filter.Eventually.of_forall fun a ↦ by
       change ((Y a).1, (Y a).2 + matVecMul g (Y a).1) = blockCellAverage
         (adaptedCell q s) (diagonalWeakState hq s (a.subSkew g hg).transpose p r)
       symm

@@ -71,10 +71,10 @@ private theorem finiteAffineGrowthApproximation_tendsto
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
     (hCauchy : FiniteAffineCorrectionLocalCauchy a)
     (e : Vec d) (q : ℕ) :
-    Filter.Tendsto
+    _root_.Filter.Tendsto
       (fun k =>
         (finiteAffineGrowthApproximation a e q k).gradToHilbertVectorL2)
-      Filter.atTop
+      _root_.Filter.atTop
       (nhds
         (finiteAffineCorrectionJointLocalH1 a hCauchy e q).gradToHilbertVectorL2) := by
   let g0 : LocalGradientL2 d q :=
@@ -82,21 +82,21 @@ private theorem finiteAffineGrowthApproximation_tendsto
       simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
         finiteAffineBoundaryH1 (q : ℤ) e).gradToHilbertVectorL2
   have hlimit :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k =>
           (normalizedLocalPair
             (finiteAffineCorrectionLocalSequence a e) q k).2)
-        Filter.atTop
+        _root_.Filter.atTop
         (nhds
           ((finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent q)) :=
     (finiteAffineCorrectionJointLocalLimit_isLimit a hCauchy e q).snd_nhds
   have hsum :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k =>
           g0 +
             (normalizedLocalPair
               (finiteAffineCorrectionLocalSequence a e) q k).2)
-        Filter.atTop
+        _root_.Filter.atTop
         (nhds
           (g0 +
             (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent q)) :=
@@ -118,7 +118,7 @@ private theorem finiteAffineGrowthApproximation_tendsto
           (finiteAffineCorrectionJointLocalLimit a hCauchy e).gradientComponent q := by
     rw [finiteAffineCorrectionJointLocalH1_gradToHilbertVectorL2]
     dsimp only [g0]
-    simp only [id_eq]
+    rfl
   rw [hsource, htarget]
   exact hsum
 
@@ -251,13 +251,13 @@ theorem exists_scalarIdentityGoodTailJointWeightedGradientBoundConstant
     (finiteAffineGrowthApproximation a e q k).gradToHilbertVectorL2
   let L : HilbertVectorL2 (localGradientCube d q) :=
     (finiteAffineCorrectionJointLocalH1 a hCauchy e q).gradToHilbertVectorL2
-  have hAL : Filter.Tendsto A Filter.atTop (nhds L) := by
+  have hAL : _root_.Filter.Tendsto A _root_.Filter.atTop (nhds L) := by
     simpa only [A, L] using
       finiteAffineGrowthApproximation_tendsto a hCauchy e q
   have hEnergyTendsto :
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun k => normalizedLocalSymmetricEnergy hEll (A k))
-        Filter.atTop
+        _root_.Filter.atTop
         (nhds (normalizedLocalSymmetricEnergy hEll L)) :=
     (continuous_normalizedLocalSymmetricEnergy hEll).continuousAt.tendsto.comp hAL
   have hBform : C * (2 * Cenergy * euclideanNorm e) =
@@ -318,7 +318,7 @@ theorem exists_scalarIdentityGoodTailJointWeightedGradientBoundConstant
   have hEnergyLimit :
       normalizedLocalSymmetricEnergy hEll L ≤
         (B * euclideanNorm e) ^ 2 :=
-    le_of_tendsto hEnergyTendsto (Filter.Eventually.of_forall hEnergyApprox)
+    le_of_tendsto hEnergyTendsto (_root_.Filter.Eventually.of_forall hEnergyApprox)
   have hLimitBridge :=
     ofReal_normalizedLocalSymmetricEnergy_eq_weightedGradNorm_sq hEll
       (finiteAffineCorrectionJointLocalH1 a hCauchy e q).grad_memVectorL2

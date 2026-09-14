@@ -33,7 +33,7 @@ private theorem sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube_triangle
   rw [sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
   rw [weightedGradNorm_congr_coeff_ae_on _
     (Book.Ch03.publicCoeffField_ae_eq_openCubeSet (originCube d q) a)]
-  rw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
+  erw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
   rw [ENNReal.toReal_ofReal]
   unfold Book.Ch03.h1EnergyNormOnCube
   exact Real.sqrt_nonneg _
@@ -90,7 +90,7 @@ theorem weightedGradNorm_sub_comm_h1
     H1Function.sub_grad u v
   have hvu : (v - u).grad = fun x ↦ v.grad x - u.grad x :=
     H1Function.sub_grad v u
-  rw [← huv, ← hvu, weightedGradNorm_eq_ofReal_h1EnergyNormOnCube,
+  erw [← huv, ← hvu, weightedGradNorm_eq_ofReal_h1EnergyNormOnCube,
     weightedGradNorm_eq_ofReal_h1EnergyNormOnCube,
     h1EnergyNormOnCube_sub_comm]
 
@@ -148,7 +148,7 @@ theorem weightedGradNorm_sub_le_add_sub_h1
     exact H1Function.sub_grad u v
   have hvwGrad : vw.grad = fun x ↦ v.grad x - w.grad x := by
     exact H1Function.sub_grad v w
-  rw [← huwGrad, ← huvGrad, ← hvwGrad,
+  erw [← huwGrad, ← huvGrad, ← hvwGrad,
     weightedGradNorm_eq_ofReal_h1EnergyNormOnCube,
     weightedGradNorm_eq_ofReal_h1EnergyNormOnCube,
     weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]

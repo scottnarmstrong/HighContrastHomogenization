@@ -63,7 +63,7 @@ theorem Homogenization.HighContrast.Entry.polynomial_entry_assembly
                 3 * (2 + Homogenization.HighContrast.aspectRatio E * K) ^ C
     := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   have hcEndSc : cEnd ≤ cSc := by
     have hdeltaOne : (1 : ℝ) ≤ 1 + δ₀ := by
       linarith only [hδ₀.1]
@@ -152,7 +152,7 @@ theorem Homogenization.HighContrast.Entry.polynomial_entry_assembly
       hCgapPos
   refine ⟨C, hCpos, ?_⟩
   intro P E Ψ K S hP hstat hunit hdag
-  haveI := hP
+  have := hP
   have hAR : 1 ≤ aspectRatio E :=
     one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hLam : 1 ≤ Real.logb 3 (2 + aspectRatio E) := by

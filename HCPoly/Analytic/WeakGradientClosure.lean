@@ -137,8 +137,8 @@ theorem integrableOn_weakGradientPairings_univ_of_memH1sLoc {b : CoeffField d}
     ⟨hφ.contDiff, hφ.hasCompactSupport, hKR⟩
   obtain ⟨h1, h2⟩ := integrableOn_weakGradientPairings_of_memH1sLoc hb hR
     hvmeas.restrict (fun j => (hDmeas j).restrict) hv hφ' i
-  refine ⟨h1.of_forall_diff_eq_zero MeasurableSet.univ ?_,
-    h2.of_forall_diff_eq_zero MeasurableSet.univ ?_⟩
+  refine ⟨h1.of_forall_sdiff_eq_zero MeasurableSet.univ ?_,
+    h2.of_forall_sdiff_eq_zero MeasurableSet.univ ?_⟩
   · intro x hx
     have hxn : x ∉ tsupport φ := fun hmem => hx.2 (hKR hmem)
     have hzero : smoothGrad φ x = 0 := smoothGrad_eq_zero_of_notMem_tsupport hxn

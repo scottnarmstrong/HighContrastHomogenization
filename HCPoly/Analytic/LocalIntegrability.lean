@@ -56,9 +56,9 @@ variable {d : ℕ}
 approximant is at finite `L¹` distance. -/
 theorem exists_lintegral_ofReal_abs_sub_ne_top {b : CoeffField d} {V : Set (Vec d)}
     {u : Vec d → ℝ} {Du : Vec d → Vec d} {w : ℕ → Vec d → ℝ}
-    (htend : Filter.Tendsto
+    (htend : _root_.Filter.Tendsto
       (fun n => h1sNormSqOn b V (fun x => w n x - u x)
-        (fun x => smoothGrad (w n) x - Du x)) Filter.atTop (nhds 0)) :
+        (fun x => smoothGrad (w n) x - Du x)) _root_.Filter.atTop (nhds 0)) :
     ∃ n : ℕ, (∫⁻ x in V, ENNReal.ofReal |w n x - u x| ∂volume) ≠ ⊤ := by
   obtain ⟨n, hn⟩ :=
     (htend.eventually_lt_const (by norm_num : (0 : ℝ≥0∞) < 1)).exists
@@ -146,7 +146,7 @@ theorem integrableOn_apply_of_integrableOn_vecNormSq {V : Set (Vec d)}
     (hFmeas : ∀ j, AEStronglyMeasurable (fun x => F x j) (volume.restrict V))
     (hF : IntegrableOn (fun x => vecNormSq (F x)) V volume) (j : Fin d) :
     IntegrableOn (fun x => F x j) V volume := by
-  haveI : IsFiniteMeasure (volume.restrict V) :=
+  have : IsFiniteMeasure (volume.restrict V) :=
     ⟨by rw [Measure.restrict_apply_univ]; exact lt_of_le_of_ne le_top hVfin⟩
   refine Integrable.mono' (g := fun x => (1 + vecNormSq (F x)) / 2)
     (((integrable_const (1 : ℝ)).add hF).div_const 2) (hFmeas j) ?_

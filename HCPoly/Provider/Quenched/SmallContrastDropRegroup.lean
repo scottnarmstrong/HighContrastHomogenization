@@ -49,7 +49,7 @@ theorem geom_sum_le_inv_one_sub {r : ℝ} (hr0 : 0 ≤ r) (hr1 : r < 1) (M : ℕ
     linarith only [hrM]
   have hinv : (1 - r)⁻¹ * (1 - r) = 1 := inv_mul_cancel₀ (ne_of_gt hden)
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   nlinarith only [hcon, hden, hS, hinv]
 
 /-- The drop-history sum of the iteration lemma is nonnegative. -/

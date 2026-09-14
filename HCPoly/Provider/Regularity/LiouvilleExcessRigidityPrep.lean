@@ -34,7 +34,7 @@ theorem finiteAffineGradientExcess_self_le_solutionEnergy
       =ᵐ[volumeMeasureOn (openCubeSet (originCube d m))]
         fun _ => (0 : Vec d) := by
     have h := finiteAffineSolution_grad_smul a m 0 (0 : Vec d)
-    simpa only [zero_smul] using h
+    simpa only [zero_smul] using! h
   have hfield : (fun x => u.toH1.grad x -
       (finiteAffineSolution a m (0 : Vec d)).toH1.grad x)
       =ᵐ[volumeMeasureOn (openCubeSet (originCube d m))] u.toH1.grad := by

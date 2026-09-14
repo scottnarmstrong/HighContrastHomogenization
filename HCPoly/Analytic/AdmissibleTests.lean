@@ -122,7 +122,7 @@ theorem exists_nonzero_admissible_test_of_ball {d : ℕ} (hd : 0 < d) {U : Set (
         intro h
         exact hx (by rw [h, smul_zero])
       have htsupp : tsupport (fun x => c • ψ₀ x) ⊆ tsupport ψ₀ := closure_mono hsupp
-      exact ⟨contDiff_const.smul hψ₀.contDiff,
+      exact ⟨ContDiff.const_smul c hψ₀.contDiff,
         IsCompact.of_isClosed_subset hψ₀.hasCompactSupport isClosed_closure htsupp,
         htsupp.trans hψ₀.tsupport_subset⟩
     · intro hzero
@@ -155,7 +155,7 @@ theorem exists_nonzero_admissible_test_h1_of_ball {d : ℕ} (hd : 0 < d) {U : Se
     (hUb : IsBoundedDomain U)
     (hUball : ∃ (c : Vec d) (ε : ℝ), 0 < ε ∧ Metric.ball c ε ⊆ U) :
     ∃ ψ : Vec d → Vec d, IsLocalVecTest U ψ ∧ ψ ≠ 0 ∧ h1NormSq U ψ ≤ 1 := by
-  have hone : (1 : WithTop ℕ∞) ≤ ((⊤ : ℕ∞) : WithTop ℕ∞) := by simp
+  have hone : ((⊤ : ℕ∞) : WithTop ℕ∞) ≠ 0 := by simp
   have hV0 : volume U ≠ 0 := by
     obtain ⟨c, ε, hε, hsub⟩ := hUball
     refine ne_of_gt (lt_of_lt_of_le ?_ (measure_mono hsub))
@@ -180,7 +180,7 @@ theorem exists_nonzero_admissible_test_h1_of_ball {d : ℕ} (hd : 0 < d) {U : Se
         intro h
         exact hx (by rw [h, smul_zero])
       have htsupp : tsupport (fun x => c • ψ₀ x) ⊆ tsupport ψ₀ := closure_mono hsupp
-      exact ⟨contDiff_const.smul hψ₀.contDiff,
+      exact ⟨ContDiff.const_smul c hψ₀.contDiff,
         IsCompact.of_isClosed_subset hψ₀.hasCompactSupport isClosed_closure htsupp,
         htsupp.trans hψ₀.tsupport_subset⟩
     · intro hzero

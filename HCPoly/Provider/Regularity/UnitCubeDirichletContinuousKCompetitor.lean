@@ -73,11 +73,11 @@ theorem exists_unitCubeDirichletContinuousKCompetitorBounds
         (unitCubeEuclideanL2FieldToCenteredCubeZero h)
         (unitCubeEuclideanL2FieldToCenteredCubeZero
           (continuousKCompetitorToUnitCubeEuclideanL2Field G)) w v
-        (by simpa only [unitCubeEuclideanL2FieldToCenteredCubeZero_apply] using hw)
+        (by simpa only [unitCubeEuclideanL2FieldToCenteredCubeZero_apply] using! hw)
         (by
           simpa only [continuousKCompetitorToUnitCubeEuclideanL2Field_apply,
             unitCubeEuclideanL2FieldToCenteredCubeZero_apply,
-            ContinuousKCompetitor.toCubeVectorH1Function_toField] using hv)
+            ContinuousKCompetitor.toCubeVectorH1Function_toField] using! hv)
     have hresidualENorm' :
         (unitCenteredCubeDomain d).normalizedEuclideanLpENorm (2 : ℝ≥0∞)
             (fun x ↦ unitCubeGradientEuclideanL2Field w x -
@@ -94,7 +94,7 @@ theorem exists_unitCubeDirichletContinuousKCompetitorBounds
         (2 : ℝ≥0∞) (unitCenteredCubeDomain d).normalizedVolume := by
       have hsub := h.euclideanMemL2.sub G.euclideanMemL2
       simpa only [euclideanNorm_eq_norm_ofVec, HilbertVec.ofVec,
-        PiLp.toLp_apply, Pi.sub_apply] using hsub.norm
+        PiLp.toLp_apply, Pi.sub_apply] using! hsub.norm
     unfold continuousKResidualNorm
     change
       ((unitCenteredCubeDomain d).normalizedEuclideanLpENorm (2 : ℝ≥0∞)

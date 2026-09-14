@@ -86,7 +86,7 @@ theorem tsum_scaleWeight_mul_chainAmplitude_le_rieszPotential
         ∫⁻ y in U, ENNReal.ofReal
           (euclideanDist x y ^ (s - (d : ℝ))) *
             fractionalGagliardoAmplitude U s G y ∂volume := by
-  letI : NeZero d := ⟨Nat.ne_of_gt hd⟩
+  let : NeZero d := ⟨Nat.ne_of_gt hd⟩
   have hAmp := measurable_fractionalGagliardoAmplitude
     (U := U) (s := s) hG
   rw [tsum_scaleWeight_mul_setLIntegral_chainBall_eq hAmp]

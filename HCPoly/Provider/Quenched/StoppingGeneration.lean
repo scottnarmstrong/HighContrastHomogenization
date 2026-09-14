@@ -59,7 +59,7 @@ theorem lt_of_lt_stoppingGeneration {nstar qfb : ℕ} {R : ℕ → Ω → ℝ} {
     (hlt : q < stoppingGeneration nstar qfb R m ω) :
     (3 : ℝ) ^ m < R (m - q) ω := by
   by_contra hcon
-  push_neg at hcon
+  push Not at hcon
   have hex : ∃ q, IsStoppingCandidate nstar R m ω q := ⟨q, hq, hcon⟩
   have hle : Nat.find hex ≤ q := Nat.find_le ⟨hq, hcon⟩
   rw [stoppingGeneration, dif_pos hex] at hlt
@@ -80,16 +80,16 @@ theorem measureReal_stoppingGeneration_gt_le
         {ω | (3 : ℝ) ^ (m - (q + b) + q + b) < R (m - (q + b)) ω} := by
       intro ω hω
       have hlt : q + b < stoppingGeneration nstar qfb R m ω := by
-        simp only [Set.mem_setOf_eq] at hω
+        simp only [Set.mem_ofPred_eq] at hω
         omega
       have hover := lt_of_lt_stoppingGeneration (qfb := qfb) hqb hlt
       have hmm : m - (q + b) + q + b = m := by omega
-      simpa only [Set.mem_setOf_eq, hmm] using hover
+      simpa only [Set.mem_ofPred_eq, hmm] using hover
     exact le_trans (measureReal_mono hsub) (hR (m - (q + b)) q (by omega))
   · have hempty :
         {ω | q + (qfb + b) < stoppingGeneration nstar qfb R m ω} = ∅ := by
       ext ω
-      simp only [Set.mem_setOf_eq, Set.mem_empty_iff_false, iff_false, not_lt]
+      simp only [Set.mem_ofPred_eq, Set.mem_empty_iff_false, iff_false, not_lt]
       have hle := stoppingGeneration_le nstar qfb R m ω
       omega
     rw [hempty]

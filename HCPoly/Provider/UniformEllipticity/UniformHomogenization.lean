@@ -161,7 +161,7 @@ theorem mu_le_of_isEllipticFieldOn {U : Set (Vec d)}
     {lam Lam : ℝ} {f : CoeffField d} (hEll : IsEllipticFieldOn lam Lam U f)
     (p q : Vec d) :
     Mu U (p, q) f ≤ Lam * vecNormSq p + lam⁻¹ * vecNormSq q := by
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := by
+  have : IsFiniteMeasure (volumeMeasureOn U) := by
     simpa [volumeMeasureOn] using hU.isFiniteMeasure_restrict_volume
   have hUm : MeasurableSet U := hU.isOpen.measurableSet
   have hAdm : IsBlockMuAdmissible U (p, q) (constBlockState (p, q)) :=
@@ -482,7 +482,7 @@ theorem uniform_homogenization_of_polynomial_homogenization (d : ℕ) (hd : 2 �
                         ENNReal.ofReal (C₁ ϑ * (r / R) ^ ϑ) *
                           weightedGradNorm (fun x => a.1 x) (ellipsoid abar R) Du)) := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨cd, C₀, hcd, hC₀pos, hT1⟩ :=
     HCPoly.Frozen.polynomial_homogenization_random_source d hd
   obtain ⟨CT, cSrc, κ, C₁, hCT, hcSrc, hκ, hC₁pos, hmain⟩ :=
@@ -538,7 +538,7 @@ theorem uniform_homogenization_of_polynomial_homogenization (d : ℕ) (hd : 2 �
     have hsubset : {a | Cout * (2 + Lam / lam) ^ Cout * s ≤ X a} ⊆
         {a | CT * Lpoly * (dilation * s) ≤ X a} := by
       intro a ha
-      simp only [Set.mem_setOf_eq] at ha ⊢
+      simp only [Set.mem_ofPred_eq] at ha ⊢
       refine le_trans ?_ ha
       have hprod : CT * dilation * Lpoly ≤ Cout * (2 + Lam / lam) ^ Cout :=
         mul_le_mul (le_max_left _ _) hLbound (by linarith only [hLpoly1])

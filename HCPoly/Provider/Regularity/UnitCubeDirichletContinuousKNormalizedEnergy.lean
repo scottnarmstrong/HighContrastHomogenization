@@ -44,11 +44,11 @@ private theorem unitCubeDirichletDivergence_normalizedEuclideanLpENorm_grad_le
     centeredCubeDirichletDivergence_normalizedEuclideanLpENorm_grad_le
       (unitCubeEuclideanL2FieldToCenteredCubeZero h) w
       (by
-        simpa only [unitCubeEuclideanL2FieldToCenteredCubeZero_apply] using hproblem)
+        simpa only [unitCubeEuclideanL2FieldToCenteredCubeZero_apply] using! hproblem)
   simpa only [centeredCubeDomain, unitCenteredCubeDomain,
     unitCubeEuclideanL2FieldToCenteredCubeZero_apply,
     centeredCubeGradientEuclideanL2Field_apply,
-    unitCubeGradientEuclideanL2Field_apply] using hbound
+    unitCubeGradientEuclideanL2Field_apply] using! hbound
 
 private theorem continuousKSeminormIntegral_eq_low_add_root
     {d : ℕ} {A : ℝ} (hzeroInv : 0 ≤ A⁻¹) (hinvOne : A⁻¹ ≤ 1)

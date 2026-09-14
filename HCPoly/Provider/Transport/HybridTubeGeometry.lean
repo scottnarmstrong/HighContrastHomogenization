@@ -38,7 +38,7 @@ private theorem volume_outer_slabLine_le {j : ℤ} {t : ℝ} (ht : 0 ≤ t) :
         Set.Icc ((1 : ℝ) / 2 * (3 : ℝ) ^ j)
           ((1 : ℝ) / 2 * (3 : ℝ) ^ j + t) := by
     rintro s ⟨⟨hlo, hhi⟩, habs⟩
-    rw [Set.mem_setOf_eq] at habs
+    rw [Set.mem_ofPred_eq] at habs
     rcases le_or_gt 0 s with hs | hs
     · exact Or.inr ⟨by rwa [abs_of_nonneg hs] at habs, hhi.le⟩
     · refine Or.inl ⟨hlo.le, ?_⟩
@@ -224,7 +224,7 @@ theorem volume_cellNeighbor_outside_le [NeZero d] {p q : Mat d} (hp : p.PosDef)
       exact hxrepr
     obtain ⟨i, hi⟩ : ∃ i, (1 / 2 : ℝ) * (3 : ℝ) ^ n ≤ |xt i| := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       refine hxtout (Recurrence.mem_centeredCube_iff.mpr fun i => ?_)
       have hi := hcon i
       rw [abs_lt] at hi

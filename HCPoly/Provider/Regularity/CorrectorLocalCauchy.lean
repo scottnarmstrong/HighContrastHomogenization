@@ -80,7 +80,7 @@ private theorem norm_gradToHilbertVectorL2_le_energyNorm
   have hmem : ∀ᵐ x ∂ volumeMeasureOn (openCubeSet Q),
       x ∈ openCubeSet Q := by
     exact (ae_restrict_iff' (measurableSet_openCubeSet Q)).2
-      (Filter.Eventually.of_forall fun x hx => hx)
+      (_root_.Filter.Eventually.of_forall fun x hx => hx)
   have hpoint : ∀ᵐ x ∂ volumeMeasureOn (openCubeSet Q),
       lam * vecNormSq (u.grad x) ≤ coefficientEnergyDensity b u.grad x := by
     filter_upwards [hmem] with x hx
@@ -207,6 +207,11 @@ private theorem normalizedFiniteCorrection_successor_gradient_eq
         (finiteCubeSolutionRestriction a hrm
           (finiteAffineSuccessorDifference a
             ((q + k : ℕ) : ℤ) e)).toH1.gradToHilbertVectorL2 := by
+  let w : H1Function (localGradientCube d r) :=
+    Eq.mp (by simp only [localGradientCube, Book.Ch02.cubeDomain_coe])
+      (finiteCubeSolutionRestriction a hrm
+        (finiteAffineSuccessorDifference a ((q + k : ℕ) : ℤ) e)).toH1
+  change _ = localGradientRestrict hqr w.gradToHilbertVectorL2
   rw [← gradToHilbertVectorL2_sub,
     localGradientRestrict_gradToHilbertVectorL2_restrictLocalH1]
   apply gradToHilbertVectorL2_eq_of_grad_eq
@@ -214,10 +219,11 @@ private theorem normalizedFiniteCorrection_successor_gradient_eq
   rw [H1Function.sub_grad,
     normalizedLocalH1_finiteAffineCorrection_grad,
     normalizedLocalH1_finiteAffineCorrection_grad]
-  change _ =
-    (finiteCubeSolutionRestriction a hrm
-      (finiteAffineSuccessorDifference a ((q + k : ℕ) : ℤ) e)).toH1.grad x
-  rw [finiteCubeSolutionRestriction_grad,
+  change _ = w.grad x
+  have hwgrad : w.grad x =
+      (finiteCubeSolutionRestriction a hrm
+        (finiteAffineSuccessorDifference a ((q + k : ℕ) : ℤ) e)).toH1.grad x := rfl
+  rw [hwgrad, finiteCubeSolutionRestriction_grad,
     finiteAffineSuccessorDifference_grad]
   have hindex : ((q + (k + 1) : ℕ) : ℤ) =
       ((q + k : ℕ) : ℤ) + 1 := by omega

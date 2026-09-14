@@ -170,7 +170,7 @@ theorem sup_inherited_le [NeZero d] {P : Measure (CoeffSpace d)} {l : ℤ} {p q 
         lintegral_const_mul' _ _ ENNReal.ofReal_ne_top
     _ = ENNReal.ofReal ((lam * CW * (3 : ℝ) ^ (-rhoMax * ((n : ℝ) - (b : ℝ)))) ^ Q) *
           ∑ vB ∈ Zanc, ∫⁻ x, X vB x ^ Q ∂P := by
-        rw [lintegral_finset_sum' Zanc fun vB _ => hmeasQ vB]
+        rw [lintegral_finsetSum' Zanc fun vB _ => hmeasQ vB]
     _ ≤ ENNReal.ofReal ((lam * CW * (3 : ℝ) ^ (-rhoMax * ((n : ℝ) - (b : ℝ)))) ^ Q) *
           (ENNReal.ofReal ((2 + Real.sqrt d * Khop) ^ d *
               (3 : ℝ) ^ ((n - b) * (d : ℤ))) *

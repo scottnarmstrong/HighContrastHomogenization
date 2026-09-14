@@ -52,7 +52,7 @@ private theorem enorm_hilbertVec_sub_eq_ofReal_euclideanDist
     (v w : Vec d) :
     ‖HilbertVec.ofVec v - HilbertVec.ofVec w‖ₑ =
       ENNReal.ofReal (euclideanDist v w) := by
-  rw [← ofReal_norm_eq_enorm, ← euclideanDist_eq_norm_sub_ofVec]
+  rw [← ofReal_norm, ← euclideanDist_eq_norm_sub_ofVec]
 
 /-- The distance between two vector-valued volume averages is bounded by the
 normalized cross average of pointwise distances. -/
@@ -71,9 +71,9 @@ theorem edist_volumeAverageVec_le_crossDistanceAverage
   let μE := normalizedJumpMeasure E
   let μF := normalizedJumpMeasure F
   let GH : Vec d → HilbertVec d := fun x => HilbertVec.ofVec (G x)
-  haveI : IsProbabilityMeasure μE :=
+  have : IsProbabilityMeasure μE :=
     normalizedJumpMeasure_isProbability hEpos hEtop
-  haveI : IsProbabilityMeasure μF :=
+  have : IsProbabilityMeasure μF :=
     normalizedJumpMeasure_isProbability hFpos hFtop
   have hGHE : Integrable GH μE :=
     integrable_normalizedJumpMeasure hEpos

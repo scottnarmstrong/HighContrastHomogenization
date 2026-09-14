@@ -41,7 +41,7 @@ theorem localGradientShell_subset_cube (d n : ℕ) :
     localGradientShell d n ⊆ localGradientCube d n := by
   cases n with
   | zero => exact fun _ hx => hx
-  | succ n => exact Set.diff_subset
+  | succ n => exact Set.sdiff_subset
 
 /-- Adding the successor shell to an exhaustion cube gives the next cube. -/
 theorem localGradientCube_union_shell (d n : ℕ) :

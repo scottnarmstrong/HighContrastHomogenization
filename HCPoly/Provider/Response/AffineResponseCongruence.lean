@@ -268,7 +268,7 @@ private theorem isLocalTest_affinePullback
     rw [hU]
     exact hphi
   refine ⟨contDiff_const.mul hcomp.contDiff, ?_, Set.subset_univ _⟩
-  simpa [Pi.smul_apply, smul_eq_mul] using
+  simpa [Pi.smul_apply, smul_eq_mul] using!
     hcomp.hasCompactSupport.smul_left (f := fun _ : Vec d ↦ |L.det|⁻¹)
 
 private theorem measurable_affineCoeffSpace (L : Mat d) (hL : IsUnit L.det) :
@@ -670,8 +670,7 @@ theorem integral_cutoffWeighted_affineResponseJ_eq_zero_of_stationarity
     fun R b ↦ ResponseJ (openCubeSet R) p0 r0 (⇑b.1 : CoeffField d)
   have hQ : dilateCube s Q0 = originCube d t := by
     dsimp only [Q0]
-    simpa only [translateCube, originCube, Pi.zero_apply, zero_add] using
-      dilateCube_translate_origin_sub s t (0 : Fin d → ℤ)
+    exact dilateCube_translate_origin_sub s t (0 : Fin d → ℤ)
   have hP1 : HCPoly.Frozen.IsStationaryLaw P1 :=
     stationaryLaw_map_of_commutes hP E E.measurable hE
   obtain ⟨n, hn⟩ := Recurrence.exists_int_zpow_smul_of_isRoundedGrid hqGrid hls
@@ -722,7 +721,7 @@ theorem integral_cutoffWeighted_affineResponseJ_eq_zero_of_stationarity
     refine (integrable_map_equiv eL (rawJ R)).mpr ?_
     refine (integrable_map_equiv E (rawJ R ∘ eL)).mpr ?_
     have ht := hint (dilateCube s R) (hmember R hR)
-    simpa only [Function.comp_apply] using
+    simpa only [Function.comp_apply] using!
       ht.congr (Filter.Eventually.of_forall fun a ↦ (hresponse R hR a).symm)
   have hbaseResponse (a : CoeffSpace d) :
       rawJ (originCube d 0) (eL (E a)) =
@@ -730,14 +729,14 @@ theorem integral_cutoffWeighted_affineResponseJ_eq_zero_of_stationarity
           ((A a).coeffOn (originCube d s))
           (matVecMul (matTranspose q) p) (matVecMul q⁻¹ r) := by
     dsimp only [rawJ, p0, r0, eL, L, hLdet]
-    simpa only [sub_self, translateCube, originCube, Pi.zero_apply, zero_add] using
+    simpa only [sub_self, translateCube, originCube, Pi.zero_apply, zero_add] using!
       normalizedResponseJ_eq_affineFamilyResponseJ
         hq s t s (0 : Fin d → ℤ) E A hA a p r
   have hbase0 : Integrable (rawJ (originCube d 0)) P0 := by
     dsimp only [P0, P1]
     refine (integrable_map_equiv eL (rawJ (originCube d 0))).mpr ?_
     refine (integrable_map_equiv E (rawJ (originCube d 0) ∘ eL)).mpr ?_
-    simpa only [Function.comp_apply] using hbase.congr
+    simpa only [Function.comp_apply] using! hbase.congr
       (Filter.Eventually.of_forall fun a ↦ (hbaseResponse a).symm)
   have hphi0 : IntegrableOn phi0 (cubeSet Q0) volume := by
     dsimp only [phi0]

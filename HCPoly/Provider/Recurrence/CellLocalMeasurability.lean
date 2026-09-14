@@ -55,7 +55,7 @@ representative agreeing with the field almost everywhere. -/
 theorem measurable_sourceRepresentative_local (U : Set (Vec d)) (hU : MeasurableSet U) :
     @Measurable (CoeffSpace d) (Source.Coarse.Carrier d) (coeffSigma d U)
       (Source.Coarse.localSigma U hU) sourceRepresentative := by
-  letI : MeasurableSpace (CoeffSpace d) := coeffSigma d U
+  let : MeasurableSpace (CoeffSpace d) := coeffSigma d U
   refine measurable_generateFrom ?_
   rintro s ⟨e, e', φ, hφ, hsupp, t, ht, rfl⟩
   have hset : sourceRepresentative (d := d) ⁻¹'
@@ -76,8 +76,8 @@ theorem measurable_Mu_coeffSigma {U : Set (Vec d)} (hUopen : IsOpen U)
     (hUbdd : IsBoundedDomain U) (hvol : 0 < (volume U).toReal) (Q : BlockVec d) :
     @Measurable (CoeffSpace d) ℝ (coeffSigma d U) _
       fun a : CoeffSpace d => Mu U Q (⇑a.1 : CoeffField d) := by
-  letI : MeasurableSpace (CoeffSpace d) := coeffSigma d U
-  letI : MeasurableSpace (Source.Coarse.Carrier d) :=
+  let : MeasurableSpace (CoeffSpace d) := coeffSigma d U
+  let : MeasurableSpace (Source.Coarse.Carrier d) :=
     Source.Coarse.localSigma U hUopen.measurableSet
   have hEq : (fun a : CoeffSpace d => Mu U Q (⇑a.1 : CoeffField d))
       = (fun b : Source.Coarse.Carrier d => Mu U Q (b.1 : CoeffField d)) ∘

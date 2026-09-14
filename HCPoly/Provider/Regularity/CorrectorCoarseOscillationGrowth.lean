@@ -134,9 +134,7 @@ theorem exists_scalarIdentityGoodTailCorrectorOscillationConstant
     finiteAffineCorrectionJointLocalCubeSolution a hCauchy e q
   let phi : H1Function (openCubeSet Q) :=
     (finiteAffineCorrectionJointLocalLimit a hCauchy e).localH1Function q
-  let ell : H1Function (openCubeSet Q) := by
-    simpa only [Q, Book.Ch02.cubeDomain_coe] using
-      finiteAffineBoundaryH1 (q : ℤ) e
+  let ell : H1Function (openCubeSet Q) := finiteAffineBoundaryH1 (q : ℤ) e
   have hellFun : ell.toFun = fun x => vecDot e x := by
     simpa only [ell] using finiteAffineBoundaryH1_toFun (m := (q : ℤ)) e
   have hweak : scalarIdentityWeakError a s (q : ℤ) ≤ 1 :=
@@ -177,6 +175,7 @@ theorem exists_scalarIdentityGoodTailCorrectorOscillationConstant
     have h : u.toH1.toFun x = ell.toFun x + phi.toFun x := by
       simp only [u, phi, ell, finiteAffineCorrectionJointLocalCubeSolution_toH1,
         finiteAffineCorrectionJointLocalH1, H1Function.add_toFun]
+      rfl
     rw [h, hellFun]
   let cbar : ℝ := cubeAverage Q u.toH1.toFun
   let g : Vec d → ℝ := fun x => phi.toFun x - cbar

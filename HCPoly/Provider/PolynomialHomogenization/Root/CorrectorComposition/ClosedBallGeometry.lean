@@ -87,7 +87,7 @@ theorem volume_closedNormBall_ne_zero [NeZero d] {r : ℝ} (hr : 0 < r) :
     measure_mono (euclideanBall_subset_closedNormBall d r)
   intro hzero
   exact Root.volume_euclideanBall_ne_zero hr
-    (le_antisymm (hzero ▸ hmono) (zero_le _))
+    (le_antisymm (hzero ▸ hmono) (zero_le))
 
 theorem volume_closedNormBall_ne_top [NeZero d] {r : ℝ} (hr : 0 < r) :
     volume (closedNormBall d r) ≠ ⊤ := by

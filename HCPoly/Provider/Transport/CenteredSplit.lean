@@ -163,7 +163,7 @@ theorem lqSchattenSize_rpow_eq {P : Measure (CoeffSpace d)} {Q : ℝ} (hQ : 0 < 
   have hp0 : (ENNReal.ofReal Q) ≠ 0 := by
     simp only [ne_eq, ENNReal.ofReal_eq_zero, not_le]
     exact hQ
-  rw [lqSchattenSize, eLpNorm_eq_lintegral_rpow_enorm hp0 ENNReal.ofReal_ne_top,
+  rw [lqSchattenSize, eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top,
     ENNReal.toReal_ofReal hQ.le, ← ENNReal.rpow_mul, one_div,
     inv_mul_cancel₀ (ne_of_gt hQ), ENNReal.rpow_one]
   refine lintegral_congr fun a => ?_

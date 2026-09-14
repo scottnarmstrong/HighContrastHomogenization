@@ -141,7 +141,7 @@ theorem weakMaximum_moment_package_at [NeZero d]
       a ∉ {a | (3 : ℝ) ^ Delta < normalizedSourceScale S sK a} →
       M a ≤ ENNReal.ofReal (R / 2) := by
     filter_upwards [henvMax] with a hMa hcase
-    push_neg at hcase
+    push Not at hcase
     have hle1 : 3 * S a * (3 : ℝ) ^ (-((t : ℝ) + (G : ℝ))) ≤ 1 := by
       rw [hXeq a]
       have hS3 : S a * (3 : ℝ) ^ (-sK) ≤ (3 : ℝ) ^ Delta :=

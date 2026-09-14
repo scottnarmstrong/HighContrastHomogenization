@@ -68,6 +68,84 @@ theorem toFullBlockMat_normalizedBlock_blockSub (X Y F : BlockMat d) :
         matSqrt (toFullBlockMat F)⁻¹ * toFullBlockMat Y * matSqrt (toFullBlockMat F)⁻¹ := by
   rw [toFullBlockMat_normalizedBlock, toFullBlockMat_blockSub, Matrix.mul_sub, Matrix.sub_mul]
 
+/-! ## Entrywise integrability of a block-valued map -/
+
+/-- The identity, read as a continuous linear map from the coordinatewise
+(finite-product) presentation of `FullBlockMat d` into the matrix type itself.
+Continuity is automatic on a finite-dimensional space; the map exists only to
+move Bochner-integral values between the two topologically identical but
+differently normed presentations `FullBlockMat d` carries — the Loewner-order
+one open in this file and the coordinatewise one the generic product API
+uses. -/
+private def piToFullBlockMatCLM :
+    (BlockCoord d → BlockCoord d → ℝ) →L[ℝ] FullBlockMat d :=
+  LinearMap.toContinuousLinearMap
+    { toFun := fun M => M, map_add' := fun _ _ => rfl, map_smul' := fun _ _ => rfl }
+
+private theorem piToFullBlockMatCLM_apply (M : BlockCoord d → BlockCoord d → ℝ) :
+    piToFullBlockMatCLM M = M := rfl
+
+/-- A block-valued map is Bochner integrable exactly when every one of its
+entries is: `FullBlockMat d` carries its Loewner-order topology, which agrees
+with the coordinatewise topology it inherits as a finite product of reals,
+and the entrywise reading is the one the generic product API is stated in. -/
+private theorem integrable_fullBlockMat_iff {P : Measure (CoeffSpace d)}
+    {f : CoeffSpace d → FullBlockMat d} :
+    Integrable f P ↔ ∀ i j : BlockCoord d, Integrable (fun a => f a i j) P := by
+  constructor
+  · intro hf i j
+    have h := (hf.eval i).eval j
+    convert h using 1
+  · intro hf
+    refine Integrable.of_eval fun i => Integrable.of_eval fun j => ?_
+    have h := hf i j
+    convert h using 1
+
+/-- The coordinatewise reading of an integrable block-valued map is itself
+integrable for the generic product API. -/
+private theorem integrable_pi_of_integrable {P : Measure (CoeffSpace d)}
+    {f : CoeffSpace d → FullBlockMat d} (hf : Integrable f P) :
+    Integrable (fun a => (f a : BlockCoord d → BlockCoord d → ℝ)) P := by
+  convert hf using 1
+
+/-- **The Bochner integral of a block-valued map is computed entrywise.** -/
+private theorem integral_fullBlockMat_apply {P : Measure (CoeffSpace d)}
+    {f : CoeffSpace d → FullBlockMat d} (hf : Integrable f P) (i j : BlockCoord d) :
+    (∫ a, f a ∂P) i j = ∫ a, f a i j ∂P := by
+  have hf' := integrable_pi_of_integrable hf
+  have heq : ∫ a, f a ∂P =
+      piToFullBlockMatCLM (∫ a, (f a : BlockCoord d → BlockCoord d → ℝ) ∂P) :=
+    piToFullBlockMatCLM.integral_comp_comm hf'
+  rw [heq, piToFullBlockMatCLM_apply, congrFun (eval_integral hf'.eval i) j]
+  exact eval_integral (hf'.eval i).eval j
+
+/-- The difference of two block-valued maps that are separately Bochner
+integrable is integrable, read entrywise to sidestep the mismatch between the
+Loewner-order and coordinatewise topologies on `FullBlockMat d`. -/
+private theorem integrable_sub_fullBlockMat {P : Measure (CoeffSpace d)}
+    {f g : CoeffSpace d → FullBlockMat d} (hf : Integrable f P) (hg : Integrable g P) :
+    Integrable (fun a => f a - g a) P := by
+  refine integrable_fullBlockMat_iff.mpr fun i j => ?_
+  have hfij := integrable_fullBlockMat_iff.mp hf i j
+  have hgij := integrable_fullBlockMat_iff.mp hg i j
+  exact hfij.sub hgij
+
+/-- The Bochner integral of a difference of block-valued maps is the
+difference of the integrals, again read entrywise. -/
+private theorem integral_sub_fullBlockMat {P : Measure (CoeffSpace d)}
+    {f g : CoeffSpace d → FullBlockMat d} (hf : Integrable f P) (hg : Integrable g P) :
+    ∫ a, (f a - g a) ∂P = (∫ a, f a ∂P) - ∫ a, g a ∂P := by
+  have hsub := integrable_sub_fullBlockMat hf hg
+  ext i j
+  have hL : (∫ a, (f a - g a) ∂P) i j = ∫ a, (f a i j - g a i j) ∂P := by
+    rw [integral_fullBlockMat_apply hsub i j]
+    simp only [Matrix.sub_apply]
+  have hR : ((∫ a, f a ∂P) - ∫ a, g a ∂P) i j =
+      (∫ a, f a i j ∂P) - ∫ a, g a i j ∂P := by
+    rw [Matrix.sub_apply, integral_fullBlockMat_apply hf i j, integral_fullBlockMat_apply hg i j]
+  rw [hL, hR,
+    integral_sub (integrable_fullBlockMat_iff.mp hf i j) (integrable_fullBlockMat_iff.mp hg i j)]
+
 /-! ## The trace against the block-valued integral -/
 
 /-- **The trace passes through the block-valued Bochner integral**, being a
@@ -75,17 +153,17 @@ linear functional on a finite-dimensional space. -/
 theorem integral_blockTrace {P : Measure (CoeffSpace d)} {D : CoeffSpace d → BlockMat d}
     (hint : Integrable (fun a => toFullBlockMat (D a)) P) :
     ∫ a, blockTrace (D a) ∂P = Matrix.trace (∫ a, toFullBlockMat (D a) ∂P) := by
-  show ∫ a, Matrix.trace (toFullBlockMat (D a)) ∂P =
-    Matrix.trace (∫ a, toFullBlockMat (D a) ∂P)
-  exact (LinearMap.toContinuousLinearMap
-    (Matrix.traceLinearMap (BlockCoord d) ℝ ℝ)).integral_comp_comm hint
+  show ∫ a, ∑ i : BlockCoord d, toFullBlockMat (D a) i i ∂P =
+    ∑ i : BlockCoord d, (∫ a, toFullBlockMat (D a) ∂P) i i
+  rw [integral_finsetSum Finset.univ (fun i _ => integrable_fullBlockMat_iff.mp hint i i)]
+  exact Finset.sum_congr rfl fun i _ => (integral_fullBlockMat_apply hint i i).symm
 
 /-- The trace of an integrable block-valued map is integrable. -/
 theorem integrable_blockTrace {P : Measure (CoeffSpace d)} {D : CoeffSpace d → BlockMat d}
     (hint : Integrable (fun a => toFullBlockMat (D a)) P) :
-    Integrable (fun a => blockTrace (D a)) P :=
-  (LinearMap.toContinuousLinearMap
-    (Matrix.traceLinearMap (BlockCoord d) ℝ ℝ)).integrable_comp hint
+    Integrable (fun a => blockTrace (D a)) P := by
+  show Integrable (fun a => ∑ i : BlockCoord d, toFullBlockMat (D a) i i) P
+  exact integrable_finsetSum Finset.univ (fun i _ => integrable_fullBlockMat_iff.mp hint i i)
 
 /-- **`E[tr D] = b`, fail-closed.**  For a block that is positive along every
 realization the `L^1` norm of its trace is the mean of that trace, with no
@@ -115,7 +193,7 @@ theorem integrable_toFullBlockMat_normalizedBlock_blockSub {P : Measure (CoeffSp
     Integrable (fun a => toFullBlockMat (normalizedBlock
       (blockSub (Gh a) (coarseBlock (adaptedCell q p) a)) (adaptedMean P q p))) P := by
   simp only [toFullBlockMat_normalizedBlock_blockSub]
-  exact (integrable_mul_left_mul_right _ _ hGint).sub
+  exact integrable_sub_fullBlockMat (integrable_mul_left_mul_right _ _ hGint)
     (integrable_mul_left_mul_right _ _ (integrable_toFullBlockMat hintp))
 
 /-- **`0 ≤ D`.**  The excess of the aligned average over the response is
@@ -154,7 +232,7 @@ theorem integral_toFullBlockMat_normalizedBlock_blockSub {P : Measure (CoeffSpac
   have hAint : Integrable (fun a => toFullBlockMat (coarseBlock (adaptedCell q p) a)) P :=
     integrable_toFullBlockMat hintp
   simp only [toFullBlockMat_normalizedBlock_blockSub]
-  rw [integral_sub (integrable_mul_left_mul_right S S hGint)
+  rw [integral_sub_fullBlockMat (integrable_mul_left_mul_right S S hGint)
       (integrable_mul_left_mul_right S S hAint),
     integral_mul_left_mul_right S S hGint, integral_mul_left_mul_right S S hAint,
     hGmean, ← toFullBlockMat_adaptedMean_eq_integral hintp, toFullBlockMat_relMean,

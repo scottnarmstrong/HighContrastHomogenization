@@ -173,18 +173,18 @@ theorem ofReal_abs_integral_affineAdjointSubSkewCutoffEnergyDefect_le_component
   let X : CoeffSpace d → ℝ := fun a ↦ cubeAverage Q (fun y ↦
       adaptedPreYoungCutoff q hq t (matVecMul q y) *
         topHalfEnergyDensityOnCube Q ((A a).coeffOn Q) pRef rRef y) - J a
-  have hJInt : Integrable J P := ht.congr (Filter.Eventually.of_forall fun a ↦
+  have hJInt : Integrable J P := ht.congr (_root_.Filter.Eventually.of_forall fun a ↦
     (responseJ_affineResponse hq t (hA a Q) p r).symm)
   have hchildren : Integrable (fun a ↦ descendantsAverage Q j (fun R ↦
       Book.Ch02.responseJ (Book.Ch02.cubeDomain R) ((A a).coeffOn R)
         pRef rRef)) P := by
     unfold descendantsAverage
-    exact (integrable_finset_sum _ fun R hR ↦ hchild R hR).const_mul _
+    exact (integrable_finsetSum _ fun R hR ↦ hchild R hR).const_mul _
   have hTInt : Integrable T P := by
-    simpa [T, childResponseJAverageOnFamilyAtDepth] using hchildren.sub hJInt
+    simpa [T, childResponseJAverageOnFamilyAtDepth] using! hchildren.sub hJInt
   have hWInt : Integrable W P := by
     unfold W cutoffWeightedChildResponseJOnFamilyAtDepth descendantsAverage
-    exact (integrable_finset_sum _ fun R hR ↦
+    exact (integrable_finsetSum _ fun R hR ↦
       (hchild R hR).const_mul _).const_mul _
   have hXeq : ∀ a, X a =
       Book.Ch02.average (adaptedDomain hq t) (fun x ↦
@@ -205,14 +205,14 @@ theorem ofReal_abs_integral_affineAdjointSubSkewCutoffEnergyDefect_le_component
       (a.subSkew g hg) (hA a (originCube d t)) p r,
       responseJ_affineResponse hq t (hA a (originCube d t)) p r]
   have hXInt : Integrable X P :=
-    hcutoff.congr (Filter.Eventually.of_forall fun a ↦ (hXeq a).symm)
-  have hDT : D =ᵐ[P] T := Filter.Eventually.of_forall fun a ↦ by
+    hcutoff.congr (_root_.Filter.Eventually.of_forall fun a ↦ (hXeq a).symm)
+  have hDT : D =ᵐ[P] T := _root_.Filter.Eventually.of_forall fun a ↦ by
     exact descendantsAverage_additivityDiffHalfEnergy_eq_responseJPartitionDefect_of_commonCoeff
       (A a) Q j pRef rRef (fun R _ ↦ by rw [hA a R, hA a Q])
-  have hJnn : 0 ≤ᵐ[P] J := Filter.Eventually.of_forall fun a ↦
+  have hJnn : 0 ≤ᵐ[P] J := _root_.Filter.Eventually.of_forall fun a ↦
     Book.Ch02.responseJ_nonneg (Book.Ch02.cubeDomain Q) ((A a).coeffOn Q)
       pRef rRef
-  have hTnn : 0 ≤ᵐ[P] T := Filter.Eventually.of_forall fun a ↦
+  have hTnn : 0 ≤ᵐ[P] T := _root_.Filter.Eventually.of_forall fun a ↦
     Book.Ch05.Section53.WeakNormsMaximizer.responseJPartitionDefectOnFamilyAtDepth_nonneg
       (A a) Q j pRef rRef
   have hpoint : ∀ a, |X a + W a| ≤
@@ -238,7 +238,7 @@ theorem ofReal_abs_integral_affineAdjointSubSkewCutoffEnergyDefect_le_component
   have hmain := ofReal_abs_integral_le_adjointCutoffEnergyComponent_of_meanZero
     hXInt hWInt hJInt hTInt hJnn hTnn hDT hpoint hzero hEJ htau
       (sharpCutoffCoefficient_nonneg d) (by positivity)
-  rw [integral_congr_ae (Filter.Eventually.of_forall hXeq)] at hmain
+  rw [integral_congr_ae (_root_.Filter.Eventually.of_forall hXeq)] at hmain
   exact hmain
 
 end

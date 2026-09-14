@@ -52,7 +52,7 @@ theorem isWeakSolutionOn_univ_of_localGradientCube
     simp only [f, smoothGrad_eq_zero_of_notMem_tsupport hxnot,
       vecDot_zero_left]
   refine ⟨?_, ?_⟩
-  · exact hint.of_forall_diff_eq_zero MeasurableSet.univ fun x hx => hfzero x hx.2
+  · exact hint.of_forall_sdiff_eq_zero MeasurableSet.univ fun x hx => hfzero x hx.2
   · change ∫ x in Set.univ, f x ∂volume = 0
     rw [setIntegral_univ]
     rw [← setIntegral_eq_integral_of_forall_compl_eq_zero hfzero]
@@ -145,7 +145,7 @@ theorem IsFiniteAffineCorrectionJointLocalEquation.isWeakSolutionOn_global
         (show H1Function (localGradientCube d n) from by
           simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
             finiteAffineBoundaryH1 (n : ℤ) e).grad = fun _ => e := by
-      simpa only using finiteAffineBoundaryH1_grad (m := (n : ℤ)) e
+      simpa only using! finiteAffineBoundaryH1_grad (m := (n : ℤ)) e
     have hae := (Phi e).globalGradientRepresentative_ae_eq_localH1Gradient n
     filter_upwards [hae] with x hx
     simp only [u, H1Function.add_grad, hboundary, hx]

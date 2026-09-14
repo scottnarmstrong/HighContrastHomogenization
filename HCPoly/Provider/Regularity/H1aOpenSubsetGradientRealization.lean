@@ -21,7 +21,7 @@ domain is introduced.
 namespace Homogenization
 namespace HighContrast
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 open scoped ENNReal RealInnerProductSpace
 
 noncomputable section
@@ -37,7 +37,7 @@ theorem isPotentialOn_grad_on_openSubset_of_memH1a
     {u : Vec d → ℝ} {Du : Vec d → Vec d}
     (hu : MemH1a b V u Du) :
     IsPotentialOn U Du := by
-  letI : IsFiniteMeasure (volumeMeasureOn U) :=
+  let : IsFiniteMeasure (volumeMeasureOn U) :=
     hU.isFiniteMeasure_restrict_volume
   obtain ⟨hpair, hweak, v, hv, hvh1, hvskew⟩ := hu
   have hu' : MemH1a b V u Du :=
@@ -54,7 +54,7 @@ theorem isPotentialOn_grad_on_openSubset_of_memH1a
     intro n
     simpa [w, H1Function.ofContDiffOnIsOpenBoundedConvexDomain,
       H1Function.ofContDiffOnIsSobolevRegularDomain, H1Function.ofContDiff,
-      smoothGrad] using (w n).grad_memVectorL2
+      smoothGrad] using! (w n).grad_memVectorL2
   have hunweighted : Tendsto
       (fun n ↦ h1NormSqOnUnweighted V (fun x ↦ v n x - u x)
         (fun x ↦ smoothGrad (v n) x - Du x)) atTop (nhds 0) :=
@@ -65,7 +65,7 @@ theorem isPotentialOn_grad_on_openSubset_of_memH1a
       atTop (nhds 0) := by
     exact tendsto_zero_of_le_of_tendsto_zero (fun n ↦ by
       unfold h1NormSqOnUnweighted
-      exact le_add_of_nonneg_left (zero_le _)) hunweighted
+      exact le_add_of_nonneg_left zero_le) hunweighted
   have hgradIntegral : Tendsto
       (fun n ↦ ∫⁻ x in U,
         ENNReal.ofReal (vecNormSq (smoothGrad (v n) x - Du x)) ∂volume)
@@ -87,6 +87,8 @@ theorem isPotentialOn_grad_on_openSubset_of_memH1a
         (fun x ↦ hilbertifyVecField (smoothGrad (v n)) x -
           hilbertifyVecField Du x) 2 (volume.restrict U)) atTop (nhds 0) := by
     convert hgradELp using 1
+    funext n
+    congr 1
   have hgrad : Tendsto (fun n ↦ (w n).gradToHilbertVectorL2)
       atTop (nhds (toHilbertVectorL2OfVecField hDu)) := by
     let hvhilb : ∀ n,
@@ -101,14 +103,14 @@ theorem isPotentialOn_grad_on_openSubset_of_memH1a
     simpa [w, H1Function.ofContDiffOnIsOpenBoundedConvexDomain,
       H1Function.ofContDiffOnIsSobolevRegularDomain, H1Function.ofContDiff,
       smoothGrad, H1Function.gradToHilbertVectorL2,
-      toHilbertVectorL2OfVecField, toHilbertVectorL2] using ht
+      toHilbertVectorL2OfVecField, toHilbertVectorL2] using! ht
   apply hodgeConverseCriterion_of_isOpenBoundedConvexDomain hU hDu
   intro g hg hsol
   let G : HilbertVectorL2 U := toHilbertVectorL2OfVecField hg
   have hpairLimit : Tendsto
       (fun n ↦ inner ℝ G (w n).gradToHilbertVectorL2) atTop
       (nhds (inner ℝ G (toHilbertVectorL2OfVecField hDu))) := by
-    exact Filter.Tendsto.inner tendsto_const_nhds hgrad
+    exact _root_.Filter.Tendsto.inner tendsto_const_nhds hgrad
   have hpairZero : Tendsto
       (fun n ↦ inner ℝ G (w n).gradToHilbertVectorL2) atTop (nhds 0) := by
     convert tendsto_const_nhds using 1

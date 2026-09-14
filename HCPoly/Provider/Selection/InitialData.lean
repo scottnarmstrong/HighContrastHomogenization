@@ -96,7 +96,7 @@ theorem portableHistory_lowerEndpoint_le_centeredMoment_rpow [NeZero d]
       simp only [ne_eq, ENNReal.ofReal_eq_zero, not_le]
       exact hQ
     rw [centeredHistory, centeredMoment, lqSchattenSize,
-      eLpNorm_eq_lintegral_rpow_enorm hp0 ENNReal.ofReal_ne_top,
+      eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top,
       ENNReal.toReal_ofReal hQ.le, ← ENNReal.rpow_mul, one_div,
       inv_mul_cancel₀ (ne_of_gt hQ), ENNReal.rpow_one]
     exact lintegral_mono hpt

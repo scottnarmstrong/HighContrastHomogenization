@@ -174,28 +174,14 @@ theorem exists_cell_majorant_at [NeZero d] {P : Measure (CoeffSpace d)}
       (cbel * Y a) • toFullBlockMat E := by
     funext a
     simp only [hGraw, toFullBlockMat_ofFullBlockMat]
-  have hintcell : ∀ r, ∀ w ∈ Z r, Integrable (fun a : CoeffSpace d =>
-      ((volume (adaptedCellAt q r w)).toReal /
-        (volume (adaptedCellAt q' j z)).toReal) •
-      toFullBlockMat (coarseBlock (adaptedCellAt q r w) a)) P := fun r w hw =>
-    Integrable.smul ((volume (adaptedCellAt q r w)).toReal /
-      (volume (adaptedCellAt q' j z)).toReal) (integrable_toFullBlockMat (hcellint r w hw))
-  have hintrow : ∀ r, Integrable (fun a : CoeffSpace d => ∑ w ∈ Z r,
-      ((volume (adaptedCellAt q r w)).toReal /
-        (volume (adaptedCellAt q' j z)).toReal) •
-      toFullBlockMat (coarseBlock (adaptedCellAt q r w) a)) P := fun r =>
-    integrable_finset_sum _ fun w hw => hintcell r w hw
-  have hintsum : Integrable (fun a : CoeffSpace d =>
-      ∑ r ∈ Finset.Icc jStar j, ∑ w ∈ Z r,
-        ((volume (adaptedCellAt q r w)).toReal /
-          (volume (adaptedCellAt q' j z)).toReal) •
-        toFullBlockMat (coarseBlock (adaptedCellAt q r w) a)) P :=
-    integrable_finset_sum _ fun r _ => hintrow r
-  have hintbel : Integrable (fun a : CoeffSpace d =>
-      (cbel * Y a) • toFullBlockMat E) P := (hYint.const_mul cbel).smul_const _
   have hGrawint : Integrable (fun a => toFullBlockMat (Graw a)) P := by
-    rw [hGrawfun]
-    exact hintsum.add hintbel
+    refine integrable_of_entries fun α β => ?_
+    simp only [hGraw, toFullBlockMat_ofFullBlockMat, Matrix.add_apply, Matrix.sum_apply,
+      Matrix.smul_apply, smul_eq_mul]
+    refine Integrable.add ?_ ?_
+    · exact integrable_finsetSum _ fun r _ => integrable_finsetSum _ fun w hw =>
+        ((integrable_toFullBlockMat (hcellint r w hw)).eval α).eval β |>.const_mul _
+    · exact (hYint.const_mul cbel).mul_const _
   have hGmint : Integrable (fun a => toFullBlockMat (Gm a)) P := by
     refine hGrawint.congr ?_
     filter_upwards [hGmae] with a ha
@@ -205,22 +191,38 @@ theorem exists_cell_majorant_at [NeZero d] {P : Measure (CoeffSpace d)}
       (∑ r ∈ Finset.Icc jStar j, (∑ _w ∈ Z r, c r) •
           toFullBlockMat (adaptedMean P q r)) +
         (cbel * ∫ a, Y a ∂P) • toFullBlockMat E := by
-    rw [hGrawfun]
-    rw [integral_add hintsum hintbel]
-    have hbel : ∫ a, (cbel * Y a) • toFullBlockMat E ∂P =
-        (cbel * ∫ a, Y a ∂P) • toFullBlockMat E := by
-      rw [integral_smul_const, integral_const_mul]
-    rw [hbel]
+    ext γ δ
+    rw [entry_integral hGrawint γ δ]
+    simp only [hGraw, toFullBlockMat_ofFullBlockMat, Matrix.add_apply, Matrix.sum_apply,
+      Matrix.smul_apply, smul_eq_mul]
+    have hsumEntry : Integrable (fun a => ∑ r ∈ Finset.Icc jStar j, ∑ w ∈ Z r,
+        ((volume (adaptedCellAt q r w)).toReal /
+          (volume (adaptedCellAt q' j z)).toReal) *
+        toFullBlockMat (coarseBlock (adaptedCellAt q r w) a) γ δ) P :=
+      integrable_finsetSum _ fun r _ => integrable_finsetSum _ fun w hw =>
+        ((integrable_toFullBlockMat (hcellint r w hw)).eval γ).eval δ |>.const_mul _
+    have hbelEntry : Integrable (fun a => cbel * Y a * toFullBlockMat E γ δ) P :=
+      (hYint.const_mul cbel).mul_const _
+    rw [integral_add hsumEntry hbelEntry]
+    have hYEentry : ∫ a, cbel * Y a * toFullBlockMat E γ δ ∂P =
+        cbel * (∫ a, Y a ∂P) * toFullBlockMat E γ δ := by
+      simp only [mul_assoc]
+      rw [integral_const_mul, integral_mul_const]
+    rw [hYEentry]
     refine congrArg₂ (· + ·) ?_ rfl
-    rw [integral_finset_sum _ fun r _ => hintrow r]
+    rw [integral_finsetSum _ fun r _ => integrable_finsetSum _ fun w hw =>
+      ((integrable_toFullBlockMat (hcellint r w hw)).eval γ).eval δ |>.const_mul _]
     refine Finset.sum_congr rfl fun r hr => ?_
     have hjr : jStar ≤ r := (Finset.mem_Icc.mp hr).1
     have hmeas : HasMeasurableCoarseBlock P (adaptedCell q r) :=
       Recurrence.hasMeasurableCoarseBlock_adaptedCell P hqPD r
-    rw [integral_finset_sum _ fun w hw => hintcell r w hw]
-    rw [Finset.sum_smul]
+    rw [integral_finsetSum _ fun w hw =>
+      ((integrable_toFullBlockMat (hcellint r w hw)).eval γ).eval δ |>.const_mul _]
+    rw [Finset.sum_mul]
     refine Finset.sum_congr rfl fun w hw => ?_
-    rw [integral_smul, hcratio r w hw, ← toFullBlockMat_annealedBlock (hcellint r w hw),
+    rw [integral_const_mul, hcratio r w hw,
+      ← entry_integral (integrable_toFullBlockMat (hcellint r w hw)) γ δ,
+      ← toFullBlockMat_annealedBlock (hcellint r w hw),
       Recurrence.annealedBlock_adaptedCellAt_eq_adaptedMean hP hq hjr hmeas w]
   -- the annealed majorant
   set KG : BlockMat d := ofFullBlockMat

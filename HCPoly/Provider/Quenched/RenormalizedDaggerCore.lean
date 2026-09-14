@@ -165,7 +165,7 @@ theorem coarseEllipticityDagger_rebased_of_renormalization [NeZero d]
       · have h1t : 1 <= t := le_of_not_gt ht1
         rw [flooredSourceGauge, if_neg ht1]
         simpa only [normalizedNativeSource, flooredSource,
-          triadicRebasedGauge] using
+          triadicRebasedGauge] using!
           measureReal_restored_source_upperTail_le hdag n h1t
   have htailRadius : forall t : Real, 0 < t ->
       P.real (upperTailEvent (normalizedRadiusSource S Ahat delta rho h n) t) <=
@@ -225,7 +225,7 @@ theorem coarseEllipticityDagger_rebased_of_renormalization [NeZero d]
     have heq : CoeffSpace.triadicDilation n ⁻¹'
         upperTailEvent (rebasedPullbackSource n T) t = upperTailEvent T t := by
       ext a
-      simp only [Set.mem_preimage, upperTailEvent, Set.mem_setOf_eq,
+      simp only [Set.mem_preimage, upperTailEvent, Set.mem_ofPred_eq,
         rebasedPullbackSource_triadicDilation]
     rw [heq]
     exact hTtail t ht

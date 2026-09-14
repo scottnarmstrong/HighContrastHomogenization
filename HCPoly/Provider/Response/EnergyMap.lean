@@ -67,7 +67,7 @@ theorem integrableOn_component {U : Domain d} {F : Vec d → Vec d}
   have hcomp : MeasureTheory.MemLp (fun x => F x i) 2
       (volumeMeasureOn (U : Set (Vec d))) := by
     have := (ContinuousLinearMap.proj (R := ℝ) (φ := fun _ : Fin d => ℝ) i).comp_memLp' hF
-    simpa using this
+    simpa using! this
   exact hcomp.integrable (by norm_num)
 
 /-- **The average commutes with pairing against a fixed vector**: `(c·F)_U =
@@ -77,7 +77,7 @@ theorem average_vecDot_const {U : Domain d} (c : Vec d) {F : Vec d → Vec d}
     Book.Ch02.average U (fun x => vecDot c (F x)) = vecDot c (Book.Ch02.averageVec U F) := by
   have hsum : ∫ x in (U : Set (Vec d)), (∑ i : Fin d, c i * F x i) ∂MeasureTheory.volume =
       ∑ i : Fin d, c i * ∫ x in (U : Set (Vec d)), F x i ∂MeasureTheory.volume := by
-    rw [MeasureTheory.integral_finset_sum _
+    rw [MeasureTheory.integral_finsetSum _
       (fun i _ => (integrableOn_component hF i).const_mul (c i))]
     exact Finset.sum_congr rfl fun i _ => MeasureTheory.integral_const_mul _ _
   show (MeasureTheory.volume (U : Set (Vec d))).toReal⁻¹ *
@@ -99,11 +99,11 @@ theorem average_blockVecDot_const {U : Domain d} (Q : BlockVec d) (Y : DoubledFi
         ((Book.Ch02.averageVec U Y.potential, Book.Ch02.averageVec U Y.flux) : BlockVec d) := by
   have hint1 : MeasureTheory.IntegrableOn (fun x => vecDot Q.1 (Y.potential x))
       (U : Set (Vec d)) MeasureTheory.volume := by
-    refine MeasureTheory.integrable_finset_sum _ fun i _ => ?_
+    refine MeasureTheory.integrable_finsetSum _ fun i _ => ?_
     exact (integrableOn_component hp i).const_mul (Q.1 i)
   have hint2 : MeasureTheory.IntegrableOn (fun x => vecDot Q.2 (Y.flux x))
       (U : Set (Vec d)) MeasureTheory.volume := by
-    refine MeasureTheory.integrable_finset_sum _ fun i _ => ?_
+    refine MeasureTheory.integrable_finsetSum _ fun i _ => ?_
     exact (integrableOn_component hf i).const_mul (Q.2 i)
   show Book.Ch02.average U (fun x => vecDot Q.1 (Y.potential x) + vecDot Q.2 (Y.flux x)) =
     vecDot Q.1 (Book.Ch02.averageVec U Y.potential) + vecDot Q.2 (Book.Ch02.averageVec U Y.flux)
@@ -165,9 +165,9 @@ theorem doubledResponseValue_zero_left_eq {U : Domain d} {lam Lam : ℝ} (a : Co
   have hQ : MeasureTheory.IntegrableOn (fun x => blockVecDot Q (Y.eval x))
       (U : Set (Vec d)) MeasureTheory.volume := by
     refine MeasureTheory.Integrable.add ?_ ?_
-    · exact MeasureTheory.integrable_finset_sum _ fun i _ =>
+    · exact MeasureTheory.integrable_finsetSum _ fun i _ =>
         (integrableOn_component hp i).const_mul (Q.1 i)
-    · exact MeasureTheory.integrable_finset_sum _ fun i _ =>
+    · exact MeasureTheory.integrable_finsetSum _ fun i _ =>
         (integrableOn_component hf i).const_mul (Q.2 i)
   have hval : doubledResponseValue U a 0 Q Y =
       Book.Ch02.average U (fun x =>

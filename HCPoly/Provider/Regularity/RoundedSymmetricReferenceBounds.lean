@@ -27,8 +27,9 @@ variable {d : ℕ}
 private theorem baseRoundedGrid_roundingScale_le [NeZero d] :
     (d : ℝ) * (3 : ℝ) ^ (-(kZero d : ℤ)) ≤ 1 / 400 := by
   have hbern : 1 + (d : ℝ) * 2 ≤ (3 : ℝ) ^ d := by
-    convert one_add_mul_le_pow (a := (2 : ℝ)) (by norm_num) d using 1
-    norm_num
+    have h := one_add_mul_le_pow (a := (2 : ℝ)) (by norm_num) d
+    rw [show (1 : ℝ) + 2 = 3 by norm_num] at h
+    linarith only [h]
   have hd : 2 * (d : ℝ) ≤ (3 : ℝ) ^ d := by
     linarith only [hbern]
   have hpow : 0 ≤ (3 : ℝ) ^ (-(kZero d : ℤ)) := by positivity

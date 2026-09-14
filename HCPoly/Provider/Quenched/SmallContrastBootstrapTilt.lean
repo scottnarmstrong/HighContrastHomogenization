@@ -76,7 +76,7 @@ theorem adaptedHattedContrast_sub_one_le_of_euclidean_adapter [NeZero d]
     (d : ℝ) * (adaptedHattedContrast P q n - 1) ≤
       (d : ℝ) * bootstrapTiltPolynomial sigma x := by
   classical
-  letI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  let : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have hgrid1 : IsRoundedGrid ((kZero d : ℤ)) (1 : Mat d) :=
     isRoundedGrid_one le_rfl
   have hAsymm : IsSymmetricBlockMat (adaptedMean P q n) :=

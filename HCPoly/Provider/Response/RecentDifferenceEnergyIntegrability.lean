@@ -30,8 +30,8 @@ private theorem integrable_responseJ_of_integrableCoarseBlock
   let X : BlockVec d := (-p, r)
   have hquad := (integrable_coarseBlock_quadratic hint X).const_mul (1 / 2 : ℝ)
   have hsub := hquad.sub (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X] using (responseJ_eq_coarseBlock U a p r).symm
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X] using! (responseJ_eq_coarseBlock U a p r).symm
 
 private theorem integrable_responseJ_subSkew
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] {U : Domain d}
@@ -39,7 +39,7 @@ private theorem integrable_responseJ_subSkew
     (g : Mat d) (hg : IsSkewMat g) (p r : Vec d) :
     Integrable (fun a ↦ responseJ U ((a.subSkew g hg).coeffOn U) p r) P := by
   refine (integrable_responseJ_of_integrableCoarseBlock hint p
-    (r - matVecMul g p)).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    (r - matVecMul g p)).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   exact (responseJ_subSkew U a g hg p r).symm
 
 private theorem integrable_adjointResponseJ_of_integrableCoarseBlock
@@ -51,14 +51,14 @@ private theorem integrable_adjointResponseJ_of_integrableCoarseBlock
   have hquad : Integrable (fun a ↦ blockVecDot X
       (blockMatVecMul (coarseBlock (U : Set (Vec d)) a.transpose) X)) P := by
     have hbase := integrable_coarseBlock_quadratic hint D
-    refine hbase.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine hbase.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change blockVecDot D (blockMatVecMul (coarseBlock (U : Set (Vec d)) a) D) =
       blockVecDot X (blockMatVecMul (coarseBlock (U : Set (Vec d)) a.transpose) X)
     rw [coarseBlock_transpose a U, blockQuadratic_adjointSign_congr]
   have hsub := (hquad.const_mul (1 / 2 : ℝ)).sub
     (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X] using (responseJ_eq_coarseBlock U a.transpose p r).symm
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X] using! (responseJ_eq_coarseBlock U a.transpose p r).symm
 
 private theorem integrable_responseJ_adjointSubSkew
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] {U : Domain d}
@@ -67,7 +67,7 @@ private theorem integrable_responseJ_adjointSubSkew
     Integrable (fun a ↦ responseJ U
       ((a.subSkew g hg).transpose.coeffOn U) p r) P := by
   refine (integrable_adjointResponseJ_of_integrableCoarseBlock hint p
-    (r + matVecMul g p)).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    (r + matVecMul g p)).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   change responseJ U (a.transpose.coeffOn U) p (r + matVecMul g p) =
     responseJ U ((a.subSkew g hg).transpose.coeffOn U) p r
   rw [CoeffSpace.transpose_subSkew]
@@ -180,11 +180,11 @@ theorem profilePrimalRecentEnergy_integrable [NeZero d]
       g hg p r
   have hmajor : Integrable (fun a ↦
       2 * ∑ z ∈ alignedIndex q s t, J z a) P :=
-    (integrable_finset_sum (alignedIndex q s t) hJint).const_mul 2
+    (integrable_finsetSum (alignedIndex q s t) hJint).const_mul 2
   refine hmajor.mono'
     (Selection.aestronglyMeasurable_recentDifferenceEnergy_alignedIndex
       hq hst P g hg p r hw)
-    (Filter.Eventually.of_forall fun a ↦ ?_)
+    (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   rw [Real.norm_eq_abs, abs_of_nonneg (mul_nonneg (by norm_num)
     (diagonalWeak_recent_difference_energy_nonneg hq hst hw
       (a.subSkew g hg) p r))]
@@ -243,11 +243,11 @@ theorem profileAdjointRecentEnergy_integrable [NeZero d]
       g hg p r
   have hmajor : Integrable (fun a ↦
       2 * ∑ z ∈ alignedIndex q s t, J z a) P :=
-    (integrable_finset_sum (alignedIndex q s t) hJint).const_mul 2
+    (integrable_finsetSum (alignedIndex q s t) hJint).const_mul 2
   refine hmajor.mono'
     (Selection.aestronglyMeasurable_adjointRecentDifferenceEnergy_alignedIndex
       hq hst P g hg p r hw)
-    (Filter.Eventually.of_forall fun a ↦ ?_)
+    (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   rw [Real.norm_eq_abs, abs_of_nonneg (mul_nonneg (by norm_num)
     (diagonalWeak_recent_difference_energy_nonneg hq hst hw
       (a.subSkew g hg).transpose p r))]

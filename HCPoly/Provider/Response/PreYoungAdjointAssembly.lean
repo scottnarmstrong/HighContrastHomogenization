@@ -188,7 +188,7 @@ theorem compact_pre_young_adjoint_of_row_estimates
         responseJ (adaptedDomain hq t)
           ((a.subSkew g hg).transpose.coeffOn (adaptedDomain hq t)) p r ∂P|,
       ?_, ?_, ?_, hboundary⟩
-    · simpa only [hq, X, cut, boundaryRow] using hdecomposition0
+    · simpa only [hq, X, cut, boundaryRow] using! hdecomposition0
     · simpa only [hq, X] using hdivCurl
     · rw [rpow_neg_natCast_eq_zpow_neg H]
       simpa only [hq, tau, EJ, cut, expo] using hcutoffEnergy0

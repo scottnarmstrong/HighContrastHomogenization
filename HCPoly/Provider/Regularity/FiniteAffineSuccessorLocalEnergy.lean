@@ -183,7 +183,7 @@ private theorem cubeLpNorm_two_cubeFluctuation_le_two_mul
         cubeLpNorm Q (2 : ℝ≥0∞) f +
           cubeLpNorm Q (2 : ℝ≥0∞)
             (fun _ : Vec d ↦ -cubeAverage Q f) := by
-      simpa [cubeFluctuation, sub_eq_add_neg] using hadd
+      simpa [cubeFluctuation, sub_eq_add_neg] using! hadd
     _ = cubeLpNorm Q (2 : ℝ≥0∞) f + |cubeAverage Q f| := by
       rw [cubeLpNorm_const (Q := Q) (p := (2 : ℝ≥0∞))
         (c := -cubeAverage Q f) (by norm_num)]
@@ -492,9 +492,9 @@ private theorem caccioppoliPrefactor_goodPair_le
   have hscale_m :
       Real.rpow (3 : ℝ) (-2 * (m : ℝ)) =
         (cubeBesovScaleWeight 1 (originCube d m)) ^ 2 := by
-    simpa using hscale
+    simpa using! hscale
   have hscale_m_nonneg : 0 ≤ Real.rpow (3 : ℝ) (-2 * (m : ℝ)) := by
-    simpa using hscale_nonneg
+    simpa using! hscale_nonneg
   unfold Book.Ch03.caccioppoliPrefactor
   rw [show 1 - r - r = 1 - 2 * r by ring]
   change
@@ -614,7 +614,7 @@ theorem exists_finiteAffineSuccessorDifferenceLocalEnergyEstimateConstant
         (cubeLpNorm Q (2 : ℝ≥0∞)
           (cubeFluctuation Q u.toH1.toFun)) ^ 2 := by
     unfold Book.Ch03.interiorCaccioppoliParentOscillationL2Sq
-    simpa [cubeFluctuation, Book.Ch01.Legacy.normalizedAverage] using
+    simpa [cubeFluctuation, Book.Ch01.Legacy.normalizedAverage] using!
       Book.Ch03.normalizedL2SqOnSet_openCubeSet_eq_cubeLpNorm_two_sq Q
         (cubeFluctuation Q u.toH1.toFun) (huMem.sub (memLp_const _))
   have hosc :

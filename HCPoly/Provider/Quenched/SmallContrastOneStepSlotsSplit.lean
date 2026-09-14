@@ -167,7 +167,7 @@ theorem exists_one_step_with_slots_of_block_at_level_conv_split (d : ℕ) (hd : 
             2 * ((3 * (d : ℝ) + 4) *
               hatExcessAt P (roundedGrid lAl mAl) t ^ 2) := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨Cpre, H, eta, hCpre, hH4, heta, hstep⟩ :=
     exists_account_one_step_entry_of_block_at_level d hd
   refine ⟨Cpre, H, eta, hCpre, hH4, heta, ?_⟩
@@ -178,7 +178,7 @@ theorem exists_one_step_with_slots_of_block_at_level_conv_split (d : ℕ) (hd : 
     k0 cIso hcIso hiso cDeep hcDeep F hFsym hFpd cF hcF0 hFeq henvFam kapE
     hkapE1 hcompE R lev hR1 hlev henvMax
     S0 SStar0 K0 hS0 hStar0 hform hpos
-  letI : IsProbabilityMeasure P := hP
+  let : IsProbabilityMeasure P := hP
   have hq : (roundedGrid lAl mAl).PosDef := Recurrence.posDef_of_isRoundedGrid hgrid
   have hlt : lAl ≤ t := by omega
   have hdelta4 : delta ≤ 1 / 4 := by linarith only [hdelta9]

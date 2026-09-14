@@ -108,7 +108,7 @@ theorem blockContrast_skewBlockCongr {H : BlockMat d} {S SStar K : Mat d}
     blockContrast_eq_contrastSet hStar hH]
   congr 1
   ext t
-  simp only [contrastSet, Set.mem_setOf_eq]
+  simp only [contrastSet, Set.mem_ofPred_eq]
   constructor
   · rintro ⟨ht, h, hskew, hle⟩
     refine ⟨ht, h + g, isSkewMat_add hskew hg, ?_⟩

@@ -61,17 +61,13 @@ theorem mu_eq_aeeMuCandidate {U : Set (Vec d)} [IsFiniteMeasure (volumeMeasureOn
       (AEEMuCoeffOperatorData.ofIsAEEllipticFieldOn hAEE hvol)
   let H : MuHilbertRealization U a := system.toMuHilbertRealization
   let gen : canonicalMuBlockCorrectionGeneratorSubmodule U →
-      H.correctionSpace.correctionSpace.toSubmodule := fun Y =>
-    canonicalMuCorrectionGeneratorEmbedding U Y
+      H.correctionSpace.correctionSpace.toSubmodule :=
+    canonicalMuCorrectionGeneratorEmbedding U
   let s : Set ℝ := Set.range fun Y : canonicalMuBlockCorrectionGeneratorSubmodule U =>
     quadraticEnergy H.energyBilin (H.constantField P0 + (gen Y : HilbertBlockL2 U))
   have hgen_dense : DenseRange gen := by
     dsimp [gen, H, system]
-    simpa [PotentialSolenoidalL2Data.toAEEMuOperatorSystemData,
-      MuCorrectionSpaceData.ofSubmoduleClosures,
-      AEEMuOperatorSystemData.toMuHilbertRealization,
-      MuOperatorRealization.toMuHilbertRealization, MuHilbertRealization.ofOperator] using
-      denseRange_canonicalMuCorrectionGeneratorEmbedding U
+    exact denseRange_canonicalMuCorrectionGeneratorEmbedding U
   have hCandidate_sInf : H.muCandidate P0 = sInf s := by
     simpa [s] using H.muCandidate_eq_sInf_quadraticEnergy_denseRange P0 gen hgen_dense
   have hCandidateLe :
@@ -165,15 +161,12 @@ theorem mu_eq_iInf_blockEnergyAverage {U : Set (Vec d)}
   let gen : ℕ → H.correctionSpace.correctionSpace.toSubmodule := fun n =>
     canonicalMuCorrectionGeneratorEmbedding U (xi n)
   have hgen_dense : DenseRange gen := by
-    have hcomp : DenseRange ((canonicalMuCorrectionGeneratorEmbedding U) ∘ xi) :=
-      DenseRange.comp (denseRange_canonicalMuCorrectionGeneratorEmbedding U) hxi
+    have hcomp : DenseRange (canonicalMuCorrectionGeneratorEmbedding U ∘ xi) :=
+      DenseRange.comp (g := canonicalMuCorrectionGeneratorEmbedding U) (f := xi)
+        (denseRange_canonicalMuCorrectionGeneratorEmbedding U) hxi
         (continuous_canonicalMuCorrectionGeneratorEmbedding U)
     dsimp [gen, H, system]
-    simpa [PotentialSolenoidalL2Data.toAEEMuOperatorSystemData,
-      MuCorrectionSpaceData.ofSubmoduleClosures,
-      AEEMuOperatorSystemData.toMuHilbertRealization,
-      MuOperatorRealization.toMuHilbertRealization, MuHilbertRealization.ofOperator,
-      Function.comp_def] using hcomp
+    exact hcomp
   have hCandidate : H.muCandidate P0 =
       sInf (Set.range fun n : ℕ =>
         quadraticEnergy H.energyBilin (H.constantField P0 + (gen n : HilbertBlockL2 U))) := by
@@ -222,8 +215,8 @@ theorem measurable_Mu_of_measurable_entryTest {Om : Type*} [mOm : MeasurableSpac
     (P0 : BlockVec d) :
     Measurable fun w => Mu U P0 (A w).toFun := by
   classical
-  haveI : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
-  haveI : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
+  have : Fact ((1 : ENNReal) ≤ 2) := ⟨by norm_num⟩
+  have : Fact ((2 : ENNReal) ≠ ⊤) := ⟨ENNReal.ofNat_ne_top⟩
   have hRewrite : (fun w => Mu U P0 (A w).toFun)
       = fun w => ⨅ n : ℕ, blockEnergyAverage U (A w).toFun
           (canonicalMuGeneratorAffineField (U := U) P0
@@ -235,8 +228,8 @@ theorem measurable_Mu_of_measurable_entryTest {Om : Type*} [mOm : MeasurableSpac
   refine Measurable.iInf fun n => ?_
   refine measurable_blockEnergyAverage_carrier (hSlice := hSlice) ?_ _
     (canonicalMuGeneratorAffineField_memBlockL2 (U := U) P0 _)
-  letI : MeasurableSpace (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) := borel _
-  haveI : BorelSpace (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) := ⟨rfl⟩
+  let : MeasurableSpace (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) := borel _
+  have : BorelSpace (MeasureTheory.Lp (HilbertMat d) 2 (volumeMeasureOn U)) := ⟨rfl⟩
   obtain ⟨u, hu, hSmooth⟩ := exists_dense_smoothProbeSequence_of_dense_smoothProbeSet (U := U)
     (dense_smoothCompactSupportHilbertMatrixL2_tsupport_subset hUopen hUfin)
   refine measurable_of_measurable_inner_denseRange_polish u hu fun n' => ?_
@@ -258,7 +251,7 @@ theorem measurable_blockMatEntry_coarseBlock_of_measurable_Mu
       @Measurable (CoeffSpace d) ℝ m _ fun a => Mu U Q (⇑a.1 : CoeffField d))
     (α β : BlockCoord d) :
     @Measurable (CoeffSpace d) ℝ m _ fun a => blockMatEntry (coarseBlock U a) α β := by
-  letI : MeasurableSpace (CoeffSpace d) := m
+  let : MeasurableSpace (CoeffSpace d) := m
   simp only [coarseBlock, blockMatEntry_coarseBlockMatrix]
   by_cases h : α = β
   · simp only [if_pos h]

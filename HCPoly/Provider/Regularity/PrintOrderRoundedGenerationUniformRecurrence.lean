@@ -87,7 +87,7 @@ theorem exists_printOrderRoundedGenerationUniformFiniteRecurrenceConstant
     n m u hnm hgood' h hh
   simpa only [finiteCenteredCubeSolutionEnergy,
     finiteLipschitzEnergyRow, R,
-    RoundedGenerationAnalyticGeometry.spatialWeakError] using hraw
+    RoundedGenerationAnalyticGeometry.spatialWeakError] using! hraw
 
 /-- A finite recurrence driven by a selected-generation row closes under the
 summable good-tail bound at that same generation and order. -/

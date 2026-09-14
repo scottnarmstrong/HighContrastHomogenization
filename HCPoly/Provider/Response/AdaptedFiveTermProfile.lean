@@ -31,8 +31,8 @@ private theorem integrable_responseJ_of_integrableCoarseBlock
   let X : BlockVec d := (-p, r)
   have hquad := (integrable_coarseBlock_quadratic hint X).const_mul (1 / 2 : ℝ)
   have hsub := hquad.sub (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X] using (responseJ_eq_coarseBlock U a p r).symm
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X] using! (responseJ_eq_coarseBlock U a p r).symm
 
 private theorem integrable_adjointResponseJ_of_integrableCoarseBlock
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] {U : Domain d}
@@ -43,14 +43,14 @@ private theorem integrable_adjointResponseJ_of_integrableCoarseBlock
   have hquad : Integrable (fun a ↦ blockVecDot X
       (blockMatVecMul (coarseBlock (U : Set (Vec d)) a.transpose) X)) P := by
     have hbase := integrable_coarseBlock_quadratic hint D
-    refine hbase.congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    refine hbase.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
     change blockVecDot D (blockMatVecMul (coarseBlock (U : Set (Vec d)) a) D) =
       blockVecDot X (blockMatVecMul (coarseBlock (U : Set (Vec d)) a.transpose) X)
     rw [coarseBlock_transpose a U, blockQuadratic_adjointSign_congr]
   have hsub := (hquad.const_mul (1 / 2 : ℝ)).sub
     (integrable_const (vecDot p r))
-  refine hsub.congr (Filter.Eventually.of_forall fun a ↦ ?_)
-  simpa only [X] using (responseJ_eq_coarseBlock U a.transpose p r).symm
+  refine hsub.congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
+  simpa only [X] using! (responseJ_eq_coarseBlock U a.transpose p r).symm
 
 private theorem integrable_responseJ_subSkew
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] {U : Domain d}
@@ -58,7 +58,7 @@ private theorem integrable_responseJ_subSkew
     (g : Mat d) (hg : IsSkewMat g) (p r : Vec d) :
     Integrable (fun a ↦ responseJ U ((a.subSkew g hg).coeffOn U) p r) P := by
   refine (integrable_responseJ_of_integrableCoarseBlock hint p
-    (r - matVecMul g p)).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    (r - matVecMul g p)).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   exact (responseJ_subSkew U a g hg p r).symm
 
 private theorem integrable_responseJ_adjointSubSkew
@@ -68,7 +68,7 @@ private theorem integrable_responseJ_adjointSubSkew
     Integrable (fun a ↦ responseJ U
       ((a.subSkew g hg).transpose.coeffOn U) p r) P := by
   refine (integrable_adjointResponseJ_of_integrableCoarseBlock hint p
-    (r + matVecMul g p)).congr (Filter.Eventually.of_forall fun a ↦ ?_)
+    (r + matVecMul g p)).congr (_root_.Filter.Eventually.of_forall fun a ↦ ?_)
   change responseJ U (a.transpose.coeffOn U) p (r + matVecMul g p) =
     responseJ U ((a.subSkew g hg).transpose.coeffOn U) p r
   rw [CoeffSpace.transpose_subSkew]
@@ -93,7 +93,7 @@ private theorem integral_avsum_eq_avsum_integral {P : Measure (CoeffSpace d)}
     (hF : ∀ z ∈ Z, Integrable (F z) P) :
     (∫ a, avsum Z (fun z ↦ F z a) ∂P) = avsum Z (fun z ↦ ∫ a, F z a ∂P) := by
   unfold avsum
-  rw [integral_const_mul, integral_finset_sum Z hF]
+  rw [integral_const_mul, integral_finsetSum Z hF]
 
 /-! ## The primal row energy -/
 
@@ -158,7 +158,7 @@ theorem profilePrimalRecentEnergyDefect [NeZero d]
     calc
       (∫ a, Jcell w a ∂P) = ∫ a, responseJ (adaptedDomainAt hq s w)
           (a.coeffOn (adaptedDomainAt hq s w)) p (r - matVecMul g p) ∂P :=
-        integral_congr_ae (Filter.Eventually.of_forall fun a ↦
+        integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦
           responseJ_subSkew (adaptedDomainAt hq s w) a g hg p r)
       _ = (1 / 2 : ℝ) * blockVecDot ((-p, r - matVecMul g p) : BlockVec d)
           (blockMatVecMul (annealedBlock P (adaptedCellAt q s w))
@@ -174,7 +174,7 @@ theorem profilePrimalRecentEnergyDefect [NeZero d]
         rw [annealed_responseJ_eq (adaptedDomain hq s) hints]
         rfl
       _ = ∫ a, Jscale s a ∂P :=
-        integral_congr_ae (Filter.Eventually.of_forall fun a ↦
+        integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦
           (responseJ_subSkew (adaptedDomain hq s) a g hg p r).symm)
   have hpoint : ∀ a, avsum Z (fun w ↦ energy w a) =
       2 * (avsum Z (fun w ↦ Jcell w a) - Jscale t a) := by
@@ -186,10 +186,10 @@ theorem profilePrimalRecentEnergyDefect [NeZero d]
     ring
   have hJavgInt : Integrable (fun a ↦ avsum Z (fun w ↦ Jcell w a)) P := by
     unfold avsum
-    exact (integrable_finset_sum Z hJcellInt).const_mul _
+    exact (integrable_finsetSum Z hJcellInt).const_mul _
   constructor
   · intro w hw
-    exact integral_nonneg_of_ae (Filter.Eventually.of_forall fun a ↦
+    exact integral_nonneg_of_ae (_root_.Filter.Eventually.of_forall fun a ↦
       mul_nonneg (by norm_num) (diagonalWeak_recent_difference_energy_nonneg
         hq hst hw (a.subSkew g hg) p r))
   · calc
@@ -197,7 +197,7 @@ theorem profilePrimalRecentEnergyDefect [NeZero d]
           ∫ a, avsum Z (fun w ↦ energy w a) ∂P :=
         (integral_avsum_eq_avsum_integral Z energy henergyInt).symm
       _ = ∫ a, 2 * (avsum Z (fun w ↦ Jcell w a) - Jscale t a) ∂P :=
-        integral_congr_ae (Filter.Eventually.of_forall hpoint)
+        integral_congr_ae (_root_.Filter.Eventually.of_forall hpoint)
       _ = 2 * ((∫ a, avsum Z (fun w ↦ Jcell w a) ∂P) -
           ∫ a, Jscale t a ∂P) := by
         rw [integral_const_mul, integral_sub hJavgInt ht]
@@ -272,7 +272,7 @@ theorem profileAdjointRecentEnergyDefect [NeZero d]
       (∫ a, Jcell w a ∂P) = ∫ a, responseJ (adaptedDomainAt hq s w)
           (a.transpose.coeffOn (adaptedDomainAt hq s w))
             p (r + matVecMul g p) ∂P :=
-        integral_congr_ae (Filter.Eventually.of_forall fun a ↦
+        integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦
           responseJ_adjointSubSkew (adaptedDomainAt hq s w) a g hg p r)
       _ = (1 / 2 : ℝ) * blockVecDot ((-p, r + matVecMul g p) : BlockVec d)
           (blockMatVecMul
@@ -294,7 +294,7 @@ theorem profileAdjointRecentEnergyDefect [NeZero d]
         rw [annealed_adjoint_responseJ_eq (adaptedDomain hq s) hints]
         rfl
       _ = ∫ a, Jscale s a ∂P :=
-        integral_congr_ae (Filter.Eventually.of_forall fun a ↦
+        integral_congr_ae (_root_.Filter.Eventually.of_forall fun a ↦
           (responseJ_adjointSubSkew (adaptedDomain hq s) a g hg p r).symm)
   have hpoint : ∀ a, avsum Z (fun w ↦ energy w a) =
       2 * (avsum Z (fun w ↦ Jcell w a) - Jscale t a) := by
@@ -306,10 +306,10 @@ theorem profileAdjointRecentEnergyDefect [NeZero d]
     ring
   have hJavgInt : Integrable (fun a ↦ avsum Z (fun w ↦ Jcell w a)) P := by
     unfold avsum
-    exact (integrable_finset_sum Z hJcellInt).const_mul _
+    exact (integrable_finsetSum Z hJcellInt).const_mul _
   constructor
   · intro w hw
-    exact integral_nonneg_of_ae (Filter.Eventually.of_forall fun a ↦
+    exact integral_nonneg_of_ae (_root_.Filter.Eventually.of_forall fun a ↦
       mul_nonneg (by norm_num) (diagonalWeak_recent_difference_energy_nonneg
         hq hst hw (a.subSkew g hg).transpose p r))
   · calc
@@ -317,7 +317,7 @@ theorem profileAdjointRecentEnergyDefect [NeZero d]
           ∫ a, avsum Z (fun w ↦ energy w a) ∂P :=
         (integral_avsum_eq_avsum_integral Z energy henergyInt).symm
       _ = ∫ a, 2 * (avsum Z (fun w ↦ Jcell w a) - Jscale t a) ∂P :=
-        integral_congr_ae (Filter.Eventually.of_forall hpoint)
+        integral_congr_ae (_root_.Filter.Eventually.of_forall hpoint)
       _ = 2 * ((∫ a, avsum Z (fun w ↦ Jcell w a) ∂P) -
           ∫ a, Jscale t a ∂P) := by
         rw [integral_const_mul, integral_sub hJavgInt ht]

@@ -158,7 +158,7 @@ theorem centeredMoment_rpow_le_centeredHistory [NeZero d] {P : Measure (CoeffSpa
   have hp0 : (ENNReal.ofReal Q) ≠ 0 := by
     simp only [ne_eq, ENNReal.ofReal_eq_zero, not_le]
     exact hQ
-  rw [centeredMoment, lqSchattenSize, eLpNorm_eq_lintegral_rpow_enorm hp0 ENNReal.ofReal_ne_top,
+  rw [centeredMoment, lqSchattenSize, eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top,
     ENNReal.toReal_ofReal hQ.le, ← ENNReal.rpow_mul, one_div,
     inv_mul_cancel₀ (ne_of_gt hQ), ENNReal.rpow_one, centeredHistory,
     ← lintegral_const_mul' _ _ ENNReal.ofReal_ne_top]

@@ -90,7 +90,7 @@ theorem integral_eq_of_translateCoeff_covariance {P : Measure (CoeffSpace d)}
     ∫ a, f a ∂P = ∫ a, g a ∂P := by
   calc
     ∫ a, f a ∂P = ∫ a, g (translateCoeff z a) ∂P := by
-      exact integral_congr_ae (Filter.Eventually.of_forall hcov)
+      exact integral_congr_ae (_root_.Filter.Eventually.of_forall hcov)
     _ = ∫ a, g a ∂P := integral_comp_translateCoeff hP z hg
 
 /-! ## The annealed vanishing -/
@@ -116,7 +116,7 @@ theorem integral_descendantsAverage_cutoffWeighted_eq_zero
             (1 - cubeAverage R φ) * ∫ a, J R a ∂P := by
     rw [integral_const_mul]
     congr 1
-    rw [integral_finset_sum _ (fun R hR => ((hint R hR).const_mul _))]
+    rw [integral_finsetSum _ (fun R hR => ((hint R hR).const_mul _))]
     exact Finset.sum_congr rfl fun R hR => integral_const_mul _ _
   have hweights :
       ((descendantsAtDepth Q j).card : ℝ)⁻¹ *
@@ -205,7 +205,7 @@ theorem abs_cutoff_weighted_energy_sub_responseJ_add_cutoffWeightedChild_le
     hsmooth.continuous.aestronglyMeasurable
   have hbdd : ∀ᵐ x ∂volumeMeasureOn (cubeSet Q),
       ‖adaptedPreYoungCutoff q hq t (matVecMul q x)‖ ≤ 2 :=
-    Filter.Eventually.of_forall fun x => by
+    _root_.Filter.Eventually.of_forall fun x => by
       rw [Real.norm_eq_abs, abs_of_nonneg]
       · exact adaptedPreYoungCutoff_le_two hq t (matVecMul q x)
       · exact adaptedPreYoungCutoff_nonneg hq t (matVecMul q x)

@@ -226,8 +226,8 @@ theorem exists_finite_target_majorants_gap_sum_le
                   (adaptedMean P (roundedGrid jStar mu')
                     (u + (l0 : ℤ)))) ≤ B) := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
-  letI : IsProbabilityMeasure P := hPprob
+  have : NeZero d := ⟨by omega⟩
+  let : IsProbabilityMeasure P := hPprob
   have hd1 : 1 ≤ d := le_trans (by omega) hd
   have hdR1 : (1 : ℝ) ≤ (d : ℝ) := by exact_mod_cast hd1
   have hQ1 : (1 : ℝ) ≤ (Q : ℝ) := by exact_mod_cast (by omega : 1 ≤ Q)
@@ -815,7 +815,7 @@ theorem exists_finite_target_majorants_gap_sum_le
     rw [Finset.sum_add_distrib, Finset.sum_add_distrib]
     have hsum := add_le_add (add_le_add hrowWeighted hbridgeWeighted)
       hsourceWeighted
-    convert hsum using 1
+    refine hsum.trans_eq ?_
     ring
   have hcellWeighted :
       ∑ i ∈ ((Finset.Icc jStar (u + (l0 : ℤ))).sigma Z :

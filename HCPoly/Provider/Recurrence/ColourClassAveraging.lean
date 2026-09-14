@@ -155,9 +155,9 @@ theorem integral_toFullBlockMat_normalizedBlock_adaptedCellAt_eq_zero
         (toFullBlockMat (coarseBlock (adaptedCellAt q j w) a) δ γ
           - toFullBlockMat (adaptedMean P q j) δ γ)) P :=
     fun γ δ => ((hint' δ γ).sub (integrable_const _)).const_mul _
-  rw [hfun, integral_finset_sum _ fun γ _ => integrable_finset_sum _ fun δ _ => hterm γ δ]
+  rw [hfun, integral_finsetSum _ fun γ _ => integrable_finsetSum _ fun δ _ => hterm γ δ]
   refine Finset.sum_eq_zero fun γ _ => ?_
-  rw [integral_finset_sum _ fun δ _ => hterm γ δ]
+  rw [integral_finsetSum _ fun δ _ => hterm γ δ]
   refine Finset.sum_eq_zero fun δ _ => ?_
   rw [integral_const_mul, integral_sub (hint' δ γ) (integrable_const _), integral_const,
     hmean δ γ]
@@ -186,9 +186,9 @@ theorem lqNorm_finsetSum_le_of_iIndepFun {ι : Type*} {P : Measure (CoeffSpace d
     simp only [IndependentSums.rosenthalBennettIntegralConst]
     positivity
   rcases s.eq_empty_or_nonempty with rfl | hs
-  · refine le_trans (le_of_eq ?_) (zero_le _)
+  · refine le_trans (le_of_eq ?_) zero_le
     simp [lqNorm]
-  haveI : Nonempty {i : ι // i ∈ s} := ⟨⟨hs.choose, hs.choose_spec⟩⟩
+  have : Nonempty {i : ι // i ∈ s} := ⟨⟨hs.choose, hs.choose_spec⟩⟩
   have hcard : (Finset.univ : Finset {i : ι // i ∈ s}).card = s.card := by
     rw [Finset.card_univ, Fintype.card_coe]
   have hsum : ∀ a : CoeffSpace d, ∑ u : {i : ι // i ∈ s}, Y u.1 a = ∑ i ∈ s, Y i a :=
@@ -203,13 +203,13 @@ theorem lqNorm_finsetSum_le_of_iIndepFun {ι : Type*} {P : Measure (CoeffSpace d
   rw [hcard] at hros
   simp only [hsum] at hros
   have hmemsum : MemLp (fun a => ∑ i ∈ s, Y i a) (ENNReal.ofReal Q) P :=
-    memLp_finset_sum s fun i hi => hmemLp i hi
+    memLp_finsetSum s fun i hi => hmemLp i hi
   have hrepr := hmemsum.eLpNorm_eq_integral_rpow_norm (ENNReal.ofReal_pos.mpr hQ0).ne'
     ENNReal.ofReal_ne_top
   rw [ENNReal.toReal_ofReal hQ0.le] at hrepr
   have hgoal : lqNorm P Q (fun a => ∑ i ∈ s, Y i a)
       = ENNReal.ofReal ((∫ a, |∑ i ∈ s, Y i a| ^ Q ∂P) ^ Q⁻¹) := by
-    simpa only [Real.norm_eq_abs] using hrepr
+    simpa only [Real.norm_eq_abs] using! hrepr
   rw [hgoal]
   refine ENNReal.ofReal_le_ofReal (le_trans hros ?_)
   have hN1 : (1 : ℝ) ≤ (s.card : ℝ) := by

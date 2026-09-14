@@ -80,7 +80,7 @@ theorem projective_progress_nonfinal
     projDist mu' (canonicalMetric A') ≤
       projDist mu (canonicalMetric A) - chop +
         ((d : ℝ) / 2) * deltaStage + projectiveError etaX := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, lt_of_lt_of_le Nat.zero_lt_two hd⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, lt_of_lt_of_le Nat.zero_lt_two hd⟩⟩
   have hcanonA : (canonicalMetric A).PosDef := posDef_canonMetric hA
   have hcanonF : (canonicalMetric F).PosDef := posDef_canonMetric hF
   have hcanonA' : (canonicalMetric A').PosDef := posDef_canonMetric hA'

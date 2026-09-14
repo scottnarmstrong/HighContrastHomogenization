@@ -72,7 +72,7 @@ private noncomputable def wspL2FieldOfHsNormSq [NeZero d] (Q : TriadicCube d)
   let sF : FractionalOrder := ⟨s, hs, hsHalf.trans (by norm_num)⟩
   have hV0 : volume (openCubeSet Q) ≠ 0 := volume_openCubeSet_ne_zero Q
   have hweight0 : volume (openCubeSet Q) ^ (-(2 * s) / (d : ℝ)) ≠ 0 :=
-    ne_of_gt (ENNReal.rpow_pos (lt_of_le_of_ne (zero_le _) (Ne.symm hV0))
+    ne_of_gt (ENNReal.rpow_pos (lt_of_le_of_ne zero_le (Ne.symm hV0))
       (volume_openCubeSet_lt_top Q).ne)
   have hparts :
       volume (openCubeSet Q) ^ (-(2 * s) / (d : ℝ)) *
@@ -153,7 +153,7 @@ theorem exists_cubeGradientProjectionHsStability_originCube (d : ℕ) [NeZero d]
   intro psi htest
   have hUopen : IsOpenBoundedConvexDomain (openCubeSet (originCube d m)) :=
     isOpenBoundedConvexDomain_openCubeSet (originCube d m)
-  haveI hfin : MeasureTheory.IsFiniteMeasure
+  have hfin : MeasureTheory.IsFiniteMeasure
       (volumeMeasureOn (openCubeSet (originCube d m))) :=
     hUopen.isFiniteMeasure_restrict_volume
   have hpsiMeas : AEStronglyMeasurable psi

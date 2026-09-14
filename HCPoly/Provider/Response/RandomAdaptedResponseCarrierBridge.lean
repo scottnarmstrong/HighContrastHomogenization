@@ -52,7 +52,7 @@ theorem true_load_centered_response_eq
         (r - responseSkew K *ᵥ p) := by
   dsimp only
   exact centeredResponse_subSkew (adaptedDomain hq t)
-    (by simpa only [adaptedDomain_carrier] using hint)
+    (by simpa only [adaptedDomain_carrier] using! hint)
     (responseSkew K) (is_skew_mat_response_skew K)
     (centeredResponseLoadP S SStar K e)
     (centeredResponseLoadQ S SStar K e)
@@ -87,7 +87,7 @@ theorem true_load_centered_adjoint_response_eq
         (r + responseSkew K *ᵥ p) := by
   dsimp only
   exact centeredAdjointResponse_subSkew (adaptedDomain hq t)
-    (by simpa only [adaptedDomain_carrier] using hint)
+    (by simpa only [adaptedDomain_carrier] using! hint)
     (responseSkew K) (is_skew_mat_response_skew K)
     (centeredResponseLoadP S SStar K e)
     (centeredResponseLoadQ S SStar K e)

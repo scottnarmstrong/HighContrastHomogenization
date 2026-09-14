@@ -57,7 +57,7 @@ private theorem aemeasurable_responseAverage_of_entries
     have hsum := (hleft.add hright).add_const (X.1 i)
     simpa only [blockMatVecMul_blockR, Prod.fst_add, Pi.add_apply,
       blockMatVecMul_fst, blockMatVecMul_snd, matVecMul,
-      toFullBlockMat, Matrix.of_apply] using hsum
+      toFullBlockMat, Matrix.of_apply] using! hsum
   have hsnd : AEMeasurable (fun a ↦
       (blockMatVecMul (blockR d) (blockMatVecMul (A a) X) + X).2) P := by
     apply aemeasurable_pi_iff.mpr
@@ -73,7 +73,7 @@ private theorem aemeasurable_responseAverage_of_entries
     have hsum := (hleft.add hright).add_const (X.2 i)
     simpa only [blockMatVecMul_blockR, Prod.snd_add, Pi.add_apply,
       blockMatVecMul_fst, blockMatVecMul_snd, matVecMul,
-      toFullBlockMat, Matrix.of_apply] using hsum
+      toFullBlockMat, Matrix.of_apply] using! hsum
   exact aemeasurable_prod_mk hfst hsnd
 
 /-- The terminal spatial average of the primal optimizer state is almost
@@ -205,7 +205,7 @@ theorem aemeasurable_blockCellAverage_diagonalWeakAdjointState_subSkew
     apply Finset.sum_congr rfl
     intro j _
     ring
-  simpa only [Y, hneg, sub_neg_eq_add] using hcov
+  simpa only [Y, hneg, sub_neg_eq_add] using! hcov
 
 /-- The primal terminal energy transforms by subtracting the skew action from
 the second load. -/

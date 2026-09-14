@@ -86,7 +86,7 @@ theorem ofReal_sqrt_primal_subSkew_center_le_profile [NeZero d]
             diagonalWeakLoadMinus Ehat p r) *
         profileCenteredMaximum P rhoMax q jStar t a := by
       exact mul_le_mul_of_nonneg_left
-        (PortableHistory.ofReal_blockSize_le_centeredSup hq hjt a) (zero_le _)
+        (PortableHistory.ofReal_blockSize_le_centeredSup hq hjt a) zero_le
 
 /-- Pointwise adjoint centering in the hatted coordinates has the same
 portable maximum and its independent plus load. -/
@@ -162,7 +162,7 @@ theorem ofReal_sqrt_adjoint_subSkew_center_le_profile [NeZero d]
           (diagonalWeakMetricFactor m Ehat * diagonalWeakLoadPlus Ehat p r) *
         profileCenteredMaximum P rhoMax q jStar t a := by
       exact mul_le_mul_of_nonneg_left
-        (PortableHistory.ofReal_blockSize_le_centeredSup hq hjt a) (zero_le _)
+        (PortableHistory.ofReal_blockSize_le_centeredSup hq hjt a) zero_le
 
 /-- The primal hatted annealed-centering variance has the portable history
 bound. -/

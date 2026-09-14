@@ -65,7 +65,7 @@ theorem tendsto_eLpNorm_finset_sum_zero {ι : Type*} [Fintype ι]
     exact eLpNorm_sum_le (p := 2) (fun i _ ↦ hmeas n i) (by norm_num)
   have hsum : Filter.Tendsto (fun n ↦ ∑ i, eLpNorm (f n i) 2 mu)
       Filter.atTop (nhds 0) := by
-    simpa using tendsto_finset_sum Finset.univ (fun i _ ↦ htend i)
+    simpa using tendsto_finsetSum Finset.univ (fun i _ ↦ htend i)
   rw [ENNReal.tendsto_nhds_zero]
   intro ε hε
   filter_upwards [(ENNReal.tendsto_nhds_zero.mp hsum) ε hε] with n hn

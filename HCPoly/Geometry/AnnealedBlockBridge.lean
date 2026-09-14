@@ -61,14 +61,17 @@ theorem matrix_eq_sum_smul_single (M : Matrix n n ℝ) :
   refine Finset.sum_congr rfl fun i _ => Finset.sum_congr rfl fun j _ => ?_
   rw [Matrix.smul_single, smul_eq_mul, mul_one]
 
-/-- **Entrywise integrability is integrability.** -/
+omit [DecidableEq n] in
+/-- **Entrywise integrability is integrability.**  Read through the generic
+finite-product API at the coordinatewise presentation of `Matrix n n ℝ`, which
+agrees with the ambient one: a matrix over a finite index type carries the same
+topology and continuous extended norm as the finite product it is under the
+hood, which instance search does not unfold to on its own. -/
 theorem integrable_of_entries {F : Ω → Matrix n n ℝ}
     (h : ∀ i j, Integrable (fun a => F a i j) μ) : Integrable F μ := by
-  have hEq : F = fun a => ∑ i : n, ∑ j : n, F a i j • Matrix.single i j (1 : ℝ) :=
-    funext fun a => matrix_eq_sum_smul_single (F a)
-  rw [hEq]
-  exact integrable_finset_sum _ fun i _ =>
-    integrable_finset_sum _ fun j _ => (h i j).smul_const _
+  have hpi : Integrable (fun a => (F a : n → n → ℝ)) μ :=
+    Integrable.of_eval fun i => Integrable.of_eval fun j => h i j
+  convert hpi using 1
 
 /-- Entrywise measurability is measurability. -/
 theorem aestronglyMeasurable_of_entries {F : Ω → Matrix n n ℝ}
@@ -167,6 +170,29 @@ theorem fullBlockSharp_le_of_blockMatLoewnerLE {H : BlockMat d}
   rw [← toFullBlockMat_blockSharp]
   exact le_of_blockMatLoewnerLE (isSymmetricBlockMat_blockSharp hsymm hpd) hsymm h
 
+/-- The diagonal entries of a Loewner-ordered pair of doubled blocks inherit the
+order. -/
+theorem apply_le_apply_of_le {M N : FullBlockMat d} (h : M ≤ N) (p : BlockCoord d) :
+    M p p ≤ N p p := by
+  have hnn : 0 ≤ (N - M) p p := (Matrix.le_iff.mp h).diag_nonneg
+  rw [Matrix.sub_apply] at hnn
+  linarith only [hnn]
+
+/-- **A positive semidefinite doubled block is entrywise dominated by half the
+sum of its diagonal entries.**  The Cauchy-Schwarz inequality for the quadratic
+form the matrix defines, read off its `2 × 2` principal minor. -/
+theorem abs_apply_le_half_add_diag {M : FullBlockMat d} (hM : M.PosSemidef)
+    (p q : BlockCoord d) : |M p q| ≤ (M p p + M q q) / 2 := by
+  have hpp : 0 ≤ M p p := hM.diag_nonneg
+  have hqq : 0 ≤ M q q := hM.diag_nonneg
+  have hsymm : M q p = M p q := by simpa using hM.isHermitian.apply p q
+  have hdet : 0 ≤ (M.submatrix ![p, q] ![p, q]).det := (hM.submatrix ![p, q]).det_nonneg
+  rw [Matrix.det_fin_two] at hdet
+  simp only [Matrix.submatrix_apply, Matrix.cons_val_zero, Matrix.cons_val_one] at hdet
+  rw [hsymm] at hdet
+  refine abs_le_of_sq_le_sq ?_ (by linarith only [hpp, hqq])
+  nlinarith [hdet, sq_nonneg (M p p - M q q)]
+
 /-! ## The annealed block is the Bochner integral of the response -/
 
 variable {P : Measure (CoeffSpace d)} {U : Set (Vec d)}
@@ -208,16 +234,54 @@ theorem integrable_fullBlockSharp_toFullBlockMat (hint : HasIntegrableCoarseBloc
       AEStronglyMeasurable (fun a => toFullBlockMat (coarseBlock U a) p q) P := by
     intro p q
     simpa only [toFullBlockMat_eq_blockMatEntry] using (hint p q).aestronglyMeasurable
-  have hmeas : AEStronglyMeasurable
-      (fun a => fullBlockSharp (toFullBlockMat (coarseBlock U a))) P := by
-    simpa only [fullBlockSharp] using
-      aestronglyMeasurable_conj_inv_of_entries (fullBlockRefl d) (fullBlockRefl d) hentry
-  refine Integrable.mono' (integrable_toFullBlockMat hint).norm hmeas (.of_forall fun a => ?_)
+  have hrefl : ∀ p q : BlockCoord d,
+      AEStronglyMeasurable (fun _ : CoeffSpace d => fullBlockRefl d p q) P :=
+    fun _ _ => aestronglyMeasurable_const
+  have hinv : ∀ p q : BlockCoord d,
+      AEStronglyMeasurable (fun a => (toFullBlockMat (coarseBlock U a))⁻¹ p q) P :=
+    aestronglyMeasurable_inv_of_entries hentry
+  have hLinv : ∀ p q : BlockCoord d,
+      AEStronglyMeasurable
+        (fun a => (fullBlockRefl d * (toFullBlockMat (coarseBlock U a))⁻¹) p q) P :=
+    aestronglyMeasurable_entry_mul (F := fun _ => fullBlockRefl d)
+      (G := fun a => (toFullBlockMat (coarseBlock U a))⁻¹) hrefl hinv
+  have hsharpMeas : ∀ p q : BlockCoord d,
+      AEStronglyMeasurable
+        (fun a => fullBlockSharp (toFullBlockMat (coarseBlock U a)) p q) P := by
+    simp only [fullBlockSharp]
+    exact aestronglyMeasurable_entry_mul
+      (F := fun a => fullBlockRefl d * (toFullBlockMat (coarseBlock U a))⁻¹)
+      (G := fun _ => fullBlockRefl d) hLinv hrefl
+  -- The entrywise route around the ambient `FullBlockMat d` norm: the pathwise
+  -- sandwich `0 ≤ sharp ≤ response` bounds each entry of the sharp by half the
+  -- sum of two diagonal entries of the response, which `hint` makes integrable,
+  -- so no combinator ever has to compare two `ContinuousENorm` instances on the
+  -- matrix type itself.
+  refine integrable_of_entries fun p q => ?_
+  have hg : Integrable
+      (fun a => (toFullBlockMat (coarseBlock U a) p p +
+        toFullBlockMat (coarseBlock U a) q q) / 2) P := by
+    have h1 : Integrable (fun a => toFullBlockMat (coarseBlock U a) p p) P := by
+      simpa only [toFullBlockMat_eq_blockMatEntry] using hint p p
+    have h2 : Integrable (fun a => toFullBlockMat (coarseBlock U a) q q) P := by
+      simpa only [toFullBlockMat_eq_blockMatEntry] using hint q q
+    exact (h1.add h2).div_const 2
+  refine Integrable.mono' hg (hsharpMeas p q) (.of_forall fun a => ?_)
+  rw [Real.norm_eq_abs]
   have hpd : (toFullBlockMat (coarseBlock U a)).PosDef :=
     posDef_toFullBlockMat (isSymmetricBlockMat_coarseBlock U a) (hpos a)
-  exact norm_le_norm_of_le (posDef_fullBlockSharp hpd).posSemidef hpd.posSemidef
-    (fullBlockSharp_le_of_blockMatLoewnerLE (isSymmetricBlockMat_coarseBlock U a)
-      (hpos a) (hsharp a))
+  have hle : fullBlockSharp (toFullBlockMat (coarseBlock U a)) ≤
+      toFullBlockMat (coarseBlock U a) :=
+    fullBlockSharp_le_of_blockMatLoewnerLE (isSymmetricBlockMat_coarseBlock U a)
+      (hpos a) (hsharp a)
+  have hbound := abs_apply_le_half_add_diag (posDef_fullBlockSharp hpd).posSemidef p q
+  have hpp := apply_le_apply_of_le hle p
+  have hqq := apply_le_apply_of_le hle q
+  calc |fullBlockSharp (toFullBlockMat (coarseBlock U a)) p q|
+      ≤ (fullBlockSharp (toFullBlockMat (coarseBlock U a)) p p +
+          fullBlockSharp (toFullBlockMat (coarseBlock U a)) q q) / 2 := hbound
+    _ ≤ (toFullBlockMat (coarseBlock U a) p p + toFullBlockMat (coarseBlock U a) q q) / 2 := by
+        linarith only [hpp, hqq]
 
 /-- **The annealed primal-adjoint order**, on the coarse block of the paper: the
 annealed block dominates its own sharp.

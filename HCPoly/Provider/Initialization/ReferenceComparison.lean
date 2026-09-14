@@ -140,7 +140,7 @@ theorem kappaRef_le_six_mul_aspectRatio [NeZero d] {E : BlockMat d}
     (hsymm : IsSymmetricBlockMat E) (hpos : Book.Ch02.BlockPosDef E)
     (hsharp : BlockMatLoewnerLE (blockSharp E) E) :
     kappaRef E ≤ 6 * aspectRatio E := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   -- the Schur data and its positivity
   have hEfull : (toFullBlockMat E).PosDef := posDef_toFullBlockMat hsymm hpos
   have hdet : IsUnit E.lowerRight.det := isUnit_det_lowerRight hpos

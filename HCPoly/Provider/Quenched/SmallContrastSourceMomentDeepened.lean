@@ -100,9 +100,9 @@ theorem lintegral_normalizedSourceScale_pow_deepened
     refine le_trans (lintegral_mono_ae ?_)
       (setLintegral_normalizedSourceScale_pow_le hdag hsK N M hNM hDelta)
     rw [ae_restrict_iff' hmeasA]
-    refine Filter.Eventually.of_forall fun a ha => ?_
+    refine _root_.Filter.Eventually.of_forall fun a ha => ?_
     have hgt : (1 : ℝ) < normalizedSourceScale S sK a * (3 : ℝ) ^ (-Delta) := by
-      have h := Set.mem_setOf_eq ▸ ha
+      have h := Set.mem_ofPred_eq ▸ ha
       calc
         (1 : ℝ) = (3 : ℝ) ^ Delta * (3 : ℝ) ^ (-Delta) := by
           rw [← zpow_add₀ (by norm_num : (3 : ℝ) ≠ 0)]
@@ -124,8 +124,8 @@ theorem lintegral_normalizedSourceScale_pow_deepened
           normalizedSourceScale S sK a}ᶜ, 1 ∂P := by
       refine lintegral_mono_ae ?_
       rw [ae_restrict_iff' hmeasA.compl]
-      refine Filter.Eventually.of_forall fun a ha => ?_
-      simp only [Set.mem_compl_iff, Set.mem_setOf_eq] at ha
+      refine _root_.Filter.Eventually.of_forall fun a ha => ?_
+      simp only [Set.mem_compl_iff, Set.mem_ofPred_eq] at ha
       have hle : normalizedSourceScale S sK a ≤ (3 : ℝ) ^ Delta :=
         not_lt.mp ha
       have hcol : normalizedSourceScale S (sK + Delta) a = 1 := by
@@ -173,7 +173,7 @@ theorem integral_normalizedSourceScale_deepened
     norm_num
   rw [lintegral_congr fun a => congrArg ENNReal.ofReal (hone a)] at hlint
   rw [integral_eq_lintegral_of_nonneg_ae
-    (Filter.Eventually.of_forall h0) hmeas.aestronglyMeasurable]
+    (_root_.Filter.Eventually.of_forall h0) hmeas.aestronglyMeasurable]
   exact ENNReal.toReal_le_of_le_ofReal
     (by
       have hbar2 : (2 : ℝ) ≤ growthBar K := le_max_left _ _

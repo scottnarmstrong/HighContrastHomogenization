@@ -237,8 +237,8 @@ theorem integrableOn_blockPairingIntegrand_of_slice {U : Set (Vec d)}
     funext x
     exact blockPairingIntegrand_eq_sum_entryWeights a X Y x
   rw [hrw]
-  exact integrable_finset_sum _ fun alpha _ =>
-    integrable_finset_sum _ fun beta _ =>
+  exact integrable_finsetSum _ fun alpha _ =>
+    integrable_finsetSum _ fun beta _ =>
       hSlice.integrableOn_pairingWeightedFullBlockCoeffEntry_of_memBlockL2 hX hY alpha beta
 
 /-! ## The weighted coordinate readout -/
@@ -310,7 +310,7 @@ theorem integral_weighted_optimizerBlockState
   rw [hsplit]
   congr 1
   · rw [← hMin, inner_toHilbertBlockL2OfBlockField_eq_integral]
-    refine integral_congr_ae (Filter.Eventually.of_forall fun x => ?_)
+    refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun x => ?_)
     exact (blockVecDot_blockTestState eta alpha
       (({ potential := X.potential, flux := X.flux } : BlockState d).eval x) x).symm
   · have hbil :

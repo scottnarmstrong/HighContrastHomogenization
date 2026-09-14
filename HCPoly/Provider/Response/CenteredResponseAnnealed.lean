@@ -44,9 +44,9 @@ theorem integrable_coarseBlock_mulVec_apply
   have hsum : Integrable (fun a =>
       ∑ β : BlockCoord d,
         blockMatEntry (coarseBlock U a) α β * toFullBlockVec X β) P :=
-    integrable_finset_sum _ fun β _ => (hint α β).mul_const _
+    integrable_finsetSum _ fun β _ => (hint α β).mul_const _
   simpa only [toFullBlockVec_blockMatVecMul, Matrix.mulVec,
-    toFullBlockMat_eq_blockMatEntry] using hsum
+    toFullBlockMat_eq_blockMatEntry] using! hsum
 
 /-- The quadratic form of the random coarse block is integrable. -/
 theorem integrable_coarseBlock_quadratic
@@ -58,9 +58,9 @@ theorem integrable_coarseBlock_quadratic
       toFullBlockVec X α *
         toFullBlockVec (blockMatVecMul (coarseBlock U a) X) α) P :=
     fun α => (integrable_coarseBlock_mulVec_apply hint X α).const_mul _
-  have hsum := integrable_finset_sum (μ := P) Finset.univ
+  have hsum := integrable_finsetSum (μ := P) Finset.univ
     fun α (_ : α ∈ (Finset.univ : Finset (BlockCoord d))) => hrow α
-  refine hsum.congr (Filter.Eventually.of_forall fun a => ?_)
+  refine hsum.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
   simpa only [dotProduct] using
     (dotProduct_toFullBlockVec X (blockMatVecMul (coarseBlock U a) X))
 
@@ -75,7 +75,7 @@ theorem integral_coarseBlock_mulVec
   funext α
   simp only [toFullBlockVec_blockMatVecMul, Matrix.mulVec, dotProduct,
     toFullBlockMat_eq_blockMatEntry]
-  rw [integral_finset_sum _ fun β _ => (hint α β).mul_const _]
+  rw [integral_finsetSum _ fun β _ => (hint α β).mul_const _]
   refine Finset.sum_congr rfl fun β _ => ?_
   rw [integral_mul_const, ← blockMatEntry_annealedBlock]
 
@@ -94,7 +94,7 @@ theorem annealed_responseJ_eq {P : Measure (CoeffSpace d)}
         ∫ a, (1 / 2 : ℝ) * blockVecDot X
           (blockMatVecMul (coarseBlock (U : Set (Vec d)) a) X) -
             vecDot p q ∂P := by
-      refine integral_congr_ae (Filter.Eventually.of_forall fun a => ?_)
+      refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun a => ?_)
       exact responseJ_eq_coarseBlock U a p q
     _ = (1 / 2 : ℝ) *
           (∫ a, blockVecDot X
@@ -144,7 +144,7 @@ theorem annealed_optimizer_average_eq {P : Measure (CoeffSpace d)}
           ∫ a, toFullBlockVec
               (blockMatVecMul (coarseBlock (U : Set (Vec d)) a) X)
               (Sum.inr i) + X.1 i ∂P := by
-        refine integral_congr_ae (Filter.Eventually.of_forall fun a => ?_)
+        refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun a => ?_)
         exact hpoint a
       _ = (∫ a, toFullBlockVec
               (blockMatVecMul (coarseBlock (U : Set (Vec d)) a) X)
@@ -182,7 +182,7 @@ theorem annealed_optimizer_average_eq {P : Measure (CoeffSpace d)}
           ∫ a, toFullBlockVec
               (blockMatVecMul (coarseBlock (U : Set (Vec d)) a) X)
               (Sum.inl i) + X.2 i ∂P := by
-        refine integral_congr_ae (Filter.Eventually.of_forall fun a => ?_)
+        refine integral_congr_ae (_root_.Filter.Eventually.of_forall fun a => ?_)
         exact hpoint a
       _ = (∫ a, toFullBlockVec
               (blockMatVecMul (coarseBlock (U : Set (Vec d)) a) X)

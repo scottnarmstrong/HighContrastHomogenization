@@ -33,7 +33,7 @@ theorem aemeasurable_profileCenteredMaximum
     AEMeasurable (profileCenteredMaximum P rhoMax q jStar t) P := by
   have hEts : IsSymmetricBlockMat (adaptedMean P q t) :=
     Recurrence.isSymmetricBlockMat_adaptedMean P q t
-  simpa only [profileCenteredMaximum] using
+  simpa only [profileCenteredMaximum] using!
     PortableHistory.aemeasurable_adaptedSup hq hEts hEt
       (fun k ↦ (3 : ℝ) ^ (-rhoMax * ((t : ℝ) - (k : ℝ))))
       jStar t (adaptedCell q t)
@@ -49,7 +49,7 @@ theorem eLpNorm_profileCenteredMaximum_eq
   have hp0 : ENNReal.ofReal Q ≠ 0 := by
     rw [ne_eq, ENNReal.ofReal_eq_zero, not_le]
     exact hQ
-  rw [eLpNorm_eq_lintegral_rpow_enorm hp0 ENNReal.ofReal_ne_top,
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top,
     ENNReal.toReal_ofReal hQ.le, one_div]
   simp only [enorm_eq_self]
   rfl
@@ -146,7 +146,7 @@ theorem eLpNorm_diagonalWeakCellSum_le_profile [NeZero d]
     rw [eLpNorm_const _ (by norm_num : (2 : ℝ≥0∞) ≠ 0)
       (IsProbabilityMeasure.ne_zero P), measure_univ, ENNReal.one_rpow, mul_one,
       enorm_eq_self]
-  rw [← eLpNorm_ofReal U (Filter.Eventually.of_forall hU0)]
+  rw [← eLpNorm_ofReal U (_root_.Filter.Eventually.of_forall hU0)]
   exact hmono.trans (htriangle.trans (add_le_add hfirst hsecond))
 
 end

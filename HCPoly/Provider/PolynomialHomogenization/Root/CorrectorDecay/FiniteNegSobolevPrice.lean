@@ -26,7 +26,7 @@ private def cubeEuclideanLpFieldOfMemVectorL2
       have hnormalized : MemLp F (2 : ℝ≥0∞)
           (normalizedCubeMeasure Q) :=
         memLp_normalizedCubeMeasure_of_memVectorL2_cubeSet Q hF
-      simpa only [Function.comp_apply, HilbertVec.ofVecL_apply] using
+      simpa only [Function.comp_apply, HilbertVec.ofVecL_apply] using!
         (HilbertVec.ofVecL d).comp_memLp' hnormalized }
 
 /-- The physical compact-test fractional dual is the inverse cube weight
@@ -63,7 +63,7 @@ theorem negSobolevNorm_le_inverseWeight_normalizedDual
   rw [show (cubeBesovScaleWeight s Q)⁻¹ *
       cubeScaleNormalizedDualNegativeBesovVectorNormTwo Q s F = S by
         simpa only [W] using hnormalize]
-  simpa only [FF, S] using hmain
+  simpa only [FF, S] using! hmain
 
 /-- On an origin cube, removing the normalizing Besov weight costs exactly
 the physical factor `3^(s*m)`. -/

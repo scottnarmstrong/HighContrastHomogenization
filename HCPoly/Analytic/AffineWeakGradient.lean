@@ -62,7 +62,7 @@ private theorem gradMemL2On_affinePullback {L : Mat d} (hL : IsUnit L.det)
   intro i
   change MemL2On (matImage L⁻¹ U)
     (fun y => ∑ j, L j i * Du (matVecMul L y) j)
-  exact memLp_finset_sum Finset.univ fun j _ =>
+  exact memLp_finsetSum Finset.univ fun j _ =>
     (memL2On_affinePullback hL hU (hDu j)).const_mul (L j i)
 
 private theorem contDiff_matVecMul_top (L : Mat d) :
@@ -84,11 +84,12 @@ theorem smoothGrad_comp_matVecMul (L : Mat d) {f : Vec d → ℝ}
         (fderiv ℝ f (matVecMul L x)).comp T := by
     calc
       fderiv ℝ (fun y => f (matVecMul L y)) x =
-          (fderiv ℝ f (matVecMul L x)).comp (fderiv ℝ T x) := by
-        simpa [T, Function.comp_def] using
-          (fderiv_comp (x := x) (hf.differentiable (by simp) (matVecMul L x))
-            T.differentiableAt)
-      _ = (fderiv ℝ f (matVecMul L x)).comp T := by rw [T.fderiv]
+          (fderiv ℝ f (matVecMul L x)).comp (fderiv ℝ (matVecMul L) x) := by
+        exact fderiv_comp (x := x) (hf.differentiable (by simp) (matVecMul L x))
+          T.differentiableAt
+      _ = (fderiv ℝ f (matVecMul L x)).comp T := by
+        have hT : fderiv ℝ (matVecMul L) x = T := T.fderiv
+        rw [hT]
   ext i
   change (fderiv ℝ (fun y => f (matVecMul L y)) x) (basisVec i) = _
   rw [hderiv]
@@ -231,10 +232,10 @@ theorem hasWeakGradientOn_affinePullback {L : Mat d} (hL : IsUnit L.det)
         intro j _
         ring
       _ = ∑ j, ∫ x in U, L j i * (u x * (fderiv ℝ ψ x) (basisVec j))
-            ∂volume := integral_finset_sum Finset.univ (fun j _ => hleftInt j)
+            ∂volume := integral_finsetSum Finset.univ (fun j _ => hleftInt j)
       _ = -∑ j, ∫ x in U, L j i * (Du x j * ψ x) ∂volume := hsum
       _ = -∫ x in U, ∑ j, L j i * (Du x j * ψ x) ∂volume := by
-        rw [integral_finset_sum Finset.univ (fun j _ => hrightInt j)]
+        rw [integral_finsetSum Finset.univ (fun j _ => hrightInt j)]
       _ = -∫ x in U,
           matVecMul (matTranspose L) (Du x) i * φ (matVecMul L⁻¹ x) ∂volume := by
         apply congrArg Neg.neg

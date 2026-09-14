@@ -50,7 +50,7 @@ theorem NormalizedLocalH1Carrier.exists_cubeLpNorm_globalValueRepresentative_le_
       z.globalValueRepresentative_ae_eq_localH1Function q
   have haeNormalized : z.globalValueRepresentative
       =ᵐ[normalizedCubeMeasure Q] u.toFun := by
-    simpa only [volumeMeasureOn, normalizedCubeMeasure, cubeMeasure,
+    simpa only [Filter.EventuallyEq, volumeMeasureOn, normalizedCubeMeasure, cubeMeasure,
       volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using
       Measure.ae_smul_measure haeVolume
         (ENNReal.ofReal ((cubeVolume Q)⁻¹))

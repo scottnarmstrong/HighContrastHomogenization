@@ -149,7 +149,7 @@ private theorem caccioppoliPrefactor_roundedGenerationWeakError_le_one
     calc
       Real.rpow (3 : ℝ) (-2 * (k : ℝ)) =
           cubeBesovScaleWeight 2 (originCube d k) := by
-        simpa using Book.Ch03.publicDualBesovScaleWeight_eq_cubeBesovScaleWeight
+        simpa using! Book.Ch03.publicDualBesovScaleWeight_eq_cubeBesovScaleWeight
           (originCube d k) (2 : ℝ)
       _ = cubeBesovScaleWeight 1 (originCube d k) *
           cubeBesovScaleWeight 1 (originCube d k) := by
@@ -301,7 +301,7 @@ theorem exists_roundedGenerationFiniteLipschitzCaccioppoliAffineConstant
   have hoscEq :
       Book.Ch03.interiorCaccioppoliParentOscillationL2Sq Q aRounded u = L ^ 2 := by
     unfold Book.Ch03.interiorCaccioppoliParentOscillationL2Sq
-    simpa [L, cubeFluctuation, Book.Ch01.Legacy.normalizedAverage] using
+    simpa [L, cubeFluctuation, Book.Ch01.Legacy.normalizedAverage] using!
       Book.Ch03.normalizedL2SqOnSet_openCubeSet_eq_cubeLpNorm_two_sq Q
         (cubeFluctuation Q u.toH1.toFun)
         (u.toH1.memL2_normalizedCubeMeasure.sub (memLp_const _))

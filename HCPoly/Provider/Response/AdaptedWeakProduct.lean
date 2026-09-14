@@ -173,7 +173,7 @@ theorem roundedGrid_metricFrobenius_product_le {l : ℤ}
   have hqMatTranspose : matTranspose q = q := by
     simpa [matTranspose] using hqSymm
   have hSSymm : Sᵀ = S := by
-    simpa only [Matrix.conjTranspose_eq_transpose_of_trivial] using hS.isHermitian
+    simpa only [Matrix.conjTranspose_eq_transpose_of_trivial] using! hS.isHermitian
   have hAform : matTranspose q * S⁻¹ = alpha • (L⁻¹ * q)ᵀ := by
     rw [hqMatTranspose, hL, inv_smul_of_isUnit halpha.ne' hSunit,
       Matrix.transpose_mul,

@@ -291,7 +291,7 @@ theorem rounded_projective_hop (hd : 2 ≤ d) {chop : ℝ} {l : ℤ}
     (hl : (kZero d : ℤ) ≤ l) {m₀ m₁ : Mat d} (h₀ : m₀.PosDef)
     (h₁ : m₁.PosDef) (hdist : projDist m₀ m₁ ≤ chop) :
     gridRatio (roundedGrid l m₀) (roundedGrid l m₁) ≤ hopConstant d chop := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have h₁₀ : projDist m₁ m₀ ≤ chop := by rwa [projDist_comm]
   have hleft := rounded_cross_le hl h₀ h₁ hdist
   have hright := rounded_cross_le hl h₁ h₀ h₁₀
@@ -307,7 +307,7 @@ theorem exists_hopConstant (hd : 2 ≤ d) (chop : ℝ) :
       ∀ l : ℤ, (kZero d : ℤ) ≤ l → ∀ m₀ m₁ : Mat d,
         m₀.PosDef → m₁.PosDef → projDist m₀ m₁ ≤ chop →
           gridRatio (roundedGrid l m₀) (roundedGrid l m₁) ≤ Khop := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   refine ⟨hopConstant d chop, ?_, ?_⟩
   · rw [hopConstant]
     exact one_le_pow₀ (by linarith only [Real.exp_pos chop])
@@ -333,7 +333,7 @@ theorem gridRatio_roundedGrid_one_le (hd : 2 ≤ d) {l : ℤ}
     (hl : (kZero d : ℤ) ≤ l) {m : Mat d} (hm : m.PosDef) :
     gridRatio (roundedGrid l m) 1 ≤ witnessGridConstant d *
       (1 + witnessEccentricity m) ^ (2 * d) := by
-  letI : NeZero d := ⟨by omega⟩
+  let : NeZero d := ⟨by omega⟩
   have hecc : 1 ≤ witnessEccentricity m := by
     have hnorm := norm_mul_le m m⁻¹
     rw [Matrix.mul_nonsing_inv m (isUnit_det_of_posDef hm), norm_one,

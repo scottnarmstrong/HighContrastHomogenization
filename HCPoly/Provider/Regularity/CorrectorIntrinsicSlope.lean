@@ -59,9 +59,8 @@ theorem localGradientClassAverage_eq_cubeAverageVec_of_ae {d n : ℕ}
       ∫ x, G x i ∂volume.restrict U
   rw [Measure.restrict_restrict hU, Set.inter_self]
   apply integral_congr_ae
-  simpa only [localGradientCube, U, volumeMeasureOn] using
-    hG.mono fun _x hx => by
-      simpa using congrFun (congrArg HilbertVec.toVec hx) i
+  show (fun x => g x i) =ᵐ[volumeMeasureOn (localGradientCube d n)] fun x => G x i
+  exact hG.mono fun _x hx => congrFun (congrArg HilbertVec.toVec hx) i
 
 /-- Local gradient-class averaging is additive. -/
 @[simp] theorem localGradientClassAverage_add {d n : ℕ}
@@ -117,17 +116,22 @@ equal to the declared affine slope. -/
 theorem localGradientClassAverage_finiteAffineBoundaryH1
     {d : ℕ} [NeZero d] (e : Vec d) (n : ℕ) :
     localGradientClassAverage
-      (show LocalGradientL2 d n from by
-        simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
+      (show LocalGradientL2 d n from
+        Eq.mp (by simp only [LocalGradientL2, localGradientCube, Book.Ch02.cubeDomain_coe]; rfl)
           (finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2) = e := by
   let u : H1Function (localGradientCube d n) := by
-    simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
-      finiteAffineBoundaryH1 (n : ℤ) e
-  change localGradientClassAverage u.gradToHilbertVectorL2 = e
-  rw [localGradientClassAverage_eq_cubeAverageVec_of_ae
+    simp only [localGradientCube]
+    exact finiteAffineBoundaryH1 (n : ℤ) e
+  have hcast :
+      (show LocalGradientL2 d n from
+        Eq.mp (by simp only [LocalGradientL2, localGradientCube, Book.Ch02.cubeDomain_coe]; rfl)
+          (finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2) =
+        u.gradToHilbertVectorL2 := rfl
+  rw [hcast, localGradientClassAverage_eq_cubeAverageVec_of_ae
     u.gradToHilbertVectorL2 u.grad u.coeFn_gradToHilbertVectorL2]
-  simpa only [u, finiteAffineBoundaryH1_grad] using
-    cubeAverageVec_const (originCube d (n : ℤ)) e
+  have hugrad : u.grad = fun _ => e := finiteAffineBoundaryH1_grad (n : ℤ) e
+  rw [hugrad]
+  exact cubeAverageVec_const (originCube d (n : ℤ)) e
 
 /-- The recovered full local gradient class is the affine constant class plus
 the stored projective corrector component. -/
@@ -135,21 +139,21 @@ the stored projective corrector component. -/
     {d : ℕ} [NeZero d] (e : Vec d) (z : NormalizedLocalH1Carrier d)
     (n : ℕ) :
     (affinePlusLocalCarrierH1 e z n).gradToHilbertVectorL2 =
-      (show LocalGradientL2 d n from by
-        simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
+      (show LocalGradientL2 d n from
+        Eq.mp (by simp only [LocalGradientL2, localGradientCube, Book.Ch02.cubeDomain_coe]; rfl)
           (finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2) +
         z.gradientComponent n := by
   rw [affinePlusLocalCarrierH1, H1Function.gradToHilbertVectorL2_add,
     NormalizedLocalH1Carrier.localH1Function_gradToHilbertVectorL2]
-  simp only [id_eq]
+  rfl
 
 /-- Intrinsic normalized slope, stated only through local gradient classes. -/
 def HasIntrinsicNormalizedSlope {d : ℕ} [NeZero d]
     (e : Vec d) (z : NormalizedLocalH1Carrier d) : Prop :=
   Filter.Tendsto
     (fun n => localGradientClassAverage
-      ((show LocalGradientL2 d n from by
-          simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
+      ((show LocalGradientL2 d n from
+          Eq.mp (by simp only [LocalGradientL2, localGradientCube, Book.Ch02.cubeDomain_coe]; rfl)
             (finiteAffineBoundaryH1 (n : ℤ) e).gradToHilbertVectorL2) +
         z.gradientComponent n))
     Filter.atTop (nhds e)

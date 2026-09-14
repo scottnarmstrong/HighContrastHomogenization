@@ -131,7 +131,7 @@ theorem exists_bound_lintegral_ball_rpow (d : ℕ) {D e : ℝ} (hD : 0 < D)
               have h1 : (1 : ℝ) ≤ ‖x - y‖ := by
                 have h := hy.2
                 rw [Metric.mem_ball'] at h
-                push_neg at h
+                push Not at h
                 rwa [dist_eq_norm] at h
               calc ENNReal.ofReal (‖x - y‖ ^ e)
                   ≤ ENNReal.ofReal 1 :=
@@ -140,7 +140,7 @@ theorem exists_bound_lintegral_ball_rpow (d : ℕ) {D e : ℝ} (hD : 0 < D)
                 _ = 1 := ENNReal.ofReal_one
           _ = 1 * volume (Metric.ball x D \ Metric.ball x 1) := setLIntegral_const _ _
           _ ≤ 1 * volume (Metric.ball x D) :=
-              mul_le_mul' (le_refl _) (measure_mono Set.diff_subset)
+              mul_le_mul' (le_refl _) (measure_mono Set.sdiff_subset)
           _ = ENNReal.ofReal ((2 * D) ^ d) := by rw [volume_ball_eq x hD, one_mul]
       -- Near part: dyadic shells.
       have hshell : ∀ k : ℕ,
@@ -160,7 +160,7 @@ theorem exists_bound_lintegral_ball_rpow (d : ℕ) {D e : ℝ} (hD : 0 < D)
               have h2 : q ^ (k + 1) ≤ ‖x - y‖ := by
                 have h := hy.2
                 rw [Metric.mem_ball'] at h
-                push_neg at h
+                push Not at h
                 rwa [dist_eq_norm] at h
               exact ENNReal.ofReal_le_ofReal
                 (Real.rpow_le_rpow_of_nonpos hr1 h2 he0.le)
@@ -168,7 +168,7 @@ theorem exists_bound_lintegral_ball_rpow (d : ℕ) {D e : ℝ} (hD : 0 < D)
                 volume (Metric.ball x (q ^ k) \ Metric.ball x (q ^ (k + 1))) :=
               setLIntegral_const _ _
           _ ≤ ENNReal.ofReal ((q ^ (k + 1)) ^ e) * volume (Metric.ball x (q ^ k)) :=
-              mul_le_mul' (le_refl _) (measure_mono Set.diff_subset)
+              mul_le_mul' (le_refl _) (measure_mono Set.sdiff_subset)
           _ = ENNReal.ofReal ((q ^ (k + 1)) ^ e) * ENNReal.ofReal ((2 * q ^ k) ^ d) := by
               rw [volume_ball_eq x hr0]
           _ = ENNReal.ofReal (T k) := by
@@ -198,7 +198,7 @@ theorem exists_bound_lintegral_ball_rpow (d : ℕ) {D e : ℝ} (hD : 0 < D)
               exact Metric.mem_ball.mp hy
             · have hlt : Nat.find hex - 1 < Nat.find hex := by omega
               have hmin := Nat.find_min hex hlt
-              push_neg at hmin
+              push Not at hmin
               have hsucc : Nat.find hex - 1 + 1 = Nat.find hex := by omega
               rwa [hsucc] at hmin
           refine Set.mem_iUnion.mpr ⟨Nat.find hex, Metric.mem_ball.mpr hk0, ?_⟩

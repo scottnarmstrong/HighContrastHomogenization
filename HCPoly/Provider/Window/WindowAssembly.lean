@@ -83,9 +83,9 @@ theorem random_source_window
                           (blockScale (boundaryConst Cd g n) (blockReflect E)))) := by
   refine ⟨max 1 (12 * (d : ℝ) * Real.sqrt d), le_max_left _ _, ?_⟩
   intro Cd hCd P E Ψ K S hP hstat hdag jStar M hwindow
-  letI : IsProbabilityMeasure P := hP
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : IsProbabilityMeasure P := hP
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hQone : (1 : ℝ) ≤ Q := one_le_two.trans hQ
   have hfinite := ae_successorScale_ne_top hstat hdag hQone hwindow
   have hstandard := ae_standard_rows_of_successor_ne_top
@@ -128,7 +128,7 @@ theorem random_source_window
   · intro hgzero
     subst g
     have hglobal := ae_global_response_rows_zero hd hwindow hCd hdag
-    refine ⟨Filter.Eventually.of_forall (windowMultiplier_eq_one E jStar M), ?_, ?_⟩
+    refine ⟨_root_.Filter.Eventually.of_forall (windowMultiplier_eq_one E jStar M), ?_, ?_⟩
     · filter_upwards [hglobal] with a ha
       exact ha.1
     · filter_upwards [hglobal] with a ha

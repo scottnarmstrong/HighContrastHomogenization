@@ -8,7 +8,7 @@ import HCPoly.Provider.Response.PreYoungPrimalPhysicalProjectionLimit
 
 namespace Homogenization.HighContrast.Response
 
-open Book.Ch02 MeasureTheory Filter
+open Book.Ch02 MeasureTheory _root_.Filter
 open scoped ENNReal
 
 noncomputable section
@@ -106,14 +106,14 @@ theorem adjoint_flux_physical_parent_pairing_eq_coordinate_sum
         continuous_const).aestronglyMeasurable
     have hetaBound : ∀ᵐ x ∂volume.restrict U, ‖eta x‖ ≤
         2 + |volumeAverage U cut| :=
-      Filter.Eventually.of_forall fun x ↦ by
+      _root_.Filter.Eventually.of_forall fun x ↦ by
         rw [Real.norm_eq_abs, abs_le]
         constructor <;>
           linarith only [adaptedPreYoungCutoff_nonneg hq t x,
             adaptedPreYoungCutoff_le_two hq t x,
             neg_abs_le (volumeAverage U cut),
             le_abs_self (volumeAverage U cut)]
-    simpa only [mul_comm] using hX.bdd_mul hetaMeas hetaBound
+    simpa only [mul_comm] using! hX.bdd_mul hetaMeas hetaBound
   have hvec : volumeAverage U (fun x ↦ eta x * vecDot Pcen (X x).2) =
       ∑ i, Pcen i * volumeAverage U (fun x ↦ eta x * (X x).2 i) := by
     calc
@@ -160,7 +160,7 @@ theorem integrable_adjoint_flux_physical_oscillation_of_weak
   have hparent : ∀ z ∈ Z, Integrable (fun a ↦
       ∑ i, Pcen i * coord z i a) P := by
     intro z hz
-    exact integrable_finset_sum (Finset.univ : Finset (Fin d)) fun i hi ↦
+    exact integrable_finsetSum (Finset.univ : Finset (Fin d)) fun i hi ↦
       (by simpa only [coord, toFullBlockVec] using
         (hread z hz (Sum.inr i)).const_mul (Pcen i))
   have heq : adjoint_flux_physical_oscillation hq s t g hg p r Pcen =
@@ -176,7 +176,7 @@ theorem integrable_adjoint_flux_physical_oscillation_of_weak
         hq hst hz g hg a p r Pcen
   rw [heq]
   unfold avsum
-  exact (integrable_finset_sum Z hparent).const_mul _
+  exact (integrable_finsetSum Z hparent).const_mul _
 
 /-- The physical adjoint flux cutoff oscillation is controlled by the earlier
 transposed profile row. -/
@@ -219,7 +219,7 @@ theorem of_real_abs_integral_adjoint_flux_physical_oscillation_le_row
       (P := P) hq hst g hg p r Pcen (n + 1)).aemeasurable
   · exact integrable_adjoint_flux_physical_oscillation_of_weak
       hq hm0 hst g hg p r Pcen hweak
-  · exact Filter.Eventually.of_forall fun a ↦
+  · exact _root_.Filter.Eventually.of_forall fun a ↦
       tendsto_adjoint_flux_projected_oscillation
         hq hst g hg a p r Pcen
   · intro n

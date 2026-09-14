@@ -63,7 +63,7 @@ theorem mem_bad_iff
       P selectedRow cMix cd eta kappa delta)
     (n : ℕ) (ω : Ω) :
     ω ∈ W.bad n ↔ delta ≤ W.tailSum n ω := by
-  simp only [W.bad_eq, Set.mem_setOf_eq]
+  simp only [W.bad_eq, Set.mem_ofPred_eq]
 
 /-- Absence of a bad event makes the corresponding weighted tail sum strictly
 smaller than its threshold. -/

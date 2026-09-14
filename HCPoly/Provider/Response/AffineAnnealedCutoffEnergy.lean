@@ -123,11 +123,10 @@ private theorem exists_translateCoeff_affineResponseJ_of_commutes
       responseJ_adaptedDomainAt_translate_of_commutes hq hz S hS a p r
     _ = Book.Ch02.responseJ (Book.Ch02.cubeDomain (originCube d k))
         ((A (translateCoeff z a)).coeffOn (originCube d k))
-        (matVecMul (matTranspose q) p) (matVecMul q⁻¹ r) := by
-      simpa only [translateCube, originCube, Pi.zero_apply, add_zero] using
-        (responseJ_affineResponseCell hq t k 0
-          (S (translateCoeff z a)) (A (translateCoeff z a))
-          (hA (translateCoeff z a)) p r).symm
+        (matVecMul (matTranspose q) p) (matVecMul q⁻¹ r) :=
+      (responseJ_affineResponseCell hq t k 0
+        (S (translateCoeff z a)) (A (translateCoeff z a))
+        (hA (translateCoeff z a)) p r).symm
 
 /-! ## Literal primal and adjoint covariance -/
 

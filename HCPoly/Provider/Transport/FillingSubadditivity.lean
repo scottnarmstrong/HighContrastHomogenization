@@ -90,7 +90,7 @@ theorem measure_eq_sum_add_residual (hU : MeasurableSet U)
     rw [Finset.set_biUnion_coe]
     exact measure_biUnion_finset hdisj hmeas
   calc volume U = volume ((⋃ i ∈ (↑Z : Set ι), c i) ∪ (U \ ⋃ i ∈ (↑Z : Set ι), c i)) := by
-        rw [Set.union_diff_cancel hVsub]
+        rw [Set.union_sdiff_cancel hVsub]
     _ = volume (⋃ i ∈ (↑Z : Set ι), c i) + volume (U \ ⋃ i ∈ (↑Z : Set ι), c i) :=
         measure_union disjoint_sdiff_self_right (hU.diff hVmeas)
     _ = (∑ i ∈ Z, volume (c i)) + volume (U \ ⋃ i ∈ (↑Z : Set ι), c i) := by rw [hbig]
@@ -111,14 +111,14 @@ theorem setIntegral_eq_sum_add_residual {g : Vec d → ℝ} (hU : MeasurableSet 
     refine Recurrence.setIntegral_eq_sum_of_aePartition hmeas
       (fun i hi => Set.subset_biUnion_of_mem (u := c) (Finset.mem_coe.mpr hi)) hdisj ?_
       (hint.mono_set hVsub)
-    rw [Set.diff_self, measure_empty]
+    rw [Set.sdiff_self, measure_empty]
   calc ∫ x in U, g x
       = ∫ x in (⋃ i ∈ (↑Z : Set ι), c i) ∪ (U \ ⋃ i ∈ (↑Z : Set ι), c i), g x := by
-        rw [Set.union_diff_cancel hVsub]
+        rw [Set.union_sdiff_cancel hVsub]
     _ = (∫ x in ⋃ i ∈ (↑Z : Set ι), c i, g x) +
           ∫ x in U \ ⋃ i ∈ (↑Z : Set ι), c i, g x :=
         setIntegral_union disjoint_sdiff_self_right (hU.diff hVmeas)
-          (hint.mono_set hVsub) (hint.mono_set Set.diff_subset)
+          (hint.mono_set hVsub) (hint.mono_set Set.sdiff_subset)
     _ = (∑ i ∈ Z, ∫ x in c i, g x) + ∫ x in U \ ⋃ i ∈ (↑Z : Set ι), c i, g x := by rw [hbig]
 
 /-- **The weights of a sub-partition, together with the residual weight, sum to
@@ -137,7 +137,7 @@ theorem sum_weight_add_residual_eq_one (hU : MeasurableSet U)
       ENNReal.toReal_add
         (ENNReal.sum_ne_top.mpr fun i hi =>
           Recurrence.measure_cell_ne_top_of_subset hUtop (hsub i hi))
-        (Recurrence.measure_cell_ne_top_of_subset hUtop Set.diff_subset),
+        (Recurrence.measure_cell_ne_top_of_subset hUtop Set.sdiff_subset),
       ENNReal.toReal_sum fun i hi => Recurrence.measure_cell_ne_top_of_subset hUtop (hsub i hi)]
   rw [← Finset.sum_div, ← add_div, ← htoReal,
     div_self (ENNReal.toReal_pos hU0 hUtop).ne']
@@ -157,7 +157,7 @@ theorem responseJ_le_sum_weight_add_residual {f : CoeffField d} {lam Lam : ℝ}
       (∑ i ∈ Z, (volume (c i)).toReal / (volume U).toReal * ResponseJ (c i) p q f) +
         (volume (U \ ⋃ i ∈ (↑Z : Set ι), c i)).toReal / (volume U).toReal *
           (lam⁻¹ * (Lam ^ 2 * vecNormSq p + vecNormSq q)) := by
-  haveI : IsFiniteMeasure (volumeMeasureOn U) := by
+  have : IsFiniteMeasure (volumeMeasureOn U) := by
     simpa [volumeMeasureOn] using hU.isFiniteMeasure_restrict_volume
   have hUmeas : MeasurableSet U := hU.isOpen.measurableSet
   have hUtop : volume U ≠ ⊤ := hU.volume_lt_top.ne
@@ -166,7 +166,7 @@ theorem responseJ_le_sum_weight_add_residual {f : CoeffField d} {lam Lam : ℝ}
   have hRmeas : MeasurableSet (U \ ⋃ i ∈ (↑Z : Set ι), c i) :=
     hUmeas.diff (measurableSet_biUnion_coe hmeas)
   have hRtop : volume (U \ ⋃ i ∈ (↑Z : Set ι), c i) ≠ ⊤ :=
-    Recurrence.measure_cell_ne_top_of_subset hUtop Set.diff_subset
+    Recurrence.measure_cell_ne_top_of_subset hUtop Set.sdiff_subset
   refine csSup_le (responseJValueSet_nonempty U p q f) ?_
   rintro m ⟨u, rfl⟩
   have hint : IntegrableOn (scalarResponseIntegrand U f p q u) U volume :=
@@ -174,7 +174,7 @@ theorem responseJ_le_sum_weight_add_residual {f : CoeffField d} {lam Lam : ℝ}
   have hcellle : ∀ i ∈ Z, ∫ x in c i, scalarResponseIntegrand U f p q u x ≤
       (volume (c i)).toReal * ResponseJ (c i) p q f := by
     intro i hi
-    haveI : IsFiniteMeasure (volumeMeasureOn (c i)) := by
+    have : IsFiniteMeasure (volumeMeasureOn (c i)) := by
       simpa [volumeMeasureOn] using (hc i hi).isFiniteMeasure_restrict_volume
     have hEllc : IsEllipticFieldOn lam Lam (c i) f :=
       IsEllipticFieldOn.mono hEll (hmeas i hi) (hsub i hi)
@@ -194,7 +194,7 @@ theorem responseJ_le_sum_weight_add_residual {f : CoeffField d} {lam Lam : ℝ}
   have hresle : ∫ x in U \ ⋃ i ∈ (↑Z : Set ι), c i, scalarResponseIntegrand U f p q u x ≤
       (volume (U \ ⋃ i ∈ (↑Z : Set ι), c i)).toReal *
         (lam⁻¹ * (Lam ^ 2 * vecNormSq p + vecNormSq q)) := by
-    have hmono := setIntegral_mono_on (hint.mono_set Set.diff_subset)
+    have hmono := setIntegral_mono_on (hint.mono_set Set.sdiff_subset)
       (integrableOn_const hRtop) hRmeas fun x hx =>
         scalarResponseIntegrand_le_plainUpperBound_of_isEllipticFieldOn hEll p q u x hx.1
     rwa [setIntegral_const, smul_eq_mul, measureReal_def] at hmono

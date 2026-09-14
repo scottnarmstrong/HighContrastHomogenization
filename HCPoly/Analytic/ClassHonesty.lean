@@ -46,7 +46,7 @@ theorem lintegral_ofReal_vecNormSq_ne_top_of_isBounded {V : Set (Vec d)}
   have hcl : IsCompact (closure V) := hV.isCompact_closure
   have hcont : Continuous fun x => vecNormSq (G x) := by
     simp only [vecNormSq, vecDot]
-    exact continuous_finset_sum _ fun i _ =>
+    exact continuous_finsetSum _ fun i _ =>
       ((continuous_apply i).comp hG).mul ((continuous_apply i).comp hG)
   obtain ⟨C, hC⟩ := hcl.exists_bound_of_continuousOn hcont.continuousOn
   refine ne_top_of_le_ne_top (b := ENNReal.ofReal C * volume V) ?_ ?_
@@ -71,7 +71,7 @@ theorem lintegral_ofReal_vecNormSq_ne_top_of_hasCompactSupport {V : Set (Vec d)}
   have hK : IsCompact (tsupport G) := hGs
   have hcont : Continuous fun x => vecNormSq (G x) := by
     simp only [vecNormSq, vecDot]
-    exact continuous_finset_sum _ fun i _ =>
+    exact continuous_finsetSum _ fun i _ =>
       ((continuous_apply i).comp hG).mul ((continuous_apply i).comp hG)
   obtain ⟨C, hC⟩ := hK.exists_bound_of_continuousOn hcont.continuousOn
   have hpt : ∀ x, ENNReal.ofReal (vecNormSq (G x)) ≤
@@ -201,9 +201,9 @@ theorem vecNormSq_le_sq_of_sqrt_le {x : Vec d} {L : ℝ}
 approximant has finite `H¹_s` distance. -/
 theorem exists_sEnergyOn_sub_ne_top {b : CoeffField d} {V : Set (Vec d)}
     {u : Vec d → ℝ} {Du : Vec d → Vec d} {v : ℕ → Vec d → ℝ}
-    (htend : Filter.Tendsto
+    (htend : _root_.Filter.Tendsto
       (fun n => h1sNormSqOn b V (fun x => v n x - u x)
-        (fun x => smoothGrad (v n) x - Du x)) Filter.atTop (nhds 0)) :
+        (fun x => smoothGrad (v n) x - Du x)) _root_.Filter.atTop (nhds 0)) :
     ∃ n : ℕ, sEnergyOn b V (fun x => smoothGrad (v n) x - Du x) ≠ ⊤ := by
   obtain ⟨n, hn⟩ :=
     (htend.eventually_lt_const (by norm_num : (0 : ℝ≥0∞) < 1)).exists

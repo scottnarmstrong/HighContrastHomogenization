@@ -74,7 +74,7 @@ private theorem ae_eventually_stoppingGeneration_le_quarter
     exact hrealSummable.tsum_ofReal_ne_top
   filter_upwards [ae_eventually_notMem hmeasureSummable] with ω hω
   filter_upwards [hω] with j hj
-  simpa only [n0, E, Set.mem_setOf_eq, not_lt] using hj
+  simpa only [n0, E, Set.mem_ofPred_eq, not_lt] using hj
 
 omit [MeasurableSpace Omega] in
 private theorem summable_shifted_row_of_stoppingGeneration_le_quarter

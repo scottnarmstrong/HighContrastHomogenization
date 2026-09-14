@@ -58,15 +58,15 @@ private theorem vecNormSq_zero' : vecNormSq (0 : Vec d) = 0 := by
 
 private theorem continuous_vecNormSq : Continuous (vecNormSq : Vec d → ℝ) := by
   show Continuous fun x : Vec d => ∑ i, x i * x i
-  exact continuous_finset_sum _ fun i _ => (continuous_apply i).mul (continuous_apply i)
+  exact continuous_finsetSum _ fun i _ => (continuous_apply i).mul (continuous_apply i)
 
 /-- The quadratic form of a matrix depends continuously on the matrix. -/
 private theorem continuous_quadratic {X : Type*} [TopologicalSpace X] {F : X → Mat d}
     (hF : Continuous F) (x : Vec d) :
     Continuous fun p : X => vecDot x (matVecMul (F p) x) := by
   show Continuous fun p : X => ∑ i, x i * ∑ j, F p i j * x j
-  exact continuous_finset_sum _ fun i _ =>
-    continuous_const.mul (continuous_finset_sum _ fun j _ =>
+  exact continuous_finsetSum _ fun i _ =>
+    continuous_const.mul (continuous_finsetSum _ fun j _ =>
       (hF.matrix_elem i j).mul continuous_const)
 
 /-- **Coercivity.**  A matrix whose quadratic form is positive away from the origin
@@ -100,8 +100,8 @@ theorem exists_coercivity_of_quadratic_pos {M : Mat d}
       simp [vecDot, Pi.single_apply, mul_ite, Finset.sum_ite_eq']
     have hcont : Continuous fun x : Vec d => vecDot x (matVecMul M x) := by
       show Continuous fun x : Vec d => ∑ i, x i * ∑ j, M i j * x j
-      exact continuous_finset_sum _ fun i _ =>
-        (continuous_apply i).mul (continuous_finset_sum _ fun j _ =>
+      exact continuous_finsetSum _ fun i _ =>
+        (continuous_apply i).mul (continuous_finsetSum _ fun j _ =>
           continuous_const.mul (continuous_apply j))
     obtain ⟨x₀, hx₀K, hx₀min⟩ := hKcompact.exists_isMinOn hKne hcont.continuousOn
     have hx₀ne : x₀ ≠ 0 := by
@@ -313,7 +313,7 @@ theorem exists_isSkewMat_matLoewnerLE_sInf_smul {H : BlockMat d} {N : Mat d}
             (1 / 2 : ℝ) * vecDot x (matVecMul (skewCorrectedForm H h) x) ≤
               (1 / 2 : ℝ) * vecDot x (matVecMul (t • N) x)} := by
         ext h
-        simp only [Set.mem_setOf_eq, Set.mem_iInter, MatLoewnerLE]
+        simp only [Set.mem_ofPred_eq, Set.mem_iInter, MatLoewnerLE]
       rw [hrw]
       exact isClosed_iInter fun x =>
         isClosed_le (continuous_const.mul (continuous_quadratic hcontForm x)) continuous_const

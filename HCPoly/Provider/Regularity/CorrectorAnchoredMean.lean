@@ -65,7 +65,7 @@ theorem NormalizedLocalH1Carrier.cubeAverage_globalValueRepresentative_zero
   have hmean :
       ∫ x in openCubeSet (originCube d ((0 : ℕ) : ℤ)),
           (z.localH1Function 0).toFun x ∂volume = 0 := by
-    simpa only [localGradientCube] using z.localH1Function_zero_mean
+    simpa only [localGradientCube] using! z.localH1Function_zero_mean
   unfold cubeAverage
   rw [setIntegral_cubeSet_eq_setIntegral_openCubeSet,
     hmean, mul_zero]

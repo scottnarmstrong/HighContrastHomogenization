@@ -179,7 +179,7 @@ theorem finite_below_start_max_moment_le [NeZero d]
     exact hQR0
   have hmoment : eLpNorm X (ENNReal.ofReal (Q : ℝ)) P ^ (Q : ℝ) =
       ∫⁻ x, X x ^ (Q : ℝ) ∂P := by
-    rw [eLpNorm_eq_lintegral_rpow_enorm hp0 ENNReal.ofReal_ne_top,
+    rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top,
       ENNReal.toReal_ofReal hQR0.le, ← ENNReal.rpow_mul, one_div,
       inv_mul_cancel₀ hQR0.ne', ENNReal.rpow_one]
     exact lintegral_congr fun x => by rw [enorm_eq_self]

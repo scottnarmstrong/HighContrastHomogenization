@@ -65,8 +65,8 @@ theorem adapted_burnsplit_of_standard
         ((1 + Cd * witnessEccentricity n * zetaG g *
           (3 : ℝ) ^ (-(D : ℤ))) * Y) E) := by
   classical
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   let p : Mat d := roundedGrid jStar n
   have hp : p.PosDef := Recurrence.posDef_roundedGrid hj hn
   obtain ⟨Z, hZ, hsub, hdom, _hvol, hdisj, _hrowENN, _hrowOneENN, hnull⟩ :=
@@ -82,7 +82,7 @@ theorem adapted_burnsplit_of_standard
   let I := Σ u : ℕ, {w // w ∈ Z (r - (u : ℤ))}
   let c : I → Set (Vec d) := fun i =>
     adaptedCellAt (1 : Mat d) (r - (i.1 : ℤ)) i.2.1
-  letI : Countable I := inferInstance
+  let : Countable I := inferInstance
   have hc : ∀ i : I, IsOpenBoundedConvexDomain (c i) := fun i =>
     hdom _ _ i.2.2
   have hcsub : ∀ i : I, c i ⊆ adaptedCellTranslate p r y := fun i =>

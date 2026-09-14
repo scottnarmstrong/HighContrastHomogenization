@@ -61,7 +61,7 @@ theorem scalarMatrix_one_eq_one (d : ℕ) :
 
 /-- Half powers are nonnegative, by the square-root convention. -/
 theorem rpow_half_nonneg (x : ℝ) : 0 ≤ Real.rpow x (1 / (2 : ℝ)) := by
-  simpa only [Real.sqrt_eq_rpow] using Real.sqrt_nonneg x
+  simpa only [Real.sqrt_eq_rpow] using! Real.sqrt_nonneg x
 
 /-- The multiscale homogenization error at the endpoint spatial exponent and
 the finite `q = 2` scale exponent is nonnegative. -/

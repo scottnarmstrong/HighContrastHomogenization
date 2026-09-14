@@ -207,9 +207,9 @@ private theorem norm_integral_normalizedChainMeasure_le_closedBallAverage
   let g : Vec d → ℝ := E.indicator fun y => ‖HilbertVec.ofVec (F y - F x)‖
   let q : Vec d → ℝ := fun y =>
     ‖integrableZeroExtension U F y - integrableZeroExtension U F x‖
-  letI : IsProbabilityMeasure μn := by
+  let : IsProbabilityMeasure μn := by
     simpa only [μn] using normalizedChainMeasure_isProbability c x hrho n
-  letI : IsFiniteMeasure μn :=
+  let : IsFiniteMeasure μn :=
     IsZeroOrProbabilityMeasure.toIsFiniteMeasure μn
   have hxcore : Integrable F
       (volume.restrict (convexFractionalChainBall c x rho n)) :=
@@ -220,7 +220,7 @@ private theorem norm_integral_normalizedChainMeasure_le_closedBallAverage
       (hxcore.smul_measure (ENNReal.inv_ne_top.mpr
         (volume_chainBall_pos_integrable c x hrho n).ne'))).sub
       (integrable_const (μ := μn) _)
-  letI : IsProbabilityMeasure νn := by
+  let : IsProbabilityMeasure νn := by
     refine ⟨?_⟩
     dsimp only [νn]
     rw [Measure.smul_apply, Measure.restrict_apply_univ, smul_eq_mul]
@@ -231,7 +231,7 @@ private theorem norm_integral_normalizedChainMeasure_le_closedBallAverage
   have hfint : Integrable (integrableZeroExtension U F) volume := by
     unfold integrableZeroExtension
     rw [integrable_indicator_iff hU.1.measurableSet]
-    simpa only [Function.comp_apply] using
+    simpa only [Function.comp_apply] using!
       (HilbertVec.ofVecL d).integrable_comp hF
   have hqintν : Integrable q νn := by
     have hfν : Integrable (integrableZeroExtension U F) νn := by
@@ -358,12 +358,12 @@ private theorem integral_normalizedChainMeasure_sub_eq
   rw [integral_sub]
   · rw [integral_normalizedChainMeasure_eq_mean c x hrho n hxcore,
       integral_const]
-    haveI := normalizedChainMeasure_isProbability c x hrho n
+    have := normalizedChainMeasure_isProbability c x hrho n
     simp only [probReal_univ, one_smul]
   · exact (HilbertVec.ofVecL d).integrable_comp
       (hxcore.smul_measure (ENNReal.inv_ne_top.mpr
         (volume_chainBall_pos_integrable c x hrho n).ne'))
-  · haveI := normalizedChainMeasure_isProbability c x hrho n
+  · have := normalizedChainMeasure_isProbability c x hrho n
     exact integrable_const _
 
 private theorem tendsto_convexFractionalChainMean_of_closedBallAverage
@@ -405,7 +405,7 @@ theorem ae_tendsto_convexFractionalChainMean_of_integrable
     dsimp only [f]
     unfold integrableZeroExtension
     rw [integrable_indicator_iff hU.1.measurableSet]
-    simpa only [f, Function.comp_apply] using
+    simpa only [f, Function.comp_apply] using!
       (HilbertVec.ofVecL d).integrable_comp hF
   have hdiff := IsUnifLocDoublingMeasure.ae_tendsto_average_norm_sub
     (μ := volume) hfint.locallyIntegrable (Rad / rho)
@@ -468,7 +468,7 @@ private theorem edist_coreMean_le_fractionalRieszPotential_of_tendsto
         ∫⁻ y in U, ENNReal.ofReal
           (euclideanDist x y ^ (s - (d : ℝ))) *
             fractionalGagliardoAmplitude U s G y ∂volume := by
-  letI : NeZero d := ⟨Nat.ne_of_gt hd⟩
+  let : NeZero d := ⟨Nat.ne_of_gt hd⟩
   rw [← convexFractionalChainMean_zero c x rho G]
   apply (edist_convexFractionalChainMean_zero_le_tsum_jumps hmean).trans
   calc

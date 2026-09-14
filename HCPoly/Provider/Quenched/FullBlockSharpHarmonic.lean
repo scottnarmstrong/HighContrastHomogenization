@@ -115,7 +115,7 @@ theorem fullBlockFinsetAverage_sharp_sub_parentSharp_le_averageQuadratic
   let e : Fin Z.card ≃ ↥Z :=
     (Fintype.equivFinOfCardEq (Fintype.card_coe Z)).symm
   let B : Fin Z.card → FullBlockMat d := fun i ↦ A (e i).1
-  letI : NeZero Z.card := ⟨Finset.card_ne_zero.mpr hZ⟩
+  let : NeZero Z.card := ⟨Finset.card_ne_zero.mpr hZ⟩
   have hsum (f : ι → FullBlockMat d) :
       ∑ i : Fin Z.card, f (e i).1 = ∑ i ∈ Z, f i := by
     calc

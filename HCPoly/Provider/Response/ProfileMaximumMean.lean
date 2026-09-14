@@ -91,7 +91,7 @@ theorem blockSize_mean_sub_le_trace {P : Measure (CoeffSpace d)}
 private theorem sum_Icc_sub_pred {M : Type*} [AddCommGroup M] (f : ℤ → M)
     {u v : ℤ} (huv : u ≤ v) :
     ∑ r ∈ Finset.Icc (u + 1) v, (f (r - 1) - f r) = f u - f v := by
-  induction v, huv using Int.le_induction with
+  induction v, huv using Int.leInduction with
   | base =>
     have hempty : Finset.Icc (u + 1) u = (∅ : Finset ℤ) := by
       ext x

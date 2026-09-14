@@ -137,10 +137,10 @@ theorem measurable_sourceOptimizerStateReadout_local {U : Book.Ch02.Domain d}
       (Source.Coarse.localSigma (U : Set (Vec d)) hUopen.measurableSet) _
       (sourceOptimizerStateReadout U hUbdd p q alpha eta) := by
   classical
-  haveI : IsFiniteMeasure (volumeMeasureOn (U : Set (Vec d))) :=
+  have : IsFiniteMeasure (volumeMeasureOn (U : Set (Vec d))) :=
     hUbdd.isFiniteMeasure_restrict_volume
   have hUfin : volume (U : Set (Vec d)) ≠ ⊤ := ne_of_lt hUbdd.volume_lt_top
-  letI : MeasurableSpace (Source.Coarse.Carrier d) :=
+  let : MeasurableSpace (Source.Coarse.Carrier d) :=
     Source.Coarse.localSigma (U : Set (Vec d)) hUopen.measurableSet
   set slice : ℕ → Set (Source.Coarse.Carrier d) :=
     fun k => {b | AEEQuantitativeEllipticSlice (U : Set (Vec d)) k b.1} with hslice

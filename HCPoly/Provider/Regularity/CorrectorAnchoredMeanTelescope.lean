@@ -66,7 +66,7 @@ theorem abs_cubeAverage_originCube_pred_sub_le_card_mul_oscillation
   have hchild : MemLp f (2 : ℝ≥0∞)
       (normalizedCubeMeasure (originCube d (k - 1))) := by
     have h := CubeCalderonZygmund.memLp_centralDescendant_of_memLp 1 hf
-    simpa only [centralDescendant_originCube_eq_originCube_sub] using h
+    simpa only [centralDescendant_originCube_eq_originCube_sub] using! h
   have hfluct : MemLp (cubeFluctuation (originCube d k) f) (2 : ℝ≥0∞)
       (normalizedCubeMeasure (originCube d k)) :=
     hf.sub (memLp_const _)
@@ -75,9 +75,12 @@ theorem abs_cubeAverage_originCube_pred_sub_le_card_mul_oscillation
           (cubeFluctuation (originCube d k) f) =
         cubeAverage (originCube d (k - 1)) f -
           cubeAverage (originCube d k) f := by
-    simpa only [cubeFluctuation] using
-      cubeAverage_sub_const_of_memLp_two (originCube d (k - 1)) hchild
-        (cubeAverage (originCube d k) f)
+    have hfluct_eq : cubeFluctuation (originCube d k) f =
+        fun x => f x - cubeAverage (originCube d k) f :=
+      funext fun x => cubeFluctuation_apply (originCube d k) f x
+    rw [hfluct_eq]
+    exact cubeAverage_sub_const_of_memLp_two (originCube d (k - 1)) hchild
+      (cubeAverage (originCube d k) f)
   calc
     |cubeAverage (originCube d (k - 1)) f -
         cubeAverage (originCube d k) f| =
@@ -89,7 +92,7 @@ theorem abs_cubeAverage_originCube_pred_sub_le_card_mul_oscillation
           (cubeFluctuation (originCube d k) f) :=
       norm_cubeAverage_le_cubeLpNorm_two _ _ (by
         have h := CubeCalderonZygmund.memLp_centralDescendant_of_memLp 1 hfluct
-        simpa only [centralDescendant_originCube_eq_originCube_sub] using h)
+        simpa only [centralDescendant_originCube_eq_originCube_sub] using! h)
     _ ≤ ((3 ^ d : ℕ) : ℝ) *
         cubeLpNorm (originCube d k) (2 : ℝ≥0∞)
           (cubeFluctuation (originCube d k) f) :=
@@ -109,7 +112,8 @@ theorem NormalizedLocalH1Carrier.abs_cubeAverage_globalValueRepresentative_succ_
   rw [z.cubeAverage_globalValueRepresentative_eq_localH1Function n,
     z.cubeAverage_globalValueRepresentative_eq_localH1Function (n + 1)]
   rw [← z.cubeAverage_localH1Function_eq_of_le (Nat.le_succ n)]
-  simpa only [Nat.cast_add, Nat.cast_one, add_sub_cancel_right] using
+  simpa only [Nat.cast_add, Nat.cast_one, add_sub_cancel_right,
+    Nat.succ_eq_add_one, anchoredCorrectorMeanStepBound] using
     abs_cubeAverage_originCube_pred_sub_le_card_mul_oscillation
       ((n : ℤ) + 1) (z.localH1Function (n + 1)).toFun
       (z.localH1Function (n + 1)).memL2_normalizedCubeMeasure

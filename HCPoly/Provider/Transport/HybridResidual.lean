@@ -44,7 +44,7 @@ theorem volume_hybridFilling_residual_le {q q' : Mat d} (hd : 2 ≤ d)
   let F : Set (Vec d) := matVecMul q '' ⋃ (i : Fin d) (k : ℤ),
     {z : Vec d | z i = ((k : ℝ) + 1 / 2) * (3 : ℝ) ^ J}
   have hFnull : volume F = 0 := volume_image_gridFaces q J
-  rw [← measure_diff_null (s := hybridStrip q' n
+  rw [← measure_sdiff_null (s := hybridStrip q' n
     (adaptedCellTranslate q (n + l) y) \
       ⋃ a ∈ Set.Icc J n, ⋃ w ∈ fillingIndex q n
         (hybridStrip q' n (adaptedCellTranslate q (n + l) y)) a,

@@ -100,8 +100,22 @@ theorem adaptedMean_sub_centeredCube_le [NeZero d] {P : Measure (CoeffSpace d)}
   have hGint : Integrable (fun a =>
       ((6 * (d : ℝ) * Real.sqrt d * ‖q⁻¹‖) *
         (2 * (1 - g)⁻¹ * ((3 : ℝ) ^ J + (3 : ℝ) ^ M + 3 * S a) *
-          ((3 : ℝ) ^ (-n) * (3 : ℝ) ^ ((J : ℝ) * (1 - g))))) • toFullBlockMat E) P :=
-    Integrable.smul_const (((haff.const_mul _).mul_const _).const_mul _) _
+          ((3 : ℝ) ^ (-n) * (3 : ℝ) ^ ((J : ℝ) * (1 - g))))) • toFullBlockMat E) P := by
+    have hscal : Integrable (fun a => (6 * (d : ℝ) * Real.sqrt d * ‖q⁻¹‖) *
+        (2 * (1 - g)⁻¹ * ((3 : ℝ) ^ J + (3 : ℝ) ^ M + 3 * S a) *
+          ((3 : ℝ) ^ (-n) * (3 : ℝ) ^ ((J : ℝ) * (1 - g))))) P :=
+      ((haff.const_mul _).mul_const _).const_mul _
+    have hGint' : Integrable (fun a : CoeffSpace d => fun α β : BlockCoord d =>
+        ((6 * (d : ℝ) * Real.sqrt d * ‖q⁻¹‖) *
+          (2 * (1 - g)⁻¹ * ((3 : ℝ) ^ J + (3 : ℝ) ^ M + 3 * S a) *
+            ((3 : ℝ) ^ (-n) * (3 : ℝ) ^ ((J : ℝ) * (1 - g))))) *
+          toFullBlockMat E α β) P := by
+      rw [integrable_pi_iff]
+      intro α
+      rw [integrable_pi_iff]
+      intro β
+      exact hscal.mul_const _
+    exact hGint'
   have hkey := Transport.annealedBlock_le_of_ae_le hW hcellint hGint
     (ae_coarseBlock_adaptedCellTranslate_le_rows hdag hq hM0 hJn hMsub hZ)
   -- the mean of the tail, in closed form

@@ -223,7 +223,7 @@ theorem polynomial_homogenization_root_of_ballTriangle (d : ℕ) (hd : 2 ≤ d)
                               x)
                               (Homogenization.HighContrast.ellipsoid abar R) Du)) := by
   classical
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨cStar, hcStar⟩ := CorrectorComposition.exists_commonCeiling
       (fun _ _ => True) _
       (fun g c => ∀ hg : g ∈ Set.Ico (0 : ℝ) 1,

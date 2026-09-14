@@ -62,7 +62,7 @@ theorem isForcedEquation_zero_of_isWeakSolutionOn
       (Book.Ch02.cubeDomain Q : Set (Vec d)) u (0 : Vec d → Vec d) :=
     Book.Ch03.IsH1DirichletRhsWeakSolutionOn.of_residual_solenoidal
       hflux MeasureTheory.MemLp.zero (by simpa using hsol)
-  simpa only [Book.Ch03.IsForcedEquation] using hweak
+  simpa only [Book.Ch03.IsForcedEquation] using! hweak
 
 /-- Any symmetric uniformly elliptic constant matrix admits a same-trace
 homogeneous comparison for a high-contrast weak solution on an open cube. -/
@@ -95,7 +95,7 @@ theorem exists_constantCoeffCoarseGrainingComparisonDatum_of_hcWeakSolution
           change (0 : ℝ) = u.toFun x - u.toFun x
           ring }
     exact ⟨W, rfl⟩
-  · letI : NeZero d := ⟨hd⟩
+  · let : NeZero d := ⟨hd⟩
     let U : Set (Vec d) := Book.Ch02.cubeDomain Q
     let b0 : CoeffField d := constantCoeffField a0.matrix
     have hRealize :
@@ -182,7 +182,10 @@ theorem exists_constantCoeffCoarseGrainingComparisonDatum_of_hcWeakSolution
         zeroTraceDifference := by
           refine ⟨w, ?_⟩
           filter_upwards with x
-          simp [v] }
+          change w.toH1Function.toFun x =
+            u.toFun x - (u - w.toH1Function).toFun x
+          rw [H1Function.sub_toFun]
+          ring }
     exact ⟨W, rfl⟩
 
 /-- The chosen same-trace replacement for the rounded near-identity

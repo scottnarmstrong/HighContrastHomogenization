@@ -12,7 +12,7 @@ Loher), so a reader of the paper can locate where each result is proved.
   definition or predicate rather than a theorem.
 - The main results are exposed, stated in full, in
   [`HCPoly/MainResults.lean`](HCPoly/MainResults.lean); each is
-  comparator-checked (see [`Audit/`](Audit/)).
+  comparator-checked (see [`HCPolyAudit/`](HCPolyAudit/)).
 
 ## Main results
 

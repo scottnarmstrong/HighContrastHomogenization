@@ -43,7 +43,7 @@ theorem blockContrast_sub_one_le_traceGap_polynomial [NeZero d]
           (Matrix.trace (schurSigma F * F.lowerRight) - d) +
         (1 / 4 : ℝ) *
           (Matrix.trace (schurSigma F * F.lowerRight) - d) ^ 2 := by
-  haveI : Nonempty (Fin d) :=
+  have : Nonempty (Fin d) :=
     ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   let S : Mat d := schurSigma F
   let SStar : Mat d := schurSigmaStar F

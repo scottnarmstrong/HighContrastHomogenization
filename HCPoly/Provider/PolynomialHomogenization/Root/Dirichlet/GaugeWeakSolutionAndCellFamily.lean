@@ -54,7 +54,7 @@ theorem exists_frozenWitnessGaugeWeakSolution
         (affineCoefficient (matSqrt (symmPart abar)) (isUnit_det_matSqrt hS)
           (fun z ↦ scaledCoeff epsilon a z - skewPart abar))
         (matImage (matSqrt (symmPart abar))⁻¹ Uphys) uHat.grad := by
-  letI : IsFiniteMeasure (volumeMeasureOn Uphys) :=
+  let : IsFiniteMeasure (volumeMeasureOn Uphys) :=
     hUphys.isFiniteMeasure_restrict_volume
   rw [huHat]
   exact (isWeakSolutionOn_skewCentered_matSqrtPullback_iff hS hUphys.isOpen

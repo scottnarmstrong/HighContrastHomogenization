@@ -234,7 +234,7 @@ theorem quenched_convergence_of_coupled_providers (d : ℕ) (hd : 2 ≤ d)
                                 (coarseBlock
                                   (standardCell d (m - (n : ℤ)) w) a) Abar}
                         else 0) ≤ delta * ((3 : ℝ) ^ m / X a) ^ (-kappa) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   obtain ⟨cd, hcd, hprov⟩ := hprov
   refine ⟨cd, hcd, ?_⟩
   intro g hg
@@ -252,7 +252,7 @@ theorem quenched_convergence_of_coupled_providers (d : ℕ) (hd : 2 ≤ d)
     have : (2 : ℝ) ≤ max C0 2 := le_max_right _ _
     linarith only [this, hlogb], ?_⟩
   intro P E Psi K S hP hstat hunit hdag
-  letI : IsProbabilityMeasure P := hP
+  let : IsProbabilityMeasure P := hP
   obtain ⟨Abar, Nann, Lpoly, Ssrc, X, hsymm, hposdef, hlower, hupper, -,
     hLpoly1, hLpolyBound, -, -, hXmeas, hX1, htail, OmegaEnd, hmeas, hfull,
     hinv, hrow⟩ := hprov P E Psi K S hP hstat hunit hdag
@@ -287,7 +287,7 @@ theorem quenched_convergence_of_coupled_providers (d : ℕ) (hd : 2 ≤ d)
     intro t ht
     refine le_trans (measureReal_mono ?_) (htail t ht)
     intro a ha
-    simp only [Set.mem_setOf_eq] at ha ⊢
+    simp only [Set.mem_ofPred_eq] at ha ⊢
     have hcancel : max C0 2 * Lpoly * t ≤ X a := by
       have := ha
       have hmul : lam * (max C0 2 * Lpoly * t) ≤ lam * X a := by

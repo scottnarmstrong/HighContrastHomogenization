@@ -184,7 +184,7 @@ theorem weightedGradNorm_sub_le_add_of_aeElliptic
     {F G : Vec d → Vec d} (hF : MemVectorL2 U F) (hG : MemVectorL2 U G) :
     weightedGradNorm b U (fun x ↦ F x - G x) ≤
       weightedGradNorm b U F + weightedGradNorm b U G := by
-  rcases eq_or_lt_of_le (zero_le (volume U)) with hvol | hvol
+  rcases eq_or_lt_of_le (zero_le : (0 : ENNReal) ≤ volume U) with hvol | hvol
   · simp [weightedGradNorm_of_volume_eq_zero hvol.symm]
   obtain ⟨b', hb'ell, hb'ae⟩ := exists_isEllipticFieldOn_ae_eq hlam hle hb0 hU hell
   have hae : b' =ᵐ[volume.restrict U] b :=

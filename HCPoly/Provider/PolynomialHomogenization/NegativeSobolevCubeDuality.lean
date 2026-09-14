@@ -406,7 +406,7 @@ theorem cubeEuclideanNegativeWspSmoothDualENorm_le_negSobolevNorm
         dsimp only [A]
         apply CubeCalderonZygmund.INTERNAL.abs_integral_vecDot_le_eLpNorm_toReal_mul
         · simpa only [FiniteLpExponent.two_exponent] using F.euclideanMemLp
-        · simpa only [HilbertVec.ofVecL_apply] using
+        · simpa only [HilbertVec.ofVecL_apply] using!
             h.euclideanMemLp_two.sub psiS.euclideanMemLp_two
       _ = A * L2err.toReal := by rw [hflip]
       _ ≤ A * delta := mul_le_mul_of_nonneg_left hL2errReal hA
@@ -549,9 +549,9 @@ theorem ofReal_abs_volumeAverage_le_sqrt_hsNormSq_mul_negSobolevNorm
       FiniteLpExponent.two.conjugate :=
     { toField := G
       euclideanMemLp := by
-        simpa only [FiniteLpExponent.conjugate_two] using GG.euclideanMemLp
+        simpa only [FiniteLpExponent.conjugate_two] using! GG.euclideanMemLp
       euclideanMemWsp := by
-        simpa only [FiniteLpExponent.conjugate_two] using GG.euclideanMemWsp
+        simpa only [FiniteLpExponent.conjugate_two] using! GG.euclideanMemWsp
       euclideanMemL2 := GG.euclideanMemL2 }
   have hGconjField : Gconj.toField = G := by
     rfl

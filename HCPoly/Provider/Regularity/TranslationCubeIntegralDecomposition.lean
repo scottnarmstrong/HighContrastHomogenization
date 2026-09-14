@@ -83,12 +83,12 @@ theorem integral_translate_sub_integral_normalizedCubeMeasure_eq_lostRegions
       ∫ x in A, F (x + t) ∂volume =
         (∫ x in A ∩ P, F (x + t) ∂volume) +
           ∫ x in A \ P, F (x + t) ∂volume := by
-    exact (integral_inter_add_diff hP hFt).symm
+    exact (integral_inter_add_sdiff hP hFt).symm
   have hsplitF :
       ∫ x in A, F x ∂volume =
         (∫ x in A ∩ N, F x ∂volume) +
           ∫ x in A \ N, F x ∂volume := by
-    exact (integral_inter_add_diff hN hF).symm
+    exact (integral_inter_add_sdiff hN hF).symm
   have hvolume :
       (∫ x in A, F (x + t) ∂volume) - ∫ x in A, F x ∂volume =
         (∫ x in A \ P, F (x + t) ∂volume) -

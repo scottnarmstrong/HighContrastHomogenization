@@ -189,7 +189,7 @@ theorem RowRetainingPrintOrderGoodScale.exists_formulaicAnchoredResidualFrameRes
           (isUnit_det_matSqrt hS)
           (fun z ↦ scaledCoeff lambda aScaled z - skewPart abar)
           (y + ruledObservationCenter system i) := by
-      simpa only [ruledObservationCube] using hObsScaled i
+      simpa only [ruledObservationCube] using! hObsScaled i
     exact (observationHomogenizationError_le_referencePowerTail_fixedParent
       hsData.1 hsData.2.2.2.2.2 (lt_of_lt_of_le zero_lt_one hlambdaRange.1)
       (Real.sqrt_nonneg deltaScaled) (ruledObservationCenter system i)
@@ -251,7 +251,7 @@ theorem RowRetainingPrintOrderGoodScale.exists_formulaicAnchoredResidualFrameRes
     · intro i
       exact Real.sqrt_nonneg _
     · intro i
-      simpa only [Cresponse] using (hresponseFormula i).le
+      simpa only [Cresponse] using! (hresponseFormula i).le
     · exact hAmplitudeRate
   refine ⟨N, G, J, lambda, deltaScaled, aScaled, aRef, L, M, responseBound,
     Kframe, hlambda, hlambdaRange, haScaled, hdeltaScaled, hG, hGupper, hLeq,

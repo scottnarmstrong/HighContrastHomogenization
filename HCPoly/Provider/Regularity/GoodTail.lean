@@ -23,7 +23,7 @@ noncomputable section
 
 private theorem rpow_half_nonneg (x : ℝ) :
     0 ≤ Real.rpow x (1 / (2 : ℝ)) := by
-  simpa only [Real.sqrt_eq_rpow] using Real.sqrt_nonneg x
+  simpa only [Real.sqrt_eq_rpow] using! Real.sqrt_nonneg x
 
 /-- The multiscale weak error on the centered Euclidean triadic cube at scale
 `k`, with identity comparison matrix and the `p = infinity`, `q = 2`

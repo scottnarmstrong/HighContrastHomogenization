@@ -126,7 +126,7 @@ private theorem volume_slabLine_le₀ (j : ℤ) {t : ℝ} (ht : 0 ≤ t) :
       Set.Icc (-((1 : ℝ) / 2) * (3 : ℝ) ^ j) (t - (1 / 2 : ℝ) * (3 : ℝ) ^ j) ∪
         Set.Icc ((1 / 2 : ℝ) * (3 : ℝ) ^ j - t) ((1 / 2 : ℝ) * (3 : ℝ) ^ j) := by
     rintro s ⟨⟨hlo, hhi⟩, habs⟩
-    rw [Set.mem_setOf_eq] at habs
+    rw [Set.mem_ofPred_eq] at habs
     rcases le_or_gt 0 s with hs | hs
     · exact Or.inr ⟨by rwa [abs_of_nonneg hs] at habs, hhi.le⟩
     · refine Or.inl ⟨hlo.le, ?_⟩
@@ -167,7 +167,7 @@ theorem volume_layer_centeredCube_le (j : ℤ) {t : ℝ} (ht : 0 ≤ t) :
               {s : ℝ | (1 / 2 : ℝ) * (3 : ℝ) ^ j - t ≤ |s|}
           else Set.Ioo (-((1 : ℝ) / 2) * (3 : ℝ) ^ j) ((1 / 2 : ℝ) * (3 : ℝ) ^ j) := by
       ext z
-      simp only [Set.mem_setOf_eq, Set.mem_univ_pi, Recurrence.mem_centeredCube_iff]
+      simp only [Set.mem_ofPred_eq, Set.mem_univ_pi, Recurrence.mem_centeredCube_iff]
       constructor
       · rintro ⟨hz, hi⟩ k
         by_cases hk : k = i
@@ -248,7 +248,7 @@ theorem volume_image_affine (p : Mat d) (y : Vec d) (S : Set (Vec d)) :
     exact LinearMap.det_toLin' p
   rw [h1, h2]
   rw [h4] at h3
-  simpa using h3
+  exact h3
 
 /-- **The cells that escape the target lie in its boundary layer.**  If every
 point of `A` lies in the target cell `y + ⋄_j^p` and also in some aligned
@@ -315,7 +315,7 @@ theorem volume_le_of_escaping_ancestor {p q : Mat d} (hp : p.PosDef) {j c : ℤ}
       exact this
     obtain ⟨i, hi⟩ : ∃ i, (1 / 2 : ℝ) * (3 : ℝ) ^ j ≤ |zt i| := by
       by_contra hcon
-      push_neg at hcon
+      push Not at hcon
       refine hztout (Recurrence.mem_centeredCube_iff.mpr fun i => ?_)
       have := hcon i
       rw [abs_lt] at this

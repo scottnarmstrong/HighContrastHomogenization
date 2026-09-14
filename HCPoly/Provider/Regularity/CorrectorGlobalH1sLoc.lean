@@ -50,7 +50,7 @@ private theorem tendsto_eLpNorm_one_of_tendsto_eLpNorm_two
   have hscaled := ENNReal.Tendsto.mul_const h (Or.inr hM)
   rw [zero_mul] at hscaled
   exact tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds
-    hscaled (fun _ => zero_le _) hbound
+    hscaled (fun _ => zero_le) hbound
 
 private theorem eLpNorm_hilbert_single {α : Type*} [MeasurableSpace α]
     {d : ℕ} (i : Fin d) {μ : Measure α} {p : ℝ≥0∞} (f : α → ℝ) :
@@ -58,7 +58,8 @@ private theorem eLpNorm_hilbert_single {α : Type*} [MeasurableSpace α]
       eLpNorm f p μ := by
   apply eLpNorm_congr_norm_ae
   exact ae_of_all μ fun x => by
-    rw [PiLp.norm_toLp_single]
+    rw [show HilbertVec.ofVec (Pi.single i (f x)) = PiLp.single 2 i (f x) from rfl,
+      PiLp.norm_single]
 
 private theorem tendsto_eLpNorm_hilbertGradient_sub_convexApproxSmoothH1
     {d : ℕ} {U : Set (Vec d)}
@@ -84,7 +85,7 @@ private theorem tendsto_eLpNorm_hilbertGradient_sub_convexApproxSmoothH1
         eLpNorm (fun x => (psi n).grad x i - u.grad x i)
           2 (volume.restrict U)) atTop (nhds 0) := by
     simpa only [Finset.sum_const_zero] using
-      tendsto_finset_sum Finset.univ fun i _ => hcoord i
+      tendsto_finsetSum Finset.univ fun i _ => hcoord i
   have hbound : ∀ n,
       eLpNorm
           (hilbertifyVecField (fun x => (psi n).grad x - u.grad x))
@@ -122,13 +123,13 @@ private theorem tendsto_eLpNorm_hilbertGradient_sub_convexApproxSmoothH1
     intro i _
     exact eLpNorm_hilbert_single i _
   exact tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds
-    hsum (fun _ => zero_le _) hbound
+    hsum (fun _ => zero_le) hbound
 
 private theorem eLpNorm_two_sq_eq_lintegral_enorm
     {α E : Type*} [MeasurableSpace α] [ENorm E]
     (μ : Measure α) (F : α → E) :
     eLpNorm F 2 μ ^ (2 : ℕ) = ∫⁻ x, ‖F x‖ₑ ^ (2 : ℝ) ∂μ := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
   norm_num only [ENNReal.toReal_ofNat]
   rw [← ENNReal.rpow_natCast (_ ^ (1 / (2 : ℝ))) 2,
     ← ENNReal.rpow_mul]
@@ -164,7 +165,7 @@ private theorem tendsto_h1NormSqOnUnweighted_of_tendsto_eLpNorm_two
     rw [eLpNorm_one_eq_lintegral_enorm]
     congr 2
     funext x
-    rw [← ofReal_norm_eq_enorm]
+    rw [← ofReal_norm]
     simp only [Real.norm_eq_abs]
   have hgradient : Tendsto
       (fun n => ∫⁻ x in U, ENNReal.ofReal (vecNormSq (F n x)) ∂volume)
@@ -183,7 +184,7 @@ private theorem tendsto_h1NormSqOnUnweighted_of_tendsto_eLpNorm_two
     rw [eLpNorm_two_sq_eq_lintegral_enorm]
     apply lintegral_congr
     intro x
-    rw [← ofReal_norm_eq_enorm, ENNReal.ofReal_rpow_of_nonneg
+    rw [← ofReal_norm, ENNReal.ofReal_rpow_of_nonneg
       (norm_nonneg _) (by norm_num)]
     congr 1
     rw [Real.rpow_two, HilbertVec.norm_sq_eq_sum_sq,
@@ -218,7 +219,7 @@ theorem exists_contDiff_tendsto_h1NormSqOnUnweighted_sub
       (isConvexApproxKernel_unitConvexApproxKernel (d := d))
       (by norm_num : (1 : ENNReal) ≤ 2) u.memL2 hr
       hscale
-  · letI : IsFiniteMeasure (volume.restrict U) := by
+  · let _ : IsFiniteMeasure (volume.restrict U) := by
       simpa only using hU.isFiniteMeasure_restrict_volume
     apply tendsto_h1NormSqOnUnweighted_of_tendsto_eLpNorm_two
     · intro n
@@ -229,7 +230,7 @@ theorem exists_contDiff_tendsto_h1NormSqOnUnweighted_sub
             rfl)
     · simpa only [w, H1Function.convexApproxSmoothH1_toFun] using
         tendsto_eLpNorm_convexApproxSmoothH1 hU u hr hball
-    · simpa only [w, smoothGrad, H1Function.convexApproxSmoothH1_grad] using
+    · simpa only [w, smoothGrad, H1Function.convexApproxSmoothH1_grad] using!
         tendsto_eLpNorm_hilbertGradient_sub_convexApproxSmoothH1
           hU u hball hr
 

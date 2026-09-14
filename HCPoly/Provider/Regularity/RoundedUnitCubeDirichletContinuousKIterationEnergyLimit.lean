@@ -20,7 +20,7 @@ uniform positive-order bound to the identified zero-trace weak limit.
 namespace Homogenization
 namespace HighContrast
 
-open Filter MeasureTheory Set
+open _root_.Filter MeasureTheory Set
 open scoped ENNReal Matrix.Norms.L2Operator Topology
 
 noncomputable section
@@ -63,13 +63,19 @@ theorem roundedUnitCubeDirichletContinuousKIterationIncrementTail_apply
           k).toH1Function.grad x := by
   induction n generalizing k with
   | zero =>
-      simpa only [Nat.add_zero] using
-        congrFun
-          (H1Function.sub_grad
+      change
+        (roundedUnitCubeDirichletContinuousKIteration abar hS h (k + 1) -
+            roundedUnitCubeDirichletContinuousKIteration abar hS h k).toH1Function.grad x =
+          (roundedUnitCubeDirichletContinuousKIteration abar hS h
+            (k + 1)).toH1Function.grad x -
             (roundedUnitCubeDirichletContinuousKIteration abar hS h
-              (k + 1)).toH1Function
-            (roundedUnitCubeDirichletContinuousKIteration abar hS h
-              k).toH1Function) x
+              k).toH1Function.grad x
+      exact congrFun
+        (H1Function.sub_grad
+          (roundedUnitCubeDirichletContinuousKIteration abar hS h
+            (k + 1)).toH1Function
+          (roundedUnitCubeDirichletContinuousKIteration abar hS h
+            k).toH1Function) x
   | succ n ih =>
       change
         (roundedUnitCubeDirichletContinuousKIteration abar hS h (k + 1) -
@@ -433,7 +439,7 @@ theorem unitCubeNormalizedContinuousKEnergy_limit_le_two_mul
         (hbound n)
   have hLlimit : (L G) ^ 2 ≤ M :=
     isClosed_Iic.mem_of_tendsto hLsqTendsto
-      (Filter.Eventually.of_forall hLbound)
+      (_root_.Filter.Eventually.of_forall hLbound)
   have hItendsto : ∀ t : ℝ,
       Tendsto (fun n ↦ continuousKSeminormIntegrand s.1 (F n) t) atTop
         (nhds (continuousKSeminormIntegrand s.1 G t)) :=
@@ -465,7 +471,7 @@ theorem unitCubeNormalizedContinuousKEnergy_limit_le_two_mul
         simpa only [mul_comm] using mul_le_mul_left (hpIbound n) p⁻¹
   have hIlimit : I G ≤ p⁻¹ * M :=
     hIfatou.trans
-      (liminf_le_of_frequently_le' (Filter.Frequently.of_forall hIbound))
+      (liminf_le_of_frequently_le' (_root_.Filter.Frequently.of_forall hIbound))
   have hpIlimit : p * I G ≤ M := by
     calc
       p * I G ≤ p * (p⁻¹ * M) := by
@@ -561,7 +567,7 @@ theorem exists_roundedUnitCubeDirichletContinuousKIterationEnergyLimit
     simpa only [F, G,
       roundedUnitCubeDirichletContinuousKIterationGradientHilbertL2,
       unitCubeGradientEuclideanL2FieldHilbertL2_eq_gradToHilbertVectorL2]
-      using hshift
+      using! hshift
   have hlimitEnergy :
       unitCubeNormalizedContinuousKEnergy s G ≤ 2 * M :=
     unitCubeNormalizedContinuousKEnergy_limit_le_two_mul

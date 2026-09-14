@@ -208,12 +208,10 @@ theorem scaledWork_service_from_contraction {eta lambda C p p' X : ℝ}
       have hsum := hfirst.add hsecond
       have hscale := hsum.const_mul eta⁻¹
       have hplus := hscale.const_add 1
-      convert hplus using 1
-      all_goals ring
+      convert hplus using 1 <;> first | rfl | ring
     have hlog := (hinner.log harg.ne').const_mul eta
     dsimp [f, curve, scaledWork]
-    convert hlog using 1
-    all_goals (field_simp; ring)
+    convert hlog using 1 <;> first | rfl | (field_simp; ring)
   have hdiff : DifferentiableOn ℝ f (Set.Icc (0 : ℝ) X) := by
     intro x hx
     exact (hderiv x hx).differentiableAt.differentiableWithinAt

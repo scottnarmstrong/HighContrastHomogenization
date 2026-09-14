@@ -50,8 +50,7 @@ theorem sum_range_eq_sum_Ico_descending (s : ℤ) (N : ℕ)
       omega
     refine ⟨j, Finset.mem_range.mpr ?_, ?_⟩
     · exact_mod_cast (show (j : ℤ) < (N : ℤ) by omega)
-    · dsimp only
-      omega
+    · omega
   · intro j hj
     rfl
 
@@ -100,8 +99,8 @@ theorem integrableOn_vecDot_diagonalWeakState_pullback
       (diagonalWeakState hq t a p r (matVecMul q y)).1 i)
       (volume.restrict (cubeSet R))
     rw [volume_restrict_cubeSet_eq_volume_restrict_openCubeSet]
-    simpa only [adaptedDomainAt_carrier, hidentityCell] using hiOpen
-  simpa only [vecDot] using integrable_finset_sum
+    simpa only [adaptedDomainAt_carrier, hidentityCell] using! hiOpen
+  simpa only [vecDot] using! integrable_finsetSum
     (s := (Finset.univ : Finset (Fin d)))
     (fun i hiMem ↦ (hi i).const_mul (Qcen i))
 
@@ -155,7 +154,7 @@ theorem integral_double_avsum_le_of_half_integral_row_bounds
       Integrable (fun a ↦ avsum W (fun w ↦ pair z w a)) μ := by
     intro z hz
     unfold avsum
-    exact (integrable_finset_sum W fun w hw ↦ hint z hz w hw).const_mul _
+    exact (integrable_finsetSum W fun w hw ↦ hint z hz w hw).const_mul _
   have hterm : ∀ w ∈ W,
       avsum Z (fun z ↦ ∫ a, pair z w a ∂μ) ≤
         2 * (energy w * load w) := by
@@ -250,8 +249,10 @@ theorem volumeAverage_vecDot_fst_eq_vecDot_blockCellAverage
     (hF : ∀ i, IntegrableOn (fun x ↦ (F x).1 i) U volume) :
     volumeAverage U (fun x ↦ vecDot Qcen (F x).1) =
       vecDot Qcen (blockCellAverage U F).1 := by
-  simpa only [blockCellAverage_fst, volumeAverageVec] using
-    volumeAverage_vecDot_left (U := U) Qcen (fun x ↦ (F x).1) hF
+  rw [blockCellAverage_fst]
+  change volumeAverage U (fun x ↦ vecDot Qcen (F x).1) =
+    vecDot Qcen (fun i ↦ volumeAverage U (fun x ↦ (F x).1 i))
+  exact volumeAverage_vecDot_left (U := U) Qcen (fun x ↦ (F x).1) hF
 
 theorem cubeBesovCircDepthAverage_primal_eq_nested_cellPair_avsum
     {q : Mat d} (hq : q.PosDef) {k s : ℤ} (hks : k ≤ s)
@@ -333,13 +334,13 @@ theorem cutoff_projectionResidual_le_sharp
   obtain ⟨T, hT, hxT⟩ := exists_mem_descendantsAtDepth_of_mem_cubeSet j hx
   have hphiTopT : MemLp phi (⊤ : ENNReal) (normalizedCubeMeasure T) := by
     apply memLp_top_of_bound hphiCont.aestronglyMeasurable 2
-    exact Filter.Eventually.of_forall fun y ↦ by
+    exact _root_.Filter.Eventually.of_forall fun y ↦ by
       rw [Real.norm_eq_abs, abs_of_nonneg (adaptedPreYoungCutoff_nonneg hq t _)]
       exact adaptedPreYoungCutoff_le_two hq t _
   have hphiTwoT : MemLp phi 2 (normalizedCubeMeasure T) :=
     hphiTopT.mono_exponent (by norm_num)
   have hTscale : T.scale = s - (j : ℤ) := by
-    simpa only [R] using scale_eq_sub_of_mem_descendantsAtDepth hT
+    simpa only [R] using! scale_eq_sub_of_mem_descendantsAtDepth hT
   have hosc := adaptedPreYoungCutoff_pullback_sub_cubeAverage_sharp
     (s := s - (j : ℤ)) (t := t) (H := (t - s) + (j : ℤ))
     hq hTscale (by omega) hxT
@@ -396,23 +397,27 @@ theorem abs_cutoff_projected_primal_pairing_le_depth_sum
       (fun y ↦ adaptedPreYoungCutoff_le_two hq t _)
   have hfTopR : MemLp f (⊤ : ENNReal) (normalizedCubeMeasure R) := by
     apply memLp_top_of_bound (hphiCont.sub continuous_const).aestronglyMeasurable 2
-    exact Filter.Eventually.of_forall fun y ↦ by
+    exact _root_.Filter.Eventually.of_forall fun y ↦ by
+      have h1 : 0 ≤ adaptedPreYoungCutoff q hq t (matVecMul q y) :=
+        adaptedPreYoungCutoff_nonneg hq t _
+      have h2 : adaptedPreYoungCutoff q hq t (matVecMul q y) ≤ 2 :=
+        adaptedPreYoungCutoff_le_two hq t _
       rw [Real.norm_eq_abs, abs_le]
       constructor <;>
-        linarith only [adaptedPreYoungCutoff_nonneg hq t (matVecMul q y),
-          adaptedPreYoungCutoff_le_two hq t (matVecMul q y),
-          hphiAvg0, hphiAvg2]
+        simp only [phi, Pi.sub_apply] <;>
+        linarith only [h1, h2, hphiAvg0, hphiAvg2]
   have hf : MemLp f 1 (normalizedCubeMeasure R) :=
     hfTopR.mono_exponent (by norm_num)
   have hfFluct : ∀ j : ℕ, ∀ T ∈ descendantsAtDepth R j,
       MemLp (cubeFluctuation T f) (⊤ : ENNReal)
         (normalizedCubeMeasure T) := by
     intro j T hT
-    simpa only [cubeFluctuation] using
-      (memLp_on_descendant_of_memLp hT hfTopR).sub
-        (memLp_const (cubeAverage T f))
+    change MemLp (f - fun x ↦ cubeAverage T f) (⊤ : ENNReal)
+      (normalizedCubeMeasure T)
+    exact (memLp_on_descendant_of_memLp hT hfTopR).sub
+      (memLp_const (cubeAverage T f))
   have hmean : cubeAverage R f = 0 := by
-    simpa only [f, cubeFluctuation] using cubeAverage_cubeFluctuation R phi
+    simpa only [f, cubeFluctuation] using! cubeAverage_cubeFluctuation R phi
   exact abs_cubeBesovPairing_cubeProjection_le_depth_sum R f G N
     (fun j ↦ 32 * (d : ℝ) ^ 2 * smoothTransitionProfile.derivBound *
       (3 : ℝ) ^ (-((t - s) + (j : ℤ))))
@@ -605,9 +610,9 @@ theorem projected_primal_pairing_tendsto_physical
     (hfInt : IntegrableOn f (cubeSet Q) volume)
     (hC : 0 ≤ C)
     (hfBound : ∀ x ∈ cubeSet Q, |f x| ≤ C) :
-    Filter.Tendsto
+    _root_.Filter.Tendsto
         (fun n ↦ cubeBesovPairing Q f (cubeProjection Q (n + 1) G))
-        Filter.atTop (nhds (cubeBesovPairing Q f G)) := by
+        _root_.Filter.atTop (nhds (cubeBesovPairing Q f G)) := by
   have hlim :=
     tendsto_cubeBesovPairing_projection_left_of_integrableOn_of_bounded
       Q G f C hGInt hfInt hC hfBound

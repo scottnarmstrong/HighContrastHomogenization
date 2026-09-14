@@ -200,13 +200,13 @@ theorem Homogenization.HighContrast.Initialization.random_source_adapted_initial
                   2 * (d : ℝ) *
                     Real.log (Homogenization.HighContrast.initIdentityConst E))
     := by
-  haveI : NeZero d := ⟨by omega⟩
-  haveI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : NeZero d := ⟨by omega⟩
+  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   obtain ⟨CdQ, hCdQ0, hMoment, hLog⟩ :=
     Homogenization.HighContrast.Initialization.exists_initialization_constant d hd g
   refine ⟨CdQ, hCdQ0, ?_⟩
   intro Cd hCd P E Ψ K S hPprob hstat hdag jStar M hw Y hY
-  haveI := hPprob
+  have := hPprob
   have hE : Homogenization.IsSymmetricBlockMat E := hdag.refBlock_isSymm
   have hEpd : Homogenization.Book.Ch02.BlockPosDef E := hdag.refBlock_posDef
   have hsharp : Homogenization.BlockMatLoewnerLE

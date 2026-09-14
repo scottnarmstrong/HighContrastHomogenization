@@ -70,9 +70,10 @@ theorem exists_normalized_quenchedMinimalScale_of_badTailEvent_bound
     intro epsilon hepsilon
     have hpow :
         Tendsto (fun j : ℕ => Real.rpow (3 : ℝ) (j : ℝ)) atTop atTop := by
-      simpa only [← Real.rpow_natCast] using
-        (tendsto_pow_atTop_atTop_of_one_lt (by norm_num : (1 : ℝ) < 3) :
-          Tendsto (fun j : ℕ => (3 : ℝ) ^ j) atTop atTop)
+      have h : Tendsto (fun j : ℕ => (3 : ℝ) ^ j) atTop atTop :=
+        tendsto_pow_atTop_atTop_of_one_lt (by norm_num : (1 : ℝ) < 3)
+      have hcast : ∀ j : ℕ, (3 : ℝ) ^ j = Real.rpow 3 (j : ℝ) := fun j => by simp
+      simpa only [hcast] using h
     have hdiv :
         Tendsto (fun j : ℕ => Real.rpow (3 : ℝ) (j : ℝ) / B) atTop atTop :=
       hpow.atTop_div_const hBpos

@@ -187,7 +187,7 @@ theorem unitRangeLaw_triadicRebasedLaw {P : Measure (CoeffSpace d)}
     ProbabilityTheory.indep_of_indep_of_le_right
       (ProbabilityTheory.indep_of_indep_of_le_left hIndepDilated hUle) hVle
   have hMap := indep_map_measurableEquiv (μ := P) e hComap
-  simpa [triadicRebasedLaw, e] using hMap
+  simpa [triadicRebasedLaw, e] using! hMap
 
 end
 

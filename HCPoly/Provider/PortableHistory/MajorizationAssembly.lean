@@ -48,8 +48,8 @@ private theorem row_combine {W X Y V R E c : ℝ≥0∞} (hE : E ≤ c * R) :
 private theorem const_absorb {c C : ℝ≥0∞} (hC : 1 ≤ C) (hcC : 1 + c ≤ C) (X Y Z : ℝ≥0∞) :
     X + Y + (1 + c) * Z ≤ C * (X + Y + Z) := by
   calc X + Y + (1 + c) * Z ≤ C * X + C * Y + C * Z :=
-        add_le_add (add_le_add (le_mul_of_one_le_left (zero_le _) hC)
-          (le_mul_of_one_le_left (zero_le _) hC)) (mul_le_mul_left hcC Z)
+        add_le_add (add_le_add (le_mul_of_one_le_left (zero_le) hC)
+          (le_mul_of_one_le_left (zero_le) hC)) (mul_le_mul_left hcC Z)
     _ = C * (X + Y + Z) := by ring
 
 /-! ## The constant -/
@@ -108,7 +108,7 @@ theorem portable_majorization [NeZero d] [IsProbabilityMeasure P] {Q a rhoMax : 
   rcases eq_or_lt_of_le hbT with hEq | hlt
   · subst hEq
     rw [portableProfile_self Q a rhoMax hP hq hlj hfin hjb hT]
-    exact le_mul_of_one_le_left (zero_le _) hC0
+    exact le_mul_of_one_le_left (zero_le) hC0
   have hsplit : nonlinearHistory P Q a q jStar T =
       (∑ j ∈ Finset.Ico jStar b,
           ENNReal.ofReal ((3 : ℝ) ^ (-a * ((T : ℝ) - 1 - (j : ℝ))) *
@@ -136,7 +136,7 @@ theorem portable_majorization [NeZero d] [IsProbabilityMeasure P] {Q a rhoMax : 
             frakH Q (relMean P q j T)) :=
       Finset.single_le_sum (f := fun j : ℤ =>
         ENNReal.ofReal ((3 : ℝ) ^ (-a * ((T : ℝ) - 1 - (j : ℝ))) *
-          frakH Q (relMean P q j T))) (fun _ _ => zero_le _) hbmem
+          frakH Q (relMean P q j T))) (fun _ _ => zero_le) hbmem
     have hrw : (3 : ℝ) ^ (-a * ((T : ℝ) - (b : ℝ))) * frakH Q (relMean P q b T) *
           (1 / (1 - (3 : ℝ) ^ (-a))) =
         (3 : ℝ) ^ (-a) / (1 - (3 : ℝ) ^ (-a)) *

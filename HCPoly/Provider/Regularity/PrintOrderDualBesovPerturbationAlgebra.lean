@@ -155,11 +155,11 @@ private theorem cubeBesovDualFullNorm_finset_sum_le
   | @insert a S ha ih =>
       have hterm : MemLp (fun x ↦ c a * F x a) (2 : ℝ≥0∞)
           (normalizedCubeMeasure Q) := by
-        simpa [Pi.smul_apply, smul_eq_mul] using (hF a).const_smul (c a)
+        simpa [Pi.smul_apply, smul_eq_mul] using! (hF a).const_smul (c a)
       have hsum : MemLp (fun x ↦ ∑ j ∈ S, c j * F x j) (2 : ℝ≥0∞)
           (normalizedCubeMeasure Q) := by
-        exact MeasureTheory.memLp_finset_sum S fun j _hj ↦ by
-          simpa [Pi.smul_apply, smul_eq_mul] using (hF j).const_smul (c j)
+        exact MeasureTheory.memLp_finsetSum S fun j _hj ↦ by
+          simpa [Pi.smul_apply, smul_eq_mul] using! (hF j).const_smul (c j)
       simp_rw [Finset.sum_insert ha]
       calc
         cubeBesovDualFullNorm Q s (2 : ℝ≥0∞) (2 : ℝ≥0∞)

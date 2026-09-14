@@ -270,17 +270,22 @@ theorem renormBase_endpointTolerance_mono
   have hq0 : q0 ≤ endpointWindowIndex L n := endpointWindowIndex_mono hL hn
   let j : ℕ := endpointWindowIndex L n - q0
   have hidx : endpointWindowIndex L n = q0 + j := by dsimp only [j]; omega
-  rw [renormBase, renormBase]
-  dsimp only [endpointTolerance, endpointReferenceOffset, endpointWindowLength]
-  rw [show endpointWindowIndex L n - q0 = j by rfl, hidx]
   have hfac : 1 ≤ (3 : ℝ) ^ ((mu * (D : ℝ) - eta) * (j : ℝ)) :=
     Real.one_le_rpow (by norm_num)
       (mul_nonneg (sub_nonneg.mpr hetaD) (Nat.cast_nonneg j))
+  have hLHS : renormBase g nu mu delta Gain (D * q0) 0 =
+      Gain⁻¹ * delta * (3 : ℝ) ^ ((g - nu) + mu * (D * q0 : ℕ)) := by
+    rw [renormBase]; norm_num
   have hleft : 0 ≤ Gain⁻¹ * delta *
       (3 : ℝ) ^ ((g - nu) + mu * (D * q0 : ℕ)) := by positivity
-  convert mul_le_mul_of_nonneg_left hfac hleft using 1
-  · ring_nf
-  · have hexp : -eta * (j : ℝ) +
+  have hfactor : renormBase g nu mu (endpointTolerance delta eta q0 L n) Gain
+      (endpointReferenceOffset A D L n) (endpointWindowLength A L n) =
+      (Gain⁻¹ * delta * (3 : ℝ) ^ ((g - nu) + mu * (D * q0 : ℕ))) *
+        (3 : ℝ) ^ ((mu * (D : ℝ) - eta) * (j : ℝ)) := by
+    rw [renormBase]
+    dsimp only [endpointTolerance, endpointReferenceOffset, endpointWindowLength]
+    rw [show endpointWindowIndex L n - q0 = j by rfl, hidx]
+    have hexp : -eta * (j : ℝ) +
         ((g - nu) + mu *
           ((((A + D) * (q0 + j) : ℕ) : ℝ) -
             ((A * (q0 + j) : ℕ) : ℝ))) =
@@ -296,29 +301,24 @@ theorem renormBase_endpointTolerance_mono
           (Gain⁻¹ * delta) * ((3 : ℝ) ^ (-eta * (j : ℝ)) *
             (3 : ℝ) ^ ((g - nu) + mu *
               ((((A + D) * (q0 + j) : ℕ) : ℝ) -
-                ((A * (q0 + j) : ℕ) : ℝ)))) := by ring
+                ((A * (q0 + j) : ℕ) : ℝ)))) := by ac_rfl
       _ = (Gain⁻¹ * delta) * (3 : ℝ) ^
           (-eta * (j : ℝ) + ((g - nu) + mu *
             ((((A + D) * (q0 + j) : ℕ) : ℝ) -
               ((A * (q0 + j) : ℕ) : ℝ)))) := by
-          congr 1
-          exact (Real.rpow_add (by norm_num : (0 : ℝ) < 3)
-            (-eta * (j : ℝ)) ((g - nu) + mu *
-              ((((A + D) * (q0 + j) : ℕ) : ℝ) -
-                ((A * (q0 + j) : ℕ) : ℝ)))).symm
+          rw [← Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
       _ = (Gain⁻¹ * delta) * (3 : ℝ) ^
           (((g - nu) + mu * ((D * q0 : ℕ) : ℝ)) +
             (mu * (D : ℝ) - eta) * (j : ℝ)) := by rw [hexp]
       _ = (Gain⁻¹ * delta) *
           ((3 : ℝ) ^ ((g - nu) + mu * ((D * q0 : ℕ) : ℝ)) *
             (3 : ℝ) ^ ((mu * (D : ℝ) - eta) * (j : ℝ))) := by
-          congr 1
-          exact Real.rpow_add (by norm_num : (0 : ℝ) < 3)
-            ((g - nu) + mu * ((D * q0 : ℕ) : ℝ))
-            ((mu * (D : ℝ) - eta) * (j : ℝ))
+          rw [Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
       _ = Gain⁻¹ * delta *
           (3 : ℝ) ^ ((g - nu) + mu * ((D * q0 : ℕ) : ℝ)) *
-            (3 : ℝ) ^ ((mu * (D : ℝ) - eta) * (j : ℝ)) := by ring
+            (3 : ℝ) ^ ((mu * (D : ℝ) - eta) * (j : ℝ)) := by ac_rfl
+  rw [hLHS, hfactor]
+  exact le_mul_of_one_le_right hleft hfac
 
 /-- Once the net separation exponent is at least one, the moving
 renormalization base gains at least one factor of three per quotient step. -/
@@ -338,17 +338,16 @@ theorem rpow_index_growth_le_renormBase_endpoint
     apply Real.rpow_le_rpow_of_exponent_le (by norm_num : (1 : ℝ) ≤ 3)
     have hj : 0 ≤ (j : ℝ) := Nat.cast_nonneg j
     nlinarith only [hnet, hj]
-  rw [renormBase]
-  dsimp only [endpointTolerance, endpointReferenceOffset, endpointWindowLength]
-  rw [show endpointWindowIndex L n - q0 = j by rfl, hidx]
-  have hbase0 : 0 ≤ renormBase g nu mu delta Gain (D * q0) 0 :=
-    zero_le_one.trans hbase
-  have hmul := mul_le_mul hbase hpow
-    (Real.rpow_nonneg (by norm_num) _) hbase0
-  convert hmul using 1
-  · ring
-  · rw [renormBase]
-    simp only [Nat.cast_zero, sub_zero]
+  have hLHS : renormBase g nu mu delta Gain (D * q0) 0 =
+      Gain⁻¹ * delta * (3 : ℝ) ^ ((g - nu) + mu * (D * q0 : ℕ)) := by
+    rw [renormBase]; norm_num
+  have hfactor : renormBase g nu mu (endpointTolerance delta eta q0 L n) Gain
+      (endpointReferenceOffset A D L n) (endpointWindowLength A L n) =
+      renormBase g nu mu delta Gain (D * q0) 0 *
+        (3 : ℝ) ^ ((mu * (D : ℝ) - eta) * (j : ℝ)) := by
+    rw [hLHS, renormBase]
+    dsimp only [endpointTolerance, endpointReferenceOffset, endpointWindowLength]
+    rw [show endpointWindowIndex L n - q0 = j by rfl, hidx]
     have hexp : -eta * (j : ℝ) +
         ((g - nu) + mu *
           ((((A + D) * (q0 + j) : ℕ) : ℝ) -
@@ -365,13 +364,12 @@ theorem rpow_index_growth_le_renormBase_endpoint
           (Gain⁻¹ * delta) * ((3 : ℝ) ^ (-eta * (j : ℝ)) *
             (3 : ℝ) ^ ((g - nu) + mu *
               ((((A + D) * (q0 + j) : ℕ) : ℝ) -
-                ((A * (q0 + j) : ℕ) : ℝ)))) := by ring
+                ((A * (q0 + j) : ℕ) : ℝ)))) := by ac_rfl
       _ = (Gain⁻¹ * delta) * (3 : ℝ) ^
             (-eta * (j : ℝ) + ((g - nu) + mu *
               ((((A + D) * (q0 + j) : ℕ) : ℝ) -
                 ((A * (q0 + j) : ℕ) : ℝ)))) := by
-            congr 1
-            exact (Real.rpow_add (by norm_num : (0 : ℝ) < 3) _ _).symm
+            rw [← Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
       _ = (Gain⁻¹ * delta) * (3 : ℝ) ^
           (((g - nu) + mu * ((D * q0 : ℕ) : ℝ)) +
             (mu * (D : ℝ) - eta) * (j : ℝ)) := by rw [hexp]
@@ -379,7 +377,9 @@ theorem rpow_index_growth_le_renormBase_endpoint
           (3 : ℝ) ^ ((g - nu) + mu * ((D * q0 : ℕ) : ℝ)) *
             (3 : ℝ) ^ ((mu * (D : ℝ) - eta) * (j : ℝ)) := by
             rw [Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
-            ring
+            ac_rfl
+  rw [hfactor, show endpointWindowIndex L n - q0 = j by rfl]
+  exact hpow.trans (le_mul_of_one_le_left (Real.rpow_nonneg (by norm_num) _) hbase)
 
 /-- A triadic bracket controls every affine natural generation built from its
 index, with the constant tail paid by the lower bound `3 ≤ base`. -/

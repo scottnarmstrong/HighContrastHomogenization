@@ -155,7 +155,7 @@ theorem finite_cell_majorant_three_max_moment_le [NeZero d]
     have hsub : AEStronglyMeasurable (fun x => toFullBlockMat
         (blockSub (coarseBlock (adaptedCellAt q r z) x)
           (adaptedMean P q r)) alpha beta) P := by
-      simpa only [Recurrence.toFullBlockMat_blockSub_apply] using
+      simpa only [Recurrence.toFullBlockMat_blockSub_apply] using!
         hm'.sub (aestronglyMeasurable_const
           (b := toFullBlockMat (adaptedMean P q r) alpha beta))
     exact hsub.const_mul (c i r)
@@ -173,7 +173,7 @@ theorem finite_cell_majorant_three_max_moment_le [NeZero d]
     have hsub : AEStronglyMeasurable (fun x => toFullBlockMat
         (blockSub (coarseBlock (adaptedCellAt q r z) x)
           (adaptedMean P q r)) alpha beta) P := by
-      simpa only [Recurrence.toFullBlockMat_blockSub_apply] using
+      simpa only [Recurrence.toFullBlockMat_blockSub_apply] using!
         hm'.sub (aestronglyMeasurable_const
           (b := toFullBlockMat (adaptedMean P q r) alpha beta))
     exact hsub.const_mul (c i r)

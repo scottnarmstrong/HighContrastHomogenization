@@ -181,7 +181,8 @@ private theorem exists_harmonic_centralChild_normalized_hessian_energy_bound_rea
           Q _ (hQmem j)
       _ = _ := by rw [Finset.mul_sum]
   have hscaleP : cubeScaleFactor P = cubeScaleFactor Q / 3 := by
-    simpa [P] using cubeScaleFactor_childCube Q (fun _ => (1 : Fin 3))
+    have h := cubeScaleFactor_childCube Q (fun _ => (1 : Fin 3))
+    simpa [P, centralChild] using h
   have hscaleQpos : 0 < cubeScaleFactor Q := by
     simpa [cubeScaleFactor] using
       zpow_pos (by norm_num : (0 : ℝ) < 3) Q.scale

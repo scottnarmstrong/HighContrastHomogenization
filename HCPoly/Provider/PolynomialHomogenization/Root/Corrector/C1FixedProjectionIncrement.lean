@@ -65,7 +65,7 @@ private theorem sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube
   rw [sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
   rw [weightedGradNorm_congr_coeff_ae_on _
     (Book.Ch03.publicCoeffField_ae_eq_openCubeSet (originCube d k) a)]
-  rw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
+  erw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
   rw [ENNReal.toReal_ofReal]
   unfold Book.Ch03.h1EnergyNormOnCube
   exact Real.sqrt_nonneg _
@@ -179,7 +179,7 @@ theorem finiteAffineDifferenceEnergy_le_exactResiduals
   have htri := sqrt_normalizedLocalSymmetricEnergy_sub_le_increment
     hEll hvol hvoltop r1.toH1.gradToHilbertVectorL2
       r0.toH1.gradToHilbertVectorL2
-  rw [← hclass,
+  erw [← hclass,
     sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube,
     sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube,
     sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube] at htri

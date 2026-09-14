@@ -175,7 +175,7 @@ theorem exists_coupledWitnessAssembly (d : ℕ) (_hd : 2 ≤ d)
   · positivity
   intro P E Psi K S Abar Nann hP hstat hunit hdag hAbar hAbarPos
     hcontrast hsandwich
-  letI : IsProbabilityMeasure P := hP
+  let : IsProbabilityMeasure P := hP
   obtain ⟨D⟩ := hdata P E Psi K S Abar Nann hP hstat hunit hdag hAbar
     hAbarPos hcontrast hsandwich
   have heta : (d : ℝ) - 2 * g = 2 * D.mu := by

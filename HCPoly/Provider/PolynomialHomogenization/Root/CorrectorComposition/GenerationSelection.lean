@@ -47,7 +47,7 @@ theorem three_zpow_le_of_le {m n : ℤ} (h : m ≤ n) :
 
 theorem lt_of_three_zpow_lt {m n : ℤ} (h : (3 : ℝ) ^ m < (3 : ℝ) ^ n) : m < n := by
   by_contra hc
-  push_neg at hc
+  push Not at hc
   exact absurd h (not_lt.mpr (three_zpow_le_of_le hc))
 
 theorem three_zpow_succ (m : ℤ) :

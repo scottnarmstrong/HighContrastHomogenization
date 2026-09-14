@@ -33,7 +33,7 @@ private theorem ennreal_rpow_half_sq (x : ℝ≥0∞) :
 private theorem volumeAverage_eq_setAverage {d : ℕ}
     (U : Set (Vec d)) (f : Vec d → ℝ) :
     volumeAverage U f = ⨍ x in U, f x ∂volume := by
-  simpa only [volumeAverage, smul_eq_mul] using
+  simpa only [volumeAverage, smul_eq_mul, measureReal_def] using
     (MeasureTheory.setAverage_eq volume f U).symm
 
 private theorem coefficientEnergyDensity_ae_nonneg {d : ℕ}

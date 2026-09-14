@@ -26,7 +26,7 @@ variable {d : ℕ}
 
 private theorem quasiMeasurePreserving_triadicDilateVec (N : ℕ) :
     Measure.QuasiMeasurePreserving (triadicDilateVec (d := d) N) volume volume := by
-  simpa [triadicDilateVec, Pi.smul_apply, smul_eq_mul] using
+  simpa [triadicDilateVec, Pi.smul_apply, smul_eq_mul] using!
     (Measure.quasiMeasurePreserving_smul (μ := volume)
       (pow_ne_zero N (by norm_num : (3 : ℝ) ≠ 0)))
 
@@ -201,7 +201,7 @@ private def physical_scale_coeffOn (N : ℕ) (a : CoeffSpace d)
     have hmem : ∀ᵐ x ∂ volumeMeasureOn
         ((cubeDomain (dilateCube (-(N : ℤ)) Q) : Domain d) : Set (Vec d)),
         x ∈ openCubeSet (dilateCube (-(N : ℤ)) Q) := by
-      simpa only [volumeMeasureOn] using
+      simpa only [volumeMeasureOn, Book.Ch02.cubeDomain_coe] using
         MeasureTheory.ae_restrict_mem
           (measurableSet_openCubeSet (dilateCube (-(N : ℤ)) Q))
     filter_upwards [ae_restrict_of_ae hpull, hmem] with x hx hxQ

@@ -69,8 +69,8 @@ theorem witnessEccentricity_le_rpow_of_hopCount {d Nhop : ℕ} (hd : 1 ≤ d)
     (hproj : projDist 1 m ≤ chop * (Nhop : ℝ))
     (hcount : (Nhop : ℝ) ≤ CN * Lam) :
     witnessEccentricity m ≤ (2 + Pi) ^ radiusExponent chop CN := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   let base : ℝ := 2 + Pi
   have hbase0 : 0 < base := by dsimp [base]; linarith only [hPi]
   have hpath : projDist 1 m ≤ chop * (CN * Lam) :=
@@ -90,8 +90,8 @@ theorem gridRatio_roundedGrid_one_le_rpow {d : ℕ} (hd : 2 ≤ d) {jStar : ℤ}
     (hm : m.PosDef) (hPi : 1 ≤ Pi)
     (hecc : witnessEccentricity m ≤ (2 + Pi) ^ radiusExponent chop CN) :
     gridRatio (roundedGrid jStar m) 1 ≤ (2 + Pi) ^ gridExponent d chop CN := by
-  letI : NeZero d := ⟨by omega⟩
-  letI : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
+  let : NeZero d := ⟨by omega⟩
+  let : Nonempty (Fin d) := Fin.pos_iff_nonempty.mp (by omega)
   let base : ℝ := 2 + Pi
   let e : ℝ := witnessEccentricity m
   let K : ℝ := witnessGridConstant d * (4 : ℝ) ^ d

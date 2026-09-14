@@ -79,7 +79,7 @@ namespace Homogenization
 namespace HighContrast
 namespace RowSupply
 
-open Localization
+open _root_.Homogenization.HighContrast.Localization
 open Book Book.Ch03 MeasureTheory
 open scoped ENNReal Matrix.Norms.L2Operator
 

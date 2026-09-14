@@ -77,7 +77,7 @@ theorem integral_primal_flux_physical_oscillation_eq_cutoff_row
   have hparent : ∀ z ∈ Z, Integrable (parent z) P := by
     intro z hz
     rw [hparentEq z hz]
-    exact integrable_finset_sum (Finset.univ : Finset (Fin d)) fun i hi ↦
+    exact integrable_finsetSum (Finset.univ : Finset (Fin d)) fun i hi ↦
       (hcoord z hz i).const_mul (Pcen i)
   change (∫ a, avsum Z (fun z ↦ parent z a) ∂P) = _
   rw [integral_avsum_eq_avsum_integral Z parent hparent]
@@ -87,7 +87,7 @@ theorem integral_primal_flux_physical_oscillation_eq_cutoff_row
   intro z hz
   change (∫ a, parent z a ∂P) = _
   rw [hparentEq z hz]
-  rw [integral_finset_sum]
+  rw [integral_finsetSum]
   · apply Finset.sum_congr rfl
     intro i hi
     rw [integral_const_mul]
@@ -197,7 +197,7 @@ theorem integral_adjoint_gradient_physical_oscillation_eq_cutoff_row
   have hparent : ∀ z ∈ Z, Integrable (parent z) P := by
     intro z hz
     rw [hparentEq z hz]
-    exact integrable_finset_sum (Finset.univ : Finset (Fin d)) fun i hi ↦
+    exact integrable_finsetSum (Finset.univ : Finset (Fin d)) fun i hi ↦
       (hcoord z hz i).const_mul (Qcen i)
   change (∫ a, avsum Z (fun z ↦ parent z a) ∂P) = _
   rw [integral_avsum_eq_avsum_integral Z parent hparent]
@@ -207,7 +207,7 @@ theorem integral_adjoint_gradient_physical_oscillation_eq_cutoff_row
   intro z hz
   change (∫ a, parent z a ∂P) = _
   rw [hparentEq z hz]
-  rw [integral_finset_sum]
+  rw [integral_finsetSum]
   · apply Finset.sum_congr rfl
     intro i hi
     rw [integral_const_mul]
@@ -319,7 +319,7 @@ theorem integral_adjoint_flux_physical_oscillation_eq_cutoff_row
   have hparent : ∀ z ∈ Z, Integrable (parent z) P := by
     intro z hz
     rw [hparentEq z hz]
-    exact integrable_finset_sum (Finset.univ : Finset (Fin d)) fun i hi ↦
+    exact integrable_finsetSum (Finset.univ : Finset (Fin d)) fun i hi ↦
       (hcoord z hz i).const_mul (Pcen i)
   change (∫ a, avsum Z (fun z ↦ parent z a) ∂P) = _
   rw [integral_avsum_eq_avsum_integral Z parent hparent]
@@ -329,7 +329,7 @@ theorem integral_adjoint_flux_physical_oscillation_eq_cutoff_row
   intro z hz
   change (∫ a, parent z a ∂P) = _
   rw [hparentEq z hz]
-  rw [integral_finset_sum]
+  rw [integral_finsetSum]
   · apply Finset.sum_congr rfl
     intro i hi
     rw [integral_const_mul]

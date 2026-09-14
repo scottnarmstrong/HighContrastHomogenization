@@ -155,7 +155,7 @@ theorem centered_scale_count_le [NeZero d] [IsProbabilityMeasure P] {Q rhoMax : 
     _ = ∑ w ∈ Z, ∫⁻ x, ENNReal.ofReal ((3 : ℝ) ^ (-rhoMax * ((n : ℝ) - (j : ℝ))) *
             blockSize (blockSub (adaptedResponse q j w x) (adaptedMean P q j))
               (adaptedMean P q n)) ^ Q ∂P := by
-        refine lintegral_finset_sum' Z fun w _ => ?_
+        refine lintegral_finsetSum' Z fun w _ => ?_
         exact ENNReal.continuous_rpow_const.measurable.comp_aemeasurable
           (ENNReal.measurable_ofReal.comp_aemeasurable
             ((PortableHistory.aemeasurable_blockSize_coarseBlock_sub
@@ -206,7 +206,7 @@ theorem centeredHistory_le_sum_scales [NeZero d] [IsProbabilityMeasure P] {Q rho
         exact iSup_le fun j => iSup_le fun h1 => iSup_le fun h2 =>
           le_iSup_of_le j (le_iSup_of_le (Finset.mem_Icc.mpr ⟨h1, h2⟩) le_rfl)
     _ = _ := by
-        refine lintegral_finset_sum' _ fun j _ => ?_
+        refine lintegral_finsetSum' _ fun j _ => ?_
         exact ENNReal.continuous_rpow_const.measurable.comp_aemeasurable
           (PortableHistory.aemeasurable_adaptedCellSup hqPD
             (Recurrence.isSymmetricBlockMat_adaptedMean P q n) hpdn

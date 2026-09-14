@@ -79,7 +79,7 @@ theorem exists_canonicalFiniteCorrectorSameProjectionDecayConstants
       (show H1Function (localGradientCube d m) from by
         simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
           finiteAffineBoundaryH1 (m : ℤ) e).grad = fun _ ↦ e := by
-    simpa only using finiteAffineBoundaryH1_grad (m := (m : ℤ)) e
+    simpa only using! finiteAffineBoundaryH1_grad (m := (m : ℤ)) e
   have hqm : q ≤ m := (Finset.mem_Icc.mp hq).2
   have hmu : volumeMeasureOn (openCubeSet (originCube d (q : ℤ))) ≤
       volumeMeasureOn (openCubeSet (originCube d (m : ℤ))) :=

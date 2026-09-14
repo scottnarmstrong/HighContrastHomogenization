@@ -107,16 +107,20 @@ theorem lintegral_weightedNonnegativeKernel_rpow_two_le
       A * B * ∫⁻ y, f y ^ (2 : ℝ) ∂ν := by
   have hKfq : Measurable
       (Function.uncurry fun x y => K x y * (f y ^ (2 : ℝ) / q y)) := by
-    simpa only [Function.uncurry_apply_pair] using
-      hK.mul (((hf.comp measurable_snd).pow_const (2 : ℝ)).div
-        (hq.comp measurable_snd))
+    rw [show (Function.uncurry fun x y => K x y * (f y ^ (2 : ℝ) / q y)) =
+        (Function.uncurry K * fun z : α × β =>
+          (f z.2 ^ (2 : ℝ) / q z.2)) from by
+      funext z; rfl]
+    exact hK.mul (((hf.comp measurable_snd).pow_const (2 : ℝ)).div
+      (hq.comp measurable_snd))
   have hpoint :
       ∀ᵐ x ∂μ, (∫⁻ y, K x y * f y ∂ν) ^ (2 : ℝ) ≤
         A * p x * ∫⁻ y, K x y * (f y ^ (2 : ℝ) / q y) ∂ν := by
     filter_upwards [hrow] with x hx
     have hKx : AEMeasurable (K x) ν := by
-      simpa only [Function.comp_apply, Function.uncurry_apply_pair] using
-        (hK.comp measurable_prodMk_left).aemeasurable
+      rw [show K x = (Function.uncurry K) ∘ (fun y => (x, y)) from by
+        funext y; rfl]
+      exact (hK.comp measurable_prodMk_left).aemeasurable
     exact (lintegral_weighted_mul_rpow_two_le ν hKx hf.aemeasurable
       hq.aemeasurable hq0 hqtop).trans (mul_le_mul_left hx _)
   have hcolWeighted :
@@ -125,8 +129,9 @@ theorem lintegral_weightedNonnegativeKernel_rpow_two_le
     filter_upwards [hcol] with y hy
     have hKpy : Measurable (fun x => K x y * p x) := by
       have hKy : Measurable (fun x => K x y) := by
-        simpa only [Function.comp_apply, Function.uncurry_apply_pair] using
-          hK.comp measurable_prodMk_right
+        rw [show (fun x => K x y) = (Function.uncurry K) ∘ (fun x => (x, y)) from by
+          funext x; rfl]
+        exact hK.comp measurable_prodMk_right
       exact hKy.mul hp
     rw [lintegral_mul_const _ hKpy]
     calc
@@ -143,7 +148,7 @@ theorem lintegral_weightedNonnegativeKernel_rpow_two_le
       simpa only [mul_assoc] using hx
     _ = A * ∫⁻ x, p x *
           ∫⁻ y, K x y * (f y ^ (2 : ℝ) / q y) ∂ν ∂μ := by
-      rw [lintegral_const_mul A (hp.mul hKfq.lintegral_prod_right)]
+      exact lintegral_const_mul A (hp.mul hKfq.lintegral_prod_right)
     _ = A * ∫⁻ x, ∫⁻ y,
           K x y * p x * (f y ^ (2 : ℝ) / q y) ∂ν ∂μ := by
       congr 1
@@ -161,10 +166,14 @@ theorem lintegral_weightedNonnegativeKernel_rpow_two_le
           K x y * p x * (f y ^ (2 : ℝ) / q y) ∂μ ∂ν := by
       have hswap : Measurable (Function.uncurry fun x y =>
           K x y * p x * (f y ^ (2 : ℝ) / q y)) := by
-        simpa only [Function.uncurry_apply_pair] using
-          (hK.mul (hp.comp measurable_fst)).mul
-            (((hf.comp measurable_snd).pow_const (2 : ℝ)).div
-              (hq.comp measurable_snd))
+        rw [show (Function.uncurry fun x y =>
+            K x y * p x * (f y ^ (2 : ℝ) / q y)) =
+            ((Function.uncurry K * fun z : α × β => p z.1) *
+              fun z : α × β => f z.2 ^ (2 : ℝ) / q z.2) from by
+          funext z; rfl]
+        exact (hK.mul (hp.comp measurable_fst)).mul
+          (((hf.comp measurable_snd).pow_const (2 : ℝ)).div
+            (hq.comp measurable_snd))
       rw [lintegral_lintegral_swap hswap.aemeasurable]
     _ ≤ A * ∫⁻ y, B * f y ^ (2 : ℝ) ∂ν := by
       exact mul_le_mul_right (lintegral_mono_ae hcolWeighted) A

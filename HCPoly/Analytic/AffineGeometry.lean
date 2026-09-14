@@ -128,7 +128,7 @@ theorem volume_matImage (L : Mat d) (U : Set (Vec d)) :
   have hdet : LinearMap.det (Matrix.mulVecLin L) = L.det := by
     rw [← Matrix.toLin'_apply']
     exact LinearMap.det_toLin' L
-  simpa only [matImage, hdet] using hvol
+  simpa only [matImage, hdet] using! hvol
 
 /-- The real-valued volume obeys the same determinant scaling. -/
 theorem volume_matImage_toReal (L : Mat d) (U : Set (Vec d)) :

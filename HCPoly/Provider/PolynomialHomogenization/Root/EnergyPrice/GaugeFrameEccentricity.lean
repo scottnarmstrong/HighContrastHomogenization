@@ -141,7 +141,7 @@ theorem hsAffineFactor_mul_cubeSide_le_witnessEccentricity_rpow
     rw [hnLdef, hnLidef, hLdef, heccDef]
     exact norm_matSqrt_mul_norm_inv_eq_witnessEccentricity hM
   have hone_le_ecc : (1 : ℝ) ≤ ecc := by
-    haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+    have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
     rw [heccDef]
     exact Initialization.one_le_witnessEccentricity hM
   have hecc_nonneg : (0 : ℝ) ≤ ecc := le_trans zero_le_one hone_le_ecc

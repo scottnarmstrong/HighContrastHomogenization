@@ -576,7 +576,7 @@ theorem linear_descent_hdecay {A alpha d0 S0 S1 S2 b0 bA b2 : ℝ}
     exact this
   have hnb : n < linR ns cA A alpha b0 bA b2 S0 S1 S2 d0 (js + 1) := by
     by_contra hcon
-    push_neg at hcon
+    push Not at hcon
     have hjn : js + 1 ≤ n := by
       have h1 := linR_lower (ns := ns) (cA := cA) (A := A) (alpha := alpha)
         (b0 := b0) (bA := bA) (b2 := b2) (S0 := S0) (S1 := S1) (S2 := S2)

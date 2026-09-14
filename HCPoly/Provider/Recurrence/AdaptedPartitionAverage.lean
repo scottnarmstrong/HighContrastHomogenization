@@ -42,7 +42,7 @@ theorem ae_eq_iUnion_of_aePartition {ι : Type*} {U : Set (Vec d)} {Z : Finset �
   refine ae_eq_set.mpr ⟨hnull, ?_⟩
   have hV : (⋃ i ∈ (↑Z : Set ι), c i) ⊆ U :=
     Set.iUnion₂_subset fun i hi => hsub i (Finset.mem_coe.mp hi)
-  rw [Set.diff_eq_empty.mpr hV, measure_empty]
+  rw [Set.sdiff_eq_empty.mpr hV, measure_empty]
 
 /-- **The integral over the parent is the sum of the integrals over the cells**,
 for a finite family of pairwise disjoint measurable subsets covering the parent

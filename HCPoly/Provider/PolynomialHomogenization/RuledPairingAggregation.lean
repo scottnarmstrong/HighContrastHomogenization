@@ -56,7 +56,7 @@ theorem ofReal_abs_volumeAverage_vecDot_le_familyCellDuality
         |volumeAverage (system.cell i) (fun x => vecDot (F i x) (G x))| ≤
       (negativeWhitneyFamilyCellEnergy system s F i) ^ (1 / 2 : ℝ) *
         (ruledPositiveWhitneyCellEnergy system s G i) ^ (1 / 2 : ℝ) := by
-  simpa only [negativeWhitneyFamilyCellEnergy, negativeWhitneyCellEnergy] using
+  simpa only [negativeWhitneyFamilyCellEnergy, negativeWhitneyCellEnergy] using!
     ofReal_abs_volumeAverage_vecDot_le_cellDuality
       hd system i hs hsHalf (F i) G hF hG hGfinite
 
@@ -140,7 +140,7 @@ theorem normalizedNegativeWhitneyFamilyRow_le_fullDualRow
       volume (system.cell i) * negativeWhitneyCellEnergy system s (F i) i ≤
           volume (system.cell i) *
             (K * physicalFullDualWhitneyFamilyCellEnergy system s F i) := by
-              simpa only [mul_comm] using
+              simpa only [mul_comm] using!
                 (mul_le_mul_right hi (volume (system.cell i)))
       _ = K * (volume (system.cell i) *
             physicalFullDualWhitneyFamilyCellEnergy system s F i) := by

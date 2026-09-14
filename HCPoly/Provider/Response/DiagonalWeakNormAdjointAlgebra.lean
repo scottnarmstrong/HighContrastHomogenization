@@ -112,7 +112,7 @@ theorem blockSize_adjointSign_congr (A E : BlockMat d) :
   unfold blockSize
   congr 1
   ext c
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   rw [← blockScale_adjointSign_congr c E,
     ← blockScale_adjointSign_congr (-c) E,
     adjointSign_congr_loewner_iff, adjointSign_congr_loewner_iff]
@@ -127,7 +127,7 @@ theorem blockExcess_adjointSign_congr (A E : BlockMat d) :
   unfold blockExcess
   congr 1
   ext c
-  simp only [Set.mem_setOf_eq]
+  simp only [Set.mem_ofPred_eq]
   rw [← blockScale_adjointSign_congr (1 + c) E,
     adjointSign_congr_loewner_iff]
 
@@ -151,12 +151,12 @@ theorem isSymmetricBlockMat_adjointSign_congr {A : BlockMat d}
       cases β with
       | inl j => exact hA (Sum.inl i) (Sum.inl j)
       | inr j =>
-          simpa only [blockMatEntry, Pi.neg_apply] using
+          simpa only [blockMatEntry, Matrix.neg_apply] using
             congrArg Neg.neg (hA (Sum.inl i) (Sum.inr j))
   | inr i =>
       cases β with
       | inl j =>
-          simpa only [blockMatEntry, Pi.neg_apply] using
+          simpa only [blockMatEntry, Matrix.neg_apply] using
             congrArg Neg.neg (hA (Sum.inr i) (Sum.inl j))
       | inr j => exact hA (Sum.inr i) (Sum.inr j)
 

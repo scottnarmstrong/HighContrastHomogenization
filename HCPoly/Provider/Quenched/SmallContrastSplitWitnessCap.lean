@@ -129,7 +129,7 @@ theorem exists_burnSplit_witness_exponent (d : ℕ) (hd : 2 ≤ d)
               ((2 * burnSplitDepth d Cd g Pi : ℕ) : ℤ)) *
           K * K ^ (n + 1) ≤ Real.rpow (2 + Pi * K) cW := by
   classical
-  haveI : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
   have hCd1 : (1 : ℝ) ≤ Cd := (le_max_left _ _).trans hCd
   have hzeta : (1 : ℝ) ≤ zetaG g := by
     have hlt : (3 : ℝ) ^ (-(1 - g)) < 1 :=

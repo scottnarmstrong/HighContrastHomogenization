@@ -63,7 +63,7 @@ theorem correctorGradientOnOriginCube_eq_globalRepresentative
       (LocalGradientCarrier.component (Phi e).gradient q) x at hleft
   rw [hleft, hright]
   have hvec := congrArg HilbertVec.ofVec (hglobal.trans hcomponent)
-  simpa only [HilbertVec.ofVec_toVec] using hvec.symm
+  simpa only [HilbertVec.ofVec_toVec] using! hvec.symm
 
 /-- The local negative-one norm of the gradient class reads the canonical raw
 global gradient field. -/

@@ -18,7 +18,7 @@ arbitrary constant therefore preserves the ballwise `H¹_s` construction.
 namespace Homogenization
 namespace HighContrast
 
-open MeasureTheory Set Filter
+open MeasureTheory Set _root_.Filter
 
 noncomputable section
 
@@ -35,7 +35,7 @@ theorem NormalizedLocalH1Carrier.memH1sLoc_affineAdd_globalRepresentatives
   · constructor
     · have haffine : Continuous (fun x : Vec d => vecDot e x) := by
         simp only [vecDot]
-        exact continuous_finset_sum _ fun i _ =>
+        exact continuous_finsetSum _ fun i _ =>
           continuous_const.mul (continuous_apply i)
       exact (haffine.aestronglyMeasurable.add
         z.stronglyMeasurable_globalValueRepresentative.aestronglyMeasurable).add
@@ -60,13 +60,13 @@ theorem NormalizedLocalH1Carrier.memH1sLoc_affineAdd_globalRepresentatives
           simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
             finiteAffineBoundaryH1 (n : ℤ) e).toFun =
           fun x => vecDot e x := by
-      simpa only using finiteAffineBoundaryH1_toFun (m := (n : ℤ)) e
+      simpa only using! finiteAffineBoundaryH1_toFun (m := (n : ℤ)) e
     have hboundaryGrad :
         (show H1Function (localGradientCube d n) from by
           simpa only [localGradientCube, Book.Ch02.cubeDomain_coe] using
             finiteAffineBoundaryH1 (n : ℤ) e).grad =
           fun _ => e := by
-      simpa only using finiteAffineBoundaryH1_grad (m := (n : ℤ)) e
+      simpa only using! finiteAffineBoundaryH1_grad (m := (n : ℤ)) e
     have hvalueAE :
         (fun x => vecDot e x + z.globalValueRepresentative x + c)
           =ᵐ[volume.restrict (euclideanBall d R)] u.toFun := by

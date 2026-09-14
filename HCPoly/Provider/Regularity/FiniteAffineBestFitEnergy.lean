@@ -88,7 +88,7 @@ private theorem finiteAffineBestFitResidual_memLp_energy
     uk - originCubeAffineH1LinearMap d k p
   have hv := v.memL2_normalizedCubeMeasure
   simpa only [v, p, H1Function.sub_toFun, finiteAffineSolutionInnerH1_toFun,
-    originCubeAffineH1LinearMap_toFun] using hv
+    originCubeAffineH1LinearMap_toFun] using! hv
 
 private theorem finiteAffineMeanResidual_memLp_energy
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
@@ -105,7 +105,7 @@ private theorem finiteAffineMeanResidual_memLp_energy
     uk - originCubeAffineH1LinearMap d k (c, (0 : Vec d))
   have hv := v.memL2_normalizedCubeMeasure
   simpa only [v, c, H1Function.sub_toFun, finiteAffineSolutionInnerH1_toFun,
-    originCubeAffineH1LinearMap_toFun, vecDot_zero_left, add_zero] using hv
+    originCubeAffineH1LinearMap_toFun, vecDot_zero_left, add_zero] using! hv
 
 /-- On a sufficiently good finite row, the inner energy of a fixed-boundary
 affine solution is comparable in both directions to its current best-fit
@@ -389,7 +389,7 @@ theorem exists_scalarIdentityFiniteAffineBestFitEnergyConstants
         Kp * finiteCenteredCubeSolutionEnergy a m
           (finiteAffineCubeSolution a m b) k := by
       rw [hmeanEq, ← henergyEq]
-      simpa only [uk] using hp
+      simpa only [uk] using! hp
     have hresBest := finiteAffineBestFitResidual_memLp_energy a k m
       (Finset.mem_Icc.mp hk).2 b
     have hresMean := finiteAffineMeanResidual_memLp_energy a k m

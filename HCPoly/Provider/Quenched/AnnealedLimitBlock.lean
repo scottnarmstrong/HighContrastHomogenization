@@ -35,7 +35,7 @@ namespace HighContrast
 namespace Quenched
 
 open MeasureTheory
-open Filter Topology
+open _root_.Filter Topology
 
 noncomputable section
 
@@ -170,7 +170,7 @@ theorem tendsto_annealedForm_annealedLimitBlock (hstat : HCPoly.Frozen.IsStation
     fun n => (blockVecDot_blockMatVecMul_eq_sum _ X).symm
   refine Tendsto.congr hsum ?_
   rw [blockVecDot_blockMatVecMul_eq_sum]
-  refine tendsto_finset_sum _ fun α _ => tendsto_finset_sum _ fun β _ => ?_
+  refine tendsto_finsetSum _ fun α _ => tendsto_finsetSum _ fun β _ => ?_
   exact ((tendsto_blockMatEntry_annealedBlock hstat hdag α β).mul_const
     (toFullBlockVec X β)).const_mul (toFullBlockVec X α)
 

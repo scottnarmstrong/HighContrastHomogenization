@@ -187,7 +187,7 @@ theorem portable_history_assembly
                                   (b + L)) -
                             1)))
     := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   -- the parity of `Q` and the positivity of `ρ_max` are premises of the
   -- recurrence and of the centred history; the displays below read neither
   have _hQeven := hQeven
@@ -237,7 +237,7 @@ theorem portable_history_assembly
     refine lt_of_lt_of_le ?_ (le_max_right _ _)
     linarith only [hL0, hcen, hnl]
   intro P hPprob hPstat hPunit l q hq jStar b TMax hlj hjb hbT hfin _hposdef hmom
-  haveI := hPprob
+  have := hPprob
   refine
     ⟨fun j T hj hjT hT => blockMatLoewnerLE_adaptedMean_window hPstat hq hlj hfin hj hjT hT,
       fun j T hj hjT hT => detIncrement_nonneg_window hPstat hq hlj hfin hj hjT hT,

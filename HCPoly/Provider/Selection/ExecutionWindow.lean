@@ -105,7 +105,6 @@ theorem execution_window_facts (d : ℕ) (g K Cexec Lam : ℝ)
       (((d : ℝ) * ((⌈Cexec * Lam⌉ : ℤ) : ℝ) +
           16 * ((d : ℝ) + 1) ^ 2 * Real.logb 3 (growthBar K)) /
         (4 * (d : ℝ) + 3))).le
-    push_cast at h1 ⊢
     linarith only [h1, hZ, hAnn]
   · rw [max_eq_left h]
     linarith only [hZnn]

@@ -161,7 +161,7 @@ theorem profileQuadraticLoad_hatted_primal_center_le [NeZero d]
   classical
   have hint' : HasIntegrableCoarseBlock P
       ((Response.adaptedDomain hq t : Domain d) : Set (Vec d)) := by
-    simpa only [Response.adaptedDomain_carrier] using hint
+    simpa only [Response.adaptedDomain_carrier] using! hint
   have hE' : toFullBlockMat
       (annealedBlock P ((Response.adaptedDomain hq t : Domain d) : Set (Vec d))) =
       schurBlock S SStar K := by
@@ -259,7 +259,7 @@ theorem profileQuadraticLoad_hatted_adjoint_center_le [NeZero d]
   classical
   have hint' : HasIntegrableCoarseBlock P
       ((Response.adaptedDomain hq t : Domain d) : Set (Vec d)) := by
-    simpa only [Response.adaptedDomain_carrier] using hint
+    simpa only [Response.adaptedDomain_carrier] using! hint
   have hE' : toFullBlockMat
       (annealedBlock P ((Response.adaptedDomain hq t : Domain d) : Set (Vec d))) =
       schurBlock S SStar K := by

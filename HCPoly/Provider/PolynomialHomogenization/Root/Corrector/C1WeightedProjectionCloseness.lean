@@ -43,6 +43,21 @@ private theorem normalizedLocalSymmetricEnergy_neg
   rw [map_neg, inner_neg_left, inner_neg_right]
   ring
 
+private theorem sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube_restriction
+    {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
+    (k : ℤ) (u : H1Function (openCubeSet (originCube d k))) :
+    Real.sqrt (normalizedLocalSymmetricEnergy
+        (Book.Ch03.publicCoeffField_isEllipticFieldOn_openCubeSet
+          (originCube d k) a) u.gradToHilbertVectorL2) =
+      Book.Ch03.h1EnergyNormOnCube (originCube d k) a u := by
+  rw [sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
+  rw [weightedGradNorm_congr_coeff_ae_on _
+    (Book.Ch03.publicCoeffField_ae_eq_openCubeSet (originCube d k) a)]
+  erw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
+  rw [ENNReal.toReal_ofReal]
+  unfold Book.Ch03.h1EnergyNormOnCube
+  exact Real.sqrt_nonneg _
+
 private theorem finiteCorrectorWeightedProjection_energy_le
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
     (hCauchy : FiniteAffineCorrectionLocalCauchy a)
@@ -149,16 +164,13 @@ theorem finiteCorrectorWeightedProjection_sub_identity_le
           (volume_openCubeSet_lt_top (originCube d (q : ℤ))).ne _ _
       _ = Real.sqrt (localHarmonicEnergy a q R0) +
           Real.sqrt (localHarmonicEnergy a q RP) := by
-            unfold localHarmonicEnergy
-            change Real.sqrt (normalizedLocalSymmetricEnergy hEll
-                (R0 : LocalGradientL2 d q)) +
-                Real.sqrt (normalizedLocalSymmetricEnergy hEll
-                  (-(RP : LocalGradientL2 d q))) =
-              Real.sqrt (normalizedLocalSymmetricEnergy hEll
-                (R0 : LocalGradientL2 d q)) +
-                Real.sqrt (normalizedLocalSymmetricEnergy hEll
-                  (RP : LocalGradientL2 d q))
-            rw [normalizedLocalSymmetricEnergy_neg]
+            have hnegEnergy : localHarmonicEnergy a q (-RP) =
+                localHarmonicEnergy a q RP := by
+              show normalizedLocalSymmetricEnergy hEll
+                  (-(RP : LocalGradientL2 d q)) =
+                normalizedLocalSymmetricEnergy hEll (RP : LocalGradientL2 d q)
+              exact normalizedLocalSymmetricEnergy_neg hEll _
+            rw [hnegEnergy]
       _ ≤ 2 * Real.sqrt (localHarmonicEnergy a q R0) := by
             linarith only [hminSqrt]
   have htailE : Real.sqrt (localHarmonicEnergy a q R0) ≤
@@ -182,13 +194,8 @@ theorem finiteCorrectorWeightedProjection_sub_identity_le
       Real.sqrt (localHarmonicEnergy a q (T z)) := by
     unfold localHarmonicEnergy
     rw [hclass]
-    rw [sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal hEll w.toH1]
-    rw [weightedGradNorm_congr_coeff_ae_on _
-      (Book.Ch03.publicCoeffField_ae_eq_openCubeSet
-        (originCube d (q : ℤ)) a)]
-    rw [weightedGradNorm_eq_ofReal_h1EnergyNormOnCube]
-    rw [ENNReal.toReal_ofReal]
-    exact Real.sqrt_nonneg _
+    exact (sqrt_normalizedEnergy_grad_eq_h1EnergyNormOnCube_restriction
+      a (q : ℤ) w.toH1).symm
   have havg' : euclideanNorm
       (cubeAverageVec (originCube d (q : ℤ))
         (finiteAffineSolution a (m : ℤ) z).toH1.grad) ≤

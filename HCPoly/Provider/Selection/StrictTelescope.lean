@@ -168,8 +168,7 @@ theorem runCapped_potential_bound_of_consecutive
                 (runCapped P Q a rhoMax rhoDr jStar h chop l0 H etaReady etaPre
                   deltaShort deltaTerm (fuel + 1) S).states[(i + 1) + 1]? =
                     some S₁ := by
-              simpa only [runCapped, hout, List.getElem?_cons_succ, tail,
-                add_assoc, Nat.add_left_comm, Nat.add_comm] using h₁
+              simpa only [runCapped, hout, List.getElem?_cons_succ, tail] using h₁
             obtain ⟨rule, hrule, hrow⟩ := hstep (i + 1) S₀ S₁ h₀' h₁'
             refine ⟨rule, ?_, hrow⟩
             simpa only [runCapped, hout, List.getElem?_cons_succ, tail] using hrule

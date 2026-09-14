@@ -150,8 +150,6 @@ theorem volume_inter_translatedCubeSet_toReal (Q : TriadicCube d) (u v : Vec d)
     have h := hkey i
     have habs := huv i
     have habs0 : 0 ≤ |u i - v i| := abs_nonneg _
-    simp only
-    simp only at h
     linarith only [h, habs, habs0]
   rw [inter_translatedCubeSet_eq_pi, Real.volume_pi_Ico_toReal (ι := Fin d) hab]
   exact Finset.prod_congr rfl fun i _ => hkey i
@@ -201,13 +199,13 @@ theorem volume_cubeTranslationGap_toReal_le (Q : TriadicCube d) (u v : Vec d)
         L ^ d - (L - V) ^ d := by
     have hset : translatedCubeSet Q u \ translatedCubeSet Q v =
         translatedCubeSet Q u \ (translatedCubeSet Q u ∩ translatedCubeSet Q v) :=
-      Set.diff_self_inter.symm
+      Set.sdiff_self_inter.symm
     have hmeas :
         volume (translatedCubeSet Q u \
             (translatedCubeSet Q u ∩ translatedCubeSet Q v)) =
           volume (translatedCubeSet Q u) -
             volume (translatedCubeSet Q u ∩ translatedCubeSet Q v) :=
-      measure_diff Set.inter_subset_left hmeasInter.nullMeasurableSet hinterTop
+      measure_sdiff Set.inter_subset_left hmeasInter.nullMeasurableSet hinterTop
     rw [hset, hmeas, ENNReal.toReal_sub_of_le
       (measure_mono Set.inter_subset_left) (volume_translatedCubeSet_ne_top Q u),
       volume_translatedCubeSet_toReal, hvolQ]
@@ -217,7 +215,7 @@ theorem volume_cubeTranslationGap_toReal_le (Q : TriadicCube d) (u v : Vec d)
         L ^ d - (L - V) ^ d := by
     have hset : translatedCubeSet Q v \ translatedCubeSet Q u =
         translatedCubeSet Q v \ (translatedCubeSet Q v ∩ translatedCubeSet Q u) :=
-      Set.diff_self_inter.symm
+      Set.sdiff_self_inter.symm
     have hmeasInter' : MeasurableSet (translatedCubeSet Q v ∩ translatedCubeSet Q u) :=
       (measurableSet_translatedCubeSet Q v).inter (measurableSet_translatedCubeSet Q u)
     have hinterTop' : volume (translatedCubeSet Q v ∩ translatedCubeSet Q u) ≠ ⊤ := by
@@ -227,7 +225,7 @@ theorem volume_cubeTranslationGap_toReal_le (Q : TriadicCube d) (u v : Vec d)
             (translatedCubeSet Q v ∩ translatedCubeSet Q u)) =
           volume (translatedCubeSet Q v) -
             volume (translatedCubeSet Q v ∩ translatedCubeSet Q u) :=
-      measure_diff Set.inter_subset_left hmeasInter'.nullMeasurableSet hinterTop'
+      measure_sdiff Set.inter_subset_left hmeasInter'.nullMeasurableSet hinterTop'
     have hleV : volume (translatedCubeSet Q v ∩ translatedCubeSet Q u) ≤
         volume (translatedCubeSet Q v) := measure_mono Set.inter_subset_left
     have hswap : (volume (translatedCubeSet Q v ∩ translatedCubeSet Q u)).toReal =
@@ -253,9 +251,9 @@ theorem volume_cubeTranslationGap_toReal_le (Q : TriadicCube d) (u v : Vec d)
       L ^ d - (L - V) ^ d = (1 - (L - V) ^ d / L ^ d) * L ^ d := by field_simp
       _ ≤ (d : ℝ) * (V / L) * L ^ d := hmul
   have hUtop : volume (translatedCubeSet Q u \ translatedCubeSet Q v) ≠ ⊤ :=
-    measure_ne_top_of_subset Set.diff_subset (volume_translatedCubeSet_ne_top Q u)
+    measure_ne_top_of_subset Set.sdiff_subset (volume_translatedCubeSet_ne_top Q u)
   have hVtop : volume (translatedCubeSet Q v \ translatedCubeSet Q u) ≠ ⊤ :=
-    measure_ne_top_of_subset Set.diff_subset (volume_translatedCubeSet_ne_top Q v)
+    measure_ne_top_of_subset Set.sdiff_subset (volume_translatedCubeSet_ne_top Q v)
   have hunion :
       volume (cubeTranslationGap Q u v) ≤
         volume (translatedCubeSet Q u \ translatedCubeSet Q v) +
@@ -365,7 +363,7 @@ theorem cubeSet_subset_or_disjoint_translatedCubeSet
     rw [hMr] at h3
     linarith only [h3]
   · refine Or.inr ?_
-    push_neg at hall
+    push Not at hall
     obtain ⟨i, hi⟩ := hall
     obtain ⟨p, hp⟩ := hoffset i
     have hdisj := Ico_subset_or_disjoint_of_int_offset (r := r) hrpos (M := M)

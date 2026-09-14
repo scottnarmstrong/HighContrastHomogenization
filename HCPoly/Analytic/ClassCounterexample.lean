@@ -83,7 +83,7 @@ theorem skewFluxDualNorm_eq_zero {b : CoeffField d} {V : Set (Vec d)}
       rw [hint]; exact integrableOn_zero
     simp only [skewFluxPairing, if_pos hI, hint]
     simp
-  refine le_antisymm (iSup_le fun φ => (hzero φ.1).le) (zero_le _)
+  refine le_antisymm (iSup_le fun φ => (hzero φ.1).le) zero_le
 
 /-- The whole space has infinite Lebesgue measure in positive dimension. -/
 theorem volume_univ_eq_top (hd : 0 < d) :
@@ -116,7 +116,7 @@ theorem exists_memH1a_sEnergyOn_eq_top (hd : 0 < d) :
         MemH1a b Set.univ u Du ∧ sEnergyOn b Set.univ Du = ⊤ := by
   set i : Fin d := ⟨0, hd⟩ with hidef
   refine ⟨fun _ => (1 : Mat d), 1, 1, fun y => y i, fun _ => basisVec i, one_pos,
-    le_rfl, Filter.Eventually.of_forall fun _ => isEllipticMatrix_one_one, ?_, ?_⟩
+    le_rfl, _root_.Filter.Eventually.of_forall fun _ => isEllipticMatrix_one_one, ?_, ?_⟩
   · refine ⟨⟨(contDiff_coord i).continuous.aestronglyMeasurable,
       fun _ => aestronglyMeasurable_const⟩, ?_,
       fun _ => fun y : Vec d => y i, fun _ => contDiff_coord i, ?_, ?_⟩
@@ -170,12 +170,12 @@ theorem memH1a_approximants_contDiffOn {b : CoeffField d} {V : Set (Vec d)}
     {u : Vec d → ℝ} {Du : Vec d → Vec d} (hu : MemH1a b V u Du) :
     ∃ v : ℕ → Vec d → ℝ,
       (∀ n, ContDiffOn ℝ (⊤ : ℕ∞) (v n) V) ∧
-      Filter.Tendsto
+      _root_.Filter.Tendsto
         (fun n => h1sNormSqOn b V (fun x => v n x - u x)
-          (fun x => smoothGrad (v n) x - Du x)) Filter.atTop (nhds 0) ∧
-      Filter.Tendsto
+          (fun x => smoothGrad (v n) x - Du x)) _root_.Filter.atTop (nhds 0) ∧
+      _root_.Filter.Tendsto
         (fun n => skewFluxDualNorm b V (fun x => smoothGrad (v n) x - Du x))
-        Filter.atTop (nhds 0) := by
+        _root_.Filter.atTop (nhds 0) := by
   obtain ⟨-, -, v, hv, h1, h2⟩ := hu
   exact ⟨v, fun n => contDiffOn_of_contDiff (hv n), h1, h2⟩
 

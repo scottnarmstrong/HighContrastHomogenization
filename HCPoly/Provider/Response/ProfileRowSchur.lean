@@ -42,7 +42,7 @@ private theorem upperLeft_posSemidef {H : BlockMat d}
         exact hx (congrArg Prod.fst hzero)
       have hquad := (hpos ((x, 0) : BlockVec d) hX).le
       simpa only [star_trivial, ge_iff_le, blockVecDot, blockMatVecMul,
-        matVecMul_zero, add_zero, vecDot_zero_left] using hquad
+        matVecMul_zero, add_zero, vecDot_zero_left] using! hquad
 
 private theorem vecNorm_matSqrt_sq_eq {M : Mat d} (hM : M.PosSemidef)
     (x : Vec d) :

@@ -163,7 +163,7 @@ theorem integrable_source {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
   refine ⟨hdag.source_measurable.aestronglyMeasurable, ?_⟩
   have hnorm : ∫⁻ a, ‖S a‖ₑ ∂P = ∫⁻ a, ENNReal.ofReal (S a) ∂P :=
     lintegral_congr fun a => by
-      rw [← ofReal_norm_eq_enorm, Real.norm_eq_abs,
+      rw [← ofReal_norm, Real.norm_eq_abs,
         abs_of_nonneg (hdag.source_nonneg a)]
   rw [HasFiniteIntegral, hnorm]
   exact lt_of_le_of_lt (lintegral_source_le hdag) ENNReal.ofReal_lt_top

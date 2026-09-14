@@ -29,7 +29,7 @@ singleton of the coefficient space is measurable for `F`.
 namespace Homogenization
 namespace HighContrast
 
-open MeasureTheory Filter ContinuousLinearMap
+open MeasureTheory _root_.Filter ContinuousLinearMap
 open scoped Convolution
 
 noncomputable section
@@ -72,9 +72,9 @@ theorem isLocalTest_mollifierTest (n : ℕ) (q : Vec d) :
   have hsub : ContDiff ℝ (⊤ : ℕ∞) (fun y : Vec d => q - y) :=
     contDiff_const.sub contDiff_id
   refine ⟨by
-      simpa [mollifierTest, Function.comp_def] using
+      simpa [mollifierTest, Function.comp_def] using!
         (contDiff_witnessMollifier (d := d) n).comp hsub, ?_, Set.subset_univ _⟩
-  simpa [mollifierTest, Function.comp_def] using
+  simpa [mollifierTest, Function.comp_def] using!
     (hasCompactSupport_witnessMollifier (d := d) n).comp_homeomorph (Homeomorph.subLeft q)
 
 theorem tendsto_witnessBump_rOut :
@@ -110,7 +110,7 @@ theorem ae_eq_zero_of_mollifierTest_eq_zero (f : Vec d → ℝ)
     simpa [mollifierTest] using h n q hq
   have hae := ContDiffBump.ae_convolution_tendsto_right_of_locallyIntegrable
       (μ := (volume : Measure (Vec d))) (φ := witnessBump d) (l := atTop) (K := 2) (g := f)
-      tendsto_witnessBump_rOut (Filter.Eventually.of_forall witnessBump_rOut_le) hf
+      tendsto_witnessBump_rOut (_root_.Filter.Eventually.of_forall witnessBump_rOut_le) hf
   filter_upwards [hae] with x hx
   have hzero : Tendsto
       (fun n : ℕ => ((witnessBump d n).normed volume ⋆[lsmul ℝ ℝ, volume] f) x)
@@ -135,7 +135,7 @@ theorem locallyIntegrable_entry (a : CoeffSpace d) (i j : Fin d) :
   rw [MeasureTheory.locallyIntegrable_iff]
   intro K hK
   obtain ⟨M, -, hM⟩ := ae_abs_entry_le_of_aeUniformlyEllipticField a.2 hK.isBounded
-  haveI : IsFiniteMeasure (volume.restrict K) :=
+  have : IsFiniteMeasure (volume.restrict K) :=
     ⟨by rw [Measure.restrict_apply_univ]; exact hK.measure_lt_top⟩
   refine (integrable_const M).mono' hmeas.restrict ?_
   filter_upwards [ae_restrict_of_ae hM, ae_restrict_mem hK.measurableSet] with x hx hxK
@@ -177,7 +177,7 @@ theorem eq_of_forall_mollifierTest_pairing_eq {a b : CoeffSpace d} {Q : Set (Vec
     calc ∫ y, mollifierTest d n q y * ((a.1 y) j i - (b.1 y) j i) ∂volume
         = ∫ y, ((a.1 y) j i * mollifierTest d n q y -
             (b.1 y) j i * mollifierTest d n q y) ∂volume :=
-          integral_congr_ae (Filter.Eventually.of_forall fun y => by ring)
+          integral_congr_ae (_root_.Filter.Eventually.of_forall fun y => by ring)
       _ = (∫ y, (a.1 y) j i * mollifierTest d n q y ∂volume) -
             ∫ y, (b.1 y) j i * mollifierTest d n q y ∂volume := integral_sub hia hib
       _ = 0 := by rw [hmem, sub_self]
@@ -227,7 +227,7 @@ atomic law would be untestable. -/
 theorem measurableSet_singleton_coeffSpace (b : CoeffSpace d) :
     MeasurableSet ({b} : Set (CoeffSpace d)) := by
   obtain ⟨Q, hQc, hQd⟩ := TopologicalSpace.exists_countable_dense (Vec d)
-  haveI := hQc.to_subtype
+  have := hQc.to_subtype
   rw [singleton_eq_iInter_coeffPairing_eq b hQd]
   exact measurableSet_iInter_coeffPairing_eq b Q
 

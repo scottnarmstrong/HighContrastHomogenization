@@ -65,7 +65,7 @@ theorem integral_normalizedSourceScale_le
     push_cast
     ring
   rw [integral_eq_lintegral_of_nonneg_ae
-    (Filter.Eventually.of_forall h0) hmeas.aestronglyMeasurable]
+    (_root_.Filter.Eventually.of_forall h0) hmeas.aestronglyMeasurable]
   rw [hCK]
   refine ENNReal.toReal_le_of_le_ofReal ?_ hlint
   have h1 : (1 : ℝ) ≤ 1 + 2 * ((1 : ℕ) : ℝ) * (1 + Real.log (growthBar K)) *
@@ -160,7 +160,7 @@ theorem annealedBlock_adaptedCell_le_scaled [NeZero d]
         mul_nonneg (by linarith only [hVS1]) (mul_nonneg hc0' hquad)
       rw [hc0]
       nlinarith only [hcell, hprod]
-    · push_neg at hS
+    · push Not at hS
       have hS0 : 0 < S a := lt_trans (zpow_pos (by norm_num) _) hS
       set m : ℤ := ⌈Real.logb 3 (S a)⌉ with hmdef
       have hlogS : ((t + (G : ℤ) : ℤ) : ℝ) < Real.logb 3 (S a) := by
@@ -278,7 +278,7 @@ theorem annealedBlock_adaptedCell_le_scaled [NeZero d]
       blockVecDot X (blockMatVecMul E X)) P := by
     have h := ((integrable_normalizedSourceScale hdag hsK).const_mul
       c0).mul_const (blockVecDot X (blockMatVecMul E X))
-    refine h.congr (Filter.Eventually.of_forall fun a => ?_)
+    refine h.congr (_root_.Filter.Eventually.of_forall fun a => ?_)
     ring
   have hmono := integral_mono_ae hint1 hint2 (by
     filter_upwards [hscalar] with a ha using ha X)

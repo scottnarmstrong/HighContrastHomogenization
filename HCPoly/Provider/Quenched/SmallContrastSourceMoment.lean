@@ -66,7 +66,7 @@ theorem measureReal_normalizedSourceScale_tail
   have hevent : {a | t < normalizedSourceScale S sK a} =
       IndependentSums.upperTailEvent S ((3 : ℝ) ^ sK * t) := by
     ext a
-    simp only [IndependentSums.upperTailEvent, Set.mem_setOf_eq,
+    simp only [IndependentSums.upperTailEvent, Set.mem_ofPred_eq,
       normalizedSourceScale, lt_max_iff]
     constructor
     · rintro (h1 | h2)
@@ -157,12 +157,12 @@ theorem setLintegral_normalizedSourceScale_pow_le
           ENNReal.ofReal
             (normalizedSourceScale S sK a ^ ((N + M : ℕ) : ℝ)) := by
     rw [ae_restrict_iff' hmeasSet]
-    refine Filter.Eventually.of_forall fun a ha => ?_
+    refine _root_.Filter.Eventually.of_forall fun a ha => ?_
     have hV1 : (1 : ℝ) ≤ normalizedSourceScale S sK a :=
       one_le_normalizedSourceScale S sK a
     have h3D : (0 : ℝ) < (3 : ℝ) ^ Delta := by positivity
     have hVD : (1 : ℝ) ≤ normalizedSourceScale S sK a * (3 : ℝ) ^ (-Delta) := by
-      have h := Set.mem_setOf_eq ▸ ha
+      have h := Set.mem_ofPred_eq ▸ ha
       rw [show (1 : ℝ) = (3 : ℝ) ^ Delta * (3 : ℝ) ^ (-Delta) from by
         rw [← zpow_add₀ (by norm_num : (3 : ℝ) ≠ 0)]; simp]
       exact mul_le_mul_of_nonneg_right (le_of_lt h) (by positivity)

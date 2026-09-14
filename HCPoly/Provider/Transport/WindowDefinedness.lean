@@ -249,7 +249,7 @@ theorem definedness_of_isWindowMultiplier (hd : 2 ≤ d) {P : Measure (CoeffSpac
       (∀ r : Mat d, r = roundedGrid jStar mu ∨ r = roundedGrid jStar mu' →
         ∀ j T : ℤ, jStar ≤ j → j ≤ T → T ≤ b →
           BlockMatLoewnerLE (adaptedMean P r T) (adaptedMean P r j)) := by
-  haveI : NeZero d := ⟨by omega⟩
+  have : NeZero d := ⟨by omega⟩
   have hall : ∀ nu : Mat d, nu.PosDef →
       (∀ j : ℤ, jStar ≤ j → j ≤ b →
         adaptedCell (roundedGrid jStar nu) j ⊆ centeredCube d M) →

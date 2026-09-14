@@ -73,7 +73,11 @@ noncomputable def triadicContraction (n : ℕ) (a : CoeffSpace d) : CoeffSpace d
 theorem triadicDilation_ae (n : ℕ) (a : CoeffSpace d) :
     (⇑(triadicDilation n a).1 : CoeffField d) =ᵐ[volume]
       fun x => a.1 (triadicDilateVec n x) := by
-  simpa [triadicDilation, triadicDilateVec, Pi.smul_apply, smul_eq_mul] using
+  have hx : ∀ x : Vec d, (3 : ℝ) ^ n • x = triadicDilateVec n x := by
+    intro x
+    funext i
+    simp [triadicDilateVec, Pi.smul_apply, smul_eq_mul]
+  simpa [triadicDilation, hx] using
     scalarPullback_ae ((3 : ℝ) ^ n) (by positivity) a
 
 /-- The inverse quotient dilation reads the sample at `3⁻ⁿ x`. -/

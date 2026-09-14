@@ -44,7 +44,7 @@ private theorem affineReferencePrimalLoad_inverseAffinePrimalLoad
   rcases X with ⟨x, y⟩
   have hqdet : IsUnit q.det := isUnit_det_of_posDef hq
   have hqT : matTranspose q = q := by
-    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using!
       hq.isHermitian
   rw [Prod.mk.injEq]
   constructor
@@ -58,7 +58,7 @@ private theorem affineReferenceDualLoad_inverseAffineDualLoad
   rcases X with ⟨x, y⟩
   have hqdet : IsUnit q.det := isUnit_det_of_posDef hq
   have hqT : matTranspose q = q := by
-    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using!
       hq.isHermitian
   rw [Prod.mk.injEq]
   constructor
@@ -184,9 +184,9 @@ private theorem roundedAffineLoad_common_iff_constantBlock
   have hq : q.PosDef := by
     simpa only [q] using geom.grid_posDef hS
   have hA : A.PosDef := by
-    simpa only [A] using geom.reference_posDef abar hS
+    simpa only [A] using! geom.reference_posDef abar hS
   have hLT : matTranspose L = L := by
-    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using
+    simpa only [matTranspose, Matrix.conjTranspose_eq_transpose_of_trivial] using!
       hL.isHermitian
   have hqT : matTranspose q = q := by
     simpa only [q] using geom.grid_transpose hS
@@ -463,7 +463,7 @@ private theorem normalizedBlockResponseValueSet_eq_baseRoundedPhysical
   have hq : q.PosDef := by
     simpa only [q] using geom.grid_posDef hS
   have hAell : IsEllipticMatrix (99 / 100 : ℝ) (101 / 100 : ℝ) A := by
-    simpa only [A] using geom.reference_elliptic abar hS
+    simpa only [A] using! geom.reference_elliptic abar hS
   ext z
   constructor
   · rintro ⟨e, he, rfl⟩
@@ -551,7 +551,7 @@ private theorem normalizedBlockResponseValueSet_eq_baseRoundedPhysical
               a abar hS U P Q
         _ = Transport.coeffSpaceDoubledResponse
             (adaptedCellAt q k w) a PPhysical QPhysical := by
-          simpa only [U, q] using
+          simpa only [U, q] using!
             (Transport.coeffSpaceDoubledResponse_eq_doubledResponseJ
               U a PPhysical QPhysical).symm
     refine ⟨ePhysical, PPhysical, QPhysical, hePhysical,
@@ -622,7 +622,7 @@ private theorem normalizedBlockResponseValueSet_eq_baseRoundedPhysical
             (adaptedCellAt q k w) a PPhysical QPhysical =
           Book.Ch02.doubledResponseJ U (a.coeffOn U)
             PPhysical QPhysical := by
-          simpa only [U, q] using
+          simpa only [U, q] using!
             Transport.coeffSpaceDoubledResponse_eq_doubledResponseJ
               U a PPhysical QPhysical
         _ = Book.Ch02.doubledResponseJ U
@@ -682,7 +682,7 @@ private theorem
       (normalizedCenteredCoeff a abar hS)
     simpa only [volumeMeasureOn, RoundedGenerationAnalyticGeometry.centeredCoeffSpace,
       roundedCenteredCoeffSpaceAtGeneration, q,
-      CoeffSpace.coeffOn_toCoeffField] using ae_restrict_of_ae hpull
+      CoeffSpace.coeffOn_toCoeffField] using! ae_restrict_of_ae hpull
   calc
     Book.Ch02.normalizedBlockResponseMax
         (translateCube w (originCube d k)) aRounded
@@ -959,7 +959,7 @@ private theorem
     cubeBesovDualFullNorm Q s (2 : ℝ≥0∞) (2 : ℝ≥0∞)
       (fun x ↦ G x j)
   have hAell : IsEllipticMatrix (99 / 100 : ℝ) (101 / 100 : ℝ) A := by
-    simpa only [A] using geom.reference_elliptic abar hS
+    simpa only [A] using! geom.reference_elliptic abar hS
   have hAsymm : A.IsSymm :=
     isSymm_of_isHermitian (geom.reference_posDef abar hS).isHermitian
   have hAdet : IsUnit A.det := isUnit_det_of_isEllipticMatrix hAell
@@ -1008,7 +1008,7 @@ private theorem
         apply Finset.sum_congr rfl
         intro j _hj
         ring
-      rw [hfun, MeasureTheory.integral_finset_sum]
+      rw [hfun, MeasureTheory.integral_finsetSum]
       · apply Finset.sum_congr rfl
         intro j _hj
         rw [MeasureTheory.integral_const_mul]
@@ -1116,9 +1116,9 @@ private theorem cubeLpNorm_eq_of_ae_eq_on_parent_cube
   have hvol : f =ᵐ[MeasureTheory.volume.restrict (cubeSet R)] g := by
     exact MeasureTheory.ae_restrict_of_ae_restrict_of_subset
       (cubeSet_subset_of_mem_descendantsAtDepth hR)
-      (by simpa only [volumeMeasureOn] using hfg)
+      (by simpa only [volumeMeasureOn] using! hfg)
   have hnorm : f =ᵐ[normalizedCubeMeasure R] g := by
-    simpa only [normalizedCubeMeasure, cubeMeasure] using
+    simpa only [normalizedCubeMeasure, cubeMeasure] using!
       MeasureTheory.Measure.ae_smul_measure hvol
         (ENNReal.ofReal ((cubeVolume R)⁻¹))
   unfold cubeLpNorm
@@ -1224,7 +1224,7 @@ theorem exists_roundedGenerationHarmonicComparisonSpecializationConstant
           huWeak.residual_solenoidal hEll MeasureTheory.MemLp.zero⟩ }
   let energy := scalarVariationEnergyIntegrand
     (Book.Ch03.publicCoeffField Q aRounded) uh
-  letI := isFiniteMeasureVolumeMeasureOnCubeSet Q
+  let := isFiniteMeasureVolumeMeasureOnCubeSet Q
   have henergy0 : ∀ x ∈ cubeSet Q, 0 ≤ energy x := by
     exact scalarVariationEnergyIntegrand_nonneg_of_isEllipticFieldOn
       (cubeSet Q) _ hEll uh
@@ -1233,7 +1233,7 @@ theorem exists_roundedGenerationHarmonicComparisonSpecializationConstant
       (ResponseLinearIntegrabilityData.of_isEllipticFieldOn hEll) uh
   have hresp : CubeAverageFluxResponseControl Q
       (Book.Ch03.publicCoeffField Q aRounded) A0 F energy := by
-    simpa [F, energy, uh, fluxDefect, Book.Ch03.publicH1ToCubeSet_grad] using
+    simpa [F, energy, uh, fluxDefect, Book.Ch03.publicH1ToCubeSet_grad] using!
       cubeAverageFluxResponseControl_of_aHarmonicFunction Q
         (Book.Ch03.publicCoeffField Q aRounded) A0 hEll
         (geom.reference_elliptic abar hS)
@@ -1300,7 +1300,7 @@ theorem exists_roundedGenerationHarmonicComparisonSpecializationConstant
     calc
       cubeScaleNormalizedDualNegativeBesovVectorNormTwo Q s F ≤
           Kd * cubeBesovNegativeVectorSeminormTwo Q s F := by
-            simpa only [Kd] using hraw
+            simpa only [Kd] using! hraw
       _ ≤ Kd * (Kr * E * A) := mul_le_mul_of_nonneg_left hconcrete hKd
       _ = B * E * A := by dsimp only [B]; ring
   have hWu : W.u = u := by
@@ -1312,7 +1312,7 @@ theorem exists_roundedGenerationHarmonicComparisonSpecializationConstant
   have hsol : IsSolenoidalOn (cubeSet Q)
       (fun x ↦ matVecMul A0 (wdiff x) + F x) := by
     simpa only [wdiff, F, A0, W, geom.referenceConstantCoeffMatrix_matrix,
-      Book.Ch03.publicH1ToCubeSet_grad] using hpair.comparisonPair_solenoidal
+      Book.Ch03.publicH1ToCubeSet_grad] using! hpair.comparisonPair_solenoidal
   obtain ⟨hAw, hflux⟩ := hdual hFmem hpot hsol
   have hwmem : MemVectorL2 (cubeSet Q) wdiff := by
     rcases hpot with ⟨w0, hw0⟩
@@ -1370,9 +1370,11 @@ theorem exists_roundedGenerationHarmonicComparisonSpecializationConstant
       (Book.Ch02.cubeDomain Q).isOpen
       (u := w.toH1Function) (v := u - W.v) (by
         simpa only [H1Function.sub_toFun] using hw)
-    simpa [wCube, Q, wdiff, Book.Ch03.publicH10ToCubeSet,
-      Book.Ch02.cubeDomain_coe, volumeMeasureOn,
-      volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hgrad
+    rw [H1Function.sub_grad] at hgrad
+    simp only [wCube, wdiff, volumeMeasureOn,
+      volume_restrict_cubeSet_eq_volume_restrict_openCubeSet,
+      Book.Ch03.publicH10ToCubeSet_toH1Function_grad]
+    exact hgrad
   have hdualGrad : cubeScaleNormalizedDualNegativeBesovVectorNormTwo Q s
       wCube.toH1Function.grad =
       cubeScaleNormalizedDualNegativeBesovVectorNormTwo Q s wdiff :=
@@ -1412,7 +1414,7 @@ theorem exists_roundedGenerationHarmonicComparisonSpecializationConstant
       (fun x ↦ u.toFun x - W.v.toFun x) ≤
       Kc * cubeLpNorm Q (2 : ℝ≥0∞) (fun x ↦ w.toH1Function.toFun x) := by
     have hdesc : originCube d (m - 1) ∈ descendantsAtDepth Q 1 := by
-      simpa only [Q, centralDescendant_originCube_eq_originCube_sub] using
+      simpa only [Q, centralDescendant_originCube_eq_originCube_sub] using!
         CubeCalderonZygmund.centralDescendant_mem_descendantsAtDepth Q 1
     rw [← cubeLpNorm_eq_of_ae_eq_on_parent_cube hdesc hwCube]
     simpa only [Kc, Q] using cubeLpNorm_originCube_pred_le_card_mul_printOrder m

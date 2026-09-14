@@ -39,8 +39,8 @@ theorem tsum_rpow_half_mul_rpow_half_le
     (∑' i, A i ^ (1 / 2 : ℝ) * B i ^ (1 / 2 : ℝ)) ≤
       (∑' i, A i) ^ (1 / 2 : ℝ) *
         (∑' i, B i) ^ (1 / 2 : ℝ) := by
-  letI : MeasurableSpace ι := ⊤
-  haveI : MeasurableSingletonClass ι := ⟨fun _ => trivial⟩
+  let : MeasurableSpace ι := ⊤
+  have : MeasurableSingletonClass ι := ⟨fun _ => trivial⟩
   have hA : AEMeasurable A (Measure.count : Measure ι) :=
     (measurable_of_countable A).aemeasurable
   have hB : AEMeasurable B (Measure.count : Measure ι) :=
@@ -193,7 +193,7 @@ theorem ofReal_abs_volumeAverage_le_whitneyRow_cauchySchwarz
     have hdiff : volume (U \ A) = 0 := by
       rw [hiUnionRows]
       exact system.ae_exhaustion hd hU
-    exact Filter.EventuallyLE.antisymm (ae_of_all volume hAU)
+    exact _root_.Filter.EventuallyLE.antisymm (ae_of_all volume hAU)
       (ae_le_set.mpr hdiff)
   have hmeas : ∀ i : system.CellIndex,
       MeasurableSet (system.cell i) := by

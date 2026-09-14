@@ -58,7 +58,7 @@ theorem IsWeakSolutionOn.untranslate
   let psi : Vec d → ℝ := fun x => phi (x - z)
   have hpsi : IsLocalTest (translateSet z U) psi := by
     refine ⟨?_, ?_, ?_⟩
-    · simpa only [psi] using
+    · simpa only [psi] using!
         hphi.contDiff.comp (contDiff_id.sub contDiff_const)
     · show HasCompactSupport (phi ∘ Homeomorph.subRight z)
       simpa only [psi, Function.comp_apply] using
@@ -82,14 +82,14 @@ theorem IsWeakSolutionOn.untranslate
   obtain ⟨hpInt, hpZero⟩ := h psi hpsi
   have hpComp : IntegrableOn (fun y => p (y + z)) U := by
     let hmp := measurePreserving_addRight_restrict_translateSet (d := d) z U
-    simpa only [Function.comp_apply] using
+    simpa only [Function.comp_apply] using!
       hmp.integrable_comp_of_integrable hpInt
   refine ⟨?_, ?_⟩
-  · exact hpComp.congr (Filter.Eventually.of_forall fun y => (hqp y).symm)
+  · exact hpComp.congr (_root_.Filter.Eventually.of_forall fun y => (hqp y).symm)
   · change ∫ y in U, q y ∂volume = 0
     calc
       ∫ y in U, q y ∂volume = ∫ y in U, p (y + z) ∂volume :=
-        integral_congr_ae (Filter.Eventually.of_forall hqp)
+        integral_congr_ae (_root_.Filter.Eventually.of_forall hqp)
       _ = ∫ x in translateSet z U, p x ∂volume :=
         setIntegral_comp_addRight_translateSet (d := d) z U p
       _ = 0 := hpZero
@@ -129,7 +129,7 @@ private theorem isForcedEquation_zero_of_isWeakSolutionOn'
       (Book.Ch02.cubeDomain Q : Set (Vec d)) u (0 : Vec d → Vec d) :=
     IsH1DirichletRhsWeakSolutionOn.of_residual_solenoidal
       hflux MeasureTheory.MemLp.zero (by simpa only [Pi.zero_apply, sub_zero] using hsol)
-  simpa only [IsForcedEquation] using hweak
+  simpa only [IsForcedEquation] using! hweak
 
 /-- Restrict a physical weak solution to an inward observation cube, pull it
 back to the origin, and package the translated source representative as a
@@ -186,7 +186,7 @@ theorem exists_observationCoeffFamily_and_forcedEquation
     change fObs =ᵐ[volume.restrict (openCubeSet (originCube d m))]
       fun x => aPhysical (x + center)
     exact ae_restrict_of_ae (by
-      simpa only [fObs, translateCoeffField] using hfaPhysicalShift)
+      simpa only [fObs, translateCoeffField] using! hfaPhysicalShift)
   let Q : TriadicCube d := originCube d m
   have hV : openCubeAtScale center m =
       translateSet center (openCubeSet Q) := by
@@ -208,16 +208,16 @@ theorem exists_observationCoeffFamily_and_forcedEquation
   have hPhysicalF : IsWeakSolutionOn f
       (translateSet center (openCubeSet Q)) u.grad := by
     exact IsWeakSolutionOn.congr_ae
-      (ae_restrict_of_ae hfaPhysical.symm) Filter.EventuallyEq.rfl hPhysicalV
+      (ae_restrict_of_ae hfaPhysical.symm) _root_.Filter.EventuallyEq.rfl hPhysicalV
   have hWeakObs : IsWeakSolutionOn fObs (openCubeSet Q) uObs.grad := by
     have hPull := IsWeakSolutionOn.untranslate center hPhysicalF
     simpa only [fObs, uObs, H1Function.untranslate_grad, uT,
-      H1Function.restrict] using hPull
+      H1Function.restrict] using! hPull
   have hForced : IsForcedEquation Q aObs uObs (0 : Vec d → Vec d) := by
     apply isForcedEquation_zero_of_isWeakSolutionOn' uObs
     simpa only [aObs, aReg,
       Book.Ch04.triadicCoeffFamilyOfAELocallyUniformlyEllipticField_coeffOn_toCoeffField,
-      regCoeffFieldOfBallPointwiseElliptic_toFun] using hWeakObs
+      regCoeffFieldOfBallPointwiseElliptic_toFun] using! hWeakObs
   refine ⟨aObs, uObs, ?_, ?_, ?_, ?_⟩
   · simpa only [Q] using hcoeff
   · intro x

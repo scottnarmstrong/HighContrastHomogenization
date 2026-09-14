@@ -77,7 +77,7 @@ theorem ofReal_frakH_root_le_nonlinearHistory_root [NeZero d]
       (f := fun k : ℤ ↦ ENNReal.ofReal
         ((3 : ℝ) ^ (-a * ((t : ℝ) - 1 - (k : ℝ))) *
           frakH Q (relMean P q k t)))
-      (fun k _ ↦ zero_le _) (Finset.mem_Ico.mpr ⟨hklo, hkhi⟩)
+      (fun k _ ↦ zero_le) (Finset.mem_Ico.mpr ⟨hklo, hkhi⟩)
   have hbase : ENNReal.ofReal
       (frakH Q (relMean P q (t - (j : ℤ)) t)) ≤
       ENNReal.ofReal c * nonlinearHistory P Q a q jStar t := by
@@ -244,7 +244,7 @@ theorem ofReal_diagonalWeakCellSum_le_profile [NeZero d]
             rw [← Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
             congr 1
             ring
-      simpa only [hj0, if_neg] using
+      simpa only [hj0, if_neg] using!
         hscaled.trans (add_le_add le_rfl hnonlinear)
   have hcenterSum :
       (∑ j ∈ Finset.range (H + 1), ENNReal.ofReal (ccen j) * Z) =

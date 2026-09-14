@@ -52,7 +52,7 @@ theorem relSize_one_right (X : Mat d) : relSize X 1 = ‖X‖ := by
 identity** (the display of `e.global.selection.eccentricity`). -/
 theorem log_witnessEccentricity [NeZero d] {m : Mat d} (hm : m.PosDef) :
     Real.log (witnessEccentricity m) = projDist 1 m := by
-  haveI : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
+  have : Nonempty (Fin d) := ⟨⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩⟩
   have hL : relSize m 1 = ‖m‖ := relSize_one_right m
   have hA : relSize 1 m = ‖m⁻¹‖ := relSize_one_left hm
   have h1 : (0 : ℝ) < ‖m‖ := norm_pos_iff.mpr hm.isUnit.ne_zero

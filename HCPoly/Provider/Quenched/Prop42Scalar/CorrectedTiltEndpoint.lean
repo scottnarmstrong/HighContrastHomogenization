@@ -55,7 +55,8 @@ theorem exists_power_bounded_unit_decay_of_corrected_tilt
   let m₀ := totalDecayDelay n₀ Aout α
   refine ⟨m₀, ?_, ?_⟩
   · dsimp [m₀]
-    simpa only [Aout, α] using
+    simpa only [Aout, α, Real.rpow_natCast, Real.rpow_def_of_pos,
+      Real.rpow_def_of_nonneg, Real.rpow_natCast, Real.rpow_eq_pow] using
       (three_pow_totalDecayDelay_le_rpow
         (A := Aout) (α := α) hα hbase hCpref hentry hpref)
   · intro j

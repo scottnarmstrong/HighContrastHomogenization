@@ -81,7 +81,10 @@ private theorem finiteTrialGradientLinearMap_energy
     (finiteAffineCubeSolution a (m : ℤ) b)
   have hclass : finiteTrialGradientLinearMap_field a hqm b =
       w.toH1.gradToHilbertVectorL2 := by rfl
-  rw [hclass, sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
+  have hsqrt := sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal
+    (Book.Ch03.publicCoeffField_isEllipticFieldOn_openCubeSet
+      (originCube d (q : ℤ)) a) w.toH1
+  erw [hclass, hsqrt]
   rw [weightedGradNorm_congr_coeff_ae_on _
     (Book.Ch03.publicCoeffField_ae_eq_openCubeSet
       (originCube d (q : ℤ)) a)]
@@ -124,7 +127,7 @@ theorem finiteTrialGradientResidual_eq
           (show (q : ℤ) ≤ (m : ℤ) by exact_mod_cast hqm)
           (finiteAffineCubeSolution a (m : ℤ) b)).toH1.gradToHilbertVectorL2]
     with x huq htrial hres hsub
-  rw [hsub, Pi.sub_apply, huq, htrial, hres]
+  erw [hsub, Pi.sub_apply, huq, htrial, hres]
   simp only [uQ, finiteCubeSolutionRestriction_grad,
     finiteAffineGradientResidual_grad]
   change WithLp.toLp 2 _ - WithLp.toLp 2 _ = WithLp.toLp 2 _
@@ -240,7 +243,7 @@ theorem exists_scalarIdentityFiniteAffineFixedBaseDecayConstants
           (b (q : ℤ))).toH1.gradToHilbertVectorL2 := by
       simpa only [J, uQ, T] using
         finiteTrialGradientResidual_eq a hqm u (b (q : ℤ))
-    rw [hres, sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
+    erw [hres, sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal]
     have hbq' : weightedGradNorm
           (a.coeffOn (originCube d (q : ℤ))).toCoeffField
           (openCubeSet (originCube d (q : ℤ)))
@@ -395,8 +398,8 @@ theorem exists_scalarIdentityFiniteAffineFixedBaseDecayConstants
     calc
       _ = Real.sqrt (normalizedLocalSymmetricEnergy hEll
           (T (b j - b (j + 1)))) := by
-            rw [hnegSlope, map_neg,
-              sqrt_normalizedLocalSymmetricEnergy_neg_increment]
+            rw [hnegSlope, map_neg]
+            erw [sqrt_normalizedLocalSymmetricEnergy_neg_increment]
       _ = finiteCenteredCubeSolutionEnergy a (m : ℤ)
           (finiteAffineCubeSolution a (m : ℤ) (b j - b (j + 1)))
             (q : ℤ) := finiteTrialGradientLinearMap_energy a hqm _
@@ -437,7 +440,7 @@ theorem exists_scalarIdentityFiniteAffineFixedBaseDecayConstants
           (J - T (b (n : ℤ)))) := congrArg
             (fun F ↦ Real.sqrt (normalizedLocalSymmetricEnergy hEll F)) hresBase.symm
       _ ≤ _ := hfixed
-  rw [sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal] at hfixedResidual
+  erw [sqrt_normalizedEnergy_grad_eq_weightedGradNorm_toReal] at hfixedResidual
   have hfixedCoeff : (weightedGradNorm
       (a.coeffOn (originCube d (q : ℤ))).toCoeffField
       (openCubeSet (originCube d (q : ℤ)))

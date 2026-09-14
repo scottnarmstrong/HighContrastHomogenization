@@ -190,7 +190,7 @@ theorem centered_scale_le [NeZero d] [IsProbabilityMeasure P] {Q a rhoMax : ℝ}
     _ = ∑ w ∈ Z, ∫⁻ x, ENNReal.ofReal ((3 : ℝ) ^ (-rhoMax * ((T : ℝ) - (j : ℝ))) *
             blockSize (blockSub (adaptedResponse q j w x) (adaptedMean P q j))
               (adaptedMean P q T)) ^ Q ∂P := by
-        refine lintegral_finset_sum' Z fun w _ => ?_
+        refine lintegral_finsetSum' Z fun w _ => ?_
         exact ENNReal.continuous_rpow_const.measurable.comp_aemeasurable
           (ENNReal.measurable_ofReal.comp_aemeasurable
             ((aemeasurable_blockSize_coarseBlock_sub
@@ -247,7 +247,7 @@ theorem centered_high_le [NeZero d] [IsProbabilityMeasure P] {Q a rhoMax : ℝ}
             ENNReal.ofReal ((3 : ℝ) ^ (-rhoMax * ((T : ℝ) - (j : ℝ))) *
               blockSize (blockSub (adaptedResponse q j w x) (adaptedMean P q j))
                 (adaptedMean P q T))) ^ Q ∂P := by
-        refine lintegral_finset_sum' _ fun j _ => ?_
+        refine lintegral_finsetSum' _ fun j _ => ?_
         exact ENNReal.continuous_rpow_const.measurable.comp_aemeasurable
           (aemeasurable_adaptedCellSup hqPD (Recurrence.isSymmetricBlockMat_adaptedMean P q T) hpdT
             ((3 : ℝ) ^ (-rhoMax * ((T : ℝ) - (j : ℝ)))) j (adaptedCell q T))

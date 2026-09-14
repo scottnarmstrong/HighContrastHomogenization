@@ -98,9 +98,9 @@ private theorem finiteAffineSolutionInnerH1_toFun_add_ae
   have hinner := MeasureTheory.ae_restrict_of_ae_restrict_of_subset
     (openCubeSet_originCube_subset_of_int_le (d := d) hkm)
     (by
-      simpa only [volumeMeasureOn, Book.Ch02.cubeDomain_coe] using houter)
+      simpa only [volumeMeasureOn, Book.Ch02.cubeDomain_coe] using! houter)
   simpa only [volumeMeasureOn, Book.Ch02.cubeDomain_coe,
-    finiteAffineSolutionInnerH1_toFun] using hinner
+    finiteAffineSolutionInnerH1_toFun] using! hinner
 
 private theorem finiteAffineSolutionInnerH1_toFun_smul_ae
     {d : ℕ} [NeZero d] (a : Book.Ch02.TriadicCoeffFamily d)
@@ -113,9 +113,9 @@ private theorem finiteAffineSolutionInnerH1_toFun_smul_ae
   have hinner := MeasureTheory.ae_restrict_of_ae_restrict_of_subset
     (openCubeSet_originCube_subset_of_int_le (d := d) hkm)
     (by
-      simpa only [volumeMeasureOn, Book.Ch02.cubeDomain_coe] using houter)
+      simpa only [volumeMeasureOn, Book.Ch02.cubeDomain_coe] using! houter)
   simpa only [volumeMeasureOn, Book.Ch02.cubeDomain_coe,
-    finiteAffineSolutionInnerH1_toFun] using hinner
+    finiteAffineSolutionInnerH1_toFun] using! hinner
 
 private theorem h1_toScalarL2_eq_of_ae_eq
     {d : ℕ} {U : Set (Vec d)} (u v : H1Function U)
@@ -144,7 +144,7 @@ noncomputable def finiteAffineSolutionInnerL2LinearMap
   map_smul' r e := by
     rw [← H1Function.toScalarL2_smul]
     apply h1_toScalarL2_eq_of_ae_eq
-    simpa only [H1Function.smul_toFun] using
+    simpa only [H1Function.smul_toFun, RingHom.id_apply] using
       finiteAffineSolutionInnerH1_toFun_smul_ae a k m hkm r e
 
 /-- Application of the inner finite-solution `L²` map. -/

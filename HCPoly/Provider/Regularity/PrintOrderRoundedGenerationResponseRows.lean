@@ -129,7 +129,7 @@ theorem
               (M - (u : ℤ)) w ∈
             adaptedCell (roundedGrid generation (symmPart abar)) M := by
       have hSet := congrArg (fun U : Set (Fin d → ℤ) ↦ w ∈ U) (hZ u)
-      simpa only [Finset.mem_coe, Set.mem_setOf_eq] using iff_of_eq hSet
+      simpa only [Finset.mem_coe, Set.mem_ofPred_eq] using iff_of_eq hSet
     exact hZmem.trans
       (Response.mem_alignedIndex_iff (Recurrence.posDef_roundedGrid hl hS)
         (by omega)).symm
