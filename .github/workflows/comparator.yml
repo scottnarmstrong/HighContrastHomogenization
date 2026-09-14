@@ -72,6 +72,7 @@ jobs:
       - name: Build comparator
         if: steps.tools-cache.outputs.cache-hit != 'true'
         run: |
+          rm -rf ~/tools/comparator
           git clone https://github.com/leanprover/comparator ~/tools/comparator
           git -C ~/tools/comparator checkout "$COMPARATOR_REV"
           cd ~/tools/comparator && lake build
@@ -79,6 +80,7 @@ jobs:
       - name: Build lean4export (toolchain-matched)
         if: steps.tools-cache.outputs.cache-hit != 'true'
         run: |
+          rm -rf ~/tools/lean4export
           git clone https://github.com/leanprover/lean4export ~/tools/lean4export
           git -C ~/tools/lean4export checkout "$LEAN4EXPORT_REV"
           test "$(cat ~/tools/lean4export/lean-toolchain)" = "$(cat lean-toolchain)" \
@@ -94,6 +96,7 @@ jobs:
       - name: Build landrun (static)
         if: steps.tools-cache.outputs.cache-hit != 'true'
         run: |
+          rm -rf ~/tools/landrun-src ~/tools/bin/landrun
           git clone https://github.com/Zouuup/landrun ~/tools/landrun-src
           git -C ~/tools/landrun-src checkout "$LANDRUN_REV"
           mkdir -p ~/tools/bin
@@ -109,6 +112,7 @@ jobs:
           }
           export PATH="$HOME/.cargo/bin:$PATH"
           rustup toolchain install stable --profile minimal
+          rm -rf ~/tools/nanoda_lib
           git clone https://github.com/ammkrn/nanoda_lib ~/tools/nanoda_lib
           git -C ~/tools/nanoda_lib checkout "$NANODA_REV"
           cd ~/tools/nanoda_lib && PATH="$HOME/.cargo/bin:$PATH" cargo +stable build --release
