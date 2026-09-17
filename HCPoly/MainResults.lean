@@ -18,10 +18,9 @@ in full.  Each is proved by direct application of the theorem it restates, so
 the statement displayed in this file is the one that has been checked.
 
 * `HCPoly.polynomial_entry` -- Theorem A of the paper, `t.polynomial.entry`:
-  entry into the small-contrast regime at a deterministic generation bounded by
-  a multiple of the base-three logarithm of `2 + Π K`, hence at a length
-  polynomial in the reference aspect ratio and in the growth constant of the
-  source tail.
+  entry into the small-contrast regime at every generation beyond a multiple of
+  the base-three logarithm of `2 + Π K`, hence at a length polynomial in the
+  reference aspect ratio and in the growth constant of the source tail.
 * `HCPoly.algebraic_convergence` -- Theorem B of the paper,
   `t.algebraic.convergence`: beyond a generation bounded by a multiple of the
   base-three logarithm of `2 + Π K`, the annealed contrast decays geometrically
@@ -45,7 +44,10 @@ All five reduce to the standard axioms
 (`propext`, `Classical.choice`, `Quot.sound`).
 -/
 
-open Homogenization HighContrast MeasureTheory
+open Homogenization MeasureTheory
+-- The entry route states its own standing assumptions in the project namespace; the
+-- statements below read them from `HCPoly.Frozen`, as Theorems B and D do.
+open Homogenization.HighContrast hiding IsStationaryLaw IsUnitRangeLaw CoarseEllipticityDagger
 open HCPoly.Frozen (IsStationaryLaw IsUnitRangeLaw CoarseEllipticityDagger)
 
 /-! ## Theorem A: polynomial entry into small contrast -/
@@ -55,15 +57,14 @@ Fix a dimension `d ≥ 2`, a coarse ellipticity exponent `g ∈ [0, 1)` and a
 tolerance `σ ∈ (0, 1]`.  There is a constant `C`, depending on these three data
 alone -- in particular independent of the reference block, of the coefficient
 law, of the reference aspect ratio `e.reference.aspect.ratio` and of the growth
-constant of the source tail -- such that every stationary law of unit range of
-dependence which is coarsely elliptic above its random source scale admits a
-deterministic generation `mEnt` at which the annealed contrast `e.Theta.m` is
-at most `1 + σ`, subject to the bound of `e.polynomial.entry` on `mEnt`.  The
-corresponding length is then polynomial in the reference aspect ratio and in the
-growth constant of the source tail.
+constant of the source tail -- such that for every stationary law of unit range
+of dependence which is coarsely elliptic above its random source scale the
+annealed contrast `e.Theta.m` is at most `1 + σ` at every generation beyond the
+entry generation `⌈C log₃(2 + Π K)⌉` of `e.polynomial.entry`.  The length of that
+entry generation is polynomial in the reference aspect ratio and in the growth
+constant of the source tail.
 
-The generation `mEnt` need not be the first at which the contrast is small, and
-no bound uniform as `g` increases to one is asserted. -/
+No bound uniform as `g` increases to one is asserted. -/
 theorem HCPoly.polynomial_entry (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
     (hg : g ∈ Set.Ico (0 : ℝ) 1) (σ : ℝ) (hσ : σ ∈ Set.Ioc (0 : ℝ) 1) :
     ∃ C : ℝ, 0 < C ∧
@@ -73,36 +74,17 @@ theorem HCPoly.polynomial_entry (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
         IsStationaryLaw P →
         IsUnitRangeLaw P →
         CoarseEllipticityDagger P g E Ψ K S →
-        ∃ mEnt : ℕ,
-          (mEnt : ℤ) ≤ ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
-          annealedContrast P (mEnt : ℤ) ≤ 1 + σ ∧
-          (3 : ℝ) ^ mEnt ≤ 3 * (2 + aspectRatio E * K) ^ C := by
-  obtain ⟨hσ0, hσ1⟩ := hσ
-  have hδ₀ : σ / 8 ∈ Set.Ioo (0 : ℝ) 1 :=
-    ⟨by linarith only [hσ0], by linarith only [hσ1]⟩
-  have hcEnd : (0 : ℝ) < σ / 8 := by linarith only [hσ0]
-  have hsq : σ ^ 2 ≤ σ := by
-    calc σ ^ 2 = σ * σ := by ring
-      _ ≤ σ * 1 := mul_le_mul_of_nonneg_left hσ1 hσ0.le
-      _ = σ := by ring
-  have hcube : σ ^ 3 ≤ σ := by
-    calc σ ^ 3 = σ * σ ^ 2 := by ring
-      _ ≤ σ * σ := mul_le_mul_of_nonneg_left hsq hσ0.le
-      _ = σ ^ 2 := by ring
-      _ ≤ σ := hsq
-  have hcal : (1 + σ / 8) ^ 2 * (1 + σ / 8) ≤ 1 + σ := by
-    calc (1 + σ / 8) ^ 2 * (1 + σ / 8)
-        = 1 + 3 * (σ / 8) + 3 * (σ ^ 2 / 64) + σ ^ 3 / 512 := by ring
-      _ ≤ 1 + 3 * (σ / 8) + 3 * (σ / 64) + σ / 512 := by linarith only [hsq, hcube]
-      _ ≤ 1 + σ := by linarith only [hσ0]
-  obtain ⟨cStar, hcStar, hexp⟩ :=
-    HCPoly.Frozen.polynomial_entry_random_source d hd σ (σ / 8) (σ / 8) hσ0 hδ₀
-      hcEnd hcal
-  obtain ⟨C, hC, hbody⟩ := hexp g hg
-  refine ⟨C, hC, fun P E Ψ K S hP hstat hrange hcoarse => ?_⟩
-  obtain ⟨mEnt, hceil, hcontrast, hlength⟩ := hbody P E Ψ K S hP hstat hrange hcoarse
-  have hle : cStar ≤ σ := hcStar.2.trans (min_le_left _ _)
-  exact ⟨mEnt, hceil, by linarith only [hcontrast, hle], hlength⟩
+        (∀ m : ℤ, ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ≤ m →
+            annealedContrast P m ≤ 1 + σ) ∧
+          ∃ mEnt : ℕ,
+            (mEnt : ℤ) = ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
+            (3 : ℝ) ^ (mEnt : ℕ) ≤ 3 * (2 + aspectRatio E * K) ^ C := by
+  obtain ⟨C, hC, hbody⟩ := Homogenization.HighContrast.polynomial_entry d hd g hg σ hσ
+  refine ⟨C, hC, ?_⟩
+  intro P E Ψ K S hP hstat hrange hdagger
+  refine ⟨hbody P E Ψ K S hP hstat hrange hdagger.toEntryRoute, ?_⟩
+  exact HCPoly.Frozen.exists_entry_generation hC
+    (HCPoly.Frozen.one_lt_two_add_aspectRatio_mul E hdagger.one_lt_growthWitness)
 
 /-! ## Theorem B: algebraic convergence at a polynomial scale -/
 

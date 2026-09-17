@@ -36,3 +36,4 @@ lean_lib «HCPoly» where
     ⟨`linter.unnecessarySimpa, true⟩,
     ⟨`linter.deprecated, true⟩
   ]
+

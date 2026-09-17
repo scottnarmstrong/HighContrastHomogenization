@@ -24,10 +24,11 @@ theorem HCPoly.StatementAudit.PolynomialEntry.polynomial_entry
         (S : CoeffSpace d → ℝ),
         IsProbabilityMeasure P → IsStationaryLaw P → IsUnitRangeLaw P →
         CoarseEllipticityDagger P g E Ψ K S →
-        ∃ mEnt : ℕ,
-          (mEnt : ℤ) ≤ ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
-          annealedContrast P (mEnt : ℤ) ≤ 1 + σ ∧
-          (3 : ℝ) ^ mEnt ≤ 3 * (2 + aspectRatio E * K) ^ C
+        (∀ m : ℤ, ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ≤ m →
+            annealedContrast P m ≤ 1 + σ) ∧
+          ∃ mEnt : ℕ,
+            (mEnt : ℤ) = ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
+            (3 : ℝ) ^ (mEnt : ℕ) ≤ 3 * (2 + aspectRatio E * K) ^ C
 ```
 
 Every name is the challenge's own definition.
@@ -107,17 +108,15 @@ These are all proved by substituting the instance equality.
 
 ## Presentation deltas
 
-1. **One tolerance instead of a calibration triple.**  The library statement
-   quantifies a triple `(c_sc, δ₀, c_end)` with
-   `(1 + δ₀)² (1 + c_end) ≤ 1 + c_sc` and produces
-   `c_* ∈ (0, min c_sc c_end]` with `Θ_{m_ent} - 1 ≤ c_*`, the tolerance being
-   chosen before the coarse-ellipticity exponent.  The challenge takes the
-   printed form: a single `σ ∈ (0, 1]`, with the conclusion
-   `Θ_{m_ent} ≤ 1 + σ` of `e.polynomial.entry`.  The solution instantiates the
-   triple at `(σ, σ/8, σ/8)`, which is admissible because `(1 + σ/8)³ ≤ 1 + σ`
-   for `0 < σ ≤ 1`, and then `c_* ≤ min σ (σ/8) ≤ σ`.  The challenge is
-   therefore the printed statement and is implied by the library one; it does
-   not assert the library's finer calibration bookkeeping.
+1. **No presentation delta in the conclusion.**  The challenge is the printed
+   statement of `e.polynomial.entry` and the library export
+   `HCPoly.polynomial_entry` is that same statement: one tolerance
+   `σ ∈ (0, 1]`, the contrast bound `Θ_m ≤ 1 + σ` at *every* generation
+   `m ≥ ⌈C log₃ (2 + Π K)⌉`, and the entry generation carried as a natural
+   number whose length is at most `3 (2 + Π K)^C`.  The solution applies the
+   export to the binders of the statement and carries its two conclusions across
+   the identifications of `Support/PolynomialEntryBridge.lean`; no calibration
+   bookkeeping is involved on either side.
 2. **Aspect ratio and contrast in Loewner-scaling form.**  `Π` and `Θ_m` are
    presented as infima of the scalars `t ≥ 0` realizing a Loewner bound, which
    is how the library encodes the printed matrix norms

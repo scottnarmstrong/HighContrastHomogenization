@@ -18,22 +18,21 @@ the theorem.
 
 Fix a dimension `d ≥ 2`, a coarse ellipticity exponent `g ∈ [0, 1)` and a
 tolerance `σ ∈ (0, 1]`.  There is a constant `C > 0` such that every law `P`
-satisfying the standing assumptions admits a deterministic entry generation
-`m_ent ∈ ℕ` with
+satisfying the standing assumptions has
 
-* `m_ent ≤ ⌈C log₃ (2 + Π K)⌉`, where `Π` is the aspect ratio
-  `e.reference.aspect.ratio` of the reference block and `K` is the growth
-  witness of the source gauge;
-* `Θ_{m_ent} ≤ 1 + σ`, where `Θ_m` is the annealed contrast `e.Theta.m` of the
-  centred cube `□_m`;
-* `3^{m_ent} ≤ 3 (2 + Π K)^C`, the same bound read as a length.
+* `Θ_m ≤ 1 + σ` at **every** generation `m ≥ ⌈C log₃ (2 + Π K)⌉`, where `Π` is
+  the aspect ratio `e.reference.aspect.ratio` of the reference block, `K` is the
+  growth witness of the source gauge, and `Θ_m` is the annealed contrast
+  `e.Theta.m` of the centred cube `□_m`;
+* an entry generation `m_ent ∈ ℕ` equal to that ceiling, whose length satisfies
+  `3^{m_ent} ≤ 3 (2 + Π K)^C`.
 
-The first two displays are `e.polynomial.entry`.  The constant `C` depends on
-`σ`, `d` and `g` alone: it is chosen before the law, the reference block, the
-gauge, the growth witness and the source scale, so a single power of `2 + Π K`
-bounds the entry length over the whole class.  The generation `m_ent` need not
-be the first at which the contrast is small, and no bound uniform as `g ↑ 1` is
-asserted.
+The first display is `e.polynomial.entry`.  The constant `C` depends on `σ`, `d`
+and `g` alone: it is chosen before the law, the reference block, the gauge, the
+growth witness and the source scale, so a single power of `2 + Π K` bounds the
+entry length over the whole class.  Nothing asserts that `⌈C log₃ (2 + Π K)⌉` is
+the first generation at which the contrast is small, and no bound uniform as
+`g ↑ 1` is asserted.
 
 ## Standing assumptions
 
@@ -50,10 +49,12 @@ and source scale `S`.
 * **Symbols.**  The paper writes the exponent `γ`, the gauge `Ψ_S` and its
   growth witness `K_{Ψ_S}`.  Here they are `g`, `Ψ` and `K`, and `m_ent` is
   `mEnt`.  Only the spelling changes, the Lean names carrying no subscripts.
-* **The length form of the entry bound.**  The paper bounds the generation and
-  remarks that the corresponding length is bounded by a power of `2 + Π K`.
-  Here that remark is the third conclusion, `3^{m_ent} ≤ 3 (2 + Π K)^C`, with
-  the same `C`.  It is the first conclusion composed with `⌈x⌉ ≤ x + 1`.
+* **The length form of the entry bound.**  The paper bounds the entry generation
+  and remarks that the corresponding length is bounded by a power of `2 + Π K`.
+  Here that remark is the second conclusion: the entry generation is the ceiling
+  `⌈C log₃ (2 + Π K)⌉` itself, carried as a natural number `m_ent`, and
+  `3^{m_ent} ≤ 3 (2 + Π K)^C` with the same `C`.  It is the ceiling composed
+  with `⌈x⌉ < x + 1`.
 * **The reference block.**  The paper writes `𝐄` in the Schur form
   `e.reference.block`.  Here `E` is an arbitrary symmetric positive definite
   doubled block and its Schur coefficients `σ₀`, `κ₀`, `σ_{*,0}` are read off
@@ -630,14 +631,15 @@ theorem polynomial_entry
         -- coarse ellipticity above the source scale, `e.coarse.ellipticity`
         -- together with the source tail `e.source.tail`
         CoarseEllipticityDagger P g E Ψ K S →
-        -- the deterministic entry generation `m_ent`
-        ∃ mEnt : ℕ,
-          -- `m_ent ≤ ⌈C log₃ (2 + Π K)⌉`, `e.polynomial.entry`
-          (mEnt : ℤ) ≤ ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
-          -- `Θ_{m_ent} ≤ 1 + σ`, `e.polynomial.entry`
-          annealedContrast P (mEnt : ℤ) ≤ 1 + σ ∧
-          -- the same bound as a length: `3^{m_ent} ≤ 3 (2 + Π K)^C`
-          (3 : ℝ) ^ mEnt ≤ 3 * (2 + aspectRatio E * K) ^ C := by
+        -- `Θ_m ≤ 1 + σ` at every generation beyond `⌈C log₃ (2 + Π K)⌉`,
+        -- `e.polynomial.entry`
+        (∀ m : ℤ, ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ≤ m →
+            annealedContrast P m ≤ 1 + σ) ∧
+          -- that entry generation as a natural number, and its length:
+          -- `3^{m_ent} ≤ 3 (2 + Π K)^C`
+          ∃ mEnt : ℕ,
+            (mEnt : ℤ) = ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
+            (3 : ℝ) ^ (mEnt : ℕ) ≤ 3 * (2 + aspectRatio E * K) ^ C := by
   sorry
 
 end

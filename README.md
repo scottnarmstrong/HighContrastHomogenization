@@ -33,10 +33,14 @@ whose tail has a stretched-exponential term and a rescaled copy of the
 source-tail bound.
 
 This repository formalizes that paper.  The renormalization scheme of the
-paper's Sections 2–5 — scale selection, contraction on one adapted grid,
-change of geometry, initialization, global selection, and response and
-Euclidean transfer — is formalized in full, and so are the deductions of
-Section 6 that the theorems below state.
+paper's Sections 2–5 — the source Whitney decomposition and scale selection,
+matrix averaging and the positive gap, the parent–child recurrence and
+propagation on one adapted grid, the two-grid Whitney construction, the
+projective step, the successful short bridge and two-grid transport, the
+Euclidean initialization, global selection and response transfer — is
+formalized in full, each step carried by a named theorem stating the
+proposition of the paper it proves, and so are the deductions of Section 6
+that the theorems below state.
 
 All four theorems of the paper's introduction — Theorems A, B, C and D — are
 formalized and proved, each exported in the paper's own form in
@@ -46,8 +50,8 @@ of Theorem D for uniformly elliptic laws; its Dirichlet clause is exported
 in the negative-Sobolev form of Theorem D rather than the paper's `L²`
 form with a forcing term, as explained below.
 
-- **1,657 Lean source files, 333,251 lines** (including the comparator
-  audit surface; the library itself is 1,640 files and 325,953 lines).
+- **1,973 Lean source files, 406,339 lines** (including the comparator
+  audit surface; the library itself is 1,956 files and 399,057 lines).
 - **No `sorry`** anywhere in the library.  (Each Mathlib-only comparator
   challenge in `HCPolyAudit/` contains its single intentional statement-level
   `sorry`, filled by the corresponding solution file.)
@@ -58,6 +62,24 @@ form with a forcing term, as explained below.
 - Pinned to Lean `v4.33.0`, `mathlib` `v4.33.0`, and `CoarseGraining` at a
   fixed revision.
 
+## What changed in this release
+
+Theorem A is now proved along the paper's own route.  Each step of Sections 2–5
+— the source Whitney decomposition, scale selection, matrix averaging and the
+positive gap, the parent–child recurrence, propagation on one adapted grid, the
+two-grid Whitney construction, the projective step, the successful short bridge,
+two-grid transport, the Euclidean initialization, global selection and response
+transfer — is a named theorem under `HCPoly/Entry/Statements/`, and Theorem A is
+assembled from them.  The exported statement is the printed one: the annealed
+contrast is at most `1 + σ` at *every* generation beyond the entry scale, where
+the previous release asserted it at one generation only.
+
+The previous proof of Theorem A and the 212 modules that served it alone have
+been removed.  Theorems B, C and D, their proofs and their comparator pairs are
+unchanged, and so are the toolchain (Lean `v4.33.0`, `mathlib` `v4.33.0`) and
+the dependency pins.  The comparator pair for Theorem A was restated in the new
+printed form and re-proved.
+
 ## Main results
 
 The headline theorems are stated in full in
@@ -67,10 +89,13 @@ are faithful to the verified ones.
 
 * **`HCPoly.polynomial_entry`** (Theorem A of the paper) — polynomial entry
   into small contrast: for every tolerance `σ ∈ (0,1]` there is a constant
-  `C(σ, d, γ)` such that, for every law satisfying the standing assumptions,
-  the annealed contrast `Θ_m` is at most `1 + σ` at a deterministic
-  generation `m_ent ≤ ⌈C log₃(2 + Π K)⌉`; equivalently, the corresponding
-  length `3^{m_ent}` is at most `3 (2 + Π K)^C`.
+  `C(σ, d, γ)`, independent of the reference block, of the law, of the
+  reference aspect ratio `Π` and of the source-tail growth constant `K`, such
+  that, for every law satisfying the standing assumptions, the annealed
+  contrast `Θ_m` is at most `1 + σ` at **every** generation
+  `m ≥ ⌈C log₃(2 + Π K)⌉`; and the entry generation
+  `m_ent = ⌈C log₃(2 + Π K)⌉` has length `3^{m_ent} ≤ 3 (2 + Π K)^C`,
+  polynomial in `Π` and `K`.
 * **`HCPoly.algebraic_convergence`** (Theorem B) — algebraic convergence at a
   polynomial scale: beyond a generation `m₀ ≤ ⌈C log₃(2 + Π K)⌉` the annealed
   contrast decays like `3^{-κ j}`, and the annealed blocks converge at the
@@ -109,9 +134,10 @@ theorems themselves and inventoried in
   fields, modulo almost-everywhere equality, that are locally uniformly
   elliptic: on every bounded set one pair of ellipticity constants serves
   almost every value of the field there.  The constants belong to the field
-  and enter no estimate; the paper's qualitative class (local integrability
-  of `s`, `s⁻¹` and `kᵗ s⁻¹ k`) is wider, and the containment of the
-  formalized class in it is proved.
+  and enter no estimate.  This is the class over which the paper states
+  Theorem A.  For Theorems B, C and D the paper's qualitative class (local
+  integrability of `s`, `s⁻¹` and `kᵗ s⁻¹ k`) is wider, and the containment
+  of the formalized class in it is proved.
 - **Dirichlet domains in Theorem D.**  The Dirichlet estimate is stated on
   the adapted cells of the homogenized matrix (translates of the image of a
   triadic cube under `s̄^{1/2}`), normalized between two concentric adapted
@@ -132,10 +158,15 @@ theorems themselves and inventoried in
   identified, in the exported statement, with the limit block of Theorem B.
 - **Norms.**  Norms and energies are valued in `ℝ≥0∞`; fluxes are written
   for the skew-centered field.
+- **Citations.**  Docstrings cite the paper by its own LaTeX labels.  A few of
+  them cite lemmas of the companion paper HC (*Renormalization Group and
+  Elliptic Homogenization in High Contrast*) by that paper's labels instead:
+  `a.CFS`, `e.grok`, `e.Euc.by.tilt`, `e.tilt.by.Euc`, `e.self.dual`,
+  `l.bfE.bounds`, `l.weaknorms.moreproto` and `e.euclidean.contrast.bridge`.
 
 ## Verified against a Mathlib-only statement
 
-The development is large — about 325k lines in this repository, on top of
+The development is large — about 406k lines in this repository, on top of
 the 600k+-line `CoarseGraining` library it imports.  So that the central
 claims can be checked without trusting either development, the main
 theorems are restated using **only Mathlib** — no project definitions from
@@ -168,7 +199,7 @@ lake build           # compile the CoarseGraining dependency and the project
 `lake exe cache get` requires the committed
 [`lake-manifest.json`](lake-manifest.json), which pins the exact dependency
 revisions.  The `CoarseGraining` dependency is built from source on the first
-build; the project itself is about 1,640 modules.
+build; the project itself is about 1,956 modules.
 
 To use the library, `import HCPoly` pulls in the whole development; the
 main results are in `import HCPoly.MainResults`.
@@ -184,9 +215,23 @@ HCPoly/
   Analytic/           the analytic carriers behind Theorem D: normalized
                       norms, weighted Sobolev classes, weak solutions
   Annealed/           a law satisfying every standing assumption
-  Frozen/             the certified statement surface: the four main
-                      theorems' sources and the propositions feeding them
-  Provider/           the proofs, organized by the paper's sections
+  Frozen/             the statement surface Theorems B, C and D are proved
+                      from, and the bridge from Theorem A's printed form
+  Entry/              the polynomial-entry route to Theorem A
+    Statements/       Theorem A and the thirteen propositions of Sections 2–5
+                      it is assembled from, one theorem each
+    CG/               three further propositions of the route, stated in the
+                      CoarseGraining library's own vocabulary (`CG/Anchors/`)
+    Setup/            the route's own vocabulary: standing assumptions, the
+                      coarse response, the geometry update
+    Source/           the random source scale, its Whitney decomposition and
+                      its moments
+    Geometry/         the route's grids, adapted cells and Whitney partitions
+    Analysis/         Schatten norms and the matrix analysis of the route
+    Annealed/         the annealed blocks, drifts and locality of the route
+    Multiscale/       the renormalization scheme of Sections 2–5
+  Provider/           the proofs of Theorems B, C and D, organized by the
+                      paper's sections
   Meta/               AxiomsAudit.lean
 HCPoly.lean           the root module (imports the whole library)
 HCPolyAudit/          Mathlib-only comparator challenges and solutions
@@ -198,9 +243,11 @@ The Lean code in this repository was written by AI agents under the close
 supervision of the authors.  Claude Fable 5.1 orchestrated the campaign —
 planning, statement design, dispatch and review — and the agents that wrote
 the proofs, ran the audits and did the rewriting were mostly Claude Opus 5
-and GPT-5.6 Sol (at low reasoning effort); the upgrade to Lean v4.33.0 was
-carried out by DeepSeek V4.1 Flash workers with Claude Sonnet 5 on the
-escalations.  The models, tooling, cost, and review status are disclosed in
+and GPT-5.6 Sol (at low reasoning effort); the upgrade to Lean v4.33.0, the
+port of the polynomial-entry development to it and the merge of that
+development into this library were carried out by DeepSeek V4.1 Flash workers
+with Claude Sonnet 5 on the escalations.  The models, tooling, cost, and
+review status are disclosed in
 [`formalization.yaml`](formalization.yaml), following the
 [mathlib-initiative](https://github.com/mathlib-initiative/formalization.yaml)
 standard.

@@ -66,10 +66,14 @@ status:
     the Lean comparator.  Rendering conventions (stated in the theorem
     docstrings and in CORRESPONDENCE.md): the coefficient space is the class
     of measurable fields, modulo almost-everywhere equality, that are locally
-    uniformly elliptic (the paper's qualitative class is wider; the containment
-    is proved and no constant depends on the ellipticity constants); Theorem C
-    is the instance of Theorem D for uniformly elliptic laws and its Dirichlet
-    clause is exported in Theorem D's negative-Sobolev form rather than the
+    uniformly elliptic, which is the class over which the paper states
+    Theorem A (for Theorems B, C and D the paper's qualitative class is wider;
+    the containment is proved and no constant depends on the ellipticity
+    constants); Theorem A is proved and exported in the paper's printed form,
+    the annealed contrast being at most 1 + sigma at every generation beyond
+    the entry scale, together with the polynomial length bound on that scale;
+    Theorem C is the instance of Theorem D for uniformly elliptic laws and its
+    Dirichlet clause is exported in Theorem D's negative-Sobolev form rather than the
     paper's L^2 form with a forcing term; Theorem D's Dirichlet estimate is
     stated on normalized adapted cells of the homogenized matrix for supplied
     weak solutions, the random radius satisfies X >= 1 (the paper states
@@ -128,7 +132,12 @@ automation:
         dispatch and review of the work); the proving, auditing and rewriting
         agents were mostly Claude Opus 5 and GPT-5.6 Sol at low reasoning
         effort; the toolchain upgrade was carried out by DeepSeek V4.1 Flash
-        workers with Claude Sonnet 5 on escalations.
+        workers with Claude Sonnet 5 on escalations.  The polynomial-entry
+        route by which Theorem A is proved was developed afterwards on the same
+        harnesses, with Claude Fable 5.1 orchestrating and Claude Opus 5 and
+        GPT-5.6 Sol at low reasoning effort writing the proofs; its port to
+        Lean v4.33.0 and its merge into this library were carried out by
+        DeepSeek V4.1 Flash workers with Claude Sonnet 5 on escalations.
       tool_setup: >-
         Lake builds under leanprover/lean4:v4.33.0 with Mathlib v4.33.0 and the
         public CoarseGraining library at a pinned revision.  A frozen-statement
@@ -147,7 +156,10 @@ automation:
           naming and comment cleanup (4-6 September), one day (11 September)
           for the public release (main-results module, the exports of Theorems B
           and C, the four comparator pairs, and the citation rewrite), and one
-          night (13-14 September) for the upgrade to Lean v4.33.0
+          night (13-14 September) for the upgrade to Lean v4.33.0; and a
+          further stretch from 6 to 17 September 2026 in which Theorem A was
+          proved along the paper's own route in its printed form, and that
+          route was ported to Lean v4.33.0 and merged into this library
         spend_usd: "not separately tracked (subscription accounts)"
         hardware: "a 16-CPU / 124 GB RAM Ubuntu machine"
       prompting_notes: >-
@@ -155,10 +167,11 @@ automation:
         author rulings recorded verbatim for every statement-level decision.
   spend_usd: "not separately tracked (subscription accounts)"
   notes: >-
-    All Lean code in this repository was written by the listed models under
-    the close supervision of the authors: Claude Fable 5.1 orchestrated, and
-    the agents doing the proofs, audits and rewrites were mostly Claude Opus 5
-    and GPT-5.6 Sol (low reasoning effort).  Every proof is checked by the Lean
+    All Lean code in this repository was written by the listed large language
+    models under the close supervision of the authors: Claude Fable 5.1
+    orchestrated, and the agents doing the proofs, audits and rewrites were
+    mostly Claude Opus 5 and GPT-5.6 Sol (low reasoning effort).  Every proof
+    is checked by the Lean
     kernel and Mathlib; the verified library contains no sorry and no custom
     axiom.  The Mathlib-only comparator challenge files
     (HCPolyAudit/*/Challenge.lean) each contain exactly one intentional
@@ -170,10 +183,13 @@ fidelity:
     Rendering conventions, each stated in the theorem docstrings and in
     CORRESPONDENCE.md: the coefficient space is the class of measurable
     fields, modulo almost-everywhere equality, that are locally uniformly
-    elliptic (the paper's qualitative class is wider; the containment is
-    proved and no constant depends on the ellipticity constants); Theorem A
-    is exported with one tolerance sigma as in the paper, derived from a
-    calibration-triple form; Theorem C is the instance of Theorem D for
+    elliptic, which is the class over which the paper states Theorem A (for
+    Theorems B, C and D the paper's qualitative class is wider; the
+    containment is proved and no constant depends on the ellipticity
+    constants); Theorem A is proved and exported in the paper's printed form,
+    with one tolerance sigma and the contrast bound at every generation beyond
+    the entry scale, so no reformulation stands between the proved statement
+    and the printed one; Theorem C is the instance of Theorem D for
     uniformly elliptic laws, with the Dirichlet clause in Theorem D's
     negative-Sobolev form rather than the paper's L^2 form with a forcing
     term; Theorem D's Dirichlet estimate is stated on normalized adapted
@@ -205,7 +221,7 @@ alignment:
       lean: "HCPoly.polynomial_entry"
       module: "HCPoly.MainResults"
       status: "proved"
-      note: "Comparator-audited via HCPolyAudit/PolynomialEntry/."
+      note: "Proved along the paper's own route, whose propositions are the theorems of HCPoly/Entry/Statements/, and exported in the printed form: the annealed contrast is at most 1 + sigma at every generation beyond the entry scale. Comparator-audited via HCPolyAudit/PolynomialEntry/."
     - source: "Theorem B (t.algebraic.convergence)"
       lean: "HCPoly.algebraic_convergence"
       module: "HCPoly.MainResults"

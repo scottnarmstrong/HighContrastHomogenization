@@ -4,10 +4,10 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Setup
-import HCPoly.Provider.Entry.EntryAssembly
 import HCPoly.Frozen.Stationarity
 import HCPoly.Frozen.UnitRange
 import HCPoly.Frozen.CoarseEllipticityDagger
+import HCPoly.Frozen.PolynomialEntryBridge
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 /-!
@@ -55,5 +55,5 @@ theorem HCPoly.Frozen.polynomial_entry_random_source
               (3 : ℝ) ^ (mEnt : ℕ) ≤
                 3 * (2 + Homogenization.HighContrast.aspectRatio E * K) ^ C
     := by
-  exact Homogenization.HighContrast.Entry.polynomial_entry_assembly
+  exact HCPoly.Frozen.polynomial_entry_random_source_of_printed
     d hd cSc δ₀ cEnd hcSc hδ₀ hcEnd hcal

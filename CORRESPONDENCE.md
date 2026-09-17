@@ -40,24 +40,33 @@ Loher), so a reader of the paper can locate where each result is proved.
 
 ## The renormalization scheme (Sections 2–5)
 
-The certified statement surface below Theorem A. Each declaration is the
-exact statement the proof of the corresponding paper result establishes;
-where the paper folds several of them into one proposition, the row says so.
+The statement surface below Theorem A. Each declaration is the exact
+statement the proof of the corresponding paper result establishes; where the
+paper folds several of them into one proposition, the row says so.  The first
+fourteen rows are the printed propositions of the route, one theorem each; the
+next three are stated in the CoarseGraining library's own vocabulary, so that
+upstreaming them is a file move.
 
 | Source | Lean declaration | File | Status |
 |---|---|---|---|
-| the source multiplier on a window, `e.source.multiplier` | `HCPoly.Frozen.random_source_window` | `HCPoly/Frozen/RandomSourceWindow.lean` | proved |
-| the source estimate on adapted cubes, `e.source.adapted.bound` | `HCPoly.Frozen.random_source_control` | `HCPoly/Frozen/RandomSourceControl.lean` | proved |
-| the parent–child recurrence, `p.fixed.geometry.parent.child.recurrence` | `HCPoly.Frozen.fixed_grid_recurrence` | `HCPoly/Frozen/FixedGridRecurrence.lean` | proved |
-| propagation on one adapted geometry, `p.fixed.geometry.one.grid.propagation` | `HCPoly.Frozen.portable_history` | `HCPoly/Frozen/PortableHistory.lean` | proved |
-| comparison after a change of geometry, `p.successful.short.bridge` (the short bridge) | `HCPoly.Frozen.random_source_bridge_short_hop` | `HCPoly/Frozen/RandomSourceBridgeShortHop.lean` | proved |
-| comparison after a change of geometry, `p.successful.short.bridge` (the two-grid shifted drift) | `HCPoly.Frozen.random_source_bridge_two_grid_shifted_drift` | `HCPoly/Frozen/RandomSourceBridgeTwoGridShiftedDrift.lean` | proved |
-| transport of the complete profile, `p.two.grid.transport` | `HCPoly.Frozen.random_source_grid_transport` | `HCPoly/Frozen/RandomSourceGridTransport.lean` | proved |
-| Euclidean initialization, `p.initial.fixed.grid.scale` | `HCPoly.Frozen.random_source_adapted_initialization` | `HCPoly/Frozen/RandomSourceAdaptedInitialization.lean` | proved |
-| global selection, `p.global.selection` | `HCPoly.Frozen.random_source_global_selection` | `HCPoly/Frozen/RandomSourceGlobalSelection.lean` | proved |
-| the adapted response estimate, `e.response.adapted.conclusion` (part of `p.response.transfer`) | `HCPoly.Frozen.random_adapted_response` | `HCPoly/Frozen/RandomAdaptedResponse.lean` | proved |
-| persistence and Euclidean transfer, `p.response.transfer` | `HCPoly.Frozen.random_persistence_transfer` | `HCPoly/Frozen/RandomPersistenceTransfer.lean` | proved |
-| polynomial entry, `t.polynomial.entry` (calibration-triple form) | `HCPoly.Frozen.polynomial_entry_random_source` | `HCPoly/Frozen/PolynomialEntry.lean` | proved |
+| scale-selection alternatives, `p.scale.selection` | `Homogenization.HighContrast.scale_selection` | `HCPoly/Entry/Statements/ScaleSelection.lean` | proved |
+| standard cubes inside an adapted cube, `l.source.whitney` | `Homogenization.HighContrast.source_whitney` | `HCPoly/Entry/Statements/SourceWhitney.lean` | proved |
+| finite-range matrix averaging, `l.fixed.geometry.matrix.averaging` | `Homogenization.HighContrast.fixed_geometry_matrix_averaging` | `HCPoly/Entry/Statements/MatrixAveraging.lean` | proved |
+| positive gap, `l.fixed.geometry.positive.gap` | `Homogenization.HighContrast.fixed_geometry_positive_gap` | `HCPoly/Entry/Statements/PositiveGap.lean` | proved |
+| parent–child recurrence, `p.fixed.geometry.parent.child.recurrence` | `Homogenization.HighContrast.fixed_geometry_parent_child_recurrence` | `HCPoly/Entry/Statements/ParentChildRecurrence.lean` | proved |
+| propagation on one adapted geometry, `p.fixed.geometry.one.grid.propagation` | `Homogenization.HighContrast.fixed_geometry_one_grid_propagation` | `HCPoly/Entry/Statements/OneGridPropagation.lean` | proved |
+| Whitney partitions between adapted grids, `l.two.grid.whitney` | `Homogenization.HighContrast.two_grid_whitney` | `HCPoly/Entry/Statements/TwoGridWhitney.lean` | proved |
+| the projective step, `l.projective.step` | `Homogenization.HighContrast.projective_step` | `HCPoly/Entry/Statements/ProjectiveStep.lean` | proved |
+| comparison after a change of geometry, `p.successful.short.bridge` | `Homogenization.HighContrast.successful_short_bridge` | `HCPoly/Entry/Statements/SuccessfulShortBridge.lean` | proved |
+| transport of the complete profile, `p.two.grid.transport` | `Homogenization.HighContrast.two_grid_transport` | `HCPoly/Entry/Statements/TwoGridTransport.lean` | proved |
+| Euclidean initialization, `p.initial.fixed.grid.scale` | `Homogenization.HighContrast.initial_fixed_grid_scale` | `HCPoly/Entry/Statements/InitialFixedGridScale.lean` | proved |
+| global selection, `p.global.selection` | `Homogenization.HighContrast.global_selection` | `HCPoly/Entry/Statements/GlobalSelection.lean` | proved |
+| response and transfer to the Euclidean scale, `p.response.transfer` | `Homogenization.HighContrast.response_transfer` | `HCPoly/Entry/Statements/ResponseTransfer.lean` | proved |
+| polynomial entry, `t.polynomial.entry` (the route's root) | `Homogenization.HighContrast.polynomial_entry` | `HCPoly/Entry/Statements/PolynomialEntry.lean` | proved |
+| countable subadditivity of the coarse response, used near `l.source.whitney` | `Homogenization.HighContrast.CG.responseJ_subadditive_countable_of_isEllipticFieldOn` | `HCPoly/Entry/CG/Anchors/ResponseSubadditiveCountable.lean` | proved |
+| summability of the weighted responses, used near `l.source.whitney` | `Homogenization.HighContrast.CG.summable_volumeRatio_mul_responseJ_of_isEllipticFieldOn` | `HCPoly/Entry/CG/Anchors/ResponseSummable.lean` | proved |
+| the finite-family response inequality with its defect, used near `l.source.whitney` | `Homogenization.HighContrast.CG.responseJ_le_sum_volumeRatio_mul_responseJ_add_defect_of_isEllipticFieldOn` | `HCPoly/Entry/CG/Anchors/ResponseFiniteDefect.lean` | proved |
+| polynomial entry, `t.polynomial.entry` (the form Theorems B and D consume) | `HCPoly.Frozen.polynomial_entry_random_source` | `HCPoly/Frozen/PolynomialEntry.lean`, proved from the printed form in `HCPoly/Frozen/PolynomialEntryBridge.lean` | proved |
 
 ## Section 6: convergence and homogenization
 
@@ -74,8 +83,9 @@ Every difference is also stated in the docstring of the theorem concerned.
 
 | Where | Paper | Lean |
 |---|---|---|
-| all theorems | coefficient fields satisfying the qualitative condition `e.qualitative.ellipticity` | fields locally uniformly elliptic almost everywhere, modulo a.e. equality; the ellipticity constants belong to the field and enter no estimate; the containment in the qualitative class is proved |
-| Theorem A | one tolerance `σ ∈ (0,1]` | the same; the certified statement `polynomial_entry_random_source` carries a calibration triple, and the paper's form is derived from it |
+| Theorem A | coefficient fields locally uniformly elliptic in the qualitative sense | the same class: fields locally uniformly elliptic almost everywhere, modulo a.e. equality, with the ellipticity constants belonging to the field and entering no estimate |
+| Theorems B, C, D | coefficient fields satisfying the qualitative condition `e.qualitative.ellipticity` | fields locally uniformly elliptic almost everywhere, modulo a.e. equality; the ellipticity constants belong to the field and enter no estimate; the containment in the qualitative class is proved |
+| Theorem A | one tolerance `σ ∈ (0,1]`, with `Θ_m ≤ 1 + σ` for every `m ≥ ⌈C log₃(2 + Π K)⌉` | the same; `Homogenization.HighContrast.polynomial_entry` is proved in that form and `HCPoly.polynomial_entry` exports it, together with the length bound `3^{m_ent} ≤ 3 (2 + Π K)^C` on the entry generation `m_ent = ⌈C log₃(2 + Π K)⌉` |
 | Theorem B | `s̄_* = s̄ > 0`, `k̄ = −k̄ᵗ` | the Schur coefficients of the limit block in the parametrization `e.annealed.schur`: `schurSigmaStar = schurSigma`, `(schurSigma).PosDef`, `IsSkewMat schurSkew` |
 | Theorem C | the `L²` Dirichlet estimate `e.uniform.dirichlet` with a forcing term `f` | the instance of Theorem D for uniformly elliptic laws (`g = 0`, deterministic source, tail `exp(−t^d)`); the Dirichlet clause is Theorem D's homogeneous negative-Sobolev estimate. The paper's forced `L²` form is deduced in `ss.uniform.homogenization` by a further duality argument, which is not formalized |
 | Theorem D | `X ≥ max{1, S}` | `X ≥ 1` |

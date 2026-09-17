@@ -5,23 +5,19 @@ Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPolyAudit.PolynomialEntry.SolutionBasic
 import HCPolyAudit.Support.PolynomialEntryBridge
+import HCPoly.MainResults
 
 /-!
 # Polynomial entry into small contrast: the proof of the Mathlib-only statement
 
 This file proves the statement of `HCPolyAudit.PolynomialEntry.Challenge`, in the
 vocabulary rebuilt over Mathlib alone in
-`HCPolyAudit.PolynomialEntry.SolutionBasic`, from the library theorem
-`HCPoly.Frozen.polynomial_entry_random_source` through the identifications of
+`HCPolyAudit.PolynomialEntry.SolutionBasic`, from the library export
+`HCPoly.polynomial_entry` of `HCPoly.MainResults` through the identifications of
 `HCPolyAudit.Support.PolynomialEntryBridge`.
 
-The library states `t.polynomial.entry` with a calibration triple
-`(c_sc, δ₀, c_end)` subject to `(1 + δ₀)² (1 + c_end) ≤ 1 + c_sc`, and produces a
-tolerance `c_* ∈ (0, min c_sc c_end]` at which the annealed contrast satisfies
-`Θ_{m_ent} - 1 ≤ c_*`.  Given the single tolerance `σ ∈ (0, 1]` of the printed
-statement, the triple `(σ, σ/8, σ/8)` is admissible, since
-`(1 + σ/8)³ ≤ 1 + σ` for `0 < σ ≤ 1`; the resulting `c_*` is at most `σ`, which
-is the printed display `e.polynomial.entry`.
+The export is applied to the binders of the statement, and its two conclusions
+are carried across the bridge.
 -/
 
 namespace HCPoly
@@ -32,27 +28,18 @@ open MeasureTheory
 
 noncomputable section
 
-/-- The calibration triple `(σ, σ/8, σ/8)` meets the threshold inequality of the
-library statement for every tolerance `σ ∈ (0, 1]`. -/
-theorem calibration_cube_le (σ : ℝ) (hσ0 : 0 < σ) (hσ1 : σ ≤ 1) :
-    (1 + σ / 8) ^ 2 * (1 + σ / 8) ≤ 1 + σ := by
-  have hsq : σ * σ ≤ σ := by nlinarith [hσ0, hσ1]
-  have hcube : σ * σ * σ ≤ σ := by nlinarith [hσ0, hσ1, hsq]
-  have hexpand : (1 + σ / 8) ^ 2 * (1 + σ / 8) =
-      1 + 3 * σ / 8 + 3 * (σ * σ) / 64 + σ * σ * σ / 512 := by ring
-  rw [hexpand]
-  linarith only [hsq, hcube, hσ0]
-
 /-- **Polynomial entry into small contrast** (`t.polynomial.entry`).
 
 For every dimension `d ≥ 2`, every coarse-ellipticity exponent `g ∈ [0, 1)`, and
 every tolerance `σ ∈ (0, 1]` there is a finite constant `C > 0` such that, under
 the assumptions of stationarity, unit range of dependence, and the random-source
 coarse ellipticity `e.coarse.ellipticity` with reference block `E`, gauge `Ψ`,
-growth witness `K` and source scale `S`, there is a deterministic entry
-generation `m_ent ∈ ℕ` with
+growth witness `K` and source scale `S`, the annealed contrast satisfies
 
-`m_ent ≤ ⌈C log₃ (2 + Π K)⌉`,  `Θ_{m_ent} ≤ 1 + σ`,  and
+`Θ_m ≤ 1 + σ` at every generation `m ≥ ⌈C log₃ (2 + Π K)⌉`,
+
+and that ceiling, carried as a natural number `m_ent ∈ ℕ`, has length
+
 `3^{m_ent} ≤ 3 (2 + Π K)^C`,
 
 where `Π = aspectRatio E` is the reference aspect ratio
@@ -68,29 +55,24 @@ theorem polynomial_entry
         (S : CoeffSpace d → ℝ),
         IsProbabilityMeasure P → IsStationaryLaw P → IsUnitRangeLaw P →
         CoarseEllipticityDagger P g E Ψ K S →
-        ∃ mEnt : ℕ,
-          (mEnt : ℤ) ≤ ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
-          annealedContrast P (mEnt : ℤ) ≤ 1 + σ ∧
-          (3 : ℝ) ^ mEnt ≤ 3 * (2 + aspectRatio E * K) ^ C := by
-  obtain ⟨hσ0, hσ1⟩ := hσ
-  have hδ₀ : σ / 8 ∈ Set.Ioo (0 : ℝ) 1 := ⟨by linarith only [hσ0], by linarith only [hσ1]⟩
-  obtain ⟨cStar, hcStar, hmain⟩ :=
-    Frozen.polynomial_entry_random_source d hd σ (σ / 8) (σ / 8) hσ0 hδ₀
-      (by linarith only [hσ0]) (calibration_cube_le σ hσ0 hσ1)
-  obtain ⟨C, hC, hall⟩ := hmain g hg
-  have hcStarσ : cStar ≤ σ := le_trans hcStar.2 (min_le_left _ _)
+        (∀ m : ℤ, ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ≤ m →
+            annealedContrast P m ≤ 1 + σ) ∧
+          ∃ mEnt : ℕ,
+            (mEnt : ℤ) = ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
+            (3 : ℝ) ^ (mEnt : ℕ) ≤ 3 * (2 + aspectRatio E * K) ^ C := by
+  obtain ⟨C, hC, hall⟩ := _root_.HCPoly.polynomial_entry d hd g hg σ hσ
   refine ⟨C, hC, ?_⟩
   intro P E Ψ K S hP hstat hrange hdag
-  obtain ⟨mEnt, hceil, hcontrast, hlength⟩ :=
+  obtain ⟨hcontrast, mEnt, hmEnt, hlength⟩ :=
     hall (Bridge.toRepoLaw P) (Bridge.toRepoBlock E) Ψ K S
       (Bridge.isProbabilityMeasure_castMeasure (Bridge.instMeasurableSpace_eq d) P hP)
       (Bridge.isStationaryLaw_toRepoLaw hstat)
       (Bridge.isUnitRangeLaw_toRepoLaw hrange)
       (Bridge.coarseEllipticityDagger_toRepoLaw hdag)
   rw [Bridge.aspectRatio_toRepoBlock E]
-  refine ⟨mEnt, hceil, ?_, hlength⟩
+  refine ⟨fun m hm => ?_, mEnt, hmEnt, hlength⟩
   rw [Bridge.annealedContrast_eq]
-  linarith only [hcontrast, hcStarσ]
+  exact hcontrast m hm
 
 end
 
