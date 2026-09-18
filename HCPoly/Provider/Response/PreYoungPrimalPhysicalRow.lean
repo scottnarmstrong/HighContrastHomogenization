@@ -90,55 +90,6 @@ theorem integral_primal_physical_oscillation_eq_cutoff_row
   · intro i hi
     exact (hcoord z hz i).const_mul (Qcen i)
 
-/-- The literal primal gradient-slot cutoff oscillation is controlled by the
-all-earlier hatted row. -/
-theorem of_real_abs_primal_cutoff_oscillation_row_le
-    [NeZero d] {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
-    (hstat : HCPoly.Frozen.IsStationaryLaw P)
-    {gamma : ℝ} {E : BlockMat d} {Psi : ℝ → ℝ} {K Cd : ℝ}
-    {jStar M : ℤ} {Y : CoeffSpace d → ℝ}
-    (hY : IsWindowMultiplier P gamma E Psi K Cd jStar M Y)
-    {m0 q : Mat d} (hm0 : m0.PosDef) (hqeq : q = roundedGrid jStar m0)
-    (hgrid : IsRoundedGrid jStar q)
-    {s t : ℤ} (hjs : jStar ≤ s) (hst : s ≤ t)
-    (hbelow : ∀ k : ℤ, k < jStar → ∀ v : ℤ,
-      v = s ∨ v = t → ∀ z ∈ containedCenters q k v,
-        adaptedCellTranslate q k z ⊆ centeredCube d M)
-    (hblocks : ∀ k : ℤ, jStar ≤ k → k ≤ t →
-      HasFiniteAdaptedMean P q k ∧ BlockPosDef (adaptedMean P q k))
-    (g : Mat d) (hg : IsSkewMat g) (p r Pcen Qcen : Vec d)
-    (hweak : profilePrimalWeakQuantity P m0
-      (Recurrence.posDef_of_isRoundedGrid hgrid) t
-      (fun a ↦ a.subSkew g hg) p r ≠ ⊤) :
-    ENNReal.ofReal
-        |avsum (alignedIndex q s t) (fun z ↦
-          ∑ i, Qcen i * ∫ a, volumeAverage (adaptedCellAt q s z) (fun x ↦
-            (adaptedPreYoungCutoff q (Recurrence.posDef_of_isRoundedGrid hgrid) t x -
-              volumeAverage (adaptedCellAt q s z)
-                (adaptedPreYoungCutoff q
-                  (Recurrence.posDef_of_isRoundedGrid hgrid) t)) *
-              toFullBlockVec
-                (diagonalWeakState (Recurrence.posDef_of_isRoundedGrid hgrid) t
-                  (a.subSkew g hg) p r x)
-                (Sum.inl i)) ∂P)| ≤
-      ENNReal.ofReal
-          (preYoungRowCoefficient d *
-            (3 : ℝ) ^ (-((t : ℝ) - (s : ℝ))) *
-              Real.sqrt (∫ a, responseJ
-                (adaptedDomain (Recurrence.posDef_of_isRoundedGrid hgrid) t)
-                ((a.subSkew g hg).coeffOn
-                  (adaptedDomain (Recurrence.posDef_of_isRoundedGrid hgrid) t))
-                p r ∂P)) *
-        profilePrimalHattedEarlierRow P q g s Pcen Qcen ^ (1 / 2 : ℝ) := by
-  let hq := Recurrence.posDef_of_isRoundedGrid hgrid
-  have hphysical := of_real_abs_integral_primal_physical_oscillation_le_row
-    hstat hY hm0 hqeq hgrid hjs hst hbelow hblocks
-      g hg p r Pcen Qcen hweak
-  have heq := integral_primal_physical_oscillation_eq_cutoff_row
-    (P := P) hq hm0 hst g hg p r Qcen hweak
-  rw [heq] at hphysical
-  simpa only [hq] using hphysical
-
 end
 
 end Homogenization.HighContrast.Response

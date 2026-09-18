@@ -162,31 +162,6 @@ private theorem ae_belowStartSup_le_mul :
   ring
 
 include hCd hg hE hEpd hY hnu hq hF hFpd hrho hZ in
-/-- **The first moment of the below-start source maximum.** -/
-theorem lintegral_belowStartSup_le [IsProbabilityMeasure P] :
-    (∫⁻ a, belowStartSup rho (roundedGrid jStar nu) jStar t Z F a ∂P) ≤
-      ENNReal.ofReal (boundaryConst Cd g nu * (∫ a, Y a ∂P) * blockSize E F *
-        (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ)))) := by
-  set c : ℝ := boundaryConst Cd g nu * blockSize E F *
-    (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ))) with hcdef
-  have hc0 : 0 ≤ c := by
-    rw [hcdef]
-    exact mul_nonneg (mul_nonneg (zero_le_boundaryConst hCd hg nu)
-      (PortableHistory.blockSize_nonneg hE hF hFpd)) (Real.rpow_pos_of_pos (by norm_num) _).le
-  have hint := integrable_of_isWindowMultiplier hY
-  calc (∫⁻ a, belowStartSup rho (roundedGrid jStar nu) jStar t Z F a ∂P)
-      ≤ ∫⁻ a, ENNReal.ofReal (c * Y a) ∂P :=
-        lintegral_mono_ae (ae_belowStartSup_le_mul hCd hg hE hEpd hY hnu hq hF hFpd hrho t hZ)
-    _ = ENNReal.ofReal (∫ a, c * Y a ∂P) :=
-        (ofReal_integral_eq_lintegral_ofReal (hint.const_mul c)
-          (Filter.Eventually.of_forall fun a =>
-            mul_nonneg hc0 (le_trans zero_le_one (hY.one_le a)))).symm
-    _ = ENNReal.ofReal (boundaryConst Cd g nu * (∫ a, Y a ∂P) * blockSize E F *
-          (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ)))) := by
-        rw [integral_const_mul, hcdef]
-        exact congrArg ENNReal.ofReal (by ring)
-
-include hCd hg hE hEpd hY hnu hq hF hFpd hrho hZ in
 /-- **The `L^Q` norm of the below-start source maximum.** -/
 theorem eLpNorm_belowStartSup_le (Q : ℝ) :
     eLpNorm (belowStartSup rho (roundedGrid jStar nu) jStar t Z F)
@@ -230,30 +205,6 @@ theorem isShiftedBigOWithTop_belowStartSup :
     exact ha.trans (le_of_eq (congrArg ENNReal.ofReal (by ring)))
   · have h := hY.orlicz.const_mul hc0
     rwa [hcdef, mul_right_comm (boundaryConst Cd g nu * blockSize E F)] at h
-
-include hCd hg hE hEpd hY hnu hq hF hFpd hrho hZ in
-/-- **The below-start quantity**, the clause of `e.source.adapted.bound` the
-bounded-window estimates read, proved from the window multiplier alone. -/
-theorem below_start_of_isWindowMultiplier [IsProbabilityMeasure P] (Q : ℝ) :
-    (∀ᵐ a ∂P, belowStartSup rho (roundedGrid jStar nu) jStar t Z F a ≤
-        ENNReal.ofReal (boundaryConst Cd g nu * Y a * blockSize E F *
-          (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ))))) ∧
-      (∫⁻ a, belowStartSup rho (roundedGrid jStar nu) jStar t Z F a ∂P) ≤
-        ENNReal.ofReal (boundaryConst Cd g nu * (∫ a, Y a ∂P) * blockSize E F *
-          (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ)))) ∧
-      eLpNorm (belowStartSup rho (roundedGrid jStar nu) jStar t Z F)
-          (ENNReal.ofReal Q) P ≤
-        ENNReal.ofReal (boundaryConst Cd g nu * blockSize E F *
-          (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ)))) * lqNorm P Q Y ∧
-      IsShiftedBigOWithTop P Ψ (belowStartSup rho (roundedGrid jStar nu) jStar t Z F)
-        (boundaryConst Cd g nu * blockSize E F *
-          (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ))))
-        (boundaryConst Cd g nu * blockSize E F * sourceRemainderScale d jStar K *
-          (3 : ℝ) ^ (-rho * ((t : ℝ) - (jStar : ℝ)))) :=
-  ⟨ae_belowStartSup_le hCd hg hE hEpd hY hnu hq hF hFpd hrho t hZ,
-    lintegral_belowStartSup_le hCd hg hE hEpd hY hnu hq hF hFpd hrho t hZ,
-    eLpNorm_belowStartSup_le hCd hg hE hEpd hY hnu hq hF hFpd hrho t hZ Q,
-    isShiftedBigOWithTop_belowStartSup hCd hg hE hEpd hY hnu hq hF hFpd hrho t hZ⟩
 
 end Consequences
 

@@ -1,6 +1,14 @@
 import HCPoly.Entry.Geometry.AdaptedCellTransport
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
-import HCPoly.Entry.Setup.Stationarity
+import HCPoly.Frozen.CoarseEllipticityDagger
+import HCPoly.Setup.BlockAlgebra
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
+import HCPoly.Frozen.Stationarity
+import HCPoly.Setup.LocalSigmaFields
 import Homogenization.CoarseGraining.Translation
 import Mathlib.Data.Int.Interval
 import Mathlib.Data.Set.Card
@@ -23,6 +31,50 @@ namespace Homogenization.HighContrast.Source
 
 open Set MeasureTheory
 open Homogenization.HighContrast.Geometry
+
+/-- The lower half-grid bound: from `-b ≤ w` and a positive scale `s`, the scaled
+lower endpoint stays below `s w`. -/
+private lemma half_mul_lt_mul_of_neg_le {s b w : ℝ} (hs : 0 < s) (h : -b ≤ w) :
+    -((1 : ℝ) / 2) * ((2 * b + 1) * s) < s * w := by
+  have h1 : -((1 : ℝ) / 2) * (2 * b + 1) < w := by linarith only [h]
+  have h2 : s * (-((1 : ℝ) / 2) * (2 * b + 1)) < s * w :=
+    mul_lt_mul_of_pos_left h1 hs
+  calc
+    -((1 : ℝ) / 2) * ((2 * b + 1) * s) =
+        s * (-((1 : ℝ) / 2) * (2 * b + 1)) := by ring
+    _ < s * w := h2
+
+/-- The upper half-grid bound: from `w ≤ b` and a positive scale `s`, `s w` stays below
+the scaled upper endpoint. -/
+private lemma mul_lt_half_mul_of_le {s b w : ℝ} (hs : 0 < s) (h : w ≤ b) :
+    s * w < (1 : ℝ) / 2 * ((2 * b + 1) * s) := by
+  have h1 : w < (1 : ℝ) / 2 * (2 * b + 1) := by linarith only [h]
+  have h2 : s * w < s * ((1 : ℝ) / 2 * (2 * b + 1)) :=
+    mul_lt_mul_of_pos_left h1 hs
+  calc
+    s * w < s * ((1 : ℝ) / 2 * (2 * b + 1)) := h2
+    _ = (1 : ℝ) / 2 * ((2 * b + 1) * s) := by ring
+
+/-- Cancelling a positive scale `s` in the scaled lower half-grid bound gives `-b - 1 < w`. -/
+private lemma neg_succ_lt_of_half_mul_lt {s b w : ℝ} (hs : 0 < s)
+    (h : -((1 : ℝ) / 2) * ((2 * b + 1) * s) < s * w) : -b - 1 < w := by
+  have h2 : s * (-((1 : ℝ) / 2) * (2 * b + 1)) < s * w := by
+    calc
+      s * (-((1 : ℝ) / 2) * (2 * b + 1)) =
+          -((1 : ℝ) / 2) * ((2 * b + 1) * s) := by ring
+      _ < s * w := h
+  have h1 : -((1 : ℝ) / 2) * (2 * b + 1) < w := lt_of_mul_lt_mul_left h2 hs.le
+  linarith only [h1]
+
+/-- Cancelling a positive scale `s` in the scaled upper half-grid bound gives `w < b + 1`. -/
+private lemma lt_succ_of_mul_lt_half_mul {s b w : ℝ} (hs : 0 < s)
+    (h : s * w < (1 : ℝ) / 2 * ((2 * b + 1) * s)) : w < b + 1 := by
+  have h2 : s * w < s * ((1 : ℝ) / 2 * (2 * b + 1)) := by
+    calc
+      s * w < (1 : ℝ) / 2 * ((2 * b + 1) * s) := h
+      _ = s * ((1 : ℝ) / 2 * (2 * b + 1)) := by ring
+  have h1 : w < (1 : ℝ) / 2 * (2 * b + 1) := lt_of_mul_lt_mul_left h2 hs.le
+  linarith only [h1]
 
 noncomputable section
 
@@ -83,22 +135,24 @@ theorem sourceCenter_mem_iff (d jStar r : ℕ) (w : Fin d → ℤ)
       (2 * (b : ℝ) + 1) * (3 : ℝ) ^ (jStar + r) := by
     have hbR : (3 : ℝ) ^ jStar = 2 * (b : ℝ) + 1 := by exact_mod_cast hb
     rw [show 2 * jStar + r = jStar + (jStar + r) by omega, pow_add, hbR]
-  rw [mem_centeredCube_iff]
+  rw [Recurrence.mem_centeredCube_iff]
   simp only [standardCellCenter, zpow_natCast]
   rw [hpow]
   have hpos : 0 < (3 : ℝ) ^ (jStar + r) := by positivity
   constructor
   · intro h i
     obtain ⟨hl, hu⟩ := h i
-    have hlR : -(b : ℝ) - 1 < (w i : ℝ) := by nlinarith
-    have huR : (w i : ℝ) < (b : ℝ) + 1 := by nlinarith
+    have hlR : -(b : ℝ) - 1 < (w i : ℝ) := neg_succ_lt_of_half_mul_lt hpos hl
+    have huR : (w i : ℝ) < (b : ℝ) + 1 := lt_succ_of_mul_lt_half_mul hpos hu
     have hlZ : -(b : ℤ) - 1 < w i := by exact_mod_cast hlR
     have huZ : w i < (b : ℤ) + 1 := by exact_mod_cast huR
     omega
   · intro h i
     have hl : -(b : ℝ) ≤ (w i : ℝ) := by exact_mod_cast (h i).1
     have hu : (w i : ℝ) ≤ (b : ℝ) := by exact_mod_cast (h i).2
-    constructor <;> nlinarith
+    constructor
+    · exact half_mul_lt_mul_of_neg_le hpos hl
+    · exact mul_lt_half_mul_of_le hpos hu
 
 /-- Exactly `3^(d*jStar)` source indices, independently of the offset. -/
 theorem sourceCenterSet_finite_card (d jStar r : ℕ) :
@@ -137,25 +191,16 @@ theorem exists_standardCell_ancestor {d : ℕ} {k m : ℤ} (hkm : k ≤ m) (w : 
     | zero => exact ⟨w, by simp⟩
     | succ n ih =>
       obtain ⟨v, hv⟩ := ih
-      refine ⟨parentIndex v, ?_⟩
+      refine ⟨Transport.gridParent v, ?_⟩
       simpa only [Nat.cast_add, Nat.cast_one, add_assoc] using
-        hv.trans (standardCell_subset_parent (k + n) v)
+        hv.trans (Transport.standardCell_subset_parent (k + n) v)
   have hm : k + ((m - k).toNat : ℤ) = m := by rw [Int.toNat_of_nonneg (by omega)]; omega
   simpa only [hm] using h (m - k).toNat
-
-/-- Centered standard cubes nest at their integer generations. -/
-theorem centeredCube_mono {d : ℕ} {k m : ℤ} (hkm : k ≤ m) :
-    centeredCube d k ⊆ centeredCube d m := by
-  intro x hx
-  rw [mem_centeredCube_iff] at hx ⊢
-  have hp : (3 : ℝ) ^ k ≤ (3 : ℝ) ^ m := zpow_le_zpow_right₀ (by norm_num) hkm
-  intro i
-  constructor <;> linarith [(hx i).1, (hx i).2]
 
 /-- A standard cube is the identity-metric adapted cube at its actual center. -/
 theorem standardCell_eq_adapted_identity {d : ℕ} (k : ℤ) (w : Fin d → ℤ) :
     standardCell d k w = adaptedCellTranslate (1 : Mat d) k (standardCellCenter k w) := by
-  rw [standardCell_eq_translate_centeredCube, adaptedCellTranslate_eq_image]
+  rw [Recurrence.standardCell_eq_image, Transport.adaptedCellTranslate_eq_image]
   simp [matVecMul_eq_mulVec]
 
 /-- The fixed-generation standard subcubes partition a standard parent a.e. -/
@@ -175,14 +220,18 @@ theorem translate_standardCell_by_coarser_center {d : ℕ}
     translateSet (standardCellCenter (k + n) v) (standardCell d k w) =
       standardCell d k (fun i => w i + (3 : ℤ) ^ n * v i) := by
   ext x
-  rw [mem_translateSet_iff_sub_mem, mem_standardCell_iff, mem_standardCell_iff]
+  rw [mem_translateSet_iff_sub_mem, Recurrence.mem_standardCell_iff, Recurrence.mem_standardCell_iff]
   have hp : (3 : ℝ) ^ (k + n) = (3 : ℝ) ^ k * (3 : ℝ) ^ n := by
     rw [zpow_add₀ (by norm_num), zpow_natCast]
   simp only [standardCellCenter, Pi.sub_apply, Int.cast_add, Int.cast_mul, Int.cast_pow,
     Int.cast_ofNat, hp]
   apply forall_congr'
   intro i
-  constructor <;> intro h <;> constructor <;> nlinarith [h.1, h.2]
+  constructor <;> intro h <;> constructor
+  · linarith only [h.1]
+  · linarith only [h.2]
+  · linarith only [h.1]
+  · linarith only [h.2]
 
 end
 

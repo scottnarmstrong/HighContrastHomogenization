@@ -5,7 +5,7 @@ Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.Quenched.SmallContrastYoungAbsorption
 import HCPoly.Provider.Response.ProfileFiniteness
-import HCPoly.Provider.Response.RandomAdaptedResponseInsertion
+import HCPoly.Provider.Response.CenteredResponseAbsolute
 
 /-!
 # Reabsorbed compact response bounds

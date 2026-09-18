@@ -1,5 +1,6 @@
 import HCPoly.Entry.Geometry.AffineGridDistortion
-import HCPoly.Entry.Geometry.SourceWhitney
+import HCPoly.Entry.Geometry.SourceWhitneyDecomposition
+import HCPoly.Provider.Transport.WhitneyRows
 
 /-!
 # Count-facing facts for adapted Whitney rows
@@ -37,7 +38,7 @@ theorem topGenerationPacking_le_of_gridRatio [NeZero d]
     let W : Set (Vec d) := adaptedCellTranslate q' j y
     let n : ℤ := j - ℓ
     ((finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-        (W := W) (by simpa [W] using volume_adaptedCellTranslate_ne_top q' j y) n n).toFinset.card : ℝ)
+        (W := W) (by simpa [W] using Transport.volume_adaptedCellTranslate_ne_top q' j y) n n).toFinset.card : ℝ)
       ≤ ((Nat.factorial d : ℝ) * K₀ ^ d) * (3 : ℝ) ^ ((d : ℝ) * (ℓ : ℝ)) := by
   classical
   dsimp
@@ -46,7 +47,7 @@ theorem topGenerationPacking_le_of_gridRatio [NeZero d]
   let n : ℤ := j - ℓ
   let hfinI : (maximalAdaptedCellIndices W q n n).Finite :=
     finite_maximalAdaptedCellIndices_of_volume_ne_top hq
-      (by simp [W, volume_adaptedCellTranslate_ne_top]) n n
+      (by simp [W, Transport.volume_adaptedCellTranslate_ne_top]) n n
   let S : Finset (Fin d → ℤ) := hfinI.toFinset
   have hSsub : ↑S ⊆ maximalAdaptedCellIndices W q n n := by
     intro w hw
@@ -70,7 +71,7 @@ theorem topGenerationPacking_le_of_gridRatio [NeZero d]
             obtain ⟨w, hwS, hxw⟩ := Set.mem_iUnion₂.mp hx
             exact IsMaximalAdaptedCellIn.subset (hSsub hwS) hxw
   have hW_ne_top : volume W ≠ ⊤ := by
-    simpa [W] using volume_adaptedCellTranslate_ne_top q' j y
+    simpa [W] using Transport.volume_adaptedCellTranslate_ne_top q' j y
   have hsum_real := ENNReal.toReal_mono hW_ne_top hsum_meas
   have hcell_ne_top : ∀ w ∈ S, volume (adaptedCellAtCenter q n w) ≠ ⊤ := by
     intro w _
@@ -147,7 +148,7 @@ theorem topGenerationPacking_le_of_gridRatio [NeZero d]
     ring
   have hcenter_card_le :
       ((finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-          (volume_adaptedCellTranslate_ne_top q' j y) n n).toFinset.card : ℝ)
+          (Transport.volume_adaptedCellTranslate_ne_top q' j y) n n).toFinset.card : ℝ)
         ≤ (S.card : ℝ) := by
     have hcent_fin :
         (maximalAdaptedCellCenters W q n n).Finite :=
@@ -159,12 +160,12 @@ theorem topGenerationPacking_le_of_gridRatio [NeZero d]
       exact Set.ncard_image_le hfinI
     have hleft :
         (finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-            (volume_adaptedCellTranslate_ne_top q' j y) n n).toFinset.card =
+            (Transport.volume_adaptedCellTranslate_ne_top q' j y) n n).toFinset.card =
           (maximalAdaptedCellCenters W q n n).ncard := by
       have := (Set.ncard_eq_toFinset_card
         (maximalAdaptedCellCenters (adaptedCellTranslate q' j y) q n n)
         (finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-          (volume_adaptedCellTranslate_ne_top q' j y) n n)).symm
+          (Transport.volume_adaptedCellTranslate_ne_top q' j y) n n)).symm
       simpa [W] using this
     have hright : S.card = (maximalAdaptedCellIndices W q n n).ncard := by
       have := (Set.ncard_eq_toFinset_card (maximalAdaptedCellIndices W q n n) hfinI).symm
@@ -214,14 +215,14 @@ theorem lowerRowRelVolume_le_of_gridRatio [NeZero d]
     (hq : IsUnit q) (hq' : IsUnit q') (hK : gridRatio q q' ≤ K₀)
     (j n r : ℤ) (hr : r < n) (y : Vec d) :
     ∑ _z ∈ (finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-        (volume_adaptedCellTranslate_ne_top q' j y) n r).toFinset,
+        (Transport.volume_adaptedCellTranslate_ne_top q' j y) n r).toFinset,
       (volume (adaptedCell q r)).toReal / (volume (adaptedCellTranslate q' j y)).toReal ≤
         (6 * (d : ℝ) * K₀ * Real.sqrt d) * (3 : ℝ) ^ ((r : ℝ) - (j : ℝ)) := by
   classical
   have hInv := inverseNormLE_relative_of_gridRatio hd hq hq' hK
   have hsum := sum_relVolume_le_of_volume_le
     (volume_adaptedCellTranslate_pos hInv j (matVecMul q⁻¹ y)).ne'
-    (volume_adaptedCellTranslate_ne_top (q⁻¹ * q') j (matVecMul q⁻¹ y))
+    (Transport.volume_adaptedCellTranslate_ne_top (q⁻¹ * q') j (matVecMul q⁻¹ y))
     (by positivity : 0 ≤ (6 * (d : ℝ) * K₀ * Real.sqrt d) *
       (3 : ℝ) ^ ((r : ℝ) - (j : ℝ)))
     (volume_lowerRow_preimage_le_of_gridRatio hd hK₀ hq hq' hK j n r hr y)
@@ -229,15 +230,15 @@ theorem lowerRowRelVolume_le_of_gridRatio [NeZero d]
   simp only [Finset.sum_const, nsmul_eq_mul] at hsum ⊢
   have hcard :
       (finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-        (volume_adaptedCellTranslate_ne_top q' j y) n r).toFinset.card =
+        (Transport.volume_adaptedCellTranslate_ne_top q' j y) n r).toFinset.card =
       (finite_maximalCellIndices
-        (volume_adaptedCellTranslate_ne_top (q⁻¹ * q') j (matVecMul q⁻¹ y)) n r).toFinset.card := by
+        (Transport.volume_adaptedCellTranslate_ne_top (q⁻¹ * q') j (matVecMul q⁻¹ y)) n r).toFinset.card := by
     rw [← Set.ncard_eq_toFinset_card _
         (finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-          (volume_adaptedCellTranslate_ne_top q' j y) n r),
+          (Transport.volume_adaptedCellTranslate_ne_top q' j y) n r),
       ← Set.ncard_eq_toFinset_card _
         (finite_maximalCellIndices
-          (volume_adaptedCellTranslate_ne_top (q⁻¹ * q') j (matVecMul q⁻¹ y)) n r),
+          (Transport.volume_adaptedCellTranslate_ne_top (q⁻¹ * q') j (matVecMul q⁻¹ y)) n r),
       ncard_maximalAdaptedCellCenters_eq_preimage hq,
       preimage_matVecMul_adaptedCellTranslate_eq hq]
   rw [hcard]
@@ -249,7 +250,7 @@ theorem lowerRowCard_le_of_gridRatio [NeZero d]
     (hq : IsUnit q) (hq' : IsUnit q') (hK : gridRatio q q' ≤ K₀)
     (j n r : ℤ) (hr : r < n) (y : Vec d) :
     ((finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-        (volume_adaptedCellTranslate_ne_top q' j y) n r).toFinset.card : ℝ) ≤
+        (Transport.volume_adaptedCellTranslate_ne_top q' j y) n r).toFinset.card : ℝ) ≤
       ((6 * (d : ℝ) * K₀ * Real.sqrt d) * ((Nat.factorial d : ℝ) * K₀ ^ d)) *
         (3 : ℝ) ^ (((d : ℝ) - 1) * ((j : ℝ) - (r : ℝ))) := by
   classical
@@ -262,7 +263,7 @@ theorem lowerRowCard_le_of_gridRatio [NeZero d]
   have hlo := (adaptedCell_volume_ratio_two_sided_of_gridRatio hd hK₀ hq hq' hK j r y).1
   have h := (mul_le_mul_of_nonneg_left hlo
     (Nat.cast_nonneg (finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-      (volume_adaptedCellTranslate_ne_top q' j y) n r).toFinset.card)).trans hrow
+      (Transport.volume_adaptedCellTranslate_ne_top q' j y) n r).toFinset.card)).trans hrow
   have heq : ((A * D) * (3 : ℝ) ^ (((d : ℝ) - 1) * ((j : ℝ) - (r : ℝ)))) *
       (D⁻¹ * (3 : ℝ) ^ (-(d : ℝ) * ((j : ℝ) - (r : ℝ)))) =
         A * (3 : ℝ) ^ ((r : ℝ) - (j : ℝ)) := by
@@ -317,7 +318,7 @@ theorem twoGridWhitneyCounts (d : ℕ) (hd : 2 ≤ d) (K₀ : ℝ) (hK₀ : 1 �
   intro q q' hq hq' hK j ℓ hℓ y W
   let hfin : ∀ r : ℤ, r ≤ j - ℓ → (maximalAdaptedCellCenters W q (j - ℓ) r).Finite :=
     fun r _ => finite_maximalAdaptedCellCenters_of_volume_ne_top hq
-      (volume_adaptedCellTranslate_ne_top q' j y) (j - ℓ) r
+      (Transport.volume_adaptedCellTranslate_ne_top q' j y) (j - ℓ) r
   refine ⟨hfin, fun _ _ h => IsMaximalAdaptedCellIn.subset h,
     pairwiseDisjoint_maximalAdaptedCellPairs W q hq (j - ℓ),
     volume_diff_iUnion_maximalAdaptedCells_of_isOpen hq

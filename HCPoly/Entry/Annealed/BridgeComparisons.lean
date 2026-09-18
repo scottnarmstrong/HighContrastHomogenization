@@ -1,5 +1,6 @@
 import HCPoly.Entry.Annealed.BridgeSourceTail
 import HCPoly.Entry.TwoGridWhitney
+import HCPoly.Provider.Transport.WhitneyRows
 
 /-!
 # The common partition comparison
@@ -8,9 +9,9 @@ import HCPoly.Entry.TwoGridWhitney
 quadratics on the open parent and its open cells. A single locally elliptic
 representative serves the entire partition. The null remainder is never
 an argument of `coarseBlock`. This file assembles `bridge_partition_comparison`,
-the shared machinery behind the two one-sided Whitney comparisons, which are
-proved in `BridgeComparisonsOneSided` (split out to stay under the 800-line
-guard; no declaration changed).
+the shared machinery behind the two one-sided Whitney comparisons, which
+`BridgeComparisonsOneSided` carries as `bridge_upper_comparison` and
+`bridge_lower_comparison`.
 
 The supporting estimates are inherited through `BridgeSourceTail`.
 -/
@@ -112,7 +113,7 @@ theorem bridge_annealed_partition_bound {d : ℕ} [NeZero d]
   intro W U hsub hdis hnull hWint hUint hfin v
   classical
   let : Countable s := hs.to_subtype
-  have hWfin : volume W ≠ ⊤ := volume_adaptedCellTranslate_ne_top q j y
+  have hWfin : volume W ≠ ⊤ := Transport.volume_adaptedCellTranslate_ne_top q j y
   let : IsFiniteMeasure (volumeMeasureOn W) :=
     ⟨by simpa [volumeMeasureOn] using hWfin.lt_top⟩
   have hWvol : (volume W).toReal ≠ 0 := by
@@ -399,7 +400,7 @@ theorem bridge_partition_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     W U hsub hdis hnull hold hbase hcap Cw hCw hrow
   classical
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hsrcs := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left Cs Cn) hlog)).trans hsrc
   have hsrcn := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_right Cs Cn) hlog)).trans hsrc
   obtain ⟨X, _hX0, _hX, _hXi, _hEX, hfine⟩ := hsource P E Ψ K S hstat hdag jStar hj hsrcs
@@ -416,7 +417,7 @@ theorem bridge_partition_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (3 : ℝ) ^ ((t : ℝ) - j) • toFullBlockMat (adaptedMean P (explicitRoundedGrid jStar m) t)))
   have hWp : W = adaptedCellTranslate (explicitRoundedGrid jStar mParent) j 0 := by
     simp only [W, adaptedCellTranslate, zero_add, Set.image_id']
-  have hWfin : volume W ≠ ⊤ := hWp ▸ volume_adaptedCellTranslate_ne_top _ _ _
+  have hWfin : volume W ≠ ⊤ := hWp ▸ Transport.volume_adaptedCellTranslate_ne_top _ _ _
   let : IsFiniteMeasure (volumeMeasureOn W) :=
     ⟨by simpa [volumeMeasureOn] using hWfin.lt_top⟩
   have hw0 (i : I) : 0 ≤ w i := by dsimp [w]; positivity
@@ -449,7 +450,7 @@ theorem bridge_partition_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (fun i => adaptedCellCenter (explicitRoundedGrid jStar m) (r i.1.1) (z i.1.1))
     (fun i => w i.1.1) (fun i => i.2) (fun i => hw0 i.1.1) hwF hcF j Cw hCw hrowF
   have hQ : 1 ≤ (bigQ d γ : ℝ) := by
-    exact_mod_cast (Multiscale.bigQ_two_le d hd γ hγ).trans' (by norm_num)
+    exact_mod_cast (Multiscale.bigQ_two_le d γ hγ).trans' (by norm_num)
   have hM : ∀ α β, Integrable (fun a => blockMatEntry (M a) α β) P :=
     htail.1.integrable_entry hQ
   have hT : BlockMatLoewnerLE

@@ -9,13 +9,15 @@ import Homogenization.Sobolev.PotentialSolenoidalL2Realization
 On every bounded open convex domain with positive real volume, the canonical
 potential/solenoidal recovery data realizes the `Mu` infimum. This module proves
 that identification from CG's Hilbert minimizer and representative realization,
-then obtains the full coarse quadratic characterization and mixed response formula.
+then obtains the full coarse quadratic characterization and mixed response formula,
+which serve the response transfer `p.response.transfer`.
 Strict positivity uses pointwise ellipticity and the zero mean of both corrections.
 
 The affine open-cube theorems discharge geometry and volume assumptions for every
 invertible matrix, integer scale, and real translation. All imports and declarations
 stay on CG's carriers. The sigma-matrix recovery package is not assumed: the direct
-mixed response/Mu route supplies the needed characterization.
+mixed response/Mu route supplies the needed characterization. Their adapted-cell
+instances serve the fixed-geometry recurrence `p.fixed.geometry.parent.child.recurrence`.
 -/
 
 namespace Homogenization.HighContrast.CG
@@ -275,7 +277,7 @@ theorem blockPosDef_coarseBlockMatrix_of_isOpenBoundedConvexDomain
   rw [R.toMuCorrectionSpaceRecoveryData.recoveredField_blockEnergyAverage_eq_mu system hmu P]
     at hpos
   rw [hcoarse.2 P] at hpos
-  linarith
+  linarith only [hpos]
 
 /-- Invertible affine images of open triadic cubes are bounded open convex domains. -/
 theorem isOpenBoundedConvexDomain_affine_openCube

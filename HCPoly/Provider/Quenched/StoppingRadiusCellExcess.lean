@@ -3,7 +3,9 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Quenched.StoppingRadiusFamily
+import HCPoly.Provider.Window.SuccessorDiscrete
+import HCPoly.Provider.Window.Successor
+import HCPoly.Provider.Quenched.QuenchedPolynomialNormalizer
 import HCPoly.Provider.Transport.WindowBelowStart
 import HCPoly.Provider.Transport.WindowCellBounds
 import HCPoly.Provider.Transport.FillingExhaustion

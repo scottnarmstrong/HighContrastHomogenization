@@ -3,9 +3,9 @@ import HCPoly.Entry.Multiscale.Global.FiniteRun
 /-!
 # Determinant bounds for the adapted mean
 
-The determinant bounds of the entry generation: the reference comparison
-`𝐄 ≤ 6Π · 𝐑𝐄⁻¹𝐑`, the resulting upper bound `blockLogDet 𝐀 ≤ d log (24Π)` under the
-initialization sandwich `𝐀 ≤ 2𝐄`, and the symmetry and positivity of the adapted mean.
+The determinant bounds of the entry generation, serving `p.global.selection`: the reference
+comparison `𝐄 ≤ 6Π · 𝐑𝐄⁻¹𝐑`, the resulting upper bound `blockLogDet 𝐀 ≤ d log (24Π)` under
+the initialization sandwich `𝐀 ≤ 2𝐄`, and the symmetry and positivity of the adapted mean.
 -/
 
 open Homogenization.HighContrast (CoeffSpace IsSkewMat adaptedMean aspectRatio aspectRatio_nonneg
@@ -106,8 +106,8 @@ private theorem rc_two_diag_bound {d : ℕ} {A B C D : Mat d}
   linarith only [h0, h1, h2]
 
 /-- Local copy of `Analysis.four_product_bound` (private there), rebuilt from the public
-`GeoMean.invAnti'` / `GeoMean.conjLe'` toolkit in place of the file-private
-`matrix_inv_antitone` / `star_left_conjugate_le_conjugate`. -/
+`Homogenization.HighContrast.inv_le_inv_of_le` / `Homogenization.HighContrast.conj_le_conj'` toolkit in place of the file-private
+`inv_le_inv_of_le` / `star_left_conjugate_le_conjugate`. -/
 private theorem rc_four_product_bound {d : ℕ} {A B C D : Mat d}
     (hp : (Matrix.fromBlocks A B C D).PosDef) {a b : ℝ} (ha : 0 < a) (hb : 0 < b)
     (hA : A ≤ a • (1 : Mat d)) (hD : D ≤ b • (1 : Mat d)) :
@@ -117,8 +117,8 @@ private theorem rc_four_product_bound {d : ℕ} {A B C D : Mat d}
   have ha2 : 0 < 2 * a := mul_pos (by norm_num) ha
   have hb2 : 0 < 2 * b := mul_pos (by norm_num) hb
   have hu := rc_two_diag_bound hp.posSemidef hA hD
-  have hi := GeoMean.invAnti' hp (rc_scalar_diag_pos ha2 hb2) hu
-  have hr := GeoMean.conjLe' (GeoMeanSupport.swapFullHerm d) hi
+  have hi := Homogenization.HighContrast.inv_le_inv_of_le hp (rc_scalar_diag_pos ha2 hb2) hu
+  have hr := Homogenization.HighContrast.conj_le_conj' (BlockGeometricMean.swapFullHerm d) hi
   have heq : (4 * a * b) • (toFullBlockMat (blockSwap d) *
       (Matrix.fromBlocks ((2 * a) • (1 : Mat d)) 0 0 ((2 * b) • (1 : Mat d)))⁻¹ *
         toFullBlockMat (blockSwap d)) =
@@ -202,7 +202,7 @@ private theorem rc_shear_swapConj {d : ℕ} (E : BlockMat d) (h : Mat d) (hh : I
       one_mul, mul_one, zero_mul, mul_zero, add_zero, zero_add]
   have hright := congrArg Matrix.conjTranspose hleft
   simp only [Matrix.conjTranspose_mul, Matrix.conjTranspose_conjTranspose,
-    GeoMeanSupport.swapFullHerm d, Matrix.conjTranspose_nonsing_inv] at hright
+    BlockGeometricMean.swapFullHerm d, Matrix.conjTranspose_nonsing_inv] at hright
   rw [Matrix.mul_inv_rev, Matrix.mul_inv_rev]
   calc
     _ = ((toFullBlockMat (Book.Ch02.blockG h))ᴴ * toFullBlockMat (blockSwap d)) *
@@ -229,7 +229,7 @@ private theorem rc_shear_pos {d : ℕ} {E : BlockMat d} (hs : IsSymmetricBlockMa
     (hp : Book.Ch02.BlockPosDef E) (h : Mat d) :
     ((toFullBlockMat (Book.Ch02.blockG h))ᴴ * toFullBlockMat E *
       toFullBlockMat (Book.Ch02.blockG h)).PosDef :=
-  (Annealed.fullBlock_posDef_of_pos hs hp).conjTranspose_mul_mul_same
+  (posDef_toFullBlockMat hs hp).conjTranspose_mul_mul_same
     (Matrix.mulVec_injective_of_isUnit (rc_shear_unit h))
 
 /-- Local copy of `Analysis.upper_pos` (private there). -/
@@ -253,19 +253,19 @@ private theorem rc_corrected_pos {d : ℕ} {E : BlockMat d} (hs : IsSymmetricBlo
   exact rc_upper_pos he
 
 /-- Local copy of `InverseJensen`'s private `determinant_mono`, rebuilt from the public
-`one_le_normalized` / `det_normalized_eq_div` / `trace_sub_one_le_det_sub_one` toolkit
+`Recurrence.one_le_normalize` / `det_normalized_eq_div` / `Recurrence.trace_sub_one_le_det_sub_one` toolkit
 already in this namespace (`HCPoly/Entry/Multiscale/DriftAdvance.lean`). -/
-private theorem rc2_det_mono {ι : Type*} [Fintype ι] [DecidableEq ι] {F G : Matrix ι ι ℝ}
+private theorem det_le_det_of_posDef_of_le {ι : Type*} [Fintype ι] [DecidableEq ι] {F G : Matrix ι ι ℝ}
     (hF : F.PosDef) (hG : G.PosDef) (hGF : G ≤ F) : G.det ≤ F.det := by
   let T := matSqrt G⁻¹
   have hT : T.PosDef := matSqrt_inv_posDef_full hG
   have hN : (T * F * T).IsHermitian := by
     have h := Matrix.isHermitian_conjTranspose_mul_mul T hF.isHermitian
     rwa [hT.isHermitian.eq] at h
-  have hi : (1 : Matrix ι ι ℝ) ≤ T * F * T := one_le_normalized hG hGF
+  have hi : (1 : Matrix ι ι ℝ) ≤ T * F * T := Recurrence.one_le_normalize hG hGF
   have ht := (Matrix.le_iff.mp hi).trace_nonneg
-  have hd := trace_sub_one_le_det_sub_one hN hi
-  have hone : (1 : ℝ) ≤ (T * F * T).det := by linarith
+  have hd := Recurrence.trace_sub_one_le_det_sub_one hN hi
+  have hone : (1 : ℝ) ≤ (T * F * T).det := by linarith only [hd, ht]
   rw [show (T * F * T).det = F.det / G.det from det_normalized_eq_div F G hG] at hone
   exact (one_le_div hG.det_pos).mp hone
 
@@ -294,17 +294,17 @@ theorem refBlock_le_six_aspect {d : ℕ} (E : BlockMat d) (hEs : IsSymmetricBloc
     simp [hz]
   · have : NeZero d := ⟨hdpos.ne'⟩
     obtain ⟨h, hh, hΛ⟩ := exists_isSkewMat_bigLambdaRef_eq hE
-    have hp := Annealed.fullBlock_posDef_of_pos hEs hE
+    have hp := posDef_toFullBlockMat hEs hE
     have hD := posDef_lowerRight hEs hE
     have hΛpos := Analysis.bigLambdaRef_pos hEs hE
     have hLpos : 0 < specBound E.lowerRight := inv_pos.mp (Analysis.lambdaRef_pos hEs hE)
     have hA : skewCorrectedForm E h ≤ bigLambdaRef E • (1 : Mat d) := by
-      apply (GeoMeanSupport.matLE_iff' (rc_corrected_pos hEs hE h).isHermitian
+      apply (BlockGeometricMean.matLE_iff (rc_corrected_pos hEs hE h).isHermitian
         (rc_hermitian_smul Matrix.isHermitian_one _)).2
       rw [hΛ]
       exact matLoewnerLE_specBound_smul_one _
     have hDle : E.lowerRight ≤ specBound E.lowerRight • (1 : Mat d) :=
-      (GeoMeanSupport.matLE_iff' hD.isHermitian (rc_hermitian_smul Matrix.isHermitian_one _)).2
+      (BlockGeometricMean.matLE_iff hD.isHermitian (rc_hermitian_smul Matrix.isHermitian_one _)).2
         (matLoewnerLE_specBound_smul_one _)
     have hsp := rc_shear_pos hEs hE h
     rw [rc_shear_blocks hEs hE] at hsp
@@ -325,8 +325,8 @@ theorem refBlock_le_six_aspect {d : ℕ} (E : BlockMat d) (hEs : IsSymmetricBloc
       (by linarith only [hπ0] : 4 * aspectRatio E ≤ 6 * aspectRatio E)
       (by simpa only [toFullBlockMat_ofFullBlockMat] using hspos.posSemidef.nonneg)
     apply (Annealed.fullBlock_le_iff hp.isHermitian (by
-      rw [GeoMeanSupport.fullScale']; exact rc_hermitian_smul hspos.isHermitian _)).1
-    simpa only [GeoMeanSupport.fullScale', toFullBlockMat_ofFullBlockMat] using hfull.trans hlast
+      rw [Homogenization.HighContrast.toFullBlockMat_blockScale]; exact rc_hermitian_smul hspos.isHermitian _)).1
+    simpa only [Homogenization.HighContrast.toFullBlockMat_blockScale, toFullBlockMat_ofFullBlockMat] using hfull.trans hlast
 
 /-- `p.global.selection` upper bound: `det 𝐀 ≤ 2^{2d} det 𝐄 ≤ (24Π)^d` from `𝐀 ≤ 2𝐄`, `𝐄 ≤ 6Π 𝐑𝐄⁻¹𝐑` and
 `det 𝐄 · det(𝐑𝐄⁻¹𝐑) = 1`. -/
@@ -345,13 +345,13 @@ theorem blockLogDet_le_of_initial_sandwich {d : ℕ} (E A : BlockMat d) (hEs : I
       ⟨fun x => Sum.elim (fun i : Fin 0 => i.elim0) (fun i : Fin 0 => i.elim0) x⟩
     simp [blockLogDet, Matrix.det_isEmpty]
   · have : NeZero d := ⟨hdpos.ne'⟩
-    have hEfull : (toFullBlockMat E).PosDef := Annealed.fullBlock_posDef_of_pos hEs hE
-    have hAfull : (toFullBlockMat A).PosDef := Annealed.fullBlock_posDef_of_pos hAs hA
+    have hEfull : (toFullBlockMat E).PosDef := posDef_toFullBlockMat hEs hE
+    have hAfull : (toFullBlockMat A).PosDef := posDef_toFullBlockMat hAs hA
     have h12 : (1 : ℝ) + 1 = 2 := by norm_num
     have hup' : BlockMatLoewnerLE A (blockScale (1 + 1) E) := by rw [h12]; exact hup
     have hstep1 := blockLogDet_le_of_sandwich E A 1 (by norm_num) hEs hE hAs hA hup'
     rw [h12] at hstep1
-    have h6pos : 0 < 6 * aspectRatio E := by linarith [hAR]
+    have h6pos : 0 < 6 * aspectRatio E := by linarith only [hAR]
     have hR'pos : (toFullBlockMat (ofFullBlockMat (toFullBlockMat (blockSwap d) *
         (toFullBlockMat E)⁻¹ * toFullBlockMat (blockSwap d)))).PosDef :=
       Analysis.swapConj_posDef hEfull
@@ -359,9 +359,9 @@ theorem blockLogDet_le_of_initial_sandwich {d : ℕ} (E A : BlockMat d) (hEs : I
         (ofFullBlockMat (toFullBlockMat (blockSwap d) * (toFullBlockMat E)⁻¹ *
           toFullBlockMat (blockSwap d))) := by
       have h := (Annealed.fullBlock_le_iff hEfull.isHermitian (by
-        rw [GeoMeanSupport.fullScale']; exact rc_hermitian_smul hR'pos.isHermitian _)).2 hsix
-      rwa [GeoMeanSupport.fullScale'] at h
-    have hd := rc2_det_mono (hR'pos.smul h6pos) hEfull hsixFull
+        rw [Homogenization.HighContrast.toFullBlockMat_blockScale]; exact rc_hermitian_smul hR'pos.isHermitian _)).2 hsix
+      rwa [Homogenization.HighContrast.toFullBlockMat_blockScale] at h
+    have hd := det_le_det_of_posDef_of_le (hR'pos.smul h6pos) hEfull hsixFull
     rw [Matrix.det_smul, Analysis.det_swapConj] at hd
     have hn : Fintype.card (BlockCoord d) = 2 * d := by simp [BlockCoord, two_mul]
     rw [hn] at hd
@@ -387,15 +387,10 @@ theorem blockLogDet_le_of_initial_sandwich {d : ℕ} (E A : BlockMat d) (hEs : I
       ring
     calc blockLogDet A ≤ blockLogDet E + 2 * (d : ℝ) * Real.log 2 := hstep1
       _ ≤ (d : ℝ) * Real.log (6 * aspectRatio E) + 2 * (d : ℝ) * Real.log 2 := by
-          linarith [hstep2]
+          linarith only [hstep2]
       _ = (d : ℝ) * Real.log (24 * aspectRatio E) := by rw [hlog2]; ring
 
 end RCGoals
-
-/-- The adapted mean is a symmetric block: `Annealed.isSymmetricBlockMat_annealedBlock`
-specialised to the adapted cell via `adaptedMean := annealedBlock ∘ adaptedCell`. -/
-theorem adaptedMean_isSymmetric {d : ℕ} (P : Measure (CoeffSpace d)) (q : Mat d) (j : ℤ) :
-    IsSymmetricBlockMat (adaptedMean P q j) := by unfold adaptedMean; exact Homogenization.HighContrast.Annealed.isSymmetricBlockMat_annealedBlock P _
 
 end
 

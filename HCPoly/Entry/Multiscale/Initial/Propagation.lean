@@ -4,7 +4,7 @@ import HCPoly.Entry.OneGridPropagation
 /-!
 # Initialization: the one-grid propagation statement at the Euclidean grid
 
-The one-grid propagation statement `Homogenization.HighContrast.Provider.fixed_geometry_one_grid_propagation_full`
+The one-grid propagation statement `Homogenization.HighContrast.Entry.fixed_geometry_one_grid_propagation_full`
 (`HCPoly/Entry/OneGridPropagation.lean`, `p.fixed.geometry.one.grid.propagation`) is specialized to the
 Euclidean grid `metric = 1`, where `Geometry.explicitRoundedGrid jStar 1 = 1`: its conjuncts 5, 6
 and 7 become the carried-history majorization, the synchronized propagation step and the
@@ -23,7 +23,7 @@ noncomputable section
 /-! ## E. Steps 2–3 — logarithmic decrement and the hitting index
 (`p.initial.fixed.grid.scale`).  The one-grid propagation statement enters through
 `one_grid_propagation_input`, which repeats the exact type of
-`Homogenization.HighContrast.Provider.fixed_geometry_one_grid_propagation_full`
+`Homogenization.HighContrast.Entry.fixed_geometry_one_grid_propagation_full`
 (`HCPoly/Entry/Statements/OneGridPropagation.lean`, byte for byte) and is discharged by one direct
 application of the statement proved in `HCPoly/Entry/OneGridPropagation.lean`. -/
 
@@ -51,12 +51,12 @@ theorem one_grid_propagation_input
                       profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n (m + (h : ℤ)) ≤
                         1 / 8 *
                             Real.exp ((bigQ d γ : ℝ) *
-                              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                              synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                                 (h : ℤ) m) *
                             profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                           C *
                             (Real.exp ((bigQ d γ : ℝ) *
-                                synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                                synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                                   (h : ℤ) m) - 1)) ∧
                     (n + (h : ℤ) ≤ m →
                       profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m ≤ 1 →
@@ -64,14 +64,14 @@ theorem one_grid_propagation_input
                           C * (L : ℝ) *
                             (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                               Real.exp ((bigQ d γ : ℝ) *
-                                logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1)) ∧
+                                detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1)) ∧
                     (m = n →
                       history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n ≤ 1 →
                         profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n (n + L) ≤
                           C * (L : ℝ) *
                             (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
                               Real.exp ((bigQ d γ : ℝ) *
-                                logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1)) ∧
+                                detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1)) ∧
                     fluctuationHistory P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
                           meanHistory P γ (Geometry.explicitRoundedGrid jStar metric) (jStar : ℤ) m +
                           determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m ≤
@@ -83,21 +83,21 @@ theorem one_grid_propagation_input
                             (m + (h : ℤ)) ≤
                         1 / 8 *
                             Real.exp ((bigQ d γ : ℝ) *
-                              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                              synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                                 (h : ℤ) m) *
                             (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                               determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m) +
                           C *
                             (Real.exp ((bigQ d γ : ℝ) *
-                                synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                                synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                                   (h : ℤ) m) - 1)) ∧
                     (∀ m₀ : ℤ, (jStar : ℤ) + (h : ℤ) ≤ m₀ →
                       ∀ Ksteps : ℕ, 1 ≤ Ksteps →
                         ∑ k ∈ Finset.range Ksteps,
-                            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ)
+                            synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ)
                               (m₀ + (k : ℤ) * (h : ℤ)) ≤
                           (h : ℝ) *
-                            logDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                            detIncrement P (Geometry.explicitRoundedGrid jStar metric)
                               (m₀ + 1 - (h : ℤ)) (m₀ + (Ksteps : ℤ) * (h : ℤ))) ∧
                     ((m = n ∨ n + (h : ℤ) ≤ m) →
                       profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
@@ -108,9 +108,9 @@ theorem one_grid_propagation_input
                             (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                               determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
                               Real.exp ((bigQ d γ : ℝ) *
-                                logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m
+                                detIncrement P (Geometry.explicitRoundedGrid jStar metric) m
                                   (m + L)) - 1)) := by
-  exact Homogenization.HighContrast.Provider.fixed_geometry_one_grid_propagation_full d hd γ hγ
+  exact Homogenization.HighContrast.Entry.fixed_geometry_one_grid_propagation_full d hd γ hγ
 
 /-- E1. `e.fixed.geometry.carried.majorization` on the Euclidean grid (the one-grid statement's conjunct 5 at
 `metric = 1`, `h = 2Q`, `L = 1`). -/
@@ -160,11 +160,11 @@ theorem synchronized_propagation_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                     determinantDrift P γ (1 : Mat d) jStar (m + (h : ℤ)) ≤
                   1 / 8 *
                       Real.exp ((bigQ d γ : ℝ) *
-                        synchronizedLogDetLoss P (1 : Mat d) (h : ℤ) m) *
+                        synchCharge P (1 : Mat d) (h : ℤ) m) *
                       (profile P γ (1 : Mat d) jStar n m +
                         determinantDrift P γ (1 : Mat d) jStar m) +
                     C * (Real.exp ((bigQ d γ : ℝ) *
-                      synchronizedLogDetLoss P (1 : Mat d) (h : ℤ) m) - 1) := by
+                      synchCharge P (1 : Mat d) (h : ℤ) m) - 1) := by
   have : NeZero d := ⟨by omega⟩
   obtain ⟨Csrc, hCsrc, C, hC, hprov⟩ := one_grid_propagation_input d hd γ hγ
   refine ⟨Csrc, hCsrc, C, hC, ?_⟩
@@ -190,9 +190,9 @@ theorem synchronized_multiplicity_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
             ∀ m₀ : ℤ, (jStar : ℤ) + (h : ℤ) ≤ m₀ →
               ∀ Ksteps : ℕ, 1 ≤ Ksteps →
                 ∑ k ∈ Finset.range Ksteps,
-                    synchronizedLogDetLoss P (1 : Mat d) (h : ℤ) (m₀ + (k : ℤ) * (h : ℤ)) ≤
+                    synchCharge P (1 : Mat d) (h : ℤ) (m₀ + (k : ℤ) * (h : ℤ)) ≤
                   (h : ℝ) *
-                    logDetLoss P (1 : Mat d) (m₀ + 1 - (h : ℤ))
+                    detIncrement P (1 : Mat d) (m₀ + 1 - (h : ℤ))
                       (m₀ + (Ksteps : ℤ) * (h : ℤ)) := by
   have : NeZero d := ⟨by omega⟩
   obtain ⟨Csrc, hCsrc, _C, _hC, hprov⟩ := one_grid_propagation_input d hd γ hγ

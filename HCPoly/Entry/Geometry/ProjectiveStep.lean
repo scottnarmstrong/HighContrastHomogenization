@@ -39,7 +39,7 @@ theorem log_eccentricity_geometryUpdate_le
   have hupd : (geometryUpdate ε m mStar).PosDef := geometryUpdate_posDef hm hStar ε
   have hecc := log_eccentricity_le_add_projectiveDistance hm hupd
   have hstep := projectiveDistance_geometryUpdate_le hm hStar hε
-  linarith
+  linarith only [hecc, hstep]
 
 end
 

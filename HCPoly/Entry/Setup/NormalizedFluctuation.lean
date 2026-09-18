@@ -1,6 +1,11 @@
-import HCPoly.Entry.Setup.AdaptedGrid
-import HCPoly.Entry.Setup.BlockCalculus
-import HCPoly.Entry.Setup.Response
+import HCPoly.Entry.Setup.AdaptedGridCells
+import HCPoly.Entry.Setup.ProjectiveDistance
+import HCPoly.Entry.Geometry.StandardCell
+import HCPoly.Setup.BlockAlgebra
+import HCPoly.Setup.LocalSigmaFields
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
 import HCPoly.Setup.Moments
 import HCPoly.Setup.CoefficientSpace
 
@@ -17,21 +22,21 @@ Near `e.scale.selection.normalized.mean.fluctuation`:
 
 `𝐀(U)` is `coarseBlock U`, `𝐀hom(U)` is `annealedBlock P U` and `⋄_j^q` is `adaptedCell q j`;
 the conjugation `F^{-1/2} · F^{-1/2}` is `normalizedBlock` of
-`HCPoly/Entry/Setup/BlockCalculus.lean`.
+`HCPoly/Entry/Setup/ProjectiveDistance.lean`.
 
 Two things the print carries as hypotheses and these definitions do not, so that a reader
 comparing file to manuscript finds no silent divergence (operating rules, the standing
 honesty rule):
 
-* `j ≤ k`.  `normalizedMean` and `normalizedFluctuation` are total in both generations.
+* `j ≤ k`.  `relMean` and `normalizedFluctuation` are total in both generations.
 * `z ∈ 3^j q ℤ^d`.  `normalizedFluctuation` takes an arbitrary translate `z : Vec d`
   through `adaptedCellTranslate`; the aligned centers are `adaptedLatticeAtScale q j` of
-  `HCPoly/Entry/Setup/AdaptedGrid.lean`, and a consumer that needs the printed restriction states it.
+  `HCPoly/Entry/Setup/AdaptedGridCells.lean`, and a consumer that needs the printed restriction states it.
   The one printed use of a non-aligned argument is `V^q_j = V^q_{j,j}(0)`, and `0` is
   aligned.
 
 `𝐀hom_{k,q}^{-1/2}` is meaningful because the annealed adapted block is positive definite;
-that is `blockPosDef_annealedBlock` (`HCPoly/Entry/Setup/Response.lean`), which has
+that is `blockPosDef_annealedBlock` (`HCPoly/Setup/Response.lean`), which has
 hypotheses.  None of them is imposed here: off the positive definite blocks the inverse and
 the square root take the junk values fixed in `HCPoly/Setup/BlockAlgebra.lean`.
 
@@ -48,11 +53,6 @@ open MeasureTheory Geometry
 noncomputable section
 
 variable {d : ℕ}
-
-/-- The normalized mean `P^q_{j,k} = 𝐀hom_{k,q}^{-1/2} 𝐀hom_{j,q} 𝐀hom_{k,q}^{-1/2}`
-(`e.scale.selection.normalized.mean.fluctuation`). -/
-def normalizedMean (P : Measure (CoeffSpace d)) (q : Mat d) (j k : ℤ) : BlockMat d :=
-  normalizedBlock (adaptedMean P q j) (adaptedMean P q k)
 
 /-- The normalized fluctuation
 `V^q_{j,k}(z) = 𝐀hom_{k,q}^{-1/2}(𝐀(z + ⋄_j^q) − 𝐀hom_{j,q})𝐀hom_{k,q}^{-1/2}`

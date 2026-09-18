@@ -33,7 +33,7 @@ Reading of the display, stated here so that no divergence is silent:
   `q = 𝒬(𝔪)` is `Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)`, both written out at their
   occurrences rather than named.
 * `Π` is `aspectRatio E`, `K_{Ψ_S}` is `K`, `𝒫_q(m;n)` is `profile P γ q jStar n m`,
-  `D_{q,j_*}` is `determinantDrift`, `Δ^q_{s,t}` is `logDetLoss`, `□_{2j_*}` is
+  `D_{q,j_*}` is `determinantDrift`, `Δ^q_{s,t}` is `detIncrement`, `□_{2j_*}` is
   `HighContrast.centeredCube d (2 j_*)`, and `ε^{1/2}` is `Real.sqrt ε`. `(|𝔪||𝔪^{-1}|)^{1/2}` is
   transcribed as the printed real power of the product of the two L2 operator norms.
 * `s < t` is printed ("generations `s < t`") and is carried, although it also follows from
@@ -43,7 +43,7 @@ Reading of the display, stated here so that no divergence is silent:
   `HCPoly/Entry/Statements/PolynomialEntry.lean`, after the constants, whose printed argument lists say they
   do not depend on the law.
 
-The proof is one application of `Homogenization.HighContrast.Provider.global_selection` (`HCPoly/Entry/GlobalSelection.lean`) to the binders of the statement.
+The proof is one application of `Homogenization.HighContrast.Entry.global_selection` (`HCPoly/Entry/GlobalSelection.lean`) to the binders of the statement.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
@@ -97,7 +97,7 @@ theorem global_selection
                                 (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s)
                               (blockScale (1 + Real.sqrt ε * σ) F) ∧
                             (d : ℝ)⁻¹ *
-                                logDetLoss P
+                                detIncrement P
                                   (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ ∧
                             max
                                   (max
@@ -116,6 +116,6 @@ theorem global_selection
                                   (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) jStar t ≤
                               Cprof * σ ^ ((1 - γ) / 8) ∧
                             (‖explicitCanonicalMetric F‖ * ‖(explicitCanonicalMetric F)⁻¹‖) ^ ((1 : ℝ) / 2) ≤
-                              (2 + aspectRatio E) ^ C := by exact Homogenization.HighContrast.Provider.global_selection d hd γ hγ S hS
+                              (2 + aspectRatio E) ^ C := by exact Homogenization.HighContrast.Entry.global_selection d hd γ hγ S hS
 
 end Homogenization.HighContrast

@@ -1,12 +1,11 @@
 import Mathlib.MeasureTheory.Integral.DominatedConvergence
-import HCPoly.Entry.Analysis.SchattenMeasurable
-import HCPoly.Entry.Analysis.SchattenIntegrability
-import HCPoly.Entry.Analysis.SchattenSpectral
-import HCPoly.Entry.CG.Proofs.ResponseVolumeWeights
-import HCPoly.Entry.CG.Proofs.ResponseFiniteSplitting
+import HCPoly.Entry.Analysis.SchattenNormIntegrability
+import HCPoly.Entry.Analysis.SchattenNormFoundations
+import HCPoly.Entry.CG.Proofs.FiniteVolumeWeights
 import HCPoly.Entry.CG.Proofs.ResponseFiniteDefect
 import HCPoly.Entry.CG.Proofs.ResponseSummable
-import HCPoly.Entry.Annealed.AdaptedDomainRecovery
+import HCPoly.Entry.Annealed.AdaptedDomainLocality
+import HCPoly.Provider.Transport.WhitneyRows
 
 /-!
 # Countable source subadditivity
@@ -81,7 +80,8 @@ theorem responseJ_le_tsum_of_partition {d : ℕ} {ι : Type*} {s : Set ι} (hs :
       (1 - ∑ i ∈ F, (volume (U i)).toReal / (volume W).toReal) * C
   dsimp [C]
   have heq : 1 - (∑ i ∈ F, (volume (U i)).toReal / (volume W).toReal) =
-      (volume (W \ ⋃ i ∈ F, U i)).toReal / (volume W).toReal := by linarith
+      (volume (W \ ⋃ i ∈ F, U i)).toReal / (volume W).toReal := by
+    linarith only [hwF]
   rwa [heq]
 
 /-- Scalar dilation acts on the entire doubled quadratic form. -/
@@ -142,7 +142,7 @@ theorem block_bound_of_response_partition {d : ℕ} {ι : Type*} {s : Set ι} (h
   simp only [neg_neg, Prod.mk.eta] at hparent
   rw [quadratic_blockScale]
   dsimp [e, v] at hle
-  linarith
+  linarith only [hparent, hle]
 
 /-- Countable subadditivity with a scalar reference bound, on the actual qualitative
 coefficient carrier and invertible adapted cells. Every response identity is supplied
@@ -161,7 +161,7 @@ theorem coarseBlock_adapted_partition_bound {d : ℕ} [NeZero d]
       BlockMatLoewnerLE (coarseBlock W a)
         (blockScale (∑' i : s, (volume (U i)).toReal / (volume W).toReal * c i) E) := by
   intro W U hsub hdisj hnull hc hb
-  have hWfin : volume W ≠ ⊤ := volume_adaptedCellTranslate_ne_top q j y
+  have hWfin : volume W ≠ ⊤ := Transport.volume_adaptedCellTranslate_ne_top q j y
   let : IsFiniteMeasure (volumeMeasureOn W) := ⟨by simpa [volumeMeasureOn] using hWfin.lt_top⟩
   have hWpos : 0 < volume W := by
     dsimp [W]
@@ -193,7 +193,9 @@ theorem blockScale_le_blockScale_of_pos {d : ℕ} {E : BlockMat d}
     by_cases hz : v = 0
     · simp [hz, blockVecDot, vecDot]
     · exact (hE v hz).le
-  nlinarith [mul_le_mul_of_nonneg_right hc hv]
+  have hq : 0 ≤ (1 / 2 : ℝ) * blockVecDot v (blockMatVecMul E v) :=
+    mul_nonneg (by norm_num) hv
+  exact mul_le_mul_of_nonneg_right hc hq
 
 /-- Full block symmetry and positive quadratic form give the actual spectral
 positive-semidefinite matrix used by the Schatten norm. -/
@@ -220,7 +222,7 @@ theorem blockTrace_le_of_order {d : ℕ} {A B : BlockMat d}
   have h := hAB (blockBasis α)
   rw [blockBasis_pairing, blockBasis_pairing] at h
   simp only [toFullBlockMat_eq_blockMatEntry]
-  linarith
+  linarith only [h]
 
 /-- Quadratic order on a positive full block controls its actual L2 operator norm. -/
 theorem blockOpNorm_le_scale_trace {d : ℕ} {A E : BlockMat d} {c : ℝ}
@@ -363,7 +365,7 @@ theorem memLqSchatten_of_norm_envelope {d : ℕ} {P : Measure (CoeffSpace d)}
     (hAm : HasMeasurableBlock P A) (hAs : ∀ᵐ a ∂P, IsSymmetricBlockMat (A a))
     {X : CoeffSpace d → ℝ} (hX : MemLp X (ENNReal.ofReal N) P) (D : ℝ)
     (hbound : ∀ᵐ a ∂P, blockOpNorm (A a) ≤ D * X a) :
-    MemLqSchatten P N A := by
+    SchattenMemLp P N A := by
   have hsm := Analysis.aestronglyMeasurable_absSchattenNorm hAm hN
   have hscalar : MemLp (fun a => absSchattenNorm N (A a)) (ENNReal.ofReal N) P := by
     apply (hX.const_mul ((2 * (d : ℝ)) ^ N⁻¹ * D)).mono' hsm
@@ -450,20 +452,20 @@ theorem lqSchatten_tsum_convergence {d : ℕ} {ι : Type*} [Countable ι]
     (hb : ∀ᵐ a ∂P, ∀ i, ‖F i a‖ ≤ c i * X a) :
     let M := fun a => ofFullBlockMat (∑' i, F i a)
     let B := fun (s : Finset ι) a => ofFullBlockMat (∑ i ∈ s, F i a)
-    MemLqSchatten P N M ∧
-      (∀ s, MemLqSchatten P N (B s) ∧ MemLqSchatten P N (fun a => blockSub (B s a) (M a))) ∧
+    SchattenMemLp P N M ∧
+      (∀ s, SchattenMemLp P N (B s) ∧ SchattenMemLp P N (fun a => blockSub (B s a) (M a))) ∧
       Tendsto (fun s : Finset ι => lqSchattenNorm P N (fun a => blockSub (B s a) (M a)))
         atTop (nhds 0) := by
   classical
   intro M B
   obtain ⟨hseries, hMm, hMs, hMb, hB⟩ := full_matrix_series_envelope P F hm hs c hc0 hc X hX0 hb
-  have hM : MemLqSchatten P N M := memLqSchatten_of_norm_envelope hN hMm hMs hX (∑' i, c i)
+  have hM : SchattenMemLp P N M := memLqSchatten_of_norm_envelope hN hMm hMs hX (∑' i, c i)
     (by simpa only [M, blockOpNorm, toFullBlockMat_ofFullBlockMat] using hMb)
-  have hBmem (s : Finset ι) : MemLqSchatten P N (B s) :=
+  have hBmem (s : Finset ι) : SchattenMemLp P N (B s) :=
     memLqSchatten_of_norm_envelope hN (hB s).1 (hB s).2.1 hX (∑' i, c i)
       (by simpa only [B, blockOpNorm, toFullBlockMat_ofFullBlockMat] using (hB s).2.2)
   let D := fun (s : Finset ι) a => blockSub (B s a) (M a)
-  have hD (s : Finset ι) : MemLqSchatten P N (D s) := (hBmem s).sub hM hN
+  have hD (s : Finset ι) : SchattenMemLp P N (D s) := (hBmem s).sub hM hN
   have hfull (s : Finset ι) (a : CoeffSpace d) :
       toFullBlockMat (D s a) = (∑ i ∈ s, F i a) - ∑' i, F i a := by
     ext α β

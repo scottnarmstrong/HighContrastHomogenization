@@ -1,13 +1,14 @@
 import HCPoly.Entry.Multiscale.Global.RunStepsChange
+import HCPoly.Provider.Recurrence.AdaptedCellMeasurability
 
 /-!
 # The stop of the run and the stopping argument
 
 `run_stop_output` is the Alternative-2 stop (`𝔪₊ = 𝔪⋆`, the determinant test succeeds) and
 extracts `SelectedOutput`; `run_exists_stop` runs the gauge down and produces a stopping
-state. Both are proved. `run_exists_stop` takes the per-step alternative `hstep` and the
-containment `hcont` as binders; they are discharged by `run_step_any` in
-`HCPoly.Entry.Multiscale.Global.RunAssembly`.
+state. Both serve the global selection result `p.global.selection`. `run_exists_stop` takes
+the per-step alternative `hstep` and the containment `hcont` as binders; they are discharged
+by `run_step_any` in `HCPoly.Entry.Multiscale.Global.RunAssembly`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
@@ -41,7 +42,7 @@ def RunStopData {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (S : Selection
           (st.n + 2 * (S.L ε σ : ℤ)))) =
       explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
         (st.n + 2 * (S.L ε σ : ℤ))) ∧
-    (d : ℝ)⁻¹ * logDetLoss P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
+    (d : ℝ)⁻¹ * detIncrement P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
       (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
         (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ))
       (st.n + (S.L ε σ : ℤ) + (H : ℤ)) < σ ∧
@@ -76,7 +77,7 @@ def RunStopData {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (S : Selection
 
 /-- **Alternative 2, `𝔪₊ = 𝔪⋆`, the test succeeds — the stop**
 (`p.global.selection`). Retain `F = 𝐀_{n+2L, q}`, `s = n+L`, `t = s+H`. The output
-fields: symmetry/positivity of `F` from `adaptedMean_isSymmetric` and
+fields: symmetry/positivity of `F` from `Recurrence.isSymmetricBlockMat_adaptedMean` and
 `run_adaptedMean_blockPosDef`; `s < t` and `t = s + H` from `1 ≤ H`; the two scale bounds
 from `st.hgen`, `hn₀` and `scales_arith`; the containment of `adaptedCell QF t` from
 `run_entry_containment`; the two Loewner bounds are the bridge sandwich `hbr₁`/`hbr₂`
@@ -148,7 +149,7 @@ theorem run_stop_output {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
         Cout * σ ^ ((1 - γ) / 8) →
       profile P γ (Geometry.explicitRoundedGrid jStar m) jStar s s +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar s ≤ 1 →
-      (d : ℝ)⁻¹ * logDetLoss P (Geometry.explicitRoundedGrid jStar m) s (s + H) < σ →
+      (d : ℝ)⁻¹ * detIncrement P (Geometry.explicitRoundedGrid jStar m) s (s + H) < σ →
       max (max (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar s s)
             (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar s (s + H)))
           (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar (s + H) (s + H)) +
@@ -156,7 +157,7 @@ theorem run_stop_output {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar (s + H) ≤
         Cprof * σ ^ ((1 - γ) / 8))
     (htest : (d : ℝ)⁻¹ *
-      logDetLoss P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
+      detIncrement P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
         (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
           (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ))
         (st.n + (S.L ε σ : ℤ) + (H : ℤ)) < σ) :
@@ -170,13 +171,14 @@ theorem run_stop_output {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
   have _ := hCout
   have _ := hCprof
   have _ := hC
+  have _ := hur
   -- The retained output block `F = 𝐀_{n+2L, 𝒬(𝔪)}` and its metric `𝔪⋆ = explicitCanonicalMetric F`.
   have hFsym : IsSymmetricBlockMat
       (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) (st.n + 2 * (S.L ε σ : ℤ))) :=
-    adaptedMean_isSymmetric P _ _
+    Recurrence.isSymmetricBlockMat_adaptedMean P _ _
   have hFpos : Book.Ch02.BlockPosDef
       (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) (st.n + 2 * (S.L ε σ : ℤ))) :=
-    run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce jStar hjStar st.m st.hm _
+    run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce jStar hjStar st.m st.hm _
   have hStarPD : (explicitCanonicalMetric
       (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) (st.n + 2 * (S.L ε σ : ℤ)))).PosDef :=
     explicitCanonicalMetric_posDef _ hFsym hFpos
@@ -190,33 +192,33 @@ theorem run_stop_output {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
   have hsge : (jStar : ℤ) ≤ st.n + (S.L ε σ : ℤ) := by
     have h1 := st.hk
     have h2 := st.hkn
-    linarith
+    linarith only [h1, h2, hLZ]
   -- The eccentricity clause forces `j_* + ⌈B log₃(2+Π)⌉ ≤ k`.
   have hεpos : (0 : ℝ) < ε := hε.1
   have hLR : (0 : ℝ) < (S.L ε σ : ℝ) := by
     have : (1 : ℝ) ≤ (S.L ε σ : ℝ) := by exact_mod_cast hL1
-    linarith
+    linarith only [this]
   have hratio : (0 : ℝ) < ε / (S.L ε σ : ℝ) := div_pos hεpos hLR
   have hlogm : (0 : ℝ) ≤ 1 / 2 * Real.log (‖st.m‖ * ‖st.m⁻¹‖) := by
     have h := Real.log_nonneg (Geometry.one_le_norm_mul_norm_inv st.hm)
-    linarith
+    linarith only [h]
   have hX : (0 : ℝ) ≤ (st.k : ℝ) - (jStar : ℝ) -
       ((⌈B * Real.logb 3 (2 + aspectRatio E)⌉ : ℤ) : ℝ) := by
     have h0 := le_trans hlogm st.hecc
     by_contra hcon
     push Not at hcon
     have hneg := mul_neg_of_pos_of_neg hratio hcon
-    linarith
+    linarith only [h0, hneg, hlogm]
   have hkge : (jStar : ℤ) + ⌈B * Real.logb 3 (2 + aspectRatio E)⌉ ≤ st.k := by
     have hR : (((jStar : ℤ) + ⌈B * Real.logb 3 (2 + aspectRatio E)⌉ : ℤ) : ℝ) ≤ ((st.k : ℤ) : ℝ) := by
       push_cast
-      linarith
+      linarith only [hX]
     exact_mod_cast hR
   -- The upper scale bound.
   have hstepnn : (0 : ℤ) ≤ 2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ) := by omega
   have hiJZ : ((st.i : ℤ) + 1) ≤ ((J : ℤ) + 2) := by
     have : (st.i : ℤ) ≤ (J : ℤ) := by exact_mod_cast hiJ
-    linarith
+    linarith only [this]
   have hmul : (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * ((st.i : ℤ) + 1) ≤
       (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * ((J : ℤ) + 2) :=
     mul_le_mul_of_nonneg_left hiJZ hstepnn
@@ -228,9 +230,9 @@ theorem run_stop_output {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
     st.n + (S.L ε σ : ℤ), st.n + (S.L ε σ : ℤ) + (H : ℤ),
     hFsym, hFpos, ?_, rfl, ?_, ?_, ?_, ?_, ?_, ?_, ?_, hecc'⟩
   · have hHZ : (4 : ℤ) ≤ (H : ℤ) := by exact_mod_cast hH4
-    linarith
-  · linarith
-  · linarith
+    linarith only [hHZ]
+  · linarith only [hkge, hkn, hLZ]
+  · linarith only [hgen, hn₀', hmul, hscales]
   · rw [← heq]; exact hcont
   · rw [← heq]; exact hbr₁
   · rw [← heq]; exact hbr₂
@@ -302,7 +304,7 @@ private theorem run_exists_stop_abstract {α : Type*} (idx : α → ℕ) (G : α
     rcases hstep (runIter idx G c x₀ i) (by rw [hi]; exact hiJ) with hex | hs
     · have hd2 := (runSucc_spec idx G c _ hex).2
       rw [hRs i]
-      linarith
+      linarith only [hd2]
     · exact absurd hs hns
   obtain ⟨i, hile, hstopi⟩ :=
     exists_stop_of_potential (fun i => G (runIter idx G c x₀ i)) (fun _ => (0 : ℝ))
@@ -313,7 +315,7 @@ private theorem run_exists_stop_abstract {α : Type*} (idx : α → ℕ) (G : α
     rw [h0]
     refine Nat.ceil_le.mpr ?_
     rw [div_le_iff₀ hc]
-    linarith
+    linarith only [hbnd]
   have hiJ : i ≤ J := le_trans hile hceil
   have hex2 : ∃ i : ℕ, Stp (runIter idx G c x₀ i) ∨ J < i := ⟨i, hstopi⟩
   have hfle : Nat.find hex2 ≤ J := le_trans (Nat.find_le hstopi) hiJ
@@ -381,20 +383,20 @@ theorem run_exists_stop {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
   have hη : 0 < S.eta ε σ := by
     by_contra hcon
     push Not at hcon
-    have h1 : 0 ≤ (-(S.eta ε σ)) * Real.log (16 / 9) := mul_nonneg (by linarith) hlog.le
+    have h1 : 0 ≤ (-(S.eta ε σ)) * Real.log (16 / 9) := mul_nonneg (by linarith only [hcon]) hlog.le
     rw [hc] at hcpos
-    nlinarith [h1, hcpos]
+    linarith only [h1, hcpos]
   have hdR : (0 : ℝ) < (d : ℝ) := by
     have h2 : (0 : ℕ) < d := by omega
     exact_mod_cast h2
   have hw0 : (0 : ℝ) ≤ w := by
     rw [hw]
-    exact div_nonneg (mul_nonneg (by linarith) (by linarith)) hdR.le
+    exact div_nonneg (mul_nonneg (by linarith only [ha1]) (by linarith only [hC])) hdR.le
   have hgauge : ∀ st : RunState P γ S ε σ B E H jStar n₀,
       0 ≤ runGauge P γ jStar (S.eta ε σ) a w S.h st.m st.k st.n := by
     intro st
     have h1 := run_potential_nonneg hd P γ hγ E Ψ K Src hP hst hur hce jStar hjStar
-      st.m st.hm st.k st.n st.hk st.hkn (S.eta ε σ) a hη (by linarith)
+      st.m st.hm st.k st.n st.hk st.hkn (S.eta ε σ) a hη (by linarith only [ha1])
     have h2 := run_reserve_rounded_nonneg hd P γ E Ψ K Src hP hst hur hce jStar hjStar
       st.m st.hm S.h st.k st.n
     unfold runGauge

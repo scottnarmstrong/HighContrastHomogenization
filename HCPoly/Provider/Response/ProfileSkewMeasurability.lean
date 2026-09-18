@@ -258,30 +258,6 @@ theorem aemeasurable_diagonalWeakCellSum_subSkew
   filter_upwards [] with a
   exact (diagonalWeakCellSum_subSkew hq t H s E a g hg).symm
 
-/-- The recentered recent averaged-defect sum is almost everywhere
-measurable. -/
-theorem aemeasurable_diagonalWeakAverageSum_subSkew [NeZero d]
-    {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
-    {l : ℤ} {q : Mat d} (hq : q.PosDef)
-    (hP : HCPoly.Frozen.IsStationaryLaw P) (hgrid : IsRoundedGrid l q)
-    {jStar t : ℤ} {H : ℕ} (hlj : l ≤ jStar)
-    (hfin : ∀ k : ℤ, jStar ≤ k → k ≤ t → HasFiniteAdaptedMean P q k)
-    (hstart : jStar ≤ t - (H : ℤ)) (s rho : ℝ)
-    (g : Mat d) (hg : IsSkewMat g) :
-    AEMeasurable (fun a ↦ diagonalWeakAverageSum q t H s rho
-      (skewBlockCongr g (adaptedMean P q t)) (a.subSkew g hg)) P := by
-  have hjt : jStar ≤ t :=
-    hstart.trans (sub_le_self t (Int.natCast_nonneg H))
-  have hEt : BlockPosDef (adaptedMean P q t) :=
-    Recurrence.blockPosDef_adaptedMean_of_isRoundedGrid hgrid t
-      (hfin t hjt le_rfl)
-  have hEts : IsSymmetricBlockMat (adaptedMean P q t) :=
-    Recurrence.isSymmetricBlockMat_adaptedMean P q t
-  refine (aemeasurable_diagonalWeakAverageSum hq hP hgrid hlj hfin
-    hstart s rho).congr ?_
-  filter_upwards [] with a
-  exact (diagonalWeakAverageSum_subSkew hq t H s rho hEts hEt a g hg).symm
-
 /-- The recentered all-scale maximum is almost everywhere measurable. -/
 theorem aemeasurable_diagonalWeakMaximum_subSkew [NeZero d]
     {P : Measure (CoeffSpace d)} {rho : ℝ} {q : Mat d}

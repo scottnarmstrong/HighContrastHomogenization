@@ -11,7 +11,7 @@ an underscore prefix marks them and preserves their kinds, types and positions.
 -/
 
 open Homogenization.HighContrast (CoeffSpace blockSub blockTrace)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory Analysis
 open scoped Matrix.Norms.L2Operator
@@ -22,7 +22,7 @@ theorem fixed_geometry_positive_gap
     (N : ℝ) (hN : 2 ≤ N)
     (P : Measure (CoeffSpace d)) (hP : IsProbabilityMeasure P)
     (F G : CoeffSpace d → BlockMat d)
-    (hF : MemLqSchatten P N F) (hG : MemLqSchatten P N G)
+    (hF : SchattenMemLp P N F) (hG : SchattenMemLp P N G)
     (hFpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a))
     (_hGpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (G a))
     (hFG : ∀ᵐ a ∂P, BlockMatLoewnerLE (F a) (G a)) :
@@ -57,4 +57,4 @@ theorem fixed_geometry_positive_gap
       (mul_le_mul_of_nonneg_right hcoef (Real.rpow_nonneg (norm_nonneg _) _))
       (Real.rpow_nonneg htrace _)))
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

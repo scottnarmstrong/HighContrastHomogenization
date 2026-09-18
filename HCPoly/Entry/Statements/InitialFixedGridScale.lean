@@ -45,7 +45,7 @@ Reading of the display, stated here so that no divergence is silent:
   are in force throughout and are carried in the binder order of the root statement
   `HCPoly/Entry/Statements/PolynomialEntry.lean`.
 
-The proof is one application of `Homogenization.HighContrast.Provider.initial_fixed_grid_scale` (`HCPoly/Entry/InitialFixedGridScale.lean`) to the binders of the statement.
+The proof is one application of `Homogenization.HighContrast.Entry.initial_fixed_grid_scale` (`HCPoly/Entry/InitialFixedGridScale.lean`) to the binders of the statement.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
@@ -93,6 +93,6 @@ theorem initial_fixed_grid_scale
                           BlockMatLoewnerLE (adaptedMean P (1 : Mat d) n₀) (blockScale 2 E) ∧
                           projectiveDistance (1 : Mat d)
                               (explicitCanonicalMetric (adaptedMean P (1 : Mat d) n₀)) ≤
-                            Cgeom * Real.log (2 + 4 * aspectRatio E) := by exact Homogenization.HighContrast.Provider.initial_fixed_grid_scale d hd
+                            Cgeom * Real.log (2 + 4 * aspectRatio E) := by exact Homogenization.HighContrast.Entry.initial_fixed_grid_scale d hd
 
 end Homogenization.HighContrast

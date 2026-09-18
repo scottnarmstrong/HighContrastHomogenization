@@ -1,6 +1,6 @@
 import HCPoly.Entry.Annealed.AveragingTransport
-import HCPoly.Entry.Analysis.PositiveGapNorm
-import HCPoly.Entry.Analysis.SchattenTraceHolder
+import HCPoly.Entry.Analysis.PositiveGapSupport
+import HCPoly.Entry.Analysis.SchattenHolderInequalities
 import HCPoly.Entry.Analysis.MatrixMomentSum
 
 /-!
@@ -81,7 +81,7 @@ theorem absSchattenNorm_ofFullBlockMat_zero {N : ℝ} (hN : 1 ≤ N) :
 
 /-- **Positive homogeneity** for the mixed norm (group 5 item 1). -/
 theorem lqSchattenNorm_smul {P : Measure (CoeffSpace d)} {N : ℝ} (hN : 1 ≤ N)
-    {H : CoeffSpace d → BlockMat d} (hH : MemLqSchatten P N H) (c : ℝ) :
+    {H : CoeffSpace d → BlockMat d} (hH : SchattenMemLp P N H) (c : ℝ) :
     lqSchattenNorm P N (fun a => ofFullBlockMat (c • toFullBlockMat (H a)))
       = |c| * lqSchattenNorm P N H := by
   have hNpos : (0 : ℝ) < N := lt_of_lt_of_le zero_lt_one hN
@@ -111,7 +111,7 @@ no nonemptiness premise is added. -/
 theorem lqSchattenNorm_finset_sum_le {ι : Type*} [DecidableEq ι]
     {P : Measure (CoeffSpace d)} {N : ℝ} (hN : 1 ≤ N)
     (t : Finset ι) (H : ι → CoeffSpace d → BlockMat d)
-    (hH : ∀ i ∈ t, MemLqSchatten P N (H i)) :
+    (hH : ∀ i ∈ t, SchattenMemLp P N (H i)) :
     lqSchattenNorm P N (fun a => ofFullBlockMat (∑ i ∈ t, toFullBlockMat (H i a)))
       ≤ ∑ i ∈ t, lqSchattenNorm P N (H i) := by
   classical
@@ -123,15 +123,15 @@ theorem lqSchattenNorm_finset_sum_le {ι : Type*} [DecidableEq ι]
       simp [absSchattenNorm_ofFullBlockMat_zero hN, Real.zero_rpow (ne_of_gt hNpos),
         Real.zero_rpow (inv_ne_zero (ne_of_gt hNpos))]
   | cons i₀ t hi₀ ih =>
-      have hHt : ∀ i ∈ t, MemLqSchatten P N (H i) := fun i hi =>
+      have hHt : ∀ i ∈ t, SchattenMemLp P N (H i) := fun i hi =>
         hH i (Finset.mem_cons_of_mem hi)
-      have hHi₀ : MemLqSchatten P N (H i₀) := hH i₀ (Finset.mem_cons_self i₀ t)
+      have hHi₀ : SchattenMemLp P N (H i₀) := hH i₀ (Finset.mem_cons_self i₀ t)
       -- membership of the tail sum, and of its negative
-      have hsum : MemLqSchatten P N
+      have hsum : SchattenMemLp P N
           (fun a => ofFullBlockMat (∑ i ∈ t, toFullBlockMat (H i a))) := by
         have := Source.memLqSchatten_finset_sum hN t (fun _ => (1 : ℝ)) H hHt
         simpa using this
-      have hneg : MemLqSchatten P N
+      have hneg : SchattenMemLp P N
           (fun a => ofFullBlockMat (-(∑ i ∈ t, toFullBlockMat (H i a)))) := by
         have := Source.memLqSchatten_finset_sum hN t (fun _ => (-1 : ℝ)) H hHt
         simpa [Finset.sum_neg_distrib] using this
@@ -164,7 +164,7 @@ theorem lqSchattenNorm_finset_sum_le {ι : Type*} [DecidableEq ι]
             rw [hnegnorm]
         _ ≤ lqSchattenNorm P N (H i₀) + ∑ i ∈ t, lqSchattenNorm P N (H i) := by
             have := ih hHt
-            linarith
+            linarith only [this]
 
 
 private theorem inv_mul_rpow_half {n : ℝ} (hn : 0 < n) :
@@ -178,7 +178,7 @@ theorem lqSchattenNorm_class_average_le {d : ℕ} {ι : Type*} [DecidableEq ι]
     (P : Measure (CoeffSpace d)) (hP : IsProbabilityMeasure P)
     {N : ℕ} (hN : 2 ≤ N) (hNeven : Even N)
     (C : Finset ι) (hC : C.Nonempty) (Y : ι → CoeffSpace d → BlockMat d)
-    (hmem : ∀ i ∈ C, MemLqSchatten P (N : ℝ) (Y i))
+    (hmem : ∀ i ∈ C, SchattenMemLp P (N : ℝ) (Y i))
     (hcent : ∀ i ∈ C,
       ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (Y i a) α β ∂P)
         = ofFullBlockMat (0 : FullBlockMat d))
@@ -191,7 +191,7 @@ theorem lqSchattenNorm_class_average_le {d : ℕ} {ι : Type*} [DecidableEq ι]
   let := hP
   have hNR : (1 : ℝ) ≤ N := by exact_mod_cast (show 1 ≤ N by omega)
   have hc : (0 : ℝ) < C.card := by exact_mod_cast hC.card_pos
-  have hsum : MemLqSchatten P (N : ℝ)
+  have hsum : SchattenMemLp P (N : ℝ)
       (fun a => ofFullBlockMat (∑ i ∈ C, toFullBlockMat (Y i a))) := by
     simpa using Source.memLqSchatten_finset_sum hNR C (fun _ => (1 : ℝ)) Y hmem
   have hsquares : (∑ i ∈ C, lqSchattenNorm P (N : ℝ) (Y i) ^ 2) = (C.card : ℝ) * u ^ 2 := by
@@ -248,8 +248,8 @@ theorem class_average_weights {ι κ : Type*} [DecidableEq ι] [Fintype κ] [Dec
 
 /-- Scalar multiplication preserves finite mixed moments. -/
 theorem memLqSchatten_smul {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ}
-    (hN : 1 ≤ N) {H : CoeffSpace d → BlockMat d} (hH : MemLqSchatten P N H) (c : ℝ) :
-    MemLqSchatten P N (fun a => ofFullBlockMat (c • toFullBlockMat (H a))) := by
+    (hN : 1 ≤ N) {H : CoeffSpace d → BlockMat d} (hH : SchattenMemLp P N H) (c : ℝ) :
+    SchattenMemLp P N (fun a => ofFullBlockMat (c • toFullBlockMat (H a))) := by
   simpa only [Finset.sum_singleton] using Source.memLqSchatten_finset_sum hN
     ({()} : Finset Unit) (fun _ => c) (fun _ => H) (fun _ _ => hH)
 
@@ -259,7 +259,7 @@ theorem lqSchattenNorm_coloured_average_le {d : ℕ} {ι κ : Type*}
     (P : Measure (CoeffSpace d)) (hP : IsProbabilityMeasure P)
     {N : ℕ} (hN : 2 ≤ N) (hNeven : Even N)
     (Z : Finset ι) (hZ : Z.Nonempty) (col : ι → κ) (Y : ι → CoeffSpace d → BlockMat d)
-    (hmem : ∀ i ∈ Z, MemLqSchatten P (N : ℝ) (Y i))
+    (hmem : ∀ i ∈ Z, SchattenMemLp P (N : ℝ) (Y i))
     (hcent : ∀ i ∈ Z,
       ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (Y i a) α β ∂P)
         = ofFullBlockMat (0 : FullBlockMat d))
@@ -279,7 +279,7 @@ theorem lqSchattenNorm_coloured_average_le {d : ℕ} {ι κ : Type*}
     ofFullBlockMat (((C c).card : ℝ)⁻¹ • ∑ i ∈ C c, toFullBlockMat (Y i a))
   let w : κ → ℝ := fun c => ((C c).card : ℝ) / (Z.card : ℝ)
   have hw : ∀ c, 0 ≤ w c := (class_average_weights Z hZ col).1
-  have hH (c : κ) : MemLqSchatten P (N : ℝ) (H c) := by
+  have hH (c : κ) : SchattenMemLp P (N : ℝ) (H c) := by
     simpa only [H, Finset.smul_sum] using Source.memLqSchatten_finset_sum hNR (C c)
       (fun _ => ((C c).card : ℝ)⁻¹) Y (fun i hi => hmem i (Finset.mem_filter.mp hi).1)
   have hshape : (fun a => ofFullBlockMat ((Z.card : ℝ)⁻¹ • ∑ i ∈ Z, toFullBlockMat (Y i a))) =
@@ -359,7 +359,7 @@ theorem matrix_averaging_roundedGrid (d : ℕ) (hd : 2 ≤ d)
   have hNR : (1 : ℝ) ≤ N := by exact_mod_cast (show 1 ≤ N by omega)
   let q := Geometry.explicitRoundedGrid jStar m
   have hq : IsUnit q := Geometry.isUnit_roundedGrid hj hm
-  have hRfull := fullBlock_posDef_of_pos hRsymm hRpos
+  have hRfull := posDef_toFullBlockMat hRsymm hRpos
   let T := matSqrt (toFullBlockMat R)⁻¹
   have hT : T.PosDef := Multiscale.matSqrt_inv_posDef_full hRfull
   let Y : Vec d → CoeffSpace d → BlockMat d := fun z a =>
@@ -373,10 +373,10 @@ theorem matrix_averaging_roundedGrid (d : ℕ) (hd : 2 ≤ d)
     rfl
   let Y₀ : CoeffSpace d → BlockMat d := fun a => normalizedBlock (blockSub
     (coarseBlock (HighContrast.adaptedCell q j) a) (adaptedMean P q j)) R
-  have hm0 : MemLqSchatten P (N : ℝ) Y₀ := by
+  have hm0 : SchattenMemLp P (N : ℝ) Y₀ := by
     simpa only [Y₀, adaptedCellTranslate_zero] using
       memLqSchatten_normalizedCentered d hd P γ E Ψ K S hstat hdag jStar hj m hm j 0 R (N : ℝ) hNR
-  have hmem (z : Vec d) : MemLqSchatten P (N : ℝ) (Y z) := by
+  have hmem (z : Vec d) : SchattenMemLp P (N : ℝ) (Y z) := by
     simpa only [hY] using
       memLqSchatten_normalizedCentered d hd P γ E Ψ K S hstat hdag jStar hj m hm j z R (N : ℝ) hNR
   let w : Vec d → Fin d → ℤ := fun z => if hz : z ∈ Z then

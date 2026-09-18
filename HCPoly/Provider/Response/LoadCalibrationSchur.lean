@@ -16,11 +16,9 @@ import HCPoly.Geometry.DeterminantLoss
 import HCPoly.Geometry.GeometricMean
 import HCPoly.Geometry.GeometricMeanToolkit
 import HCPoly.Geometry.IntegralOrder
-import HCPoly.Geometry.NearIsometry
 import HCPoly.Geometry.OperatorOrder
 import HCPoly.Geometry.ProjectiveDistance
 import HCPoly.Geometry.ReferenceAspectRatio
-import HCPoly.Geometry.ReferenceEntry
 import HCPoly.Geometry.ReferenceRadius
 import HCPoly.Geometry.RelativeSize
 import HCPoly.Geometry.SchurData

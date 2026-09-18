@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.Quenched.SmallContrastWeakCellVariance
-import HCPoly.Provider.Response.ProfileCenterSkewLp
+import HCPoly.Provider.Response.ProfileCenterIdentities
+import HCPoly.Provider.Response.ConstantSkewNormalization
 
 /-!
 # The centering variance by the terminal single-cell variance

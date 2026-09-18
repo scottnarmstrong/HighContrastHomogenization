@@ -1,9 +1,17 @@
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
+import HCPoly.Frozen.CoarseEllipticityDagger
+import HCPoly.Setup.BlockAlgebra
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
 import HCPoly.Entry.Setup.Profile
 import HCPoly.Entry.Setup.ProjectiveDistance
-import HCPoly.Entry.Setup.Stationarity
-import HCPoly.Entry.Setup.UnitRange
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Frozen.Stationarity
+import HCPoly.Setup.LocalSigmaFields
+import HCPoly.Frozen.UnitRange
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.TwoGridTransport
 
 /-!
@@ -38,7 +46,7 @@ Reading of the display, stated here so that no divergence is silent:
   `HCPoly/Entry/Statements/PolynomialEntry.lean`, after `C`, which the printed argument list says is
   independent of the law.
 
-The proof is one application of `Homogenization.HighContrast.Provider.two_grid_transport` (`HCPoly/Entry/TwoGridTransport.lean`) to the binders of the statement.
+The proof is one application of `Homogenization.HighContrast.Entry.two_grid_transport` (`HCPoly/Entry/TwoGridTransport.lean`) to the binders of the statement.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
@@ -94,6 +102,6 @@ theorem two_grid_transport
                           (n + (L : ℤ)) +
                         determinantDrift P γ (Geometry.explicitRoundedGrid jStar mPlus) jStar
                           (n + (L : ℤ)) ≤
-                      C * (δ + ρ) := by exact Homogenization.HighContrast.Provider.two_grid_transport d hd γ hγ
+                      C * (δ + ρ) := by exact Homogenization.HighContrast.Entry.two_grid_transport d hd γ hγ
 
 end Homogenization.HighContrast

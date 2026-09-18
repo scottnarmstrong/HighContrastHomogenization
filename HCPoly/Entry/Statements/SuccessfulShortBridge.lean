@@ -1,9 +1,17 @@
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
+import HCPoly.Frozen.CoarseEllipticityDagger
+import HCPoly.Setup.BlockAlgebra
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
 import HCPoly.Entry.Setup.Profile
 import HCPoly.Entry.Setup.ProjectiveDistance
-import HCPoly.Entry.Setup.Stationarity
-import HCPoly.Entry.Setup.UnitRange
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Frozen.Stationarity
+import HCPoly.Setup.LocalSigmaFields
+import HCPoly.Frozen.UnitRange
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.SuccessfulShortBridge
 
 /-!
@@ -30,7 +38,7 @@ Reading of the display, stated here so that no divergence is silent:
 * `𝔪, 𝔪_+ > 0` are `Matrix.PosDef`, `q = 𝒬(𝔪)` and `q_+ = 𝒬(𝔪_+)` are `Geometry.explicitRoundedGrid`,
   `Π` is `aspectRatio E`, `Q` is `bigQ d γ`, `d_pr` is `projectiveDistance`, `𝒫_q(n;k)` is
   `profile P γ q jStar k n`, `D_{q,j_*}` is `determinantDrift` and `Δ^q_{n,n+2L}` is
-  `logDetLoss`. The standing `3^{j_*} ≥ 2d` near `e.rounded.grid.bounds` is `hj` and the standing `d ≥ 2`
+  `detIncrement`. The standing `3^{j_*} ≥ 2d` near `e.rounded.grid.bounds` is `hj` and the standing `d ≥ 2`
   of `t.polynomial.entry` is `hd`.
 * `⋄^q_{n+2L} ∪ ⋄^{q_+}_{n+L} ⊆ □_{2j_*}` is the printed containment, with `□_{2j_*}` the
   centered cube `HighContrast.centeredCube d (2 j_*)`.
@@ -41,7 +49,7 @@ Reading of the display, stated here so that no divergence is silent:
   `HCPoly/Entry/Statements/PolynomialEntry.lean`, after the constants, which the printed argument lists say
   are independent of the law.
 
-The proof is one application of `Homogenization.HighContrast.Provider.successful_short_bridge` (`HCPoly/Entry/SuccessfulShortBridge.lean`) to the binders of the statement.
+The proof is one application of `Homogenization.HighContrast.Entry.successful_short_bridge` (`HCPoly/Entry/SuccessfulShortBridge.lean`) to the binders of the statement.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
@@ -85,7 +93,7 @@ theorem successful_short_bridge
                     projectiveDistance m mPlus ≤ 1 →
                     profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
                           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
-                        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤
+                        detIncrement P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤
                       c₀ * σ →
                     BlockMatLoewnerLE
                         (blockScale (1 - σ)
@@ -95,6 +103,6 @@ theorem successful_short_bridge
                         (adaptedMean P (Geometry.explicitRoundedGrid jStar mPlus) (n + (L : ℤ)))
                         (blockScale (1 + σ)
                           (adaptedMean P (Geometry.explicitRoundedGrid jStar m)
-                            (n + 2 * (L : ℤ)))) := by exact Homogenization.HighContrast.Provider.successful_short_bridge d hd γ hγ
+                            (n + 2 * (L : ℤ)))) := by exact Homogenization.HighContrast.Entry.successful_short_bridge d hd γ hγ
 
 end Homogenization.HighContrast

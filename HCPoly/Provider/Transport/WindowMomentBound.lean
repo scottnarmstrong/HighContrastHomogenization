@@ -166,20 +166,6 @@ theorem zero_lt_sourceRemainderScale (d : ℕ) (jStar : ℤ) (K : ℝ) :
   rw [sourceRemainderScale]
   positivity
 
-/-- **The multiplier's mean obeys the first-moment display.**  On a probability
-space the mean is below the `L^1` norm, which the window multiplier bounds. -/
-theorem integral_le_one_add_momentMultiplier [IsProbabilityMeasure P]
-    (hY : IsWindowMultiplier P g E Ψ K Cd jStar M Y) :
-    (∫ a, Y a ∂P) ≤
-      1 + sourceRemainderScale d jStar K * momentMultiplier 1 (growthBar K) := by
-  have hnn : (0 : ℝ) ≤
-      1 + sourceRemainderScale d jStar K * momentMultiplier 1 (growthBar K) := by
-    have h1 := (zero_lt_sourceRemainderScale d jStar K).le
-    have h2 := (zero_lt_momentMultiplier (K := K) (Q := 1) one_pos).le
-    positivity
-  refine (ENNReal.ofReal_le_ofReal_iff hnn).mp ?_
-  exact le_trans (ofReal_integral_le_lqNorm hY (le_refl (1 : ℝ))) (hY.lp_moment 1 le_rfl)
-
 /-- **The squared moment bound `‖Y_P‖_{L^Q}^2\leq4`**, the last inequality in
 the cost of the source multiplier in the normalized moments. -/
 theorem lqNorm_sq_le_four {Q : ℝ} (hQ : 1 ≤ Q) (hw : IsCoupledWindow d Q K jStar M)
@@ -188,16 +174,6 @@ theorem lqNorm_sq_le_four {Q : ℝ} (hQ : 1 ≤ Q) (hw : IsCoupledWindow d Q K j
   rw [pow_two]
   calc lqNorm P Q Y * lqNorm P Q Y ≤ 2 * 2 := mul_le_mul' h h
     _ = 4 := by norm_num
-
-/-- **The terminal loss**, the cost of the source multiplier in the normalized
-moments: a terminal-normalized centered `Q`-moment pays at most
-`\E[Y_P]‖Y_P‖_{L^Q}\leq‖Y_P‖_{L^Q}^2\leq4`. -/
-theorem terminal_loss_of_isWindowMultiplier [IsProbabilityMeasure P] {Q : ℝ}
-    (hQ : 1 ≤ Q) (hw : IsCoupledWindow d Q K jStar M)
-    (hY : IsWindowMultiplier P g E Ψ K Cd jStar M Y) :
-    ENNReal.ofReal (∫ a, Y a ∂P) * lqNorm P Q Y ≤ lqNorm P Q Y ^ 2 ∧
-      lqNorm P Q Y ^ 2 ≤ 4 :=
-  ⟨ofReal_integral_mul_lqNorm_le hY hQ, lqNorm_sq_le_four hQ hw hY⟩
 
 end
 

@@ -1,6 +1,21 @@
 import Mathlib.Algebra.Order.Floor.Ring
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 
+/-!
+# Arithmetic of the polynomial entry scales
+
+This module proves the elementary numeric estimates that dominate the linear window scales of
+the polynomial entry by the exponential scale `3 ^ d` and convert them into the logarithmic
+coefficient of `t.polynomial.entry`.
+
+It establishes the growth bound `2 * d ≤ 3 ^ d` together with its monotone form, the
+positivity and monotonicity of the base-three logarithms `log₃ 2`, `log₃ (2 + x)` and
+`log₃ (2 * K)`, and the resulting real and integer bounds on the entry scale `j_*`, on the
+entry constant `C` assembled from the fixed constants and `(3 + d) / log₃ 2`, and on the
+terminal scale.  These are the estimates that fix the threshold and the logarithmic
+coefficient `c = log₃ (2 + Π K)` appearing in `t.polynomial.entry`.
+-/
+
 namespace Homogenization.HighContrast.Multiscale
 
 /-- For every natural number `d`, twice `d` is at most `3` to the power `d`. This is the
@@ -28,40 +43,40 @@ theorem zero_lt_logb_three_two : 0 < Real.logb 3 2 :=
 /-- For `x ≥ 0` the base-three logarithm of `2 + x` is nonnegative. -/
 theorem logb_two_add_nonneg (x : ℝ) (hx : 0 ≤ x) : 0 ≤ Real.logb 3 (2 + x) := by
   apply Real.logb_nonneg (by norm_num)
-  linarith
+  linarith only [hx]
 
 /-- For `K ≥ 1` the base-three logarithm of `2 * K` is nonnegative. -/
 theorem logb_two_mul_nonneg_of_one_le (K : ℝ) (hK : 1 ≤ K) :
     0 ≤ Real.logb 3 (2 * K) := by
   apply Real.logb_nonneg (by norm_num)
-  linarith
+  linarith only [hK]
 
 /-- Adding a nonnegative quantity inside the argument of the base-three logarithm does not
 decrease its value below `log₃ 2`. -/
 theorem logb_two_le_logb_two_add (x : ℝ) (hx : 0 ≤ x) :
     Real.logb 3 2 ≤ Real.logb 3 (2 + x) := by
   apply Real.logb_le_logb_of_le (by norm_num) (by norm_num)
-  linarith
+  linarith only [hx]
 
 /-- For `x ≥ 0` and `K ≥ 1`, replacing `x` by `x * K` in `2 + x` only increases the
 base-three logarithm; this is the monotonicity used when the source term is multiplied by
 the ellipticity constant `K`. -/
 theorem logb_two_add_le_logb_two_add_mul (x K : ℝ) (hx : 0 ≤ x) (hK : 1 ≤ K) :
     Real.logb 3 (2 + x) ≤ Real.logb 3 (2 + x * K) := by
-  apply Real.logb_le_logb_of_le (by norm_num) (by linarith)
-  nlinarith [mul_nonneg hx (sub_nonneg.mpr hK)]
+  apply Real.logb_le_logb_of_le (by norm_num) (by linarith only [hx])
+  nlinarith only [hx, hK, mul_nonneg hx (sub_nonneg.mpr hK)]
 
 /-- For `x ≥ 1` and `K ≥ 1`, the logarithm of `2 * K` is dominated by twice the logarithm of
 `2 + x * K`; this turns the entry constant into a coefficient of the logarithmic scale
 `c = log₃ (2 + Π K)` in `t.polynomial.entry`. -/
 theorem logb_two_mul_le_two_mul_logb (x K : ℝ) (hx : 1 ≤ x) (hK : 1 ≤ K) :
     Real.logb 3 (2 * K) ≤ 2 * Real.logb 3 (2 + x * K) := by
-  have hKx : K ≤ x * K := by nlinarith [hx, hK]
-  have ht : 0 ≤ x * K := mul_nonneg (by linarith) (by linarith)
+  have hKx : K ≤ x * K := by nlinarith only [hx, hK]
+  have ht : 0 ≤ x * K := mul_nonneg (by linarith only [hx]) (by linarith only [hK])
   have hsq : 2 * K ≤ (2 + x * K) ^ 2 := by
-    nlinarith [hKx, ht, sq_nonneg (x * K)]
+    nlinarith only [hKx, ht, sq_nonneg (x * K)]
   have hlog : Real.logb 3 (2 * K) ≤ Real.logb 3 ((2 + x * K) ^ 2) :=
-    Real.logb_le_logb_of_le (by norm_num) (by linarith) hsq
+    Real.logb_le_logb_of_le (by norm_num) (by linarith only [hK]) hsq
   rw [Real.logb_pow] at hlog
   exact hlog
 
@@ -91,7 +106,7 @@ theorem ceil_le_entryScale (A Csrc Csrc' a b : ℝ) (d : ℕ) (hb : 0 ≤ b) (hC
   unfold entryScale
   push_cast
   have hle : A * a + Csrc' * b ≤ A * a + Csrc * b := by
-    nlinarith [mul_le_mul_of_nonneg_right hC hb]
+    linarith only [mul_le_mul_of_nonneg_right hC hb]
   have h1 : ⌈A * a + Csrc' * b⌉ ≤ ⌈A * a + Csrc * b⌉ := Int.ceil_le_ceil hle
   have h2 : ⌈A * a + Csrc * b⌉ ≤ (⌈A * a + Csrc * b⌉.toNat : ℤ) :=
     Int.self_le_toNat _
@@ -109,7 +124,7 @@ theorem entryScale_le (A Csrc a b : ℝ) (d : ℕ) (h : 0 ≤ A * a + Csrc * b) 
   rw [htoNat]
   have hlt : (⌈A * a + Csrc * b⌉ : ℝ) ≤ A * a + Csrc * b + 1 :=
     (Int.ceil_lt_add_one _).le
-  linarith
+  linarith only [hlt]
 
 /-- The entry constant `C` of `t.polynomial.entry`, assembled from the fixed constants
 `A, B, Cg, Cresp, Csrc` and the logarithmic normalisation `(3 + d) / log₃ 2`. -/
@@ -124,7 +139,7 @@ theorem entryConst_pos (A B Cg Cresp Csrc : ℝ) (d : ℕ) (hA : 0 ≤ A) (hB : 
   have hL : 0 < Real.logb 3 2 := zero_lt_logb_three_two
   have hterm : 0 < (3 + (d : ℝ)) / Real.logb 3 2 := div_pos (by positivity) hL
   unfold entryConst
-  linarith
+  linarith only [hA, hB, hCg, hCresp, hCsrc, hterm]
 
 /-- The real terminal scale of `t.polynomial.entry`: if the integer terminal `t` is bounded by
 `j + ⌈(B + Cg) * a⌉` and `m - t` by `⌈Cresp * a⌉`, then `m` is at most the corresponding real
@@ -144,7 +159,7 @@ theorem terminal_le_real (j t m : ℤ) (B Cg Cresp a : ℝ)
     (Int.ceil_lt_add_one _).le
   have h2 : ((⌈Cresp * a⌉ : ℤ) : ℝ) ≤ Cresp * a + 1 :=
     (Int.ceil_lt_add_one _).le
-  linarith
+  linarith only [ht', hm', h1, h2]
 
 /-- The real entry bound of `t.polynomial.entry`: the terminal value `m`, already bounded by
 the sum of the entry scale and the response and terminal scales, is dominated by the entry
@@ -158,12 +173,12 @@ theorem entry_bound_real (A B Cg Cresp Csrc a b c : ℝ) (d : ℕ)
   have hCb : Csrc * b ≤ 2 * Csrc * c :=
     (mul_le_mul (le_refl Csrc) hbc hb hCsrc).trans (le_of_eq (by ring))
   have hBCa : (B + Cg) * a ≤ (B + Cg) * c :=
-    mul_le_mul (le_refl (B + Cg)) hac ha (by linarith)
+    mul_le_mul (le_refl (B + Cg)) hac ha (by linarith only [hB, hCg])
   have hCa : Cresp * a ≤ Cresp * c := mul_le_mul (le_refl Cresp) hac ha hCresp
   have hd : 3 + (d : ℝ) ≤ (3 + (d : ℝ)) / Real.logb 3 2 * c :=
     le_div_logb_mul (3 + (d : ℝ)) c (by positivity) hc
   unfold entryConst
-  linarith [hm, hAa, hCb, hBCa, hCa, hd]
+  linarith only [hm, hAa, hCb, hBCa, hCa, hd]
 
 /-- Integer form of the entry bound: an integer `m` bounded in `ℝ` by `C * c` is bounded by
 the integer ceiling `⌈C * c⌉`. -/

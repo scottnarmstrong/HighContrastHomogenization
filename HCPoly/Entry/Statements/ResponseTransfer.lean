@@ -51,7 +51,7 @@ Reading of the display, stated here so that no divergence is silent:
   `HCPoly/Entry/Statements/PolynomialEntry.lean`, after the response constants, whose printed argument
   lists say they do not depend on the law.
 
-The proof is one application of `Homogenization.HighContrast.Provider.response_transfer` (`HCPoly/Entry/ResponseTransfer.lean`) to the binders of the statement.
+The proof is one application of `Homogenization.HighContrast.Entry.response_transfer` (`HCPoly/Entry/ResponseTransfer.lean`) to the binders of the statement.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean annealedContrast aspectRatio blockScale)
@@ -112,7 +112,7 @@ theorem response_transfer
                                     (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s)
                                   (blockScale (1 + Real.sqrt ε * σ) F) →
                                 (d : ℝ)⁻¹ *
-                                    logDetLoss P
+                                    detIncrement P
                                       (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ →
                                 max
                                       (max
@@ -137,6 +137,6 @@ theorem response_transfer
                                   t < mEnt ∧
                                     mEnt - t ≤
                                       ⌈Cresp * Real.logb 3 (2 + aspectRatio E)⌉ ∧
-                                    annealedContrast P mEnt - 1 ≤ δ := by exact Homogenization.HighContrast.Provider.response_transfer d hd γ hγ S hS
+                                    annealedContrast P mEnt - 1 ≤ δ := by exact Homogenization.HighContrast.Entry.response_transfer d hd γ hγ S hS
 
 end Homogenization.HighContrast

@@ -120,7 +120,7 @@ theorem ae_exists_source_success {d : ℕ} (P : Measure (CoeffSpace d))
           ← Real.rpow_pow_comm (by norm_num : (0 : ℝ) ≤ 3), Real.rpow_neg (by norm_num : (0 : ℝ) ≤ 3),
           div_eq_mul_inv, mul_inv_rev, inv_pow]
         ring
-  have hq : (3 : ℝ) ^ (-p) < 1 := Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith)
+  have hq : (3 : ℝ) ^ (-p) < 1 := Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith only [hp])
   have ht := (tendsto_pow_atTop_nhds_zero_of_lt_one
     (Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 3) (-p)) hq).const_mul A
   have hz : P.real {a | ¬ ∃ n, Good n a} = 0 := by
@@ -278,7 +278,7 @@ theorem source_threshold_constant (C B δ : ℝ) (hC : 0 < C) (hB : 0 < B) (hδ 
     calc
       B = (2 : ℝ) ^ Real.logb 2 B := (Real.rpow_logb (by norm_num) (by norm_num) hB).symm
       _ ≤ (2 : ℝ) ^ D := Real.rpow_le_rpow_of_exponent_le (by norm_num) (le_max_right _ _)
-      _ ≤ _ := Real.rpow_le_rpow (by norm_num) (by linarith) hD.le
+      _ ≤ _ := Real.rpow_le_rpow (by norm_num) (by linarith only [hK]) hD.le
   have hjR : (C + D) / δ * Real.logb 3 (2 * K) ≤ (jStar : ℝ) := by
     exact_mod_cast Int.ceil_le.mp hj
   have hexp : Real.logb 3 (2 * K) * (C + D) ≤ δ * (jStar : ℝ) := by
@@ -288,7 +288,7 @@ theorem source_threshold_constant (C B δ : ℝ) (hC : 0 < C) (hB : 0 < B) (hδ 
     rwa [heq] at hh
   calc
     B * K ^ C ≤ (2 * K) ^ D * (2 * K) ^ C :=
-      mul_le_mul hBpow (Real.rpow_le_rpow hK0.le (by linarith) hC.le)
+      mul_le_mul hBpow (Real.rpow_le_rpow hK0.le (by linarith only [hK0]) hC.le)
         (by positivity) (by positivity)
     _ = (2 * K) ^ (C + D) := by rw [← Real.rpow_add h2K]; congr 1; ring
     _ = (3 : ℝ) ^ (Real.logb 3 (2 * K) * (C + D)) := by
@@ -378,18 +378,18 @@ theorem source_multiplier (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let δ : ℝ := p - (d : ℝ)
   let b : ℝ := (3 : ℝ) ^ (γ * (Q : ℝ))
   let q : ℝ := (3 : ℝ) ^ (-p)
-  have hQ : 0 < Q := Multiscale.bigQ_pos d hd γ hγ
+  have hQ : 0 < Q := Multiscale.bigQ_pos d γ hγ
   have hdQ : 0 < (d : ℝ) + (Q : ℝ) := by positivity
   have hδ : 0 < δ := hdQ.trans_le hdmargin
   have hgap : 0 < p - γ * (Q : ℝ) := by
     dsimp [p, Q]
-    nlinarith [hqmargin, hdQ]
+    linarith only [hqmargin, hdQ]
   have hb : 0 < b := by dsimp [b]; positivity
   have hq : 0 < q := by dsimp [q]; positivity
   have hbq : b * q < 1 := by
     dsimp [b, q]
     rw [← Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
-    exact Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith)
+    exact Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith only [hgap])
   have hden : 0 < 1 - b * q := sub_pos.mpr hbq
   let B : ℝ := C * b / (1 - b * q)
   have hB : 0 < B := by dsimp [B]; positivity
@@ -428,7 +428,7 @@ theorem source_multiplier (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     simpa using pow_le_pow_right₀ (by norm_num : (1 : ℝ) ≤ 2) (show 1 ≤ Q by omega)
   have hmoment : (∫⁻ a, ENNReal.ofReal (X a ^ Q) ∂P) ≤ ENNReal.ofReal ((2 : ℝ) ^ Q) := by
     simp_rw [hpow]
-    exact hsum.trans ((ENNReal.ofReal_le_ofReal (by linarith : 1 + b * A / (1 - b * q) ≤ 2)).trans
+    exact hsum.trans ((ENNReal.ofReal_le_ofReal (by linarith only [hsmall] : 1 + b * A / (1 - b * q) ≤ 2)).trans
       (ENNReal.ofReal_le_ofReal htwoQ))
   obtain ⟨hlp, hi, hbound, hnorm⟩ := memLp_and_norm_le_two_of_lintegral P X hX hX0 Q hQ hmoment
   exact ⟨ell, X, hell, hX, hform, hmin, hlp, hi, hbound, hnorm⟩

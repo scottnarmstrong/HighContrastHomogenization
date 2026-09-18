@@ -1,9 +1,11 @@
 import HCPoly.Entry.Annealed.AdaptedLocality
 import HCPoly.Entry.Geometry.AdaptedCellTransport
-import HCPoly.Entry.Geometry.RoundedGrid
-import HCPoly.Entry.Setup.BlockCalculus
+import HCPoly.Entry.Geometry.RoundedGridBasic
+import HCPoly.Entry.Setup.ProjectiveDistance
 import Mathlib.Analysis.MeanInequalities
 import Mathlib.Data.ZMod.Basic
+import HCPoly.Analytic.NormComparison
+import HCPoly.Analytic.AffineFractionalKernel
 
 /-!
 # Residue colouring modulo three: separation, classwise independence, the `3^{d/2}` count
@@ -61,27 +63,6 @@ theorem exists_unique_index_of_mem_adaptedLatticeAtScale {q : Mat d} (hq : IsUni
 
 /-! ## Elementary norm comparisons on `Vec d` -/
 
-/-- `‖v‖₂² ≤ d ‖v‖_∞²`.  The `ℓ^∞`-to-`ℓ^2` comparison behind the printed `3^j/√d`. -/
-theorem vecNormSq_le_card_mul_sq_norm (v : Vec d) : vecNormSq v ≤ (d : ℝ) * ‖v‖ ^ 2 := by
-  have hle : ∀ i : Fin d, v i * v i ≤ ‖v‖ ^ 2 := by
-    intro i
-    have h : |v i| ≤ ‖v‖ := by
-      simpa [Real.norm_eq_abs] using norm_le_pi_norm v i
-    have habs : v i * v i = |v i| * |v i| := (abs_mul_abs_self (v i)).symm
-    rw [habs, sq]
-    exact mul_self_le_mul_self (abs_nonneg _) h
-  calc vecNormSq v = ∑ i, v i * v i := rfl
-    _ ≤ ∑ _i : Fin d, ‖v‖ ^ 2 := Finset.sum_le_sum fun i _ => hle i
-    _ = (d : ℝ) * ‖v‖ ^ 2 := by
-        rw [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]
-
-/-- `matVecMul` is additive in the vector; used to turn `q x - q y` into `q (x - y)`. -/
-theorem matVecMul_sub (q : Mat d) (x y : Vec d) :
-    matVecMul q x - matVecMul q y = matVecMul q (x - y) := by
-  funext i
-  simp only [matVecMul, Pi.sub_apply, ← Finset.sum_sub_distrib]
-  exact Finset.sum_congr rfl fun k _ => by ring
-
 /-- `q` does not contract by more than a factor two, in the Euclidean norm: this is the printed
 use of `e.rounded.grid.bounds`'s `q ≥ ½ Id`, through Cauchy-Schwarz and the symmetry of `q`. -/
 theorem quarter_vecNormSq_le_vecNormSq_roundedGrid_mulVec {jStar : ℕ} {m : Mat d}
@@ -98,12 +79,17 @@ theorem quarter_vecNormSq_le_vecNormSq_roundedGrid_mulVec {jStar : ℕ} {m : Mat
   rcases eq_or_lt_of_le hvnn with hS | hS
   · rw [← hS]
     simpa using vecNormSq_nonneg (matVecMul q v)
-  · have hD0 : 0 ≤ vecNormSq v / 2 := by linarith
+  · have hD0 : 0 ≤ vecNormSq v / 2 := by linarith only [hvnn]
     have hDD : (vecNormSq v / 2) * (vecNormSq v / 2)
         ≤ vecDot v (matVecMul q v) * vecDot v (matVecMul q v) :=
-      mul_self_le_mul_self hD0 (by linarith)
+      mul_self_le_mul_self hD0 (by linarith only [hlow])
     have h1 : vecNormSq v * (vecNormSq v / 4)
-        ≤ vecNormSq v * vecNormSq (matVecMul q v) := by nlinarith [hDD, hcs]
+        ≤ vecNormSq v * vecNormSq (matVecMul q v) := by
+      calc vecNormSq v * (vecNormSq v / 4)
+          = (vecNormSq v / 2) * (vecNormSq v / 2) := by ring
+        _ ≤ vecDot v (matVecMul q v) * vecDot v (matVecMul q v) := hDD
+        _ = vecDot v (matVecMul q v) ^ 2 := by ring
+        _ ≤ vecNormSq v * vecNormSq (matVecMul q v) := hcs
     exact le_of_mul_le_mul_left h1 hS
 
 /-! ## Separation inside one colour class -/
@@ -145,17 +131,17 @@ theorem unitSeparated_adaptedCellAtCenter_of_residue_eq {jStar : ℕ} {m : Mat d
     push_cast at hstar
     have hnat : ((3 : ℝ) ^ jStar) = (3 : ℝ) ^ (jStar : ℤ) := (zpow_natCast (3 : ℝ) jStar).symm
     rw [hnat] at hstar
-    linarith
+    linarith only [hstar, hmono]
   -- the separation itself
   intro x y hx hy
   rw [Geometry.adaptedCellAtCenter_eq_affine_standardCell] at hx hy
   obtain ⟨u, hu, rfl⟩ := hx
   obtain ⟨u', hu', rfl⟩ := hy
   set v : Vec d := u - u' with hvdef
-  have hxy : matVecMul q u - matVecMul q u' = matVecMul q v := matVecMul_sub q u u'
+  have hxy : matVecMul q u - matVecMul q u' = matVecMul q v := matVecMul_sub_vec q u u'
   -- coordinatewise gap
   have hbig : (2 : ℝ) * (3 : ℝ) ^ j < |v i₀| := by
-    rw [Geometry.mem_standardCell_iff] at hu hu'
+    rw [Recurrence.mem_standardCell_iff] at hu hu'
     obtain ⟨hu1, hu2⟩ := hu i₀
     obtain ⟨hu'1, hu'2⟩ := hu' i₀
     have hvi : v i₀ = u i₀ - u' i₀ := rfl
@@ -164,33 +150,33 @@ theorem unitSeparated_adaptedCellAtCenter_of_residue_eq {jStar : ℕ} {m : Mat d
         rcases abs_cases (w i₀ - w' i₀) with ⟨he, _⟩ | ⟨he, _⟩ <;> omega
       have h3R : (3 : ℝ) ≤ (w i₀ : ℝ) - (w' i₀ : ℝ) := by exact_mod_cast h3
       have : (2 : ℝ) * (3 : ℝ) ^ j < v i₀ := by
-        rw [hvi]; nlinarith [h3j]
-      rw [abs_of_pos (by linarith [h3j] : (0:ℝ) < v i₀)]
+        rw [hvi]; nlinarith only [hu1, hu'2, h3R, h3j]
+      rw [abs_of_pos (by linarith only [this, h3j] : (0:ℝ) < v i₀)]
       exact this
     · have h3 : (3 : ℤ) ≤ w' i₀ - w i₀ := by
         rcases abs_cases (w i₀ - w' i₀) with ⟨he, _⟩ | ⟨he, _⟩ <;> omega
       have h3R : (3 : ℝ) ≤ (w' i₀ : ℝ) - (w i₀ : ℝ) := by exact_mod_cast h3
       have : v i₀ < -((2 : ℝ) * (3 : ℝ) ^ j) := by
-        rw [hvi]; nlinarith [h3j]
-      rw [abs_of_neg (by linarith [h3j] : v i₀ < 0)]
-      linarith
+        rw [hvi]; nlinarith only [hu2, hu'1, h3R, h3j]
+      rw [abs_of_neg (by linarith only [this, h3j] : v i₀ < 0)]
+      linarith only [this]
   -- from the coordinate gap to the Euclidean norm
   have hvsq : (2 : ℝ) * (3 : ℝ) ^ j * ((2 : ℝ) * (3 : ℝ) ^ j) < vecNormSq v := by
     have h := sq_apply_le_vecNormSq v i₀
     have habs : v i₀ ^ 2 = |v i₀| ^ 2 := (sq_abs _).symm
-    nlinarith [h3j, abs_nonneg (v i₀)]
+    nlinarith only [hbig, h, habs, h3j, abs_nonneg (v i₀)]
   -- contraction bound and the sup-norm comparison
   have hq4 := quarter_vecNormSq_le_vecNormSq_roundedGrid_mulVec (m := m) hj hm v
-  have hsup := vecNormSq_le_card_mul_sq_norm (matVecMul q v)
+  have hsup := vecNormSq_le_dim_mul_norm_sq (matVecMul q v)
   have hd2 : (2 : ℝ) ≤ (d : ℝ) := by exact_mod_cast hd
   have hdsq : (d : ℝ) ≤ (3 : ℝ) ^ j * (3 : ℝ) ^ j := by
     have hstep : (2 * (d : ℝ)) * (2 * (d : ℝ)) ≤ (3 : ℝ) ^ j * (3 : ℝ) ^ j :=
-      mul_le_mul hscale hscale (by linarith) (by linarith [h3j.le])
-    nlinarith [hstep, hd2]
+      mul_le_mul hscale hscale (by linarith only [hd2]) h3j.le
+    nlinarith only [hstep, hd2]
   have hnormsq : (1 : ℝ) ≤ ‖matVecMul q v‖ ^ 2 := by
-    nlinarith [hq4, hsup, hvsq, hdpos, h3j, hdsq]
+    nlinarith only [hq4, hsup, hvsq, hdpos, h3j, hdsq]
   have hnn : (0 : ℝ) ≤ ‖matVecMul q v‖ := norm_nonneg _
-  have : (1 : ℝ) ≤ ‖matVecMul q v‖ := by nlinarith [hnormsq, hnn]
+  have : (1 : ℝ) ≤ ‖matVecMul q v‖ := by nlinarith only [hnormsq, hnn]
   simpa [Source.AKL.supDist, hxy] using this
 
 /-! ## Classwise joint independence -/

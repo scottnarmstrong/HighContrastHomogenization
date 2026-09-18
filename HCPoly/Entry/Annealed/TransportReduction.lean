@@ -1,6 +1,19 @@
 import HCPoly.Entry.Annealed.TransportSetup
 
-/-! Two-grid transport support, kept in dependency order within the owned file boundary. -/
+/-!
+# Two-grid transport reduction
+
+This module proves the block arithmetic underlying the two-grid transport estimate
+`p.two.grid.transport`. It establishes the scale-monotonicity of the doubled identity and
+the trace excess of subtracting that identity, the comparison of normalized blocks at
+Schatten order one, and the uniform bound on the normalization loss over the window
+`δ ∈ [0, 1/4]`. It then records the deterministic weighted gap inequality and the finite
+and centred mean-split identities that decompose a normalized Whitney sum into its row
+means plus one integrable tail, the splitting of the actual sum into a bulk row, boundary
+rows and the fine subseries, the convexity, scaling and addition estimates for the source
+and mean-penalty powers, and the pointwise comparison of a normalized row taken before
+any maximum over rows or target cells.
+-/
 open Homogenization.HighContrast (CoeffSpace adaptedCellCenter adaptedMean blockScale blockSub
   blockTrace coarseBlock isSymmetricBlockMat_coarseBlockMatrix matSqrt normalizedBlock
   toFullBlockMat_eq_blockMatEntry)
@@ -19,7 +32,7 @@ theorem transport_identity_scale_mono {d : ℕ} {x y : ℝ} (hxy : x ≤ y) :
     rw [← sub_smul]; exact hI.smul (sub_nonneg.mpr hxy)
   have hf : toFullBlockMat (blockScale x (Book.Ch02.blockIdentity d)) ≤
       toFullBlockMat (blockScale y (Book.Ch02.blockIdentity d)) := by
-    simpa only [transport_full_scale, transport_full_identity] using hs
+    simpa only [toFullBlockMat_blockScale, toFullBlockMat_blockIdentity] using hs
   simpa only [ofFullBlockMat_toFullBlockMat] using blockMatLoewnerLE_of_le hf
 theorem transport_trace_excess {d : ℕ} (A : BlockMat d) :
     blockTrace (blockSub A (Book.Ch02.blockIdentity d)) = blockTrace A - 2 * (d : ℝ) := by
@@ -61,7 +74,7 @@ theorem transport_delta_bounds (d : ℕ) {δ : ℝ} (hδ : δ ∈ Set.Icc (0 : �
 /-- The deterministic term in the joint gap is a sum of mean penalties.
 The centered term remains under the joint maximum. -/
 theorem transport_weighted_gap_mean {d : ℕ} {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P] (Q : ℕ) (hQ : 2 ≤ Q) {ι : Type*} (I : Finset ι) (hI : I.Nonempty)
-    (w : ι → ℝ) (hw : ∀ i, 0 ≤ w i) (F G : ι → CoeffSpace d → BlockMat d) (hF : ∀ i ∈ I, MemLqSchatten P Q (F i)) (hG : ∀ i ∈ I, MemLqSchatten P Q (G i))
+    (w : ι → ℝ) (hw : ∀ i, 0 ≤ w i) (F G : ι → CoeffSpace d → BlockMat d) (hF : ∀ i ∈ I, SchattenMemLp P Q (F i)) (hG : ∀ i ∈ I, SchattenMemLp P Q (G i))
     (hFpos : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F i a)) (hFG : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (F i a) (G i a))
     (hmean : ∀ i ∈ I, BlockMatLoewnerLE (Book.Ch02.blockIdentity d)
       (ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F i a) α β ∂P))) :
@@ -99,7 +112,7 @@ private theorem transport_full_sub {d : ℕ} (A B : BlockMat d) :
 /-- Expectation respects an a.e. finite decomposition with one integrable tail. -/
 theorem transport_mean_finite_split {d : ℕ} {P : Measure (CoeffSpace d)} [IsFiniteMeasure P]
     {N : ℝ} (hN : 1 ≤ N) {ι : Type*} (s : Finset ι)
-    (F : ι → CoeffSpace d → BlockMat d) (G T : CoeffSpace d → BlockMat d) (hF : ∀ i ∈ s, MemLqSchatten P N (F i)) (hT : MemLqSchatten P N T)
+    (F : ι → CoeffSpace d → BlockMat d) (G T : CoeffSpace d → BlockMat d) (hF : ∀ i ∈ s, SchattenMemLp P N (F i)) (hT : SchattenMemLp P N T)
     (hsplit : ∀ᵐ a ∂P, toFullBlockMat (G a) = (∑ i ∈ s, toFullBlockMat (F i a)) + toFullBlockMat (T a)) :
     let MF := fun i => ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F i a) α β ∂P)
     let MG := ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (G a) α β ∂P)
@@ -120,7 +133,7 @@ theorem transport_mean_finite_split {d : ℕ} {P : Measure (CoeffSpace d)} [IsFi
 The triangle estimate has no factor for the number of rows. -/
 theorem transport_centered_finite_split {d : ℕ} {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
     {N : ℝ} (hN : 1 ≤ N) {ι : Type*} (s : Finset ι)
-    (F : ι → CoeffSpace d → BlockMat d) (G T : CoeffSpace d → BlockMat d) (hF : ∀ i ∈ s, MemLqSchatten P N (F i)) (hG : MemLqSchatten P N G) (hT : MemLqSchatten P N T)
+    (F : ι → CoeffSpace d → BlockMat d) (G T : CoeffSpace d → BlockMat d) (hF : ∀ i ∈ s, SchattenMemLp P N (F i)) (hG : SchattenMemLp P N G) (hT : SchattenMemLp P N T)
     (hsplit : ∀ᵐ a ∂P, toFullBlockMat (G a) = (∑ i ∈ s, toFullBlockMat (F i a)) + toFullBlockMat (T a)) :
     let MF := fun i => ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F i a) α β ∂P)
     let MG := ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (G a) α β ∂P)
@@ -147,7 +160,7 @@ theorem transport_centered_finite_split {d : ℕ} {P : Measure (CoeffSpace d)} [
 /-- A positive tail bounded by one scalar envelope stays bounded after centering.
 The same X is available to the later joint maximum. -/
 theorem transport_centered_tail_envelope {d : ℕ} {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
-    {N : ℝ} (hN : 1 ≤ N) (T : CoeffSpace d → BlockMat d) (hT : MemLqSchatten P N T)
+    {N : ℝ} (hN : 1 ≤ N) (T : CoeffSpace d → BlockMat d) (hT : SchattenMemLp P N T)
     (X : CoeffSpace d → ℝ) (hX : Integrable X P) (hEX : ∫ a, X a ∂P ≤ 2) (c : ℝ) (hc : 0 ≤ c) (hpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (T a))
     (hbound : ∀ᵐ a ∂P, BlockMatLoewnerLE (T a) (blockScale (c * X a) (Book.Ch02.blockIdentity d))) :
     let MT := ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (T a) α β ∂P)
@@ -369,7 +382,7 @@ theorem transport_centered_whitney_bound (d : ℕ) (hd : 2 ≤ d)
     let V := fun t a => ofFullBlockMat (∑ z ∈ Z t, ((volume (adaptedCell q t)).toReal / (volume W).toReal) •
       toFullBlockMat (normalizedBlock (blockSub (coarseBlock (adaptedCellTranslate q t z) a) (adaptedMean P q t)) F))
     BlockMatLoewnerLE (blockScale (1 - δ) F) H → BlockMatLoewnerLE H (blockScale (1 + δ) F) →
-    MemLqSchatten P N G → MemLqSchatten P N T → (∀ᵐ a ∂P, Summable (fun p => f p a)) →
+    SchattenMemLp P N G → SchattenMemLp P N T → (∀ᵐ a ∂P, Summable (fun p => f p a)) →
     (∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (T a)) →
     (∀ᵐ a ∂P, BlockMatLoewnerLE (T a) (blockScale (c * X a) (Book.Ch02.blockIdentity d))) →
     let MG := ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (G a) α β ∂P)
@@ -393,7 +406,7 @@ theorem transport_centered_whitney_bound (d : ℕ) (hd : 2 ≤ d)
     ext t; simp only [J, Finset.mem_erase, Finset.mem_Icc]; omega
   have hsplit (A : ℤ → FullBlockMat d) : (∑ t ∈ J, A t) = A cap + ∑ t ∈ Finset.Icc (jStar : ℤ) (cap - 1), A t := by
     rw [← Finset.sum_erase_add _ _ hcapJ, herase, add_comm]
-  have hrowMem (t : ℤ) : MemLqSchatten P N (row t) := Source.memLqSchatten_normalizedBlock
+  have hrowMem (t : ℤ) : SchattenMemLp P N (row t) := Source.memLqSchatten_normalizedBlock
     (Source.memLqSchatten_finset_sum hN (Z t) (fun _ => (volume (adaptedCell q t)).toReal / (volume W).toReal)
       (fun z a => coarseBlock (adaptedCellTranslate q t z) a)
       (fun z _ => Source.memLqSchatten_coarseBlock_adapted d hd P γ E Ψ K S hstat hdag
@@ -454,7 +467,7 @@ theorem transport_penalty_scale (Q : ℕ) {x c : ℝ} (hx : 0 ≤ x) (hc : 1 ≤
   | zero => simp
   | succ Q ih =>
     have hc0 := zero_le_one.trans hc
-    have hfx : 0 ≤ (1 + x) ^ Q - 1 := sub_nonneg.mpr (one_le_pow₀ (by linarith))
+    have hfx : 0 ≤ (1 + x) ^ Q - 1 := sub_nonneg.mpr (one_le_pow₀ (by linarith only [hx]))
     have hfcx : 0 ≤ (1 + c * x) ^ Q - 1 := sub_nonneg.mpr (one_le_pow₀ (le_add_of_nonneg_right (mul_nonneg hc0 hx)))
     have hcoef : 1 + c * x ≤ c * (1 + x) := by nlinarith only [hc]
     have hlast : c * x ≤ c ^ (Q + 1) * x := by
@@ -480,7 +493,7 @@ theorem transport_penalty_linear_and_power (Q : ℕ) {x : ℝ} (hx : 0 ≤ x) :
   · have hlarge : 1 ≤ x := le_of_not_ge hsmall
     calc
       _ ≤ (2 * x) ^ Q := by
-        have hh := pow_le_pow_left₀ (by linarith : 0 ≤ 1 + x) (by linarith : 1 + x ≤ 2 * x) Q
+        have hh := pow_le_pow_left₀ (by linarith only [hlarge] : 0 ≤ 1 + x) (by linarith only [hlarge] : 1 + x ≤ 2 * x) Q
         linarith only [hh]
       _ ≤ _ := by rw [mul_pow]; nlinarith only [mul_nonneg (by positivity : 0 ≤ (2 : ℝ) ^ Q) hx]
 /-- Splitting a trace excess costs only a constant depending on Q. -/
@@ -498,7 +511,7 @@ theorem transport_penalty_add (Q : ℕ) {x y : ℝ} (hx : 0 ≤ x) (hy : 0 ≤ y
   have hy' := transport_penalty_scale Q hy (by norm_num : (1 : ℝ) ≤ 2)
   have hsum : 0 ≤ (2 : ℝ) ^ Q * (((1 + x) ^ Q - 1) + ((1 + y) ^ Q - 1)) := by
     apply mul_nonneg (by positivity)
-    exact add_nonneg (sub_nonneg.mpr (one_le_pow₀ (by linarith))) (sub_nonneg.mpr (one_le_pow₀ (by linarith)))
+    exact add_nonneg (sub_nonneg.mpr (one_le_pow₀ (by linarith only [hx]))) (sub_nonneg.mpr (one_le_pow₀ (by linarith only [hy])))
   nlinarith only [hh, hx', hy', hsum]
 /-- Insert the missing mass at zero trace excess, then separate the normalizer
 error and both powers of the source error. The constant precedes every weight. -/
@@ -526,7 +539,7 @@ theorem transport_penalty_convex_error (Q : ℕ) (hQ : 1 ≤ Q) (D : ℝ) (hD : 
   have hcx := meanPenalty_convex_combination Q s lam x hlam hx hmass
   have hpx : (1 + (4 / 3 : ℝ) * X) ^ Q - 1 ≤ b * M := by
     calc
-      _ ≤ (1 + 3 * X) ^ Q - 1 := sub_le_sub_right (pow_le_pow_left₀ (by positivity) (by linarith) Q) 1
+      _ ≤ (1 + 3 * X) ^ Q - 1 := sub_le_sub_right (pow_le_pow_left₀ (by positivity) (by linarith only [hX]) Q) 1
       _ ≤ b * ((1 + X) ^ Q - 1) := transport_penalty_scale Q hX (by norm_num)
       _ ≤ b * M := mul_le_mul_of_nonneg_left hcx hb.le
   have hδpow : δ ^ Q ≤ δ := by
@@ -582,7 +595,7 @@ theorem transport_whitney_mean_identity (d : ℕ) (hd : 2 ≤ d)
     let lam := fun t => ∑ _z ∈ Z t, (volume (adaptedCell q t)).toReal / (volume W).toReal
     let G := fun a => normalizedBlock (ofFullBlockMat (∑' p, f p a)) R
     let T := fun a => normalizedBlock (ofFullBlockMat (∑' p : {p : I // p.1.1 < (jStar : ℤ)}, f p a)) R
-    MemLqSchatten P N T → (∀ᵐ a ∂P, Summable (fun p => f p a)) →
+    SchattenMemLp P N T → (∀ᵐ a ∂P, Summable (fun p => f p a)) →
     toFullBlockMat (ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (G a) α β ∂P)) =
       (∑ t ∈ Finset.Icc (jStar : ℤ) cap, lam t • toFullBlockMat (normalizedBlock (adaptedMean P q t) R)) +
       toFullBlockMat (ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (T a) α β ∂P)) := by
@@ -591,7 +604,7 @@ theorem transport_whitney_mean_identity (d : ℕ) (hd : 2 ≤ d)
     ((volume (adaptedCell q t)).toReal / (volume W).toReal) •
       toFullBlockMat (coarseBlock (adaptedCellTranslate q t z) a))) R
   let J := Finset.Icc (jStar : ℤ) cap
-  have hmem (t : ℤ) : MemLqSchatten P N (row t) := Source.memLqSchatten_normalizedBlock
+  have hmem (t : ℤ) : SchattenMemLp P N (row t) := Source.memLqSchatten_normalizedBlock
     (Source.memLqSchatten_finset_sum hN (Z t) (fun _ => (volume (adaptedCell q t)).toReal / (volume W).toReal)
       (fun z a => coarseBlock (adaptedCellTranslate q t z) a)
       (fun z _ => Source.memLqSchatten_coarseBlock_adapted d hd P γ E Ψ K S hstat hdag

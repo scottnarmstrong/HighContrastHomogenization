@@ -101,44 +101,6 @@ theorem transferGauge_le {d : ℕ} {Q K g : ℝ} {jStar M j : ℤ} (hg0 : 0 ≤ 
 
 /-! ## The size envelope -/
 
-/-- **The actual comparison size is below the deterministic one**, the envelope
-for the transfer size.  The terminal normalization
-`e.two.grid.source.normalization` bounds the random factor `Λ_t` by
-`κ_𝐄 B_q 𝔼[Y_P]`, and the normalization constant `U` replaces
-the multiplier mean; the gauge and the witness eccentricity are the same on both
-sides. -/
-theorem transferSize_le_transferSizeBar {d : ℕ} [NeZero d] {P : Measure (CoeffSpace d)}
-    [IsProbabilityMeasure P] {g : ℝ} {E : BlockMat d} {Ψ : ℝ → ℝ} {K Cd CAE U : ℝ}
-    {jStar M : ℤ} {Y : CoeffSpace d → ℝ} (hCd : 0 < Cd) (hg1 : g < 1) (hCAE : 0 ≤ CAE)
-    (hE : IsSymmetricBlockMat E) (hEpd : Book.Ch02.BlockPosDef E)
-    (hY : IsWindowMultiplier P g E Ψ K Cd jStar M Y) {m0 : Mat d} (hm0 : m0.PosDef)
-    (hq : IsRoundedGrid jStar (roundedGrid jStar m0)) {t : ℤ} (ht : jStar ≤ t)
-    (hcont : adaptedCell (roundedGrid jStar m0) t ⊆ centeredCube d M)
-    (hU : ∫ a, Y a ∂P ≤ U) (j : ℤ) :
-    CAE * witnessEccentricity m0 * transferGauge g K j *
-        blockSize E (adaptedMean P (roundedGrid jStar m0) t) ≤
-      transferSizeBar U CAE Cd g K E m0 j := by
-  have hecc : (0 : ℝ) ≤ witnessEccentricity m0 := (Transport.zero_lt_witnessEccentricity hm0).le
-  have hgauge : (0 : ℝ) ≤ transferGauge g K j := (zero_lt_transferGauge hg1 K j).le
-  have hcoef : (0 : ℝ) ≤ CAE * witnessEccentricity m0 * transferGauge g K j :=
-    mul_nonneg (mul_nonneg hCAE hecc) hgauge
-  have hprod : (0 : ℝ) ≤ CAE * witnessEccentricity m0 * transferGauge g K j *
-      kappaRef E * Cd * witnessEccentricity m0 * zetaG g :=
-    mul_nonneg (mul_nonneg (mul_nonneg (mul_nonneg hcoef (Transport.zero_le_kappaRef E)) hCd.le)
-      hecc) (Transport.zero_lt_zetaG hg1).le
-  calc CAE * witnessEccentricity m0 * transferGauge g K j *
-        blockSize E (adaptedMean P (roundedGrid jStar m0) t)
-      ≤ CAE * witnessEccentricity m0 * transferGauge g K j *
-          (kappaRef E * (boundaryConst Cd g m0 * ∫ a, Y a ∂P)) :=
-        mul_le_mul_of_nonneg_left
-          (Transport.blockSize_adaptedMean_le hCd hg1 hE hEpd hY hm0 hq ht hcont) hcoef
-    _ = CAE * witnessEccentricity m0 * transferGauge g K j * kappaRef E * Cd *
-          witnessEccentricity m0 * zetaG g * ∫ a, Y a ∂P := by
-        rw [boundaryConst]; ring
-    _ ≤ CAE * witnessEccentricity m0 * transferGauge g K j * kappaRef E * Cd *
-          witnessEccentricity m0 * zetaG g * U := mul_le_mul_of_nonneg_left hU hprod
-    _ = transferSizeBar U CAE Cd g K E m0 j := by rw [transferSizeBar]; ring
-
 /-! ## The two decay gaps -/
 
 /-- Each gap is at least one, on every branch of its truncated logarithm; this is
@@ -195,31 +157,6 @@ theorem rpow_neg_sub_eq_zpow {t m l : ℤ} (h : m = t + l) :
   have hexp : -((m : ℝ) - (t : ℝ)) = ((-l : ℤ) : ℝ) := by
     subst h; push_cast; ring
   rw [hexp, Real.rpow_intCast]
-
-/-- **The adapter error is below the tolerance**, for the forward and for the
-reverse comparison: the error coefficient of the adapted-Euclidean comparisons,
-congruenced by the entry mean, is below the tolerance that chose the gap. -/
-theorem transferError_le {d : ℕ} [NeZero d] {P : Measure (CoeffSpace d)}
-    [IsProbabilityMeasure P] {g : ℝ} {E : BlockMat d} {Ψ : ℝ → ℝ} {K Cd CAE U eta : ℝ}
-    {jStar M : ℤ} {Y : CoeffSpace d → ℝ} (hCd : 0 < Cd) (hg1 : g < 1) (hCAE : 0 ≤ CAE)
-    (hE : IsSymmetricBlockMat E) (hEpd : Book.Ch02.BlockPosDef E)
-    (hY : IsWindowMultiplier P g E Ψ K Cd jStar M Y) {m0 : Mat d} (hm0 : m0.PosDef)
-    (hq : IsRoundedGrid jStar (roundedGrid jStar m0)) {t : ℤ} (ht : jStar ≤ t)
-    (hcont : adaptedCell (roundedGrid jStar m0) t ⊆ centeredCube d M)
-    (hU : ∫ a, Y a ∂P ≤ U) (heta : 0 < eta) {j l : ℤ}
-    (hl : l = ⌈max 1 (max 0
-      (Real.logb 3 (transferSizeBar U CAE Cd g K E m0 j / eta)))⌉) :
-    CAE * witnessEccentricity m0 * transferGauge g K j * (3 : ℝ) ^ (-l) *
-        blockSize E (adaptedMean P (roundedGrid jStar m0) t) ≤ eta := by
-  have hz : (0 : ℝ) ≤ (3 : ℝ) ^ (-l) := by positivity
-  have henv := transferSize_le_transferSizeBar hCd hg1 hCAE hE hEpd hY hm0 hq ht hcont hU j
-  calc CAE * witnessEccentricity m0 * transferGauge g K j * (3 : ℝ) ^ (-l) *
-        blockSize E (adaptedMean P (roundedGrid jStar m0) t)
-      = CAE * witnessEccentricity m0 * transferGauge g K j *
-          blockSize E (adaptedMean P (roundedGrid jStar m0) t) * (3 : ℝ) ^ (-l) := by ring
-    _ ≤ transferSizeBar U CAE Cd g K E m0 j * (3 : ℝ) ^ (-l) :=
-        mul_le_mul_of_nonneg_right henv hz
-    _ ≤ eta := transferSizeBar_mul_zpow_le heta hl
 
 end
 

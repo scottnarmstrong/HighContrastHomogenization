@@ -49,8 +49,8 @@ theorem normalizedMean_one_antitone_left (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       CoarseEllipticityDagger P γ E Ψ K Src →
       ∀ (jStar : ℕ), 2 * d ≤ 3 ^ jStar →
         ∀ i j m : ℤ, (jStar : ℤ) ≤ i → i ≤ j →
-          BlockMatLoewnerLE (normalizedMean P (1 : Mat d) j m)
-            (normalizedMean P (1 : Mat d) i m) := by
+          BlockMatLoewnerLE (relMean P (1 : Mat d) j m)
+            (relMean P (1 : Mat d) i m) := by
   intro P E Ψ K Src hP hstat _hunit hdag jStar hjStar i j m hi hij
   have := hP
   have : NeZero d := ⟨by omega⟩
@@ -154,17 +154,17 @@ theorem determinantDrift_one_nonneg (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
         (T * Homogenization.toFullBlockMat Ai * T - T * Homogenization.toFullBlockMat Aj * T) := by
       have hcm := Matrix.PosSemidef.conjTranspose_mul_mul_same hdiff T
       simpa only [hT.eq, mul_sub, sub_mul] using hcm
-    have hle : Homogenization.toFullBlockMat (Homogenization.HighContrast.normalizedMean P (1 : Homogenization.Mat d) j m) ≤
-        Homogenization.toFullBlockMat (Homogenization.HighContrast.normalizedMean P (1 : Homogenization.Mat d) (j - 1) m) := by
+    have hle : Homogenization.toFullBlockMat (relMean P (1 : Homogenization.Mat d) j m) ≤
+        Homogenization.toFullBlockMat (relMean P (1 : Homogenization.Mat d) (j - 1) m) := by
       have hfinal : T * Homogenization.toFullBlockMat Aj * T ≤ T * Homogenization.toFullBlockMat Ai * T :=
         Matrix.le_iff.mpr hstep
-      simpa [Homogenization.HighContrast.normalizedMean, Homogenization.HighContrast.normalizedBlock, Ai, Aj, Am,
+      simpa [relMean, Homogenization.HighContrast.normalizedBlock, Ai, Aj, Am,
         Homogenization.toFullBlockMat_ofFullBlockMat] using hfinal
-    have hpsd : (Homogenization.toFullBlockMat (Homogenization.HighContrast.normalizedMean P (1 : Homogenization.Mat d) (j - 1) m) -
-        Homogenization.toFullBlockMat (Homogenization.HighContrast.normalizedMean P (1 : Homogenization.Mat d) j m)).PosSemidef :=
+    have hpsd : (Homogenization.toFullBlockMat (relMean P (1 : Homogenization.Mat d) (j - 1) m) -
+        Homogenization.toFullBlockMat (relMean P (1 : Homogenization.Mat d) j m)).PosSemidef :=
       Matrix.le_iff.mp hle
     unfold Homogenization.HighContrast.blockTrace
-    rw [Homogenization.HighContrast.Multiscale.toFullBlockMat_blockSub']
+    rw [Homogenization.HighContrast.Recurrence.toFullBlockMat_blockSub]
     exact hpsd.trace_nonneg
 
 /-- C5. The Euclidean profile is nonnegative. -/
@@ -182,7 +182,7 @@ theorem profile_one_nonneg (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   have : IsProbabilityMeasure P := hP
   let : NeZero d := ⟨by omega⟩
   have hQ1 : (1 : ℝ) ≤ (bigQ d γ : ℝ) := by
-    exact_mod_cast (le_trans (by norm_num : 1 ≤ 2) (bigQ_two_le d hd γ hγ))
+    exact_mod_cast (le_trans (by norm_num : 1 ≤ 2) (bigQ_two_le d γ hγ))
   have hmean :
       ∀ n' m' : ℤ, (jStar : ℤ) ≤ n' →
         0 ≤ meanHistory P γ (1 : Mat d) n' m' := by
@@ -203,9 +203,9 @@ theorem profile_one_nonneg (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
       have horder := Annealed.normalizedBlock_order_consequences (bigQ d γ)
         (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) j)
         (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) m') hF hG hGF
-      simpa only [normalizedMean, Geometry.explicitRoundedGrid_one] using horder.2.2.2.2.2
+      simpa only [relMean, Geometry.explicitRoundedGrid_one] using horder.2.2.2.2.2
   have hpen :
-      0 ≤ meanPenalty (bigQ d γ) (normalizedMean P (1 : Mat d) n m) := by
+      0 ≤ meanPenalty (bigQ d γ) (relMean P (1 : Mat d) n m) := by
     have hF := Annealed.adaptedMean_posDef d hd P γ E Ψ K Src hstat hdag
       jStar hjStar (1 : Mat d) (Geometry.one_posDef d) n
     have hG := Annealed.adaptedMean_posDef d hd P γ E Ψ K Src hstat hdag
@@ -215,7 +215,7 @@ theorem profile_one_nonneg (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
     have horder := Annealed.normalizedBlock_order_consequences (bigQ d γ)
       (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n)
       (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) m) hF hG hGF
-    simpa only [normalizedMean, Geometry.explicitRoundedGrid_one] using horder.2.2.2.2.2
+    simpa only [relMean, Geometry.explicitRoundedGrid_one] using horder.2.2.2.2.2
   have hfluc_n : 0 ≤ fluctuationHistory P γ (1 : Mat d) jStar n := by
     rw [fluctuationHistory]
     apply integral_nonneg
@@ -260,7 +260,7 @@ theorem profile_one_nonneg (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
     · apply mul_nonneg
       · apply mul_nonneg
         · exact Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 3) _
-        · linarith
+        · linarith only [hpen]
       · exact hhist
     · exact hmean n m hn
   · apply Finset.sum_nonneg

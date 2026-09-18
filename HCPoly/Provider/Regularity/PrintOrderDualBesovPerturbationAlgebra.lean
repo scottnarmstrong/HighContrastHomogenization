@@ -3,7 +3,8 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Regularity.PrintOrderFiniteEnergyInputs
+import HCPoly.Provider.Regularity.MixedOrderFiniteRecurrenceCore
+import HCPoly.Provider.Regularity.OrderDecouplingBoundary
 import HCPoly.Provider.Regularity.RoundedReferenceConstantMatrix
 import Homogenization.Besov.Duality.CaccioppoliBridge
 import Homogenization.Book.Ch01.Theorems.DualToCircLoss.FiniteLoss

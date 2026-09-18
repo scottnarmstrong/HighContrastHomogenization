@@ -1,4 +1,4 @@
-import HCPoly.Entry.Multiscale.ScaleSelection.ProviderInputs
+import HCPoly.Entry.Multiscale.ScaleSelection.InputStatements
 
 /-!
 # The startup, service and obstruction alternatives
@@ -61,7 +61,7 @@ theorem startup_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
             (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
               determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
               Real.exp ((bigQ d γ : ℝ) *
-                logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+                detIncrement P (Geometry.explicitRoundedGrid jStar m) n
                   (n + ((2 * bigQ d γ : ℕ) : ℤ))) - 1)) ∧
       1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) ≤
         ε / (selectionLength L₀ σ : ℝ) *
@@ -73,7 +73,7 @@ theorem startup_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
               (n + ((2 * bigQ d γ : ℕ) : ℤ)) ≤ 1) ∧
       (k < n + ((2 * bigQ d γ : ℕ) : ℤ) →
         k + ((2 * bigQ d γ : ℕ) : ℤ) ≤ n + ((2 * bigQ d γ : ℕ) : ℤ)) := by
-  have hQpos : 0 < bigQ d γ := bigQ_pos d hd γ hγ
+  have hQpos : 0 < bigQ d γ := bigQ_pos d γ hγ
   have hstep_nat : 1 ≤ 2 * bigQ d γ := by
     exact Nat.succ_le_of_lt (Nat.mul_pos (by norm_num) hQpos)
   have hstep_int : 1 ≤ ((2 * bigQ d γ : ℕ) : ℤ) := by
@@ -91,39 +91,39 @@ theorem startup_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
             (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
               determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
               Real.exp ((bigQ d γ : ℝ) *
-                logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+                detIncrement P (Geometry.explicitRoundedGrid jStar m) n
                   (n + ((2 * bigQ d γ : ℕ) : ℤ))) - 1) := by
       simpa [hk] using hshort (Or.inl hk.symm) (by simpa [hk] using hin1 hk)
     have hbase :
         0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n :=
       add_nonneg
-        (Annealed.bridge_profile_nonneg d hd P γ hγ E Ψ K S hstat hdag jStar hj m hm k n hjk hkn)
+        (Annealed.bridge_profile_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm k n hjk hkn)
         (Annealed.bridge_determinantDrift_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm n)
     have hloss :
-        0 ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+        0 ≤ detIncrement P (Geometry.explicitRoundedGrid jStar m) n
           (n + ((2 * bigQ d γ : ℕ) : ℤ)) :=
       Homogenization.HighContrast.Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag
         jStar hj m hm n (n + ((2 * bigQ d γ : ℕ) : ℤ)) (hjk.trans hkn) (by omega)
     have harg :
         0 ≤ (bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+          detIncrement P (Geometry.explicitRoundedGrid jStar m) n
             (n + ((2 * bigQ d γ : ℕ) : ℤ)) :=
-      mul_nonneg (le_of_lt (bigQ_real_pos d hd γ hγ)) hloss
+      mul_nonneg (le_of_lt (bigQ_real_pos d γ hγ)) hloss
     have hexp :
         0 ≤ Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+          detIncrement P (Geometry.explicitRoundedGrid jStar m) n
             (n + ((2 * bigQ d γ : ℕ) : ℤ))) - 1 := by
-      linarith [harg, Real.add_one_le_exp ((bigQ d γ : ℝ) *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+      linarith only [harg, Real.add_one_le_exp ((bigQ d γ : ℝ) *
+        detIncrement P (Geometry.explicitRoundedGrid jStar m) n
           (n + ((2 * bigQ d γ : ℕ) : ℤ)))]
     have hbracket :
         0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
           Real.exp ((bigQ d γ : ℝ) *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+            detIncrement P (Geometry.explicitRoundedGrid jStar m) n
               (n + ((2 * bigQ d γ : ℕ) : ℤ))) - 1 := by
-      linarith [hbase, hexp]
+      linarith only [hbase, hexp]
     have hcoef : C₁ * (((2 * bigQ d γ : ℕ) : ℤ) : ℝ) ≤ C := by
       by_cases hc : 0 < C₁
       · rw [Int.cast_natCast, Nat.cast_mul]
@@ -159,12 +159,12 @@ theorem service_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
     (hη : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n > c₀ * ε * σ)
     (hsync : (d : ℝ)⁻¹ *
-        synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m) ((2 * bigQ d γ : ℕ) : ℤ) n ≤ σ) :
+        synchCharge P (Geometry.explicitRoundedGrid jStar m) ((2 * bigQ d γ : ℕ) : ℤ) n ≤ σ) :
     (k < n ∧
         profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
             determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n > c₀ * ε * σ ∧
         (d : ℝ)⁻¹ *
-            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+            synchCharge P (Geometry.explicitRoundedGrid jStar m)
               ((2 * bigQ d γ : ℕ) : ℤ) n ≤ σ ∧
         profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k (n + ((2 * bigQ d γ : ℕ) : ℤ)) +
             determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar
@@ -173,7 +173,7 @@ theorem service_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
               (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
                 determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n) +
             C *
-              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+              synchCharge P (Geometry.explicitRoundedGrid jStar m)
                 ((2 * bigQ d γ : ℕ) : ℤ) n) ∧
       1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) ≤
         ε / (selectionLength L₀ σ : ℝ) *
@@ -186,7 +186,7 @@ theorem service_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
       (k < n + ((2 * bigQ d γ : ℕ) : ℤ) →
         k + ((2 * bigQ d γ : ℕ) : ℤ) ≤ n + ((2 * bigQ d γ : ℕ) : ℤ)) := by
   let : IsProbabilityMeasure P := hP
-  have hQpos : 0 < bigQ d γ := bigQ_pos d hd γ hγ
+  have hQpos : 0 < bigQ d γ := bigQ_pos d γ hγ
   have hspan_pos : 0 < ((2 * bigQ d γ : ℕ) : ℤ) := by
     exact_mod_cast Nat.mul_pos (by norm_num : 0 < 2) hQpos
   have hspan_one : 1 ≤ ((2 * bigQ d γ : ℕ) : ℤ) := by omega
@@ -197,7 +197,7 @@ theorem service_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
       hone P E Ψ K S hP hstat hunit hdag (2 * bigQ d γ) le_rfl
         ((2 * bigQ d γ : ℕ) : ℤ) hspan_one jStar hj hsrc m hm k n hjk hkn
     have hΔ0 :
-        0 ≤ synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+        0 ≤ synchCharge P (Geometry.explicitRoundedGrid jStar m)
           ((2 * bigQ d γ : ℕ) : ℤ) n := by
       apply synchronizedLogDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm
       · exact hspan_nonneg
@@ -205,35 +205,35 @@ theorem service_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
     have hb0 :
         0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n := by
-      exact profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K S hstat hdag
+      exact profile_add_determinantDrift_nonneg d hd P γ E Ψ K S hstat hdag
         jStar hj m hm k n hjk hkn
     have hdpos : (0 : ℝ) < (d : ℝ) := by
       exact_mod_cast (by omega : 0 < d)
     have hΔσ :
-        synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+        synchCharge P (Geometry.explicitRoundedGrid jStar m)
             ((2 * bigQ d γ : ℕ) : ℤ) n ≤
           (d : ℝ) * σ :=
       (inv_mul_le_iff₀ hdpos).mp hsync
     have hQnonneg : 0 ≤ (bigQ d γ : ℝ) :=
-      le_of_lt (bigQ_real_pos d hd γ hγ)
+      le_of_lt (bigQ_real_pos d γ hγ)
     have hx0 :
         0 ≤ (bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+          synchCharge P (Geometry.explicitRoundedGrid jStar m)
             ((2 * bigQ d γ : ℕ) : ℤ) n :=
       mul_nonneg hQnonneg hΔ0
     have hxlog :
         (bigQ d γ : ℝ) *
-            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+            synchCharge P (Geometry.explicitRoundedGrid jStar m)
               ((2 * bigQ d γ : ℕ) : ℤ) n ≤
           Real.log 2 := by
       have hδε :
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+          synchCharge P (Geometry.explicitRoundedGrid jStar m)
               ((2 * bigQ d γ : ℕ) : ℤ) n ≤
             (d : ℝ) * ε :=
         hΔσ.trans (mul_le_mul_of_nonneg_left hσ.2 hdpos.le)
       calc
         (bigQ d γ : ℝ) *
-            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+            synchCharge P (Geometry.explicitRoundedGrid jStar m)
               ((2 * bigQ d γ : ℕ) : ℤ) n ≤
             (bigQ d γ : ℝ) * ((d : ℝ) * ε) :=
           mul_le_mul_of_nonneg_left hδε hQnonneg
@@ -251,7 +251,7 @@ theorem service_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
                 determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n) +
             2 * C₁ *
               ((bigQ d γ : ℝ) *
-                synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+                synchCharge P (Geometry.explicitRoundedGrid jStar m)
                   ((2 * bigQ d γ : ℕ) : ℤ) n) :=
       service_reduction
         (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k
@@ -261,30 +261,30 @@ theorem service_alternative (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
         (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n)
         ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+          synchCharge P (Geometry.explicitRoundedGrid jStar m)
             ((2 * bigQ d γ : ℕ) : ℤ) n)
         C₁ hb0 hC₁.le hx0 hxlog hraw
     have hterm :
         2 * C₁ *
               ((bigQ d γ : ℝ) *
-                synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+                synchCharge P (Geometry.explicitRoundedGrid jStar m)
                   ((2 * bigQ d γ : ℕ) : ℤ) n) ≤
           C *
-              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+              synchCharge P (Geometry.explicitRoundedGrid jStar m)
                 ((2 * bigQ d γ : ℕ) : ℤ) n := by
       calc
         2 * C₁ *
               ((bigQ d γ : ℝ) *
-                synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+                synchCharge P (Geometry.explicitRoundedGrid jStar m)
                   ((2 * bigQ d γ : ℕ) : ℤ) n)
             = (2 * (bigQ d γ : ℝ) * C₁) *
-                synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+                synchCharge P (Geometry.explicitRoundedGrid jStar m)
                   ((2 * bigQ d γ : ℕ) : ℤ) n := by ring
         _ ≤ C *
-              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+              synchCharge P (Geometry.explicitRoundedGrid jStar m)
                 ((2 * bigQ d γ : ℕ) : ℤ) n :=
           mul_le_mul_of_nonneg_right hC hΔ0
-    linarith [hred, hterm]
+    linarith only [hred, hterm]
   · intro hbad
     omega
   · intro _
@@ -301,12 +301,12 @@ theorem obstruction_sync_alternative (d : ℕ) (γ : ℝ) (L₀ : ℕ) (c₀ ε 
     (hη : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n > c₀ * ε * σ)
     (hsync : (d : ℝ)⁻¹ *
-        synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m) ((2 * bigQ d γ : ℕ) : ℤ) n > σ) :
+        synchCharge P (Geometry.explicitRoundedGrid jStar m) ((2 * bigQ d γ : ℕ) : ℤ) n > σ) :
     (k < n ∧
         profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
             determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n > c₀ * ε * σ ∧
         (d : ℝ)⁻¹ *
-            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+            synchCharge P (Geometry.explicitRoundedGrid jStar m)
               ((2 * bigQ d γ : ℕ) : ℤ) n > σ) ∧
       1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) ≤
         ε / (selectionLength L₀ σ : ℝ) *
@@ -323,7 +323,7 @@ theorem obstruction_sync_alternative (d : ℕ) (γ : ℝ) (L₀ : ℕ) (c₀ ε 
     have hpos := Int.natCast_nonneg (2 * bigQ d γ)
     omega
   · intro _
-    linarith [hk]
+    linarith only [hk]
 
 /-- Alternative 3, long obstruction (`p.scale.selection`): pure bookkeeping. -/
 theorem obstruction_long_alternative (d : ℕ) (γ : ℝ) (L₀ : ℕ) (c₀ ε σ B : ℝ)
@@ -337,13 +337,13 @@ theorem obstruction_long_alternative (d : ℕ) (γ : ℝ) (L₀ : ℕ) (c₀ ε 
     (hη : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n ≤ c₀ * ε * σ)
     (hlong : (d : ℝ)⁻¹ *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (selectionLength L₀ σ : ℤ)) >
+        detIncrement P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (selectionLength L₀ σ : ℤ)) >
       ε * σ) :
     (k < n ∧
         profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
             determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n ≤ c₀ * ε * σ ∧
         (d : ℝ)⁻¹ *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+            detIncrement P (Geometry.explicitRoundedGrid jStar m) n
               (n + 2 * (selectionLength L₀ σ : ℤ)) > ε * σ) ∧
       1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) ≤
         ε / (selectionLength L₀ σ : ℝ) *

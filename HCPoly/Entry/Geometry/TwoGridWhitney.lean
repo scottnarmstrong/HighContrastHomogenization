@@ -1,5 +1,5 @@
 import HCPoly.Entry.Geometry.AffineWhitneyCounts
-import HCPoly.Entry.Geometry.HybridWhitneyBoundary
+import HCPoly.Entry.Geometry.HybridWhitneyUncovered
 
 /-!
 # Countable volume assembly for the actual adapted Whitney rows
@@ -178,7 +178,7 @@ theorem two_grid_whitney_part_one (d : ℕ) (hd : 2 ≤ d) (K₀ : ℝ) (hK₀ :
     positivity
   exact (hasSum_maximalAdaptedCell_relVolumes hq (isOpen_adaptedCellTranslate hq' j y)
     (ENNReal.toReal_pos_iff.mp hWpos).1.ne'
-    (volume_adaptedCellTranslate_ne_top q' j y) (j - ℓ) hfin).tsum_eq
+    (Transport.volume_adaptedCellTranslate_ne_top q' j y) (j - ℓ) hfin).tsum_eq
 
 /-- The hybrid construction's finiteness, exact null partition, and cap-row
 estimate. The smaller-row exposed-face estimate is a separate obligation. -/
@@ -201,7 +201,7 @@ theorem hybrid_whitney_partition_cap [NeZero d]
         (volume (adaptedCell q n)).toReal / (volume W).toReal) ≤
           (2 * (d : ℝ) * K₀ * Real.sqrt d) * (3 : ℝ) ^ ((n : ℝ) - (j : ℝ)) := by
   intro W U
-  have hW : volume W ≠ ⊤ := volume_adaptedCellTranslate_ne_top q j y
+  have hW : volume W ≠ ⊤ := Transport.volume_adaptedCellTranslate_ne_top q j y
   have hU : volume U ≠ ⊤ := ne_top_of_le_ne_top hW (measure_mono Set.sdiff_subset)
   let hfin : ∀ r : ℤ, r ≤ n → (maximalAdaptedCellCenters U q n r).Finite :=
     fun r _ => finite_maximalAdaptedCellCenters_of_volume_ne_top hq hU n r
@@ -274,7 +274,7 @@ theorem hybrid_lower_row_subset_boundary_neighborhoods {d : ℕ} [NeZero d]
     rw [adaptedCellAtCenter_eq_affine_standardCell, hid]
     exact Set.image_id' _
   have hV : volume V ≠ ⊤ := volume_preimage_matVecMul_ne_top hq'
-    (volume_adaptedCellTranslate_ne_top q j y)
+    (Transport.volume_adaptedCellTranslate_ne_top q j y)
   rintro x ⟨hxR, hxN⟩
   obtain ⟨w, hw, hxw⟩ := Set.mem_iUnion₂.mp hxR
   have hxU : matVecMul q x ∈ U := by
@@ -374,11 +374,11 @@ theorem volume_hybrid_lower_row_le (d : ℕ) (hd : 2 ≤ d) (K₀ : ℝ) (hK₀ 
   have hcover : R \ N ⊆ O ∪ ⋃ w ∈ E, ⋃ i : Fin d, ⋃ b : Bool, matVecMul P '' B w i b :=
     hybrid_lower_row_subset_boundary_neighborhoods hd hK₀ hq hq' hK j n r hr y
   have hN : volume N = 0 := by
-    have h := volume_image_affine P (0 : Vec d) (gridFaces d n)
+    have h := Transport.volume_image_affine P (0 : Vec d) (gridFaces d n)
     simp only [zero_add, volume_gridFaces, mul_zero] at h
     exact h
   have hE : E.Finite := (finite_contained_adaptedCellIndices hq'
-    (volume_adaptedCellTranslate_ne_top q j y) n).subset (fun _ h => h.1)
+    (Transport.volume_adaptedCellTranslate_ne_top q j y) n).subset (fun _ h => h.1)
   have hcount : (E.ncard : ℝ) ≤ Ccube *
       (3 : ℝ) ^ (((d : ℝ) - 1) * ((j : ℝ) - (n : ℝ))) :=
     ncard_exposed_adaptedCells_le_of_gridRatio hd hK₀ hq hq' hK j n y
@@ -415,7 +415,7 @@ theorem volume_hybrid_lower_row_le (d : ℕ) (hd : 2 ≤ d) (K₀ : ℝ) (hK₀ 
   have houter : volume O ≤ ENNReal.ofReal (A * S) := by
     calc
       volume O = volume (boundaryStrips d j (Real.sqrt d * (3 : ℝ) ^ (r + 1))) := by
-        rw [volume_image_affine, Matrix.det_one, abs_one, ENNReal.ofReal_one, one_mul]
+        rw [Transport.volume_image_affine, Matrix.det_one, abs_one, ENNReal.ofReal_one, one_mul]
       _ ≤ ENNReal.ofReal (2 * (d : ℝ) * (Real.sqrt d * (3 : ℝ) ^ (r + 1)) *
           ((3 : ℝ) ^ j) ^ (d - 1)) := volume_boundaryStrips_le j (by positivity)
       _ = _ := by
@@ -450,7 +450,7 @@ theorem hybrid_lower_row_relVolume_bounds (d : ℕ) (hd : 2 ≤ d) (K₀ : ℝ) 
   obtain ⟨C, hC, hraw⟩ := volume_hybrid_lower_row_le d hd K₀ hK₀
   refine ⟨C, hC, ?_⟩
   intro q q' hq hq' hK j n r hr y W U
-  have hW : volume W ≠ ⊤ := volume_adaptedCellTranslate_ne_top q j y
+  have hW : volume W ≠ ⊤ := Transport.volume_adaptedCellTranslate_ne_top q j y
   have hU : volume U ≠ ⊤ := ne_top_of_le_ne_top hW (measure_mono Set.sdiff_subset)
   let hfin := finite_maximalAdaptedCellCenters_of_volume_ne_top hq hU n r
   have hWpos : 0 < (volume W).toReal := by
@@ -477,7 +477,7 @@ theorem hybrid_lower_row_relVolume_bounds (d : ℕ) (hd : 2 ≤ d) (K₀ : ℝ) 
         ENNReal.ofReal |q.det| *
           volume (⋃ w ∈ maximalAdaptedCellIndices U q n r, standardCell d r w) := by
       rw [← himage]
-      simpa only [zero_add] using volume_image_affine q (0 : Vec d)
+      simpa only [zero_add] using Transport.volume_image_affine q (0 : Vec d)
         (⋃ w ∈ maximalAdaptedCellIndices U q n r, standardCell d r w)
     _ ≤ ENNReal.ofReal |q.det| *
         ENNReal.ofReal (C * (3 : ℝ) ^ r * ((3 : ℝ) ^ j) ^ (d - 1)) :=

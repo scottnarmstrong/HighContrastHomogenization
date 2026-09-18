@@ -173,55 +173,6 @@ theorem integrable_primal_physical_oscillation_of_weak
   unfold avsum
   exact (integrable_finsetSum Z hparent).const_mul _
 
-/-- The physical primal cutoff oscillation is controlled by the earlier profile row. -/
-theorem of_real_abs_integral_primal_physical_oscillation_le_row
-    [NeZero d] {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
-    (hstat : HCPoly.Frozen.IsStationaryLaw P)
-    {gamma : ℝ} {E : BlockMat d} {Psi : ℝ → ℝ} {K Cd : ℝ}
-    {jStar M : ℤ} {Y : CoeffSpace d → ℝ}
-    (hY : IsWindowMultiplier P gamma E Psi K Cd jStar M Y)
-    {m0 q : Mat d} (hm0 : m0.PosDef) (hqeq : q = roundedGrid jStar m0)
-    (hgrid : IsRoundedGrid jStar q)
-    {s t : ℤ} (hjs : jStar ≤ s) (hst : s ≤ t)
-    (hbelow : ∀ k : ℤ, k < jStar → ∀ v : ℤ,
-      v = s ∨ v = t → ∀ z ∈ containedCenters q k v,
-        adaptedCellTranslate q k z ⊆ centeredCube d M)
-    (hblocks : ∀ k : ℤ, jStar ≤ k → k ≤ t →
-      HasFiniteAdaptedMean P q k ∧ BlockPosDef (adaptedMean P q k))
-    (g : Mat d) (hg : IsSkewMat g) (p r Pcen Qcen : Vec d)
-    (hweak : profilePrimalWeakQuantity P m0
-      (Recurrence.posDef_of_isRoundedGrid hgrid) t
-      (fun a ↦ a.subSkew g hg) p r ≠ ⊤) :
-    ENNReal.ofReal |∫ a, primal_physical_oscillation
-        (Recurrence.posDef_of_isRoundedGrid hgrid) s t g hg p r Qcen a ∂P| ≤
-      ENNReal.ofReal
-          (preYoungRowCoefficient d *
-            (3 : ℝ) ^ (-((t : ℝ) - (s : ℝ))) *
-              Real.sqrt (∫ a, responseJ
-                (adaptedDomain (Recurrence.posDef_of_isRoundedGrid hgrid) t)
-                ((a.subSkew g hg).coeffOn
-                  (adaptedDomain (Recurrence.posDef_of_isRoundedGrid hgrid) t))
-                p r ∂P)) *
-        profilePrimalHattedEarlierRow P q g s Pcen Qcen ^ (1 / 2 : ℝ) := by
-  let hq := Recurrence.posDef_of_isRoundedGrid hgrid
-  apply ofReal_abs_integral_le_of_tendsto_of_uniform_bound
-    (F := fun n ↦ primal_projected_oscillation
-      hq s t g hg p r Qcen (n + 1))
-    (f := primal_physical_oscillation hq s t g hg p r Qcen)
-  · intro n
-    exact (aestrongly_measurable_primal_projected_oscillation
-      (P := P) hq hst g hg p r Qcen (n + 1)).aemeasurable
-  · exact integrable_primal_physical_oscillation_of_weak
-      hq hm0 hst g hg p r Qcen hweak
-  · exact _root_.Filter.Eventually.of_forall fun a ↦
-      tendsto_primal_projected_oscillation
-        hq hst g hg a p r Qcen
-  · intro n
-    simpa only [hq] using
-      lintegral_primal_projected_oscillation_le_row
-        hstat hY hm0 hqeq hgrid hjs hst hbelow hblocks
-          g hg p r Pcen Qcen hweak (n + 1)
-
 end
 
 end Homogenization.HighContrast.Response

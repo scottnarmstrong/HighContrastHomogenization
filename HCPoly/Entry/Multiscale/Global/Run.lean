@@ -1,15 +1,17 @@
 import HCPoly.Entry.Multiscale.Global.OutputAndRun
 import HCPoly.Entry.Analysis.InverseJensen
+import HCPoly.Provider.Recurrence.AdaptedCellMeasurability
 
 /-!
-# Support lemmas for `global_run`
+# EccentricityScaleDecay lemmas for `global_run`
 
 This file collects the sixteen `run_*` helper lemmas behind `global_run` — the
 reserve, potential and service-decrease machinery — and the quarter-step
-potential-decrease lemma `h_step_decrease_quarter`.  It also proves four small lemmas the
+potential-decrease lemma `potential_step_sub_le_of_quarter_bound`.  It also proves four small lemmas the
 assembly needs: a `weight_choice` variant whose witness also dominates `d`, an upper bound
 `S.eta ε σ ≤ 1` on the selection step, and two algebraic bridges between the `(d:ℝ)⁻¹ * Δ` test
-form and the `d * ε * σ` / `d * σ` form.
+form and the `d * ε * σ` / `d * σ` form.  This is the per-step machinery of
+`p.global.selection`, and through it part of the assembly of `t.polynomial.entry`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean blockLogDet blockPosDef_annealedBlock)
@@ -40,7 +42,7 @@ theorem run_blockLogDet_adaptedMean_nonneg {d : ℕ} (hd : 2 ≤ d)
 theorem run_adaptedMean_blockPosDef {d : ℕ} (hd : 2 ≤ d)
     (P : Measure (CoeffSpace d)) (γ : ℝ) (E : BlockMat d) (Ψ : ℝ → ℝ)
     (K : ℝ) (Src : CoeffSpace d → ℝ) (hP : IsProbabilityMeasure P)
-    (hst : IsStationaryLaw P) (_hur : IsUnitRangeLaw P)
+    (hst : IsStationaryLaw P)
     (hce : CoarseEllipticityDagger P γ E Ψ K Src)
     (jStar : ℕ) (hjStar : 2 * d ≤ 3 ^ jStar) (m : Mat d) (hm : m.PosDef) (j : ℤ) :
     Book.Ch02.BlockPosDef (adaptedMean P (Geometry.explicitRoundedGrid jStar m) j) := by
@@ -77,7 +79,7 @@ theorem run_output_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                   Cout * σ ^ ((1 - γ) / 8) →
                 profile P γ (Geometry.explicitRoundedGrid jStar m) jStar s s +
                   determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar s ≤ 1 →
-                (d : ℝ)⁻¹ * logDetLoss P (Geometry.explicitRoundedGrid jStar m) s (s + H) < σ →
+                (d : ℝ)⁻¹ * detIncrement P (Geometry.explicitRoundedGrid jStar m) s (s + H) < σ →
                 max
                     (max (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar s s)
                       (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar s (s + H)))
@@ -86,7 +88,7 @@ theorem run_output_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                     determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar (s + H) ≤
                   Cprof * σ ^ ((1 - γ) / 8) := by
   obtain ⟨Csrc, hCs, C, hC, hone⟩ :=
-    Provider.fixed_geometry_one_grid_propagation_full d hd γ hγ
+    Entry.fixed_geometry_one_grid_propagation_full d hd γ hγ
   refine ⟨Csrc, hCs, ?_⟩
   intro Cout hCout H hH
   let Q : ℝ := bigQ d γ
@@ -108,14 +110,14 @@ theorem run_output_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     H hHI jStar hj hsrc m hm s (s + H) hs hst').1
   rw [← profile_diagonal_eq_history d hd γ hγ P E Ψ K Src hP hst hur hce
     jStar hj m hm (s + H)] at hmajor
-  have hp := Annealed.bridge_profile_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hj m hm
+  have hp := Annealed.bridge_profile_nonneg d hd P γ E Ψ K Src hst hce jStar hj m hm
   have hD := Annealed.bridge_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hj m hm
   have hΔ0 := Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hst hce
     jStar hj m hm s (s + H) hs hst'
   have hdR : (0 : ℝ) < d := by exact_mod_cast (by omega : 0 < d)
-  have hΔ : logDetLoss P (Geometry.explicitRoundedGrid jStar m) s (s + H) < (d : ℝ) * σ := by
+  have hΔ : detIncrement P (Geometry.explicitRoundedGrid jStar m) s (s + H) < (d : ℝ) * σ := by
     have hh := (div_lt_iff₀ hdR).1 (show
-      logDetLoss P (Geometry.explicitRoundedGrid jStar m) s (s + H) / (d : ℝ) < σ by
+      detIncrement P (Geometry.explicitRoundedGrid jStar m) s (s + H) / (d : ℝ) < σ by
       simpa only [div_eq_mul_inv, mul_comm] using htest)
     simpa only [mul_comm] using hh
   apply output_profile_bound Cout C C Cexp Q (σ ^ ((1 - γ) / 8)) σ H d
@@ -137,11 +139,11 @@ theorem run_reserve_sync {d : ℕ} (P : Measure (CoeffSpace d)) (q : Mat d)
     (h : ℕ) (k n : ℤ) :
     run_reserve (fun r => blockLogDet (adaptedMean P q r)) h k n -
       run_reserve (fun r => blockLogDet (adaptedMean P q r)) h k (n + h) =
-      synchronizedLogDetLoss P q h n + logDetLoss P q n (n + h) := by
+      synchCharge P q h n + detIncrement P q n (n + h) := by
   have hs : (∑ i ∈ Finset.range h,
-      logDetLoss P q (n - (i : ℤ)) (n + h - (i : ℤ))) =
-      synchronizedLogDetLoss P q h n := by
-    unfold synchronizedLogDetLoss
+      detIncrement P q (n - (i : ℤ)) (n + h - (i : ℤ))) =
+      synchCharge P q h n := by
+    unfold synchCharge
     refine Finset.sum_bij (fun i _ => n + (h : ℤ) - (i : ℤ)) ?_ ?_ ?_ ?_
     · intro i hi
       simp only [Finset.mem_range] at hi
@@ -158,8 +160,8 @@ theorem run_reserve_sync {d : ℕ} (P : Measure (CoeffSpace d)) (q : Mat d)
     · intro i _
       congr 1
       omega
-  simp only [logDetLoss, Finset.sum_sub_distrib] at hs
-  unfold run_reserve logDetLoss
+  simp only [detIncrement, Finset.sum_sub_distrib] at hs
+  unfold run_reserve detIncrement
   linarith only [hs]
 
 /-- The reserve is nonnegative when `D` is. -/
@@ -230,9 +232,9 @@ theorem run_reserve_initial (D : ℤ → ℝ) (h : ℕ) (k : ℤ)
 
 /-- The potential is nonnegative on the retained geometry. -/
 theorem run_potential_nonneg {d : ℕ} (hd : 2 ≤ d)
-    (P : Measure (CoeffSpace d)) (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1)
+    (P : Measure (CoeffSpace d)) (γ : ℝ) (_hγ : γ ∈ Set.Ico (0 : ℝ) 1)
     (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ) (Src : CoeffSpace d → ℝ)
-    (hP : IsProbabilityMeasure P) (hst : IsStationaryLaw P) (hur : IsUnitRangeLaw P)
+    (hP : IsProbabilityMeasure P) (hst : IsStationaryLaw P) (_hur : IsUnitRangeLaw P)
     (hce : CoarseEllipticityDagger P γ E Ψ K Src)
     (jStar : ℕ) (hj : 2 * d ≤ 3 ^ jStar) (m : Mat d) (hm : m.PosDef)
     (k n : ℤ) (hk : (jStar : ℤ) ≤ k) (hkn : k ≤ n)
@@ -240,12 +242,12 @@ theorem run_potential_nonneg {d : ℕ} (hd : 2 ≤ d)
     0 ≤ potential P γ jStar η a m k n := by
   let := hP
   let : NeZero d := ⟨by omega⟩
-  have hx := profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src
+  have hx := profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src
     hst hce jStar hj m hm k n hk hkn
-  have hF := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce
+  have hF := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce
     jStar hj m hm k
   have hmetric := Geometry.projectiveDistance_nonneg hm
-    (explicitCanonicalMetric_posDef _ (adaptedMean_isSymmetric P _ k) hF)
+    (explicitCanonicalMetric_posDef _ (Recurrence.isSymmetricBlockMat_adaptedMean P _ k) hF)
   unfold potential
   exact add_nonneg (mul_nonneg hη.le (Real.log_nonneg
     (le_add_of_nonneg_right (div_nonneg hx hη.le)))) (mul_nonneg ha hmetric)
@@ -274,7 +276,15 @@ theorem run_energy_transfer (φ φ' R R' c w charge J : ℝ) (hw : 0 ≤ w)
 
 /-! ## §2 The quarter-step potential decrease -/
 
-/-- Scalar core of `h_step_decrease_quarter`: for `x > η > 0` and `x' ≤ x/4 + K` with `K ≥ 0`,
+/-- For abstract reals with `p ≤ 2q` and `η ≥ 0`, `½ η p ≤ η q`.  The logarithms of the
+quarter-step estimate are kept abstract here so that no arithmetic closer inspects them. -/
+private lemma half_mul_le_mul_of_le_two_mul (η p q : ℝ) (hη : 0 ≤ η) (h : p ≤ 2 * q) :
+    (1 / 2 : ℝ) * η * p ≤ η * q := by
+  have hpq : (1 / 2 : ℝ) * p ≤ q := by linarith only [h]
+  calc (1 / 2 : ℝ) * η * p = η * ((1 / 2 : ℝ) * p) := by ring
+    _ ≤ η * q := mul_le_mul_of_nonneg_left hpq hη
+
+/-- Scalar core of `potential_step_sub_le_of_quarter_bound`: for `x > η > 0` and `x' ≤ x/4 + K` with `K ≥ 0`,
 `η log (1 + x'/η) ≤ η log (1 + x/η) - η log (8/5) + K`. The contraction factor is `5/8`
 (not the `9/16` of `scalar_contraction`, which is tuned to the `1/8` premise). -/
 private theorem scalar_quarter (η x x' K : ℝ) (hη : 0 < η) (hx : η < x) (hx'0 : 0 ≤ x')
@@ -285,29 +295,29 @@ private theorem scalar_quarter (η x x' K : ℝ) (hη : 0 < η) (hx : η < x) (h
   set A : ℝ := 1 + x / (4 * η) with hA
   have hA1 : 1 ≤ A := by
     have hpos : 0 < x / (4 * η) := by positivity
-    rw [hA]; linarith
+    rw [hA]; linarith only [hpos]
   have hA0 : 0 < A := lt_of_lt_of_le one_pos hA1
   have ht0 : 0 ≤ K / η := div_nonneg hK hη.le
   have hstep1 : 1 + x' / η ≤ A + K / η := by
     have h1 : x' / η ≤ (1 / 4 * x + K) / η := by gcongr
     have h2 : (1 / 4 * x + K) / η = x / (4 * η) + K / η := by field_simp
     rw [h2] at h1
-    rw [hA]; linarith
+    rw [hA]; linarith only [h1]
   have hstep2 : Real.log (A + K / η) ≤ Real.log A + K / η := by
-    have hpos : 0 < (A + K / η) / A := div_pos (by linarith) hA0
+    have hpos : 0 < (A + K / η) / A := div_pos (by linarith only [hA0, ht0]) hA0
     have h3 := Real.log_le_sub_one_of_pos hpos
-    rw [Real.log_div (by linarith) hA0.ne'] at h3
+    rw [Real.log_div (by linarith only [hA0, ht0]) hA0.ne'] at h3
     have h4 : (A + K / η) / A - 1 = K / η / A := by field_simp; ring
     rw [h4] at h3
     have h5 : K / η / A ≤ K / η := div_le_self ht0 hA1
-    linarith
+    linarith only [h3, h5]
   have hx'η : 0 ≤ x' / η := div_nonneg hx'0 hη.le
   have hstep3 : Real.log (1 + x' / η) ≤ Real.log (A + K / η) :=
-    Real.log_le_log (by linarith) hstep1
+    Real.log_le_log (by linarith only [hx'η]) hstep1
   have hu : 1 < x / η := (one_lt_div hη).mpr hx
   have hA_le : A ≤ (1 + x / η) * (5 / 8) := by
     have hxa : x / (4 * η) = x / η / 4 := by field_simp
-    rw [hA, hxa]; linarith
+    rw [hA, hxa]; linarith only [hu]
   have hstep4 : Real.log A ≤ Real.log (1 + x / η) - Real.log (8 / 5) := by
     have h6 : Real.log A ≤ Real.log ((1 + x / η) * (5 / 8)) := Real.log_le_log hA0 hA_le
     have h7 : Real.log ((1 + x / η) * (5 / 8))
@@ -317,38 +327,38 @@ private theorem scalar_quarter (η x x' K : ℝ) (hη : 0 < η) (hx : η < x) (h
       ring
     rw [h7] at h6; exact h6
   have hfin : Real.log (1 + x' / η) ≤ Real.log (1 + x / η) - Real.log (8 / 5) + K / η := by
-    linarith
+    linarith only [hstep3, hstep2, hstep4]
   have h8 := mul_le_mul_of_nonneg_left hfin hη.le
   have h9 : η * (Real.log (1 + x / η) - Real.log (8 / 5) + K / η)
       = η * Real.log (1 + x / η) - η * Real.log (8 / 5) + K := by field_simp
   rw [h9] at h8; exact h8
 
-/-- **Local variant of `h_step_decrease`** matching the premise that `SelectionData.Selects`
+/-- **Local variant of `potential_step_sub_le_of_exp_bound`** matching the premise that `SelectionData.Selects`
 supplies in its Alternative-1 service disjunct (`SelectionData.lean`):
-`x' ≤ 1/4 * x + C * Δ̂_h(n)`.  Conclusion is the SAME shape as `h_step_decrease`'s, so it plugs
+`x' ≤ 1/4 * x + C * Δ̂_h(n)`.  Conclusion is the SAME shape as `potential_step_sub_le_of_exp_bound`'s, so it plugs
 into `exists_stop_of_potential` with the same `c` and the same charge.  Needs `d ≤ a` (the
 weight already satisfies `4 Q max 1 C ≤ a C / d`; `d ≤ a` is an extra, freely enforceable
 requirement on `weight_choice`'s `a`).  No `Q` and no growth bound are needed. -/
-theorem h_step_decrease_quarter {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (jStar : ℕ)
+theorem potential_step_sub_le_of_quarter_bound {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (jStar : ℕ)
     (η a c C : ℝ) (m : Mat d) (k n : ℤ) (h : ℕ) (hd : 0 < d) (hη : 0 < η) (hC : 1 ≤ C)
     (ha : (d : ℝ) ≤ a) (hc : c = 1 / 2 * η * Real.log (16 / 9))
     (hx : η < profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n)
     (hx' : 0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k (n + h) +
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar (n + h))
-    (hΔ : 0 ≤ synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m) (h : ℤ) n)
+    (hΔ : 0 ≤ synchCharge P (Geometry.explicitRoundedGrid jStar m) (h : ℤ) n)
     (hprop : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k (n + h) +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar (n + h) ≤
       1 / 4 * (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n) +
-        C * synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m) (h : ℤ) n) :
+        C * synchCharge P (Geometry.explicitRoundedGrid jStar m) (h : ℤ) n) :
     potential P γ jStar η a m k (n + h) - potential P γ jStar η a m k n ≤
-      -c + a * C / d * synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m) (h : ℤ) n := by
+      -c + a * C / d * synchCharge P (Geometry.explicitRoundedGrid jStar m) (h : ℤ) n := by
   unfold potential
   set q := Geometry.explicitRoundedGrid jStar m with hq
   set x := profile P γ q jStar k n + determinantDrift P γ q jStar n with hxdef
   set x' := profile P γ q jStar k (n + h) + determinantDrift P γ q jStar (n + h) with hx'def
-  set Δ := synchronizedLogDetLoss P q (h : ℤ) n with hΔdef
+  set Δ := synchCharge P q (h : ℤ) n with hΔdef
   have hdR : (0 : ℝ) < d := by exact_mod_cast hd
   have hC0 : (0 : ℝ) < C := lt_of_lt_of_le one_pos hC
   have hCΔ : 0 ≤ C * Δ := mul_nonneg hC0.le hΔ
@@ -358,12 +368,15 @@ theorem h_step_decrease_quarter {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ
       apply Real.log_le_log (by norm_num); norm_num
     rw [Real.log_pow] at h1
     push_cast at h1
-    rw [hc]; nlinarith [hη.le, h1]
+    rw [hc]
+    exact half_mul_le_mul_of_le_two_mul η (Real.log (16 / 9)) (Real.log (8 / 5)) hη.le h1
   have hcoef : C * Δ ≤ a * C / d * Δ := by
     have hle : C ≤ a * C / d := by
-      rw [le_div_iff₀ hdR]; nlinarith [hC0, ha]
+      rw [le_div_iff₀ hdR]
+      calc C * d ≤ C * a := mul_le_mul_of_nonneg_left ha hC0.le
+        _ = a * C := by ring
     exact mul_le_mul_of_nonneg_right hle hΔ
-  linarith
+  linarith only [hscal, hlog, hcoef]
 
 /-! ## §3 Four new lemmas -/
 
@@ -396,7 +409,7 @@ theorem weight_choice_ge_d (d : ℕ) (hd : 0 < d) (C Q ε σ c L H h : ℝ) (hC 
 
 /-- The selection step `η = S.eta ε σ = S.c * ε * σ` never exceeds `1`, since `S.c < 1` and
 `ε, σ ≤ 1`. -/
-theorem SelectionData_eta_le_one (S : SelectionData) (ε σ : ℝ)
+theorem selectionData_eta_le_one (S : SelectionData) (ε σ : ℝ)
     (hε : ε ∈ Set.Ioc (0 : ℝ) S.eps0) (hσ : σ ∈ Set.Ioc (0 : ℝ) ε) :
     S.eta ε σ ≤ 1 := by
   obtain ⟨hε0, hεle⟩ := hε

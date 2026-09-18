@@ -1,11 +1,11 @@
-import HCPoly.Entry.Analysis.PositiveGapNorm
-import HCPoly.Entry.Analysis.PositiveGapPointwise
+import HCPoly.Entry.Analysis.PositiveGapSupport
 
 /-!
 # PositiveGap random-field assembly
 
-This leaf assembles the ordered random difference and deterministic mean-gap
-receipts used by the PositiveGap estimates.
+This module assembles the ordered random difference and the deterministic mean-gap
+receipts that the positive-gap estimates consume, and proves the nonlinear, Young
+absorption and centered forms of the positive-gap estimate `l.fixed.geometry.positive.gap`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace blockSub blockTrace)
@@ -75,18 +75,18 @@ private theorem blockTrace_le_of_blockLoewnerLE_local {d : ℕ} {A B : BlockMat 
       have hle := hAB X
       change 0 ≤ dotProduct q (Matrix.mulVec (toFullBlockMat B - toFullBlockMat A) q)
       rw [hquad, hdiffq]
-      linarith
+      linarith only [hle]
     rw [full_blockSub]
     exact (Matrix.le_iff).mp horder
   have htr := blockTrace_nonneg hdiff
   rw [blockTrace_blockSub B A] at htr
-  linarith
+  linarith only [htr]
 
 /-- The ordered difference `D = G - F` and its entrywise mean receipts. -/
 theorem positiveGap_ordered_data {d : ℕ} {P : Measure (CoeffSpace d)}
     [IsFiniteMeasure P] {N : ℝ} (hN : 1 ≤ N)
     {F G : CoeffSpace d → BlockMat d}
-    (hF : MemLqSchatten P N F) (hG : MemLqSchatten P N G)
+    (hF : SchattenMemLp P N F) (hG : SchattenMemLp P N G)
     (hFpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a))
     (hFG : ∀ᵐ a ∂P, BlockMatLoewnerLE (F a) (G a)) :
     let D : CoeffSpace d → BlockMat d := fun a => blockSub (G a) (F a)
@@ -94,7 +94,7 @@ theorem positiveGap_ordered_data {d : ℕ} {P : Measure (CoeffSpace d)}
       ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F a) α β ∂P)
     let MG : BlockMat d :=
       ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (G a) α β ∂P)
-    MemLqSchatten P N D ∧
+    SchattenMemLp P N D ∧
       (∀ᵐ a ∂P, (toFullBlockMat (D a)).PosSemidef ∧
         BlockMatLoewnerLE (D a) (G a)) ∧
       ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (D a) α β ∂P) =
@@ -109,7 +109,7 @@ theorem positiveGap_ordered_data {d : ℕ} {P : Measure (CoeffSpace d)}
     ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F a) α β ∂P)
   let MG : BlockMat d :=
     ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (G a) α β ∂P)
-  have hD : MemLqSchatten P N D := hG.sub hF hN
+  have hD : SchattenMemLp P N D := hG.sub hF hN
   have hFint : ∀ α β : BlockCoord d, Integrable (fun a => blockMatEntry (F a) α β) P :=
     fun α β => hF.integrable_entry hN α β
   have hGint : ∀ α β : BlockCoord d, Integrable (fun a => blockMatEntry (G a) α β) P :=
@@ -159,7 +159,7 @@ theorem positiveGap_ordered_data {d : ℕ} {P : Measure (CoeffSpace d)}
 theorem positiveGap_mean_gap_bounds {d : ℕ} {P : Measure (CoeffSpace d)}
     [IsFiniteMeasure P] {N : ℝ} (hN : 1 ≤ N)
     {F G : CoeffSpace d → BlockMat d}
-    (hF : MemLqSchatten P N F) (hG : MemLqSchatten P N G)
+    (hF : SchattenMemLp P N F) (hG : SchattenMemLp P N G)
     (hFpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a))
     (hFG : ∀ᵐ a ∂P, BlockMatLoewnerLE (F a) (G a)) :
     let MF : BlockMat d :=
@@ -217,7 +217,7 @@ Schatten functions, with conjugate exponents `N/(N-1)` and `N`. -/
 theorem positiveGap_nonlinear {d : ℕ} {P : Measure (CoeffSpace d)}
     [IsProbabilityMeasure P] {N : ℝ} (hN : 1 < N)
     {F G : CoeffSpace d → BlockMat d}
-    (hF : MemLqSchatten P N F) (hG : MemLqSchatten P N G)
+    (hF : SchattenMemLp P N F) (hG : SchattenMemLp P N G)
     (hFpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a))
     (hFG : ∀ᵐ a ∂P, BlockMatLoewnerLE (F a) (G a)) :
     let MF : BlockMat d :=
@@ -250,7 +250,7 @@ theorem positiveGap_nonlinear {d : ℕ} {P : Measure (CoeffSpace d)}
   have he' : (1 - N⁻¹) * N⁻¹ = (N - 1) / N ^ 2 := by field_simp
   have hdata := positiveGap_ordered_data hN.le hF hG hFpos hFG
   rcases hdata with ⟨hD, hDae, hED, _hMF, _hMG, _hMD, _hMDG⟩
-  have hC : MemLqSchatten P N C := hG.center hN.le
+  have hC : SchattenMemLp P N C := hG.center hN.le
   have hs := hC.memLp_absSchattenNorm hN.le
   have hz := hD.memLp_absSchattenNorm hN.le
   have hsn : 0 ≤ᵐ[P] s := by
@@ -336,7 +336,7 @@ with the printed dimension and rational coefficients. -/
 theorem positiveGap_young_absorption {d : ℕ} {P : Measure (CoeffSpace d)}
     [IsProbabilityMeasure P] {N : ℝ} (hN : 1 < N)
     {F G : CoeffSpace d → BlockMat d}
-    (hF : MemLqSchatten P N F) (hG : MemLqSchatten P N G)
+    (hF : SchattenMemLp P N F) (hG : SchattenMemLp P N G)
     (hFpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a))
     (hFG : ∀ᵐ a ∂P, BlockMatLoewnerLE (F a) (G a)) :
     let MF : BlockMat d :=
@@ -371,7 +371,7 @@ then bound the deterministic mean gap and insert Young absorption. -/
 theorem positiveGap_centered_bound {d : ℕ} {P : Measure (CoeffSpace d)}
     [IsProbabilityMeasure P] {N : ℝ} (hN : 1 < N)
     {F G : CoeffSpace d → BlockMat d}
-    (hF : MemLqSchatten P N F) (hG : MemLqSchatten P N G)
+    (hF : SchattenMemLp P N F) (hG : SchattenMemLp P N G)
     (hFpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a))
     (hFG : ∀ᵐ a ∂P, BlockMatLoewnerLE (F a) (G a)) :
     let MF : BlockMat d :=
@@ -391,8 +391,8 @@ theorem positiveGap_centered_bound {d : ℕ} {P : Measure (CoeffSpace d)}
   let D : CoeffSpace d → BlockMat d := fun a => blockSub (G a) (F a)
   let C : CoeffSpace d → BlockMat d := fun a => blockSub (G a) MG
   let MD := blockSub MG MF
-  have hD : MemLqSchatten P N D := hG.sub hF hN.le
-  have hC : MemLqSchatten P N C := hG.center hN.le
+  have hD : SchattenMemLp P N D := hG.sub hF hN.le
+  have hC : SchattenMemLp P N C := hG.center hN.le
   have hdata := positiveGap_ordered_data hN.le hF hG hFpos hFG
   have hMD : IsSymmetricBlockMat MD :=
     (toFullBlockMat_isHermitian_iff _).1 hdata.2.2.2.2.2.1.isHermitian

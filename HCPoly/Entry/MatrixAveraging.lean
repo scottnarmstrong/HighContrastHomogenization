@@ -3,9 +3,11 @@ import HCPoly.Entry.Annealed.MatrixAveraging
 /-!
 # Finite-range matrix averaging
 
-The export repeats the type of `HCPoly/Entry/Statements/MatrixAveraging.lean`.
-It assembles the even-moment matrix estimate, residue-class independence,
-stationary transport, and convex recombination from ordinary support.
+This module proves the finite-range matrix averaging statement of
+`HCPoly/Entry/Statements/MatrixAveraging.lean`. It serves the labelled result
+`l.fixed.geometry.matrix.averaging`: the even-moment matrix estimate,
+residue-class independence, stationary transport, and convex recombination
+from ordinary support.
 
 We choose `Csrc = 1` before the law and geometry. This preserves the exact
 standing threshold premise; it does not assert the stochastic source
@@ -15,7 +17,7 @@ binders are underscore-renamed without changing their type, kind, or position.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean blockSub coarseBlock normalizedBlock)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 open MeasureTheory
 
 /-- The exact finite-range averaging statement; source near `l.fixed.geometry.matrix.averaging`. -/
@@ -58,4 +60,4 @@ theorem fixed_geometry_matrix_averaging
   exact Annealed.matrix_averaging_roundedGrid d hd P hP γ E Ψ K S hstat hunit hell
     N hN hNeven jStar hj m hm j hjgen Z hZne hZ R hRsymm hRpos
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

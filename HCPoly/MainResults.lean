@@ -45,10 +45,7 @@ All five reduce to the standard axioms
 -/
 
 open Homogenization MeasureTheory
--- The entry route states its own standing assumptions in the project namespace; the
--- statements below read them from `HCPoly.Frozen`, as Theorems B and D do.
-open Homogenization.HighContrast hiding IsStationaryLaw IsUnitRangeLaw CoarseEllipticityDagger
-open HCPoly.Frozen (IsStationaryLaw IsUnitRangeLaw CoarseEllipticityDagger)
+open Homogenization.HighContrast
 
 /-! ## Theorem A: polynomial entry into small contrast -/
 
@@ -82,7 +79,7 @@ theorem HCPoly.polynomial_entry (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
   obtain ⟨C, hC, hbody⟩ := Homogenization.HighContrast.polynomial_entry d hd g hg σ hσ
   refine ⟨C, hC, ?_⟩
   intro P E Ψ K S hP hstat hrange hdagger
-  refine ⟨hbody P E Ψ K S hP hstat hrange hdagger.toEntryRoute, ?_⟩
+  refine ⟨hbody P E Ψ K S hP hstat hrange hdagger, ?_⟩
   exact HCPoly.Frozen.exists_entry_generation hC
     (HCPoly.Frozen.one_lt_two_add_aspectRatio_mul E hdagger.one_lt_growthWitness)
 

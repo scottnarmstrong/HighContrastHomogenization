@@ -1,11 +1,19 @@
 import HCPoly.Entry.Geometry.AdaptedCellTransport
-import HCPoly.Entry.Geometry.SourceWhitney
+import HCPoly.Entry.Geometry.SourceWhitneyDecomposition
+import HCPoly.Provider.Transport.WhitneyCells
 
 /-!
 # Maximal adapted cells
 
 Order-theoretic facts for the actual adapted maximal-cell predicate, transported
-from the standard maximal-cell family through an invertible adapted grid.
+from the standard maximal-cell family through an invertible adapted grid: the
+maximal adapted cells are pairwise disjoint, their index set is the maximal
+standard-cell index set of the affine preimage, their center set is finite when
+the region has finite volume, and the part of an open region missed by the
+maximal cells off the affine grid faces is null. These are the cell-ordering and
+covering facts behind the Whitney partition between adapted grids
+`l.two.grid.whitney`, and they also supply the capped adapted covering used by
+`p.response.transfer`.
 -/
 
 open Homogenization.HighContrast (adaptedCellCenter)
@@ -56,7 +64,7 @@ theorem isMaximalCellIn_iff_parent_not_subset [NeZero d] {W : Set (Vec d)}
     (n r : ℤ) (w : Fin d → ℤ) :
     IsMaximalCellIn W n r w ↔
       r ≤ n ∧ standardCell d r w ⊆ W ∧
-        (r = n ∨ ¬ standardCell d (r + 1) (parentIndex w) ⊆ W) := by
+        (r = n ∨ ¬ standardCell d (r + 1) (Transport.gridParent w) ⊆ W) := by
   constructor
   · intro h
     refine ⟨h.le, h.subset, ?_⟩
@@ -67,23 +75,23 @@ theorem isMaximalCellIn_iff_parent_not_subset [NeZero d] {W : Set (Vec d)}
     refine ⟨⟨hrn, hsubW⟩, ?_⟩
     intro r' w' hcell hsub
     have hx : standardCellCenter r w ∈ standardCell d r' w' :=
-      hsub (standardCellCenter_mem r w)
+      hsub (Recurrence.standardCellCenter_mem_standardCell r w)
     rcases lt_trichotomy r' r with hlt | heq | hgt
     · have hle : r' ≤ r := hlt.le
       rcases standardCell_subset_or_disjoint hle w' w with hback | hdis
       · exact Set.Subset.antisymm hback hsub
-      · exact False.elim (Set.disjoint_left.mp hdis hx (standardCellCenter_mem r w))
+      · exact False.elim (Set.disjoint_left.mp hdis hx (Recurrence.standardCellCenter_mem_standardCell r w))
     · subst heq
       rcases standardCell_subset_or_disjoint (le_refl r') w' w with hback | hdis
       · exact Set.Subset.antisymm hback hsub
-      · exact False.elim (Set.disjoint_left.mp hdis hx (standardCellCenter_mem r' w))
+      · exact False.elim (Set.disjoint_left.mp hdis hx (Recurrence.standardCellCenter_mem_standardCell r' w))
     · have hrlt : r < n := hgt.trans_le hcell.1
       rcases hparent with hr_eq | hparent_not
       · omega
       · have hparent_le : r + 1 ≤ r' := by omega
-        have hx_parent : standardCellCenter r w ∈ standardCell d (r + 1) (parentIndex w) :=
-          standardCell_subset_parent r w (standardCellCenter_mem r w)
-        rcases standardCell_subset_or_disjoint hparent_le (parentIndex w) w' with hpar_sub | hdis
+        have hx_parent : standardCellCenter r w ∈ standardCell d (r + 1) (Transport.gridParent w) :=
+          Transport.standardCell_subset_parent r w (Recurrence.standardCellCenter_mem_standardCell r w)
+        rcases standardCell_subset_or_disjoint hparent_le (Transport.gridParent w) w' with hpar_sub | hdis
         · exact False.elim (hparent_not (hpar_sub.trans hcell.2))
         · exact False.elim (Set.disjoint_left.mp hdis hx_parent hx)
 
@@ -91,11 +99,11 @@ theorem isMaximalAdaptedCellIn_iff_parent_not_subset [NeZero d] {W : Set (Vec d)
     {q : Mat d} (hq : IsUnit q) (n r : ℤ) (w : Fin d → ℤ) :
     IsMaximalAdaptedCellIn W q n r w ↔
       r ≤ n ∧ adaptedCellAtCenter q r w ⊆ W ∧
-        (r = n ∨ ¬ adaptedCellAtCenter q (r + 1) (parentIndex w) ⊆ W) := by
+        (r = n ∨ ¬ adaptedCellAtCenter q (r + 1) (Transport.gridParent w) ⊆ W) := by
   rw [isMaximalAdaptedCellIn_iff_isMaximalCellIn_preimage W q hq n r w,
     isMaximalCellIn_iff_parent_not_subset (W := (matVecMul q) ⁻¹' W) n r w,
     standardCell_subset_preimage_iff_adaptedCellAtCenter_subset W q r w,
-    standardCell_subset_preimage_iff_adaptedCellAtCenter_subset W q (r + 1) (parentIndex w)]
+    standardCell_subset_preimage_iff_adaptedCellAtCenter_subset W q (r + 1) (Transport.gridParent w)]
 
 /-- An interior point off all affine grid faces has a contained cell below any prescribed cap.
 Smallness is measured with the ambient sup metric. -/

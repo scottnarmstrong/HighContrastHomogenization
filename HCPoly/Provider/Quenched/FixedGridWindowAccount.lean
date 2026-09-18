@@ -11,7 +11,6 @@ import HCPoly.Provider.Entry.ScaleAccount
 import HCPoly.Provider.Entry.AdapterCellBounds
 import HCPoly.Provider.Recurrence.AdaptedCellPositivity
 import HCPoly.Provider.Recurrence.MeanOrder
-import HCPoly.Provider.Selection.ExecutionWindow
 import HCPoly.Provider.ShortHop.PathStep
 import HCPoly.Provider.Transport.WindowCellBounds
 

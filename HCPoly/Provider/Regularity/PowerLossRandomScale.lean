@@ -3,7 +3,8 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Regularity.ConstantMulScale
+import Mathlib.MeasureTheory.Constructions.BorelSpace.Real
+import Mathlib.MeasureTheory.Group.Arithmetic
 import HCPoly.Provider.Regularity.EffectiveScalePowerAbsorption
 
 /-!
@@ -23,22 +24,6 @@ absorbed into a negative power with exponent `kappa`. -/
 noncomputable def powerLossRandomScale {Omega : Type*}
     (A kappa : ℝ) (X : Omega → ℝ) : Omega → ℝ :=
   fun omega => powerLossEffectiveScale A kappa (X omega)
-
-/-- The power-loss random scale is constant multiplication by the exact
-power-law enlargement factor. -/
-theorem powerLossRandomScale_eq_constantMulScale {Omega : Type*}
-    (A kappa : ℝ) (X : Omega → ℝ) :
-    powerLossRandomScale A kappa X =
-      constantMulScale (A ^ kappa⁻¹) X :=
-  rfl
-
-/-- Power-loss enlargement preserves measurability. -/
-theorem Measurable.powerLossRandomScale {Omega : Type*}
-    [MeasurableSpace Omega] {X : Omega → ℝ} (hX : Measurable X)
-    (A kappa : ℝ) :
-    Measurable (powerLossRandomScale A kappa X) := by
-  rw [powerLossRandomScale_eq_constantMulScale]
-  exact Measurable.constantMulScale hX _
 
 /-- A prefactor at least one enlarges every nonnegative sample scale. -/
 theorem le_powerLossRandomScale {Omega : Type*} {A kappa : ℝ}

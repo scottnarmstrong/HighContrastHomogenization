@@ -6,7 +6,6 @@ Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 import HCPoly.Provider.Persistence.AdaptedPersistence
 import HCPoly.Provider.Persistence.TransferGauge
 import HCPoly.Provider.Recurrence.PositiveGapClosure
-import HCPoly.Geometry.NearIsometry
 import HCPoly.Geometry.OperatorOrder
 
 /-!
@@ -170,89 +169,7 @@ theorem blockMatLoewnerLE_one_sub {A B C E : BlockMat d} (hA : IsSymmetricBlockM
 
 /-! ## The Euclidean imbalance -/
 
-/-- **The Euclidean imbalance** after the transfer: the near-isometric comparison
-`e.global.selection.metric.comparison` at the sandwich of
-`e.response.transfer.block.comparison`.  The lower half of the sandwich supplies
-the positive definiteness of the Euclidean block, which is not available from
-the window estimate. -/
-theorem blockImbalance_le_of_near_isometry (hd : 2 ≤ d) {A B : BlockMat d}
-    (hA : IsSymmetricBlockMat A) (hB : IsSymmetricBlockMat B)
-    (hBpd : Book.Ch02.BlockPosDef B) {eta : ℝ} (heta0 : 0 ≤ eta) (heta1 : eta < 1)
-    (hlow : BlockMatLoewnerLE (blockScale (1 - eta) B) A)
-    (hhigh : BlockMatLoewnerLE A (blockScale (1 + eta) B)) :
-    blockImbalance A ≤ (1 + eta) ^ 3 / (1 - eta) * blockImbalance B := by
-  have hBfull := posDef_toFullBlockMat hB hBpd
-  have hlow' : (1 - eta) • toFullBlockMat B ≤ toFullBlockMat A := by
-    have h := le_of_blockMatLoewnerLE (isSymmetricBlockMat_blockScale (1 - eta) hB) hA hlow
-    rwa [toFullBlockMat_blockScale] at h
-  have hhigh' : toFullBlockMat A ≤ (1 + eta) • toFullBlockMat B := by
-    have h := le_of_blockMatLoewnerLE hA (isSymmetricBlockMat_blockScale (1 + eta) hB) hhigh
-    rwa [toFullBlockMat_blockScale] at h
-  have hAfull : (toFullBlockMat A).PosDef :=
-    posDef_of_posDef_le (posDef_smul hBfull (by linarith only [heta1])) hlow'
-  exact (canonNearIsometry hd hBfull hAfull heta0 heta1 hlow' hhigh').1
-
 /-! ## The Euclidean transfer -/
-
-/-- **The Euclidean transfer of the entry mean**: the near-isometry
-`e.response.transfer.block.comparison` and the Euclidean imbalance after the
-transfer, from the forward and reverse adapted-Euclidean comparisons read on
-their two generation chains, their congruenced error bounds, and the adapted
-imbalance hypothesis `e.response.adapted.conclusion`.
-
-The two errors enter only through their congruenced sizes, so the argument is
-insensitive to how the gaps were chosen; the tolerance conditions
-`e.response.transfer.tolerances` are what make the two one-sided bounds
-symmetric. -/
-theorem euclidean_transfer (hd : 2 ≤ d) {P : Measure (CoeffSpace d)}
-    [IsProbabilityMeasure P] (hstat : HCPoly.Frozen.IsStationaryLaw P) {E : BlockMat d}
-    (hE : IsSymmetricBlockMat E) (hEpd : Book.Ch02.BlockPosDef E) {jStar : ℤ} {q : Mat d}
-    (hq : IsRoundedGrid jStar q) {t : ℤ} (hjt : jStar ≤ t)
-    (hfin : HasFiniteAdaptedMean P q t) {deltaAd : ℝ} (hdeltaAd : 0 ≤ deltaAd)
-    (himb : blockImbalance (adaptedMean P q t) ≤ 1 + deltaAd) {ment maux : ℤ}
-    (htmaux : t ≤ maux) {cf cr : ℝ} (hcf : 0 ≤ cf) (hcr : 0 ≤ cr)
-    (hfwd : BlockMatLoewnerLE
-      (blockSub (annealedBlock P (centeredCube d ment)) (adaptedMean P q t))
-      (blockScale cf E))
-    (hrev : BlockMatLoewnerLE
-      (blockSub (adaptedMean P q maux) (annealedBlock P (centeredCube d ment)))
-      (blockScale cr E))
-    {etaPlus etaMinus etaIso : ℝ}
-    (hgapf : cf * blockSize E (adaptedMean P q t) ≤ etaPlus)
-    (hgapr : cr * blockSize E (adaptedMean P q t) ≤ etaMinus)
-    (hetaIso0 : 0 ≤ etaIso) (hetaIso1 : etaIso < 1) (hetaPlusIso : etaPlus ≤ etaIso)
-    (hetaMinusIso : 1 - etaIso ≤ (1 + deltaAd) ^ (-(d : ℤ)) - etaMinus) :
-    BlockMatLoewnerLE (blockScale (1 - etaIso) (adaptedMean P q t))
-        (annealedBlock P (centeredCube d ment)) ∧
-      BlockMatLoewnerLE (annealedBlock P (centeredCube d ment))
-        (blockScale (1 + etaIso) (adaptedMean P q t)) ∧
-      blockImbalance (annealedBlock P (centeredCube d ment)) ≤
-        (1 + etaIso) ^ 3 / (1 - etaIso) * blockImbalance (adaptedMean P q t) := by
-  have : NeZero d := ⟨by omega⟩
-  have hEtsym := Recurrence.isSymmetricBlockMat_adaptedMean P q t
-  have hEasym := Recurrence.isSymmetricBlockMat_adaptedMean P q maux
-  have hFsym := Recurrence.isSymmetricBlockMat_annealedBlock P (centeredCube d ment)
-  have hEtpd : Book.Ch02.BlockPosDef (adaptedMean P q t) :=
-    Recurrence.blockPosDef_adaptedMean_of_isRoundedGrid hq t hfin
-  -- the two errors, congruenced by the entry mean
-  have herrf := toFullBlockMat_blockScale_le_smul hE hEpd hEtsym hEtpd hcf hgapf
-  have herrr := toFullBlockMat_blockScale_le_smul hE hEpd hEtsym hEtpd hcr hgapr
-  -- the upper half
-  have hupper : BlockMatLoewnerLE (annealedBlock P (centeredCube d ment))
-      (blockScale (1 + etaIso) (adaptedMean P q t)) :=
-    blockMatLoewnerLE_blockScale_mono hFsym hEtsym hEtpd
-      (by linarith only [hetaPlusIso])
-      (blockMatLoewnerLE_one_add hFsym hEtsym hE hfwd herrf)
-  -- the lower half, through the persistence clause at the auxiliary scale
-  have hratio : (0 : ℝ) < (1 + deltaAd) ^ d := pow_pos (by linarith only [hdeltaAd]) d
-  have htol : 1 - etaIso ≤ ((1 + deltaAd) ^ d)⁻¹ - etaMinus := by
-    rwa [zpow_neg, zpow_natCast] at hetaMinusIso
-  have hlower : BlockMatLoewnerLE (blockScale (1 - etaIso) (adaptedMean P q t))
-      (annealedBlock P (centeredCube d ment)) :=
-    blockMatLoewnerLE_one_sub hFsym hEtsym hEasym hE hEtpd hratio hrev herrr
-      ((adapted_persistence hd hstat hq hjt hfin himb htmaux).2) htol
-  exact ⟨hlower, hupper,
-    blockImbalance_le_of_near_isometry hd hFsym hEtsym hEtpd hetaIso0 hetaIso1 hlower hupper⟩
 
 end
 

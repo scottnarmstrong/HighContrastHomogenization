@@ -63,7 +63,7 @@ theorem bridge_application (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
     (hη : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n ≤ c₀ * ε * σ)
     (hlong : (d : ℝ)⁻¹ *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (selectionLength L₀ σ : ℤ)) ≤
+        detIncrement P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (selectionLength L₀ σ : ℤ)) ≤
       ε * σ) :
     BlockMatLoewnerLE
         (blockScale (1 - Real.sqrt ε * σ)
@@ -137,7 +137,7 @@ theorem bridge_application (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
     (Geometry.projectiveDistance_geometryUpdate_le hm hStar hε.1).trans hε.2
   have hsmall : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
-        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+        detIncrement P (Geometry.explicitRoundedGrid jStar m) n
           (n + 2 * (selectionLength L₀ σ : ℤ)) ≤ c₀ * (Real.sqrt ε * σ) :=
     bridge_smallness_arith d hd c₀ c₀ ε σ _ _ _ ⟨hc₀0, hc₀1⟩ ⟨hc₀0, hc₀1⟩ hε.1 hεc hσ.1 hη hlong
   exact hbody P E Ψ K S hP hstat hunit hdag jStar hj hsrc m _ hm hPlus k n hjk hkn hcont
@@ -163,7 +163,7 @@ theorem old_grid_smallness (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
     (hη : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n ≤ c₀ * ε * σ)
     (hlong : (d : ℝ)⁻¹ *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (selectionLength L₀ σ : ℤ)) ≤
+        detIncrement P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (selectionLength L₀ σ : ℤ)) ≤
       ε * σ) :
     profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k (n + 2 * (selectionLength L₀ σ : ℤ)) +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar
@@ -181,10 +181,10 @@ theorem old_grid_smallness (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   obtain ⟨hε0, hεle⟩ := hε
   obtain ⟨hσ0, hσε⟩ := hσ
   obtain ⟨hc₀0, hc₀1⟩ := hc₀
-  have hQR : (0 : ℝ) < (bigQ d γ : ℝ) := bigQ_real_pos d hd γ hγ
+  have hQR : (0 : ℝ) < (bigQ d γ : ℝ) := bigQ_real_pos d γ hγ
   have hdR : (0 : ℝ) < (d : ℝ) := by exact_mod_cast (by omega : 0 < d)
   have hQd4 : (4 : ℝ) ≤ (bigQ d γ : ℝ) * (d : ℝ) := by
-    have h1 : (2 : ℝ) ≤ (bigQ d γ : ℝ) := by exact_mod_cast bigQ_two_le d hd γ hγ
+    have h1 : (2 : ℝ) ≤ (bigQ d γ : ℝ) := by exact_mod_cast bigQ_two_le d γ hγ
     have h2 : (2 : ℝ) ≤ (d : ℝ) := by exact_mod_cast hd
     nlinarith only [h1, h2]
   have hlog2 : Real.log 2 ≤ 1 := by
@@ -206,17 +206,17 @@ theorem old_grid_smallness (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   have hcast : ((2 * (selectionLength L₀ σ : ℤ) : ℤ) : ℝ) = 2 * (selectionLength L₀ σ : ℝ) := by
     push_cast; ring
   -- the determinant increment is small
-  have hΔ0 : 0 ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+  have hΔ0 : 0 ≤ detIncrement P (Geometry.explicitRoundedGrid jStar m) n
       (n + 2 * (selectionLength L₀ σ : ℤ)) :=
     Homogenization.HighContrast.Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm
       n (n + 2 * (selectionLength L₀ σ : ℤ)) (hjk.trans hkn) (by omega)
-  have hΔle : logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+  have hΔle : detIncrement P (Geometry.explicitRoundedGrid jStar m) n
       (n + 2 * (selectionLength L₀ σ : ℤ)) ≤ (d : ℝ) * (ε * σ) :=
     (inv_mul_le_iff₀ hdR).mp hlong
-  have hx0 : 0 ≤ (bigQ d γ : ℝ) * logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+  have hx0 : 0 ≤ (bigQ d γ : ℝ) * detIncrement P (Geometry.explicitRoundedGrid jStar m) n
       (n + 2 * (selectionLength L₀ σ : ℤ)) := mul_nonneg hQR.le hΔ0
   have hp1 := mul_le_mul_of_nonneg_left hΔle hQR.le
-  have hxlog : (bigQ d γ : ℝ) * logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+  have hxlog : (bigQ d γ : ℝ) * detIncrement P (Geometry.explicitRoundedGrid jStar m) n
       (n + 2 * (selectionLength L₀ σ : ℤ)) ≤ Real.log 2 := by
     have hp2 := mul_le_mul_of_nonneg_left (hΔle.trans hdεσ) hQR.le
     linarith only [hp2, hQε]
@@ -234,7 +234,7 @@ theorem old_grid_smallness (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   rw [hcast] at hstep
   have hbr : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
-        Real.exp ((bigQ d γ : ℝ) * logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+        Real.exp ((bigQ d γ : ℝ) * detIncrement P (Geometry.explicitRoundedGrid jStar m) n
           (n + 2 * (selectionLength L₀ σ : ℤ))) - 1 ≤
       (1 + 2 * (bigQ d γ : ℝ) * (d : ℝ)) * (ε * σ) := by
     linarith only [hexp, hη, hp1, hp3]

@@ -1,7 +1,13 @@
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
-import HCPoly.Entry.Setup.Stationarity
-import HCPoly.Entry.Setup.UnitRange
-import HCPoly.Entry.Setup.Response
+import HCPoly.Frozen.CoarseEllipticityDagger
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
+import HCPoly.Frozen.Stationarity
+import HCPoly.Setup.LocalSigmaFields
+import HCPoly.Frozen.UnitRange
 import HCPoly.Setup.BlockAlgebra
 import HCPoly.Entry.PolynomialEntry
 
@@ -20,7 +26,7 @@ the contrast is small, and `γ` is bound before `C`, so no uniformity is claimed
 
 `Θ_m` is `annealedContrast` (`e.Theta.m`); `Π K_{Ψ_S}` is `aspectRatio E * K`.
 
-The proof is one application of `Homogenization.HighContrast.Provider.polynomial_entry` (`HCPoly/Entry/PolynomialEntry.lean`) to the binders of the statement.
+The proof is one application of `Homogenization.HighContrast.Entry.polynomial_entry` (`HCPoly/Entry/PolynomialEntry.lean`) to the binders of the statement.
 -/
 
 open Homogenization.HighContrast (CoeffSpace annealedContrast aspectRatio)
@@ -43,6 +49,6 @@ theorem polynomial_entry
         IsUnitRangeLaw P →
         CoarseEllipticityDagger P γ E Ψ K S →
         ∀ m : ℤ, ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ≤ m →
-          annealedContrast P m ≤ 1 + σ := by exact Homogenization.HighContrast.Provider.polynomial_entry d hd γ hγ σ hσ
+          annealedContrast P m ≤ 1 + σ := by exact Homogenization.HighContrast.Entry.polynomial_entry d hd γ hγ σ hσ
 
 end Homogenization.HighContrast

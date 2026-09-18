@@ -12,9 +12,7 @@ import HCPoly.Provider.PolynomialHomogenization.NormalizedRootCoefficient
 import HCPoly.Provider.PolynomialHomogenization.NormalizedRootEnclosure
 import HCPoly.Provider.PolynomialHomogenization.PhysicalFullDualBesovNorm
 import HCPoly.Provider.PolynomialHomogenization.RuledLocalizationAssembly
-import HCPoly.Provider.PolynomialHomogenization.ScalarCubeFluxComparison
 import HCPoly.Provider.PolynomialHomogenization.Root.Certificate.PrintOrderDecoupledTerminalSurface
-import HCPoly.Provider.PolynomialHomogenization.Root.Certificate.PrintOrderRateBearingEvent
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.CenteredIndicatorExtensionBasic
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.EpsilonAffineDoubledResponseRealization
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.FixedParentObservationResponse
@@ -27,7 +25,6 @@ import HCPoly.Provider.PolynomialHomogenization.Root.RowSupplyAssembly.PrintDire
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.DatumRowAggregation
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.L2RowAlgebra
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.ResponseAttainabilityPricing
-import HCPoly.Provider.PolynomialHomogenization.Root.Localization.LocalizationSupply
 import HCPoly.Provider.Recurrence.AdaptedCellDomain
 import HCPoly.Provider.Regularity.AffineTransfer
 import HCPoly.Provider.Regularity.CorrectorGlobalEquation

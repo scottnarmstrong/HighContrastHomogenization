@@ -24,3 +24,14 @@ def HCPoly.Frozen.IsUnitRangeLaw {d : ℕ}
     Homogenization.HighContrast.UnitSeparated U V →
       ProbabilityTheory.Indep (Homogenization.HighContrast.coeffSigma d U)
         (Homogenization.HighContrast.coeffSigma d V) P
+
+/-! ## The assumption under the project namespace
+
+`Homogenization.HighContrast.IsUnitRangeLaw` is `HCPoly.Frozen.IsUnitRangeLaw` itself, not a second
+reading of it: the proofs of the paper's propositions are written in the project
+namespace and use the frozen declaration through this name. -/
+namespace Homogenization.HighContrast
+
+export HCPoly.Frozen (IsUnitRangeLaw)
+
+end Homogenization.HighContrast

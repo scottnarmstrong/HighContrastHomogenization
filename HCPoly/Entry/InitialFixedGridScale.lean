@@ -14,13 +14,13 @@ chooses `Cgeom` before `γ` and `S`, `Csrc` after `S` and before `ηinit`, and `
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory
 
 noncomputable section
 
-/-- **Provider for `p.initial.fixed.grid.scale`.**  Repeats the statement of
+/-- **Proof of `p.initial.fixed.grid.scale`.**  Repeats the statement of
 `Homogenization.HighContrast.initial_fixed_grid_scale` (`HCPoly/Entry/Statements/InitialFixedGridScale.lean`,
 `p.initial.fixed.grid.scale`) byte for byte up to the
 underscore-prefixed unused binders `_hγ`, `_hS`: same binder kinds and order, `Cgeom` before
@@ -96,4 +96,4 @@ theorem initial_fixed_grid_scale
 
 end
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.PortableHistory.Geometric
-import HCPoly.Provider.Transport.KernelExponents
 
 /-!
 # The discrete convolutions of the grid transport
@@ -118,21 +117,6 @@ theorem sum_geom_below_le {c : ℝ} (hc : 0 < c) (hi : ℤ) (s : Finset ℤ)
   ring
 
 /-! ## The bridge error -/
-
-/-- **The bridge error of the centered history.**  Target-cell counting weights
-the bridge error by the `Q`-th power target coefficient, whose exponent
-`Qρ_max - d = Qg + a` is positive; the total is therefore a bare geometric
-series and acquires no buffer factor. -/
-theorem bridge_error_centered {d g Q rhoMax a etaX : ℝ} (hg : 0 ≤ g)
-    (hQ : 0 ≤ Q) (ha : 0 < a) (hadef : a = Q * (rhoMax - g) - d)
-    (heta : 0 ≤ etaX) (jStar n : ℤ) :
-    ∑ j ∈ Finset.Icc jStar n,
-        (3 : ℝ) ^ (-(Q * rhoMax - d) * ((n : ℝ) - (j : ℝ))) * etaX ≤
-      1 / (1 - (3 : ℝ) ^ (-(Q * rhoMax - d))) * etaX := by
-  have hpos : 0 < Q * rhoMax - d := power_exponent_pos hg hQ ha hadef
-  rw [← Finset.sum_mul]
-  refine mul_le_mul_of_nonneg_right ?_ heta
-  exact sum_geom_below_le hpos n _ fun j hj => (Finset.mem_Icc.mp hj).2
 
 /-- **The bridge error of the nonlinear history.**  Here the weight is the
 nonlinear row weight itself, and positivity of the derived exponent already

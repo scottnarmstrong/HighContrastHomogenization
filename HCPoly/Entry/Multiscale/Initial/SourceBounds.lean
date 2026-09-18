@@ -1,4 +1,5 @@
 import HCPoly.Entry.Multiscale.Initial.CanonicalMetric
+import HCPoly.Geometry.ReferenceAspectRatio
 
 /-!
 # Initialization: source and normalization bounds on the unrestricted window
@@ -75,11 +76,11 @@ theorem initial_normalization_bounds_all (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
             BlockMatLoewnerLE (adaptedMean P (1 : Mat d) m) (adaptedMean P (1 : Mat d) j) ∧
               BlockMatLoewnerLE (adaptedMean P (1 : Mat d) j)
                 (blockScale (24 * aspectRatio E) (adaptedMean P (1 : Mat d) m)) ∧
-              BlockMatLoewnerLE (Book.Ch02.blockIdentity d) (normalizedMean P (1 : Mat d) j m) ∧
-                BlockMatLoewnerLE (normalizedMean P (1 : Mat d) j m)
+              BlockMatLoewnerLE (Book.Ch02.blockIdentity d) (relMean P (1 : Mat d) j m) ∧
+                BlockMatLoewnerLE (relMean P (1 : Mat d) j m)
                   (blockScale (24 * aspectRatio E) (Book.Ch02.blockIdentity d)) ∧
-              0 ≤ logDetLoss P (1 : Mat d) j m ∧
-                logDetLoss P (1 : Mat d) j m ≤ 2 * (d : ℝ) * Real.log (24 * aspectRatio E) := by
+              0 ≤ detIncrement P (1 : Mat d) j m ∧
+                detIncrement P (1 : Mat d) j m ≤ 2 * (d : ℝ) * Real.log (24 * aspectRatio E) := by
   have : NeZero d := ⟨by omega⟩
   obtain ⟨Csrc, hCsrc_pos, hsource⟩ :=
     Homogenization.HighContrast.Multiscale.initial_source_bounds_all d hd γ hγ
@@ -108,14 +109,15 @@ theorem initial_normalization_bounds_all (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     cases A
     simp [Homogenization.HighContrast.blockScale, smul_smul]
   have hone_le : (1 : ℝ) ≤ Homogenization.HighContrast.aspectRatio E :=
-    Homogenization.HighContrast.Annealed.one_le_aspectRatio hdag
+    Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hEle := Homogenization.HighContrast.Annealed.refBlock_le_six_aspectRatio_smul_swapConj hdag
   have h2E := hscale_mono (2 : ℝ) (by norm_num) hEle
   rw [hscale_comp] at h2E
   have heq1 : (2 : ℝ) * (6 * Homogenization.HighContrast.aspectRatio E) =
       24 * Homogenization.HighContrast.aspectRatio E * (1 / 2) := by ring
   rw [heq1] at h2E
-  have hRm := hscale_mono (24 * Homogenization.HighContrast.aspectRatio E) (by nlinarith) hmb.1
+  have hRm := hscale_mono (24 * Homogenization.HighContrast.aspectRatio E)
+    (mul_nonneg (by norm_num) (zero_le_one.trans hone_le)) hmb.1
   rw [hscale_comp] at hRm
   have hcomp : Homogenization.BlockMatLoewnerLE
       (Homogenization.HighContrast.adaptedMean P (1 : Homogenization.Mat d) j)
@@ -143,7 +145,8 @@ theorem initial_normalization_bounds_all (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     have h := Homogenization.HighContrast.Annealed.adaptedMean_posDef d hd P γ E Ψ K Src hstat hdag
       jStar hjStar (1 : Homogenization.Mat d) (Homogenization.HighContrast.Geometry.one_posDef d) m
     rwa [Homogenization.HighContrast.Geometry.explicitRoundedGrid_one] at h
-  have hc24 : 0 < 24 * Homogenization.HighContrast.aspectRatio E := by nlinarith
+  have hc24 : 0 < 24 * Homogenization.HighContrast.aspectRatio E :=
+    mul_pos (by norm_num) (zero_lt_one.trans_le hone_le)
   have hfin := Homogenization.HighContrast.Multiscale.normalizedBlock_le_scale_and_logDet_le
     (Homogenization.HighContrast.adaptedMean P (1 : Homogenization.Mat d) j)
     (Homogenization.HighContrast.adaptedMean P (1 : Homogenization.Mat d) m)
@@ -242,8 +245,8 @@ theorem normalizedFluctuationSelf_one_sandwich (d : ℕ) (hd : 2 ≤ d) (γ : �
       (1 : Mat d) (Geometry.one_posDef d) j
     rwa [Geometry.explicitRoundedGrid_one] at h
   have hEPosDef : (toFullBlockMat E).PosDef :=
-    Annealed.fullBlock_posDef_of_pos hdag.refBlock_isSymm hdag.refBlock_posDef
-  have hPi1 : (1 : ℝ) ≤ aspectRatio E := Annealed.one_le_aspectRatio hdag
+    posDef_toFullBlockMat hdag.refBlock_isSymm hdag.refBlock_posDef
+  have hPi1 : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hREPosDef : (toFullBlockMat RE).PosDef := Analysis.swapConj_posDef hEPosDef
   have hE6RE_block : BlockMatLoewnerLE E (blockScale (6 * aspectRatio E) RE) :=
     Annealed.refBlock_le_six_aspectRatio_smul_swapConj hdag
@@ -262,7 +265,7 @@ theorem normalizedFluctuationSelf_one_sandwich (d : ℕ) (hd : 2 ≤ d) (γ : �
       j 0 a
     rwa [hcell] at h0
   have hCbFullPosDef : (toFullBlockMat Cb).PosDef :=
-    Annealed.fullBlock_posDef_of_pos hCbSym hCbPosDef
+    posDef_toFullBlockMat hCbSym hCbPosDef
   have hIdentity : toFullBlockMat (Book.Ch02.blockIdentity d) = (1 : FullBlockMat d) := by
     ext (i|i) (j|j) <;>
       simp [Book.Ch02.blockIdentity, Book.Ch02.blockDiag, toFullBlockMat, Matrix.one_apply]
@@ -324,7 +327,7 @@ theorem normalizedFluctuationSelf_one_sandwich (d : ℕ) (hd : 2 ≤ d) (γ : �
   have hSPosDef : S.PosDef := Multiscale.matSqrt_inv_posDef_full hAjPosDef
   have hSHerm : S.IsHermitian := hSPosDef.isHermitian
   have hSelfId : S * toFullBlockMat Aj * S = 1 :=
-    Multiscale.matSqrt_inv_mul_self_mul_matSqrt_inv_full hAjPosDef
+    matSqrt_inv_conj hAjPosDef
   have hCongr : ∀ {A B : FullBlockMat d}, A ≤ B → S * A * S ≤ S * B * S := by
     intro A B h
     apply Matrix.le_iff.mpr
@@ -400,10 +403,10 @@ theorem normalizedFluctuationSelf_one_moment_le (d : ℕ) (hd : 2 ≤ d) (γ : �
   obtain ⟨X, hXmeas, hXnonneg, hXint, hXmom, hXenv⟩ :=
     hEnv P E Ψ K Src hP hstat hunit hdag jStar hjStar hCthresh2 j hj
   set Q := bigQ d γ with hQdef
-  have hQ2 : 2 ≤ Q := bigQ_two_le d hd γ hγ
+  have hQ2 : 2 ≤ Q := bigQ_two_le d γ hγ
   have hQ1 : 1 ≤ Q := by omega
   have hQreal1 : (1 : ℝ) ≤ (Q : ℝ) := by exact_mod_cast hQ1
-  have hPi1 : (1 : ℝ) ≤ aspectRatio E := Annealed.one_le_aspectRatio hdag
+  have hPi1 : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hPi0 : (0 : ℝ) ≤ aspectRatio E := zero_le_one.trans hPi1
   have hIdentity : toFullBlockMat (Book.Ch02.blockIdentity d) = (1 : FullBlockMat d) := by
     ext (i|i) (k|k) <;>
@@ -429,7 +432,7 @@ theorem normalizedFluctuationSelf_one_moment_le (d : ℕ) (hd : 2 ≤ d) (γ : �
         (c2 - c1) • (1 : FullBlockMat d) := by
       rw [← sub_smul]
     rw [heq]
-    exact Matrix.PosSemidef.one.smul (by linarith)
+    exact Matrix.PosSemidef.one.smul (sub_nonneg.mpr hc)
   have hSymAE : ∀ᵐ a ∂P, IsSymmetricBlockMat (normalizedFluctuationSelf P (1 : Mat d) j a) := by
     have hmem := Annealed.memLqSchatten_normalizedFluctuation d hd P γ E Ψ K Src hstat hdag
       jStar hjStar (1 : Mat d) (Geometry.one_posDef d) j j 0 (Q : ℝ) hQreal1
@@ -441,7 +444,7 @@ theorem normalizedFluctuationSelf_one_moment_le (d : ℕ) (hd : 2 ≤ d) (γ : �
     obtain ⟨hlo, hhi⟩ := hSand P E Ψ K Src hP hstat hunit hdag jStar hjStar hCthresh1 j hj
       a (X a) (hXnonneg a) ha
     have ht0 : 0 ≤ 12 * aspectRatio E * X a :=
-      mul_nonneg (by linarith [hPi0]) (hXnonneg a)
+      mul_nonneg (by linarith only [hPi0]) (hXnonneg a)
     have hhi' : BlockMatLoewnerLE (normalizedFluctuationSelf P (1 : Mat d) j a)
         (blockScale (max 1 (12 * aspectRatio E * X a)) (Book.Ch02.blockIdentity d)) :=
       hhi.trans (hScaleIMono (le_max_right 1 (12 * aspectRatio E * X a)))
@@ -452,9 +455,9 @@ theorem normalizedFluctuationSelf_one_moment_le (d : ℕ) (hd : 2 ≤ d) (γ : �
       rcases le_or_gt (12 * aspectRatio E * X a) 1 with h1 | h1
       · rw [max_eq_left h1, one_pow]
         have hpow0 : (0 : ℝ) ≤ (12 * aspectRatio E * X a) ^ Q := pow_nonneg ht0 Q
-        linarith
+        linarith only [hpow0]
       · rw [max_eq_right h1.le]
-        linarith
+        linarith only []
     calc absSchattenNorm (Q : ℝ) (normalizedFluctuationSelf P (1 : Mat d) j a) ^ Q
         ≤ 2 * (d : ℝ) * (max 1 (12 * aspectRatio E * X a)) ^ Q := hsandwich
       _ ≤ 2 * (d : ℝ) * (1 + (12 * aspectRatio E * X a) ^ Q) :=
@@ -486,8 +489,8 @@ theorem normalizedFluctuationSelf_one_moment_le (d : ℕ) (hd : 2 ≤ d) (γ : �
   have h12Pi0 : (0 : ℝ) ≤ 12 * aspectRatio E := by positivity
   have hbound : (1 : ℝ) + (12 * aspectRatio E) ^ Q * (∫ a, (X a) ^ Q ∂P) ≤
       1 + (12 * aspectRatio E) ^ Q * (2 : ℝ) ^ Q := by
-    have := mul_le_mul_of_nonneg_left hXmom (pow_nonneg h12Pi0 Q)
-    linarith
+    have hmul := mul_le_mul_of_nonneg_left hXmom (pow_nonneg h12Pi0 Q)
+    linarith only [hmul]
   have hRHSchain :
       (∫ a, 2 * (d : ℝ) * (1 + (12 * aspectRatio E * X a) ^ Q) ∂P) ≤
         2 * (d : ℝ) * (1 + (24 * aspectRatio E) ^ Q) := by
@@ -519,7 +522,7 @@ theorem fluctuationHistory_one_jStar_le_moment (d : ℕ) (hd : 2 ≤ d) (γ : �
   have : IsProbabilityMeasure P := hP
   let : NeZero d := ⟨by omega⟩
   set Q := bigQ d γ with hQdef
-  have hQ2 : 2 ≤ Q := bigQ_two_le d hd γ hγ
+  have hQ2 : 2 ≤ Q := bigQ_two_le d γ hγ
   have hQ1 : 1 ≤ Q := by omega
   have hQreal1 : (1 : ℝ) ≤ (Q : ℝ) := by exact_mod_cast hQ1
   have hcellEq : HighContrast.adaptedCell (1 : Mat d) (jStar : ℤ) =
@@ -530,7 +533,7 @@ theorem fluctuationHistory_one_jStar_le_moment (d : ℕ) (hd : 2 ≤ d) (γ : �
       z ∈ adaptedLatticeAtScale (1 : Mat d) (jStar : ℤ) ∩ HighContrast.adaptedCell (1 : Mat d) (jStar : ℤ) →
       z = 0 := by
     rintro z ⟨⟨w, hw⟩, hzmem⟩
-    rw [hcellEq, Geometry.mem_centeredCube_iff] at hzmem
+    rw [hcellEq, Recurrence.mem_centeredCube_iff] at hzmem
     have hw0 : w = 0 := by
       funext i
       show w i = (0 : ℤ)
@@ -548,10 +551,10 @@ theorem fluctuationHistory_one_jStar_le_moment (d : ℕ) (hd : 2 ≤ d) (γ : �
       have hlt1 : (-(1 / 2 : ℝ)) < (w i : ℝ) := lt_of_mul_lt_mul_left h1' hpow.le
       have hlt2 : (w i : ℝ) < (1 / 2 : ℝ) := lt_of_mul_lt_mul_left h2' hpow.le
       have hlt1' : (-1 : ℤ) < 2 * w i := by
-        have hcast : ((-1 : ℤ) : ℝ) < ((2 * w i : ℤ) : ℝ) := by push_cast; linarith
+        have hcast : ((-1 : ℤ) : ℝ) < ((2 * w i : ℤ) : ℝ) := by push_cast; linarith only [hlt1]
         exact_mod_cast hcast
       have hlt2' : 2 * w i < (1 : ℤ) := by
-        have hcast : ((2 * w i : ℤ) : ℝ) < ((1 : ℤ) : ℝ) := by push_cast; linarith
+        have hcast : ((2 * w i : ℤ) : ℝ) < ((1 : ℤ) : ℝ) := by push_cast; linarith only [hlt2]
         exact_mod_cast hcast
       omega
     rw [← hw, hw0]

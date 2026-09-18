@@ -29,10 +29,10 @@ noncomputable section
 
 /-- The parent–child recurrence, `p.fixed.geometry.parent.child.recurrence`
 (`p.fixed.geometry.parent.child.recurrence`), repeated here with the exact type of
-`Homogenization.HighContrast.Provider.fixed_geometry_parent_child_recurrence`.
+`Homogenization.HighContrast.Entry.fixed_geometry_parent_child_recurrence`.
 
 This bridge is discharged by one exact application of the
-`Provider.fixed_geometry_parent_child_recurrence`; its elaborated type is identical to that
+`Entry.fixed_geometry_parent_child_recurrence`; its elaborated type is identical to that
 of the theorem it applies. -/
 theorem parent_child_recurrence_input (d : ℕ) (hd : 2 ≤ d)
     (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
@@ -50,16 +50,16 @@ theorem parent_child_recurrence_input (d : ℕ) (hd : 2 ≤ d)
             (normalizedFluctuationSelf P (Geometry.explicitRoundedGrid jStar m) (j + h)) ≤
           (N : ℝ) * (3 : ℝ) ^ ((d : ℝ) / 2) * (1 + (2 * (d : ℝ)) ^ ((N : ℝ))⁻¹) *
                 (3 : ℝ) ^ (-((d : ℝ) / 2) * (h : ℝ)) *
-                Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
+                Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
               lqSchattenNorm P (N : ℝ)
                 (normalizedFluctuationSelf P (Geometry.explicitRoundedGrid jStar m) j) +
             2 * (1 + (d : ℝ) ^ (1 - ((N : ℝ))⁻¹)) *
                 Real.exp
                   ((1 - ((N : ℝ))⁻¹) *
-                    logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
-                (Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) - 1) ^
+                    detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
+                (Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) - 1) ^
                   ((N : ℝ))⁻¹ := by
-  exact Homogenization.HighContrast.Provider.fixed_geometry_parent_child_recurrence d hd γ hγ
+  exact Homogenization.HighContrast.Entry.fixed_geometry_parent_child_recurrence d hd γ hγ
 
 /-- The bridge between the recurrence's mixed norm `‖·‖_{L^Q(S_Q)}` and the profile's printed
 moment `E[|V^q_j|_{S_Q}^Q]`: the `Q`-th power of the first is the second.  The real Schatten
@@ -84,8 +84,8 @@ theorem lqSchattenNorm_pow_eq_integral (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   intro P E Ψ K S hprob hstat _hunit hdag jStar hjStar metric hmetric j
   let : IsProbabilityMeasure P := hprob
   have hN : (1 : ℝ) ≤ (bigQ d γ : ℝ) := by
-    exact_mod_cast (le_trans (by norm_num : (1 : ℕ) ≤ 2) (bigQ_two_le d hd γ hγ))
-  have hmem : MemLqSchatten P (bigQ d γ : ℝ)
+    exact_mod_cast (le_trans (by norm_num : (1 : ℕ) ≤ 2) (bigQ_two_le d γ hγ))
+  have hmem : SchattenMemLp P (bigQ d γ : ℝ)
       (normalizedFluctuationSelf P (Geometry.explicitRoundedGrid jStar metric) j) := by
     simpa [normalizedFluctuationSelf] using!
       Homogenization.HighContrast.Annealed.memLqSchatten_normalizedFluctuation d hd P γ E Ψ K S hstat hdag
@@ -98,7 +98,7 @@ theorem lqSchattenNorm_pow_eq_integral (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     exact Real.rpow_nonneg
       (Analysis.absSchattenNorm_nonneg ((Analysis.toFullBlockMat_isHermitian_iff _).2 ha) hN)
       (bigQ d γ : ℝ)
-  · exact ne_of_gt (lt_of_lt_of_le (by norm_num : 0 < 2) (bigQ_two_le d hd γ hγ))
+  · exact ne_of_gt (lt_of_lt_of_le (by norm_num : 0 < 2) (bigQ_two_le d γ hγ))
 
 /-- `e.fixed.geometry.parent.child.powered` (`p.fixed.geometry.one.grid.propagation`): apply the recurrence with
 `N = Q`, raise to the `Q`-th power using `(a+b)^Q ≤ 2^{Q-1}(a^Q + b^Q)` and
@@ -121,24 +121,24 @@ theorem parent_child_powered (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
                   (2 : ℝ) ^ (bigQ d γ - 1) * ((3 : ℝ) ^ d * (bigQ d γ : ℝ)) ^ bigQ d γ *
                         (3 : ℝ) ^ (-((bigQ d γ : ℝ) * (d : ℝ) / 2) * (h : ℝ)) *
                         Real.exp ((bigQ d γ : ℝ) *
-                          logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j (j + h)) *
+                          detIncrement P (Geometry.explicitRoundedGrid jStar metric) j (j + h)) *
                       (∫ a, absSchattenNorm (bigQ d γ : ℝ)
                         (normalizedFluctuationSelf P
                           (Geometry.explicitRoundedGrid jStar metric) j a) ^ bigQ d γ ∂P) +
                     (2 : ℝ) ^ (2 * bigQ d γ - 1) *
                         (1 + (d : ℝ) ^ (1 - ((bigQ d γ : ℝ))⁻¹)) ^ bigQ d γ *
                       (Real.exp ((bigQ d γ : ℝ) *
-                        logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j (j + h)) - 1) := by
+                        detIncrement P (Geometry.explicitRoundedGrid jStar metric) j (j + h)) - 1) := by
   obtain ⟨Csrc, hCsrc, hrec⟩ := parent_child_recurrence_input d hd γ hγ
   refine ⟨Csrc, hCsrc, ?_⟩
   intro P E Ψ K S hP hstat hunit hdag jStar hjStar hsrc metric hmetric j h hj hh
   let := hP
-  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d hd γ hγ
+  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d γ hγ
   have hQ1 : 1 ≤ bigQ d γ := le_trans (by norm_num) hQ2
   have hQne : bigQ d γ ≠ 0 := bigQ_ne_zero d hd γ hγ
   have hrecQ := hrec P E Ψ K S hP hstat hunit hdag (bigQ d γ) hQ2 (bigQ_even d γ)
     jStar hjStar hsrc metric hmetric j h hj hh
-  have hΔ : 0 ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j (j + h) :=
+  have hΔ : 0 ≤ detIncrement P (Geometry.explicitRoundedGrid jStar metric) j (j + h) :=
     Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric
       j (j + h) hj (by omega)
   have hVj0 : 0 ≤ ∫ a, absSchattenNorm (bigQ d γ : ℝ)
@@ -160,7 +160,7 @@ theorem parent_child_powered (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
     intro a
     simp only [Pi.zero_apply, Real.rpow_natCast]
     exact (bigQ_even d γ).pow_nonneg _
-  set Δ := logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j (j + h) with hΔdef
+  set Δ := detIncrement P (Geometry.explicitRoundedGrid jStar metric) j (j + h) with hΔdef
   set a0 : ℝ := (bigQ d γ : ℝ) * (3 : ℝ) ^ ((d : ℝ) / 2) *
       (1 + (2 * (d : ℝ)) ^ ((bigQ d γ : ℝ))⁻¹) * (3 : ℝ) ^ (-((d : ℝ) / 2) * (h : ℝ)) *
       Real.exp Δ *
@@ -174,7 +174,7 @@ theorem parent_child_powered (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
     have h2 : (0:ℝ) ≤ (3 : ℝ) ^ ((d : ℝ) / 2) := Real.rpow_nonneg (by norm_num) _
     have h3 : (0:ℝ) ≤ 1 + (2 * (d : ℝ)) ^ ((bigQ d γ : ℝ))⁻¹ := by
       have := Real.rpow_nonneg (show (0:ℝ) ≤ 2 * (d:ℝ) by positivity) ((bigQ d γ : ℝ))⁻¹
-      linarith
+      linarith only [this]
     have h4 : (0:ℝ) ≤ (3 : ℝ) ^ (-((d : ℝ) / 2) * (h : ℝ)) := Real.rpow_nonneg (by norm_num) _
     have h5 : (0:ℝ) ≤ Real.exp Δ := (Real.exp_pos _).le
     exact mul_nonneg (mul_nonneg (mul_nonneg (mul_nonneg (mul_nonneg h1 h2) h3) h4) h5) hnormJ0
@@ -182,10 +182,10 @@ theorem parent_child_powered (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
     rw [hb0def]
     have h1 : (0:ℝ) ≤ 1 + (d : ℝ) ^ (1 - ((bigQ d γ : ℝ))⁻¹) := by
       have := Real.rpow_nonneg (show (0:ℝ) ≤ (d:ℝ) by positivity) (1 - ((bigQ d γ : ℝ))⁻¹)
-      linarith
+      linarith only [this]
     have h2 : (0:ℝ) ≤ Real.exp ((1 - ((bigQ d γ : ℝ))⁻¹) * Δ) := (Real.exp_pos _).le
     have h3 : (0:ℝ) ≤ (Real.exp Δ - 1) ^ ((bigQ d γ : ℝ))⁻¹ :=
-      Real.rpow_nonneg (by linarith [Real.one_le_exp hΔ]) _
+      Real.rpow_nonneg (by linarith only [Real.one_le_exp hΔ]) _
     exact mul_nonneg (mul_nonneg (mul_nonneg (by norm_num) h1) h2) h3
   have hpow0 : lqSchattenNorm P (bigQ d γ : ℝ)
       (normalizedFluctuationSelf P (Geometry.explicitRoundedGrid jStar metric) (j + h)) ^ bigQ d γ ≤
@@ -229,7 +229,7 @@ theorem parent_child_powered (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
     congr 1
     rw [← mul_assoc, mul_sub, mul_one, mul_inv_cancel₀ hQR0]
   have e4 : ((Real.exp Δ - 1) ^ ((bigQ d γ : ℝ))⁻¹) ^ bigQ d γ = Real.exp Δ - 1 :=
-    Real.rpow_inv_natCast_pow (by linarith [Real.one_le_exp hΔ]) hQne
+    Real.rpow_inv_natCast_pow (by linarith only [Real.one_le_exp hΔ]) hQne
   -- hA : bound on a0 ^ Q, built via explicit `mul_pow` instantiations (never `rw [mul_pow]`,
   -- which is ambiguous once both sides contain products raised to the power `bigQ d γ`).
   have hbase_nn : (0:ℝ) ≤ (bigQ d γ : ℝ) * (3 : ℝ) ^ ((d : ℝ) / 2) *
@@ -238,7 +238,7 @@ theorem parent_child_powered (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
     have h2 : (0:ℝ) ≤ (3 : ℝ) ^ ((d : ℝ) / 2) := Real.rpow_nonneg (by norm_num) _
     have h3 : (0:ℝ) ≤ 1 + (2 * (d : ℝ)) ^ ((bigQ d γ : ℝ))⁻¹ := by
       have := Real.rpow_nonneg (show (0:ℝ) ≤ 2 * (d:ℝ) by positivity) ((bigQ d γ : ℝ))⁻¹
-      linarith
+      linarith only [this]
     exact mul_nonneg (mul_nonneg h1 h2) h3
   have hbase_le : ((bigQ d γ : ℝ) * (3 : ℝ) ^ ((d : ℝ) / 2) *
       (1 + (2 * (d : ℝ)) ^ ((bigQ d γ : ℝ))⁻¹)) ^ bigQ d γ ≤
@@ -317,7 +317,7 @@ theorem parent_child_powered (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
     apply mul_nonneg (by positivity)
     apply pow_nonneg
     have := Real.rpow_nonneg (show (0:ℝ) ≤ (d:ℝ) by positivity) (1 - ((bigQ d γ : ℝ))⁻¹)
-    linarith
+    linarith only [this]
   have hB : b0 ^ bigQ d γ ≤
       (2:ℝ) ^ bigQ d γ * (1 + (d : ℝ) ^ (1 - ((bigQ d γ : ℝ))⁻¹)) ^ bigQ d γ *
         (Real.exp ((bigQ d γ : ℝ) * Δ) - 1) := by

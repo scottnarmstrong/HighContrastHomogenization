@@ -9,11 +9,14 @@ import Mathlib.MeasureTheory.Integral.Bochner.Set
 /-!
 # Finite CG response defect
 
-Self-contained finite-family response subadditivity with an uncovered-volume defect.
-The set-integral splitting identity and batch 1's `volume_piece_ne_top_of_subset`
-argument are repeated here as private support because the current pre-A2 CG policy
-forbids importing any `HCPoly.Entry.*` module from this CG proof file.  The proof uses only
-CG/Mathlib declarations.
+For a finite pairwise disjoint family of open pieces `U i` of an open set `W` of finite volume,
+the response of a locally elliptic coefficient field over `W` is at most the volume-weighted sum
+of the responses over the pieces, plus the relative volume of the uncovered remainder
+`W \ ⋃ i, U i` times the plain pointwise upper bound
+`lam⁻¹ * (Lam ^ 2 * vecNormSq p + vecNormSq q)` on the response integrand. This finite
+subadditivity of the response over a partition, with its uncovered-volume defect, is the
+partition input to the coarse block comparisons of `p.successful.short.bridge` and to the
+parent--child recurrence `p.fixed.geometry.parent.child.recurrence`.
 -/
 
 namespace Homogenization.HighContrast.CG

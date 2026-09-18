@@ -8,13 +8,16 @@ quadratics on the open parent and its open cells. A single locally elliptic
 representative serves the entire partition. The null remainder is never
 an argument of `coarseBlock`.
 
-Split out of `BridgeComparisons` (which keeps the shared partition-comparison
-machinery) to stay under the 800-line guard; no public declaration and no
-declaration reachable from another file changed. Two of `BridgeComparisons`'s
-file-private helpers (`bridge_quadratic_smul`, `bridge_quadratic_add`) are
-needed again here; since a `private` declaration is not visible across files,
-this file restates them locally as `bridge_enlarge_quadratic_smul` and
-`bridge_enlarge_quadratic_add` rather than widening their original visibility.
+The companion module `BridgeComparisons` holds the shared partition-comparison
+machinery. Here the two comparisons themselves are proved: the forward
+comparison bounds the Loewner difference of the new and old adapted means by the
+old-grid quadratic sum together with a locally elliptic term, and the reverse
+comparison is the matching bound in the opposite direction, with the packed new
+cells at `n + L` and the old boundary rows running up to that cap. The cap-row
+mass bound gives the summability of the boundary row masses on which the
+countable subadditivity argument rests. The quadratic identities
+`bridge_enlarge_quadratic_smul` and `bridge_enlarge_quadratic_add` record the
+scaling and additivity of the response quadratic.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedCellCenter adaptedMean aspectRatio blockScale
@@ -168,7 +171,7 @@ theorem bridge_upper_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                       (adaptedMean P (explicitRoundedGrid jStar m) (n + 2 * (L : ℤ)))))) := by
   let : NeZero d := ⟨by omega⟩
   obtain ⟨Cs, Ct, hCs, hCt, hcomp⟩ := bridge_partition_comparison d hd γ hγ
-  obtain ⟨Cg, _hCg, hwhitney⟩ := Provider.two_grid_whitney d hd
+  obtain ⟨Cg, _hCg, hwhitney⟩ := Entry.two_grid_whitney d hd
   obtain ⟨Cw, hCw, hwhitney⟩ := hwhitney K₀ hK₀
   let C := Cw * (Ct + 1)
   have hC : 0 < C := mul_pos hCw (by positivity)
@@ -184,7 +187,7 @@ theorem bridge_upper_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hq : IsUnit q := isUnit_roundedGrid hj hm
   have hqPlus : IsUnit qPlus := isUnit_roundedGrid hj hmPlus
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hsrcs := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left Cs (Cg γ)) hlog)).trans hsrc
   have hsrcg := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_right Cs (Cg γ)) hlog)).trans hsrc
   have hzero : (0 : Vec d) ∈ adaptedLatticeAtScale qPlus (n + (L : ℤ)) := by
@@ -197,7 +200,7 @@ theorem bridge_upper_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   obtain ⟨hfin, hsub, hdis, hnull, _hvol, _hcard, _hcount, hmass, hrow⟩ := hg
   have _hcapmass := bridge_whitney_cap_mass_le_one
     (adaptedCellTranslate qPlus (n + (L : ℤ)) 0) q hq (n + (L : ℤ) - (L : ℤ))
-    (volume_adaptedCellTranslate_ne_top _ _ _) hfin hmass
+    (Transport.volume_adaptedCellTranslate_ne_top _ _ _) hfin hmass
   simp only [add_sub_cancel_right, adaptedCellTranslate, zero_add, Set.image_id'] at hfin hsub hdis hnull hrow
   have hforward := hcomp P E Ψ K S hstat hdag jStar hj hsrcs m m mPlus hm hm hmPlus
     n n (n + (L : ℤ)) (n + 2 * (L : ℤ)) hn hn (by omega)
@@ -221,7 +224,7 @@ theorem bridge_upper_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hj m hm _).posSemidef
     jStar n (n + (L : ℤ)) (by omega) Cw Ct C K₀ (aspectRatio E)
     (Real.sqrt (‖m‖ * ‖m⁻¹‖)) (Real.sqrt (‖mPlus‖ * ‖mPlus⁻¹‖)) γ
-    hCw.le hCt.le hC.le hK₀ hCwC hCtC (one_le_aspectRatio hdag |>.trans' (by norm_num))
+    hCw.le hCt.le hC.le hK₀ hCwC hCtC (one_le_aspectRatio_of_coarseEllipticityDagger hdag |>.trans' (by norm_num))
     (Real.sqrt_nonneg _) (Real.sqrt_nonneg _) hγ.1 hb
   simpa only [Int.cast_add, Int.cast_natCast, Int.cast_mul, Int.cast_ofNat,
     sub_add_eq_sub_sub, q, qPlus] using h
@@ -257,7 +260,7 @@ theorem bridge_lower_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                       (adaptedMean P (explicitRoundedGrid jStar m) (n + 2 * (L : ℤ)))))) := by
   let : NeZero d := ⟨by omega⟩
   obtain ⟨Cs, Ct, hCs, hCt, hcomp⟩ := bridge_partition_comparison d hd γ hγ
-  obtain ⟨Cg, _hCg, hwhitney⟩ := Provider.two_grid_whitney d hd
+  obtain ⟨Cg, _hCg, hwhitney⟩ := Entry.two_grid_whitney d hd
   obtain ⟨Cw, hCw, hwhitney⟩ := hwhitney K₀ hK₀
   let C := Cw * (Ct + 1)
   have hC : 0 < C := mul_pos hCw (by positivity)
@@ -285,7 +288,7 @@ theorem bridge_lower_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hq : IsUnit q := isUnit_roundedGrid hj hm
   have hqPlus : IsUnit qPlus := isUnit_roundedGrid hj hmPlus
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hsrcs := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left Cs (Cg γ)) hlog)).trans hsrc
   have hsrcg := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_right Cs (Cg γ)) hlog)).trans hsrc
   have hzero : (0 : Vec d) ∈ adaptedLatticeAtScale q (n + 2 * (L : ℤ)) := by
@@ -392,7 +395,7 @@ theorem bridge_lower_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hj m hm _).posSemidef
     jStar cap (n + 2 * (L : ℤ)) (by omega) Cw Ct C K₀ (aspectRatio E)
     (Real.sqrt (‖m‖ * ‖m⁻¹‖)) (Real.sqrt (‖mPlus‖ * ‖mPlus⁻¹‖)) γ
-    hCw.le hCt.le hC.le hK₀ hCwC hCtC (one_le_aspectRatio hdag |>.trans' (by norm_num))
+    hCw.le hCt.le hC.le hK₀ hCwC hCtC (one_le_aspectRatio_of_coarseEllipticityDagger hdag |>.trans' (by norm_num))
     (Real.sqrt_nonneg _) (Real.sqrt_nonneg _) hγ.1 hb
   simpa only [Int.cast_add, Int.cast_natCast, Int.cast_mul, Int.cast_ofNat,
     sub_add_eq_sub_sub, q, qPlus, cap] using h

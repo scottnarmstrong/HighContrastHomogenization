@@ -392,13 +392,13 @@ theorem scale_separation_arith (C ε L X Pi k n j B : ℝ) (hC : 0 < C) (hε : 0
 
 /-- `p.scale.selection`: the outer `ε₀(d,γ)`, chosen after `C`, `C_tr`, `c₀`, `L₀`
 and the smallness threshold `ε₁`. -/
-theorem eps0_choice (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1)
+theorem exists_eps0 (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1)
     (C Ctr c₀ ε₁ : ℝ) (L₀ : ℕ) (hC : 0 < C) (hCtr : 0 < Ctr) (hc₀ : c₀ ∈ Set.Ioo (0 : ℝ) 1)
     (hε₁ : 0 < ε₁) (hL₀ : 1 ≤ L₀) :
     ∃ ε₀ : ℝ, ε₀ ∈ Set.Ioo (0 : ℝ) 1 ∧ ε₀ ≤ 1 / 4 ∧ ε₀ ≤ (c₀ / ((d : ℝ) + 1)) ^ 2 ∧
       (bigQ d γ : ℝ) * (d : ℝ) * ε₀ ≤ Real.log 2 ∧ C * ε₀ ^ ((1 - γ) / 8) ≤ 1 ∧ ε₀ ≤ ε₁ ∧
       2 * Ctr * ε₀ ≤ (L₀ : ℝ) * Real.log 3 := by
-  have hQpos : 0 < (bigQ d γ : ℝ) := bigQ_real_pos d _hd γ hγ
+  have hQpos : 0 < (bigQ d γ : ℝ) := bigQ_real_pos d γ hγ
   have hdpos : 0 < (d : ℝ) := by
     have h : 0 < d := by omega
     exact_mod_cast h

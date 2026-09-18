@@ -1,12 +1,19 @@
 import HCPoly.Entry.Multiscale.Global.RunStepAny
+import HCPoly.Provider.Recurrence.AdaptedCellMeasurability
 
 /-!
 # The residue of the run assembly
 
-`GlobalRunGapObligation` — everything in `global_run_of_gap` below the two constant
-choices, as one named obligation — and its discharge `global_run_residue`.  The assembly
-of `global_run` from it is in `HCPoly.Entry.Multiscale.Global.RunAssembly`; the two `Selects`
-projections the run needs and the per-step case analysis `run_step_any` are in
+`GlobalRunGapObligation` is everything in the global selection run below the two constant
+choices: for every horizon `H` and scale `σ` it asks for a positive profile constant and a
+positive lower scale budget such that every coefficient law with the dagger ellipticity and
+every admissible `jStar` satisfies the `SelectedOutput` estimate. Its discharge
+`global_run_residue` produces the constant `CS` of `comparison_choice` and the source
+constant `Csrc`, and hands each consumer the source threshold at every constant at most
+`Csrc`. This is the residue of the run that establishes Proposition `p.global.selection`, and
+through that proposition it is part of the assembly of Theorem `t.polynomial.entry`. The
+assembly of `global_run` from it is in `HCPoly.Entry.Multiscale.Global.RunAssembly`; the two
+`Selects` projections the run needs and the per-step case analysis `run_step_any` are in
 `HCPoly.Entry.Multiscale.Global.RunStepAny`.
 -/
 
@@ -170,8 +177,8 @@ private theorem shift_budget (u v e Lg t jS : ℝ) (hLg : 1 < Lg) (he : 0 < e) (
 
 /-- **The run, assembled.** The residue of `global_run_of_gap`: the constants `CS`
 (for `comparison_choice`) and `Csrc` are produced here, because both are maxima over Skolem
-constants of `hS`, `initial_provider_input`, `Provider.fixed_geometry_one_grid_propagation_full`
-and `Provider.successful_short_bridge`, which only this proof can name.
+constants of `hS`, `initial_provider_input`, `Entry.fixed_geometry_one_grid_propagation_full`
+and `Entry.successful_short_bridge`, which only this proof can name.
 
 Route, given `H`, then `σ`, then the law and `jStar`:
 
@@ -203,7 +210,7 @@ theorem global_run_residue (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   have : NeZero d := ⟨by omega⟩
   have hd0 : 0 < d := by omega
   have hdR : (0 : ℝ) < (d : ℝ) := by exact_mod_cast hd0
-  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d hd γ hγ
+  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d γ hγ
   have hh1 : 1 ≤ S.h := by omega
   have hd2R : (2 : ℝ) ≤ (d : ℝ) := by exact_mod_cast hd
   have hQ0 : (0 : ℝ) ≤ (bigQ d γ : ℝ) := Nat.cast_nonneg _
@@ -467,7 +474,7 @@ theorem global_run_residue (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
       Csel * (profile P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ n₀ +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) - 1), True ∧
+          detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) - 1), True ∧
       (n₀ = n₀ + (S.h : ℤ) →
         profile P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar (n₀ + (S.h : ℤ))
             (n₀ + (S.h : ℤ)) +
@@ -483,9 +490,9 @@ theorem global_run_residue (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   clear hsel hdisj0
   have hxnn : 0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ n₀ +
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ :=
-    profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hstat hce jStar hjStar
+    profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hstat hce jStar hjStar
       (1 : Mat d) hone1 n₀ n₀ hjn₀ le_rfl
-  have hDnn0 : 0 ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ)) :=
+  have hDnn0 : 0 ≤ detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ)) :=
     Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hstat hce jStar hjStar (1 : Mat d) hone1
       n₀ (n₀ + (S.h : ℤ)) hjn₀ (by omega)
   have hstart : profile P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀
@@ -494,28 +501,28 @@ theorem global_run_residue (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
       max 1 Csel * (profile P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ n₀ +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) - 1) := by
+          detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) - 1) := by
     have hexp : (1 : ℝ) ≤ Real.exp ((bigQ d γ : ℝ) *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) :=
+        detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) :=
       Real.one_le_exp (mul_nonneg hQ0 hDnn0)
     have hbr : 0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ n₀ +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) - 1 := by
+          detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) - 1 := by
       linarith only [hexp, hxnn]
     exact le_trans hstartS (mul_le_mul_of_nonneg_right (le_max_right 1 Csel) hbr)
   -- the determinant input of `run_initial`
   have hApos : Book.Ch02.BlockPosDef (adaptedMean P (1 : Mat d) n₀) := by
-    have hg := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hstat hunit hce jStar hjStar
+    have hg := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hstat hce jStar hjStar
       (1 : Mat d) hone1 n₀
     rwa [Geometry.explicitRoundedGrid_one] at hg
-  have hdetB : logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ)) ≤
+  have hdetB : detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ)) ≤
       Cdet * Real.log (2 + aspectRatio E) := by
     have h1 : blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀) ≤
         (d : ℝ) * Real.log (24 * aspectRatio E) := by
       rw [Geometry.explicitRoundedGrid_one]
       exact blockLogDet_le_of_initial_sandwich E (adaptedMean P (1 : Mat d) n₀)
-        hce.refBlock_isSymm hce.refBlock_posDef (adaptedMean_isSymmetric P _ _) hApos hAR0
+        hce.refBlock_isSymm hce.refBlock_posDef (Recurrence.isSymmetricBlockMat_adaptedMean P _ _) hApos hAR0
         (refBlock_le_six_aspect E hce.refBlock_isSymm hce.refBlock_posDef) hsand₂
     have h2 : 0 ≤ blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d))
         (n₀ + (S.h : ℤ))) :=
@@ -528,7 +535,7 @@ theorem global_run_residue (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
     have h5 : (d : ℝ) * Real.log (24 * aspectRatio E) ≤ (d : ℝ) * (48 * x) :=
       mul_le_mul_of_nonneg_left h3 hdR.le
     have h6 : (d : ℝ) * (48 * x) = 48 * (d : ℝ) * x := by ring
-    simp only [logDetLoss]
+    simp only [detIncrement]
     rw [h4]
     linarith only [h1, h2, h5, h6]
   have harithB := initial_harith (bigQ d γ : ℝ) Cdet (a * Cgeom) Ctop hQ0 hCdet0

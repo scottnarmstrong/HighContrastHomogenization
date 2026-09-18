@@ -3,9 +3,8 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Transport.CellUpperMean
+import HCPoly.Provider.Transport.NearIsometry
 import HCPoly.Provider.Transport.FillingExhaustion
-import HCPoly.Provider.Transport.AncestorCounting
 import HCPoly.Provider.Transport.BridgeAlgebra
 
 /-!

@@ -49,3 +49,14 @@ structure HCPoly.Frozen.CoarseEllipticityDagger {d : ℕ}
           (Homogenization.HighContrast.standardCell d k w) a)
         (Homogenization.HighContrast.blockScale
           ((3 : ℝ) ^ (g * ((m : ℝ) - (k : ℝ)))) E)
+
+/-! ## The assumption under the project namespace
+
+`Homogenization.HighContrast.CoarseEllipticityDagger` is `HCPoly.Frozen.CoarseEllipticityDagger` itself, not a second
+reading of it: the proofs of the paper's propositions are written in the project
+namespace and use the frozen declaration through this name. -/
+namespace Homogenization.HighContrast
+
+export HCPoly.Frozen (CoarseEllipticityDagger)
+
+end Homogenization.HighContrast

@@ -1,4 +1,4 @@
-import HCPoly.Entry.Multiscale.OneGrid.LossAlgebra
+import HCPoly.Entry.Multiscale.OneGrid.ExponentAndLossArithmetic
 
 /-!
 # The trace inequality, the mean penalty and drift positivity
@@ -66,11 +66,11 @@ theorem meanPenalty_normalizedMean_compose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
         ∀ (metric : Mat d), metric.PosDef →
           ∀ j n m : ℤ, (jStar : ℤ) ≤ j → j ≤ n → n ≤ m →
             1 + meanPenalty (bigQ d γ)
-                (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j m) ≤
+                (relMean P (Geometry.explicitRoundedGrid jStar metric) j m) ≤
               (1 + meanPenalty (bigQ d γ)
-                  (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n m)) *
+                  (relMean P (Geometry.explicitRoundedGrid jStar metric) n m)) *
                 (1 + meanPenalty (bigQ d γ)
-                  (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j n)) := by
+                  (relMean P (Geometry.explicitRoundedGrid jStar metric) j n)) := by
   intro P E Ψ K S hP hstat _hunit hdag jStar hjStar metric hmetric j n m hj hjn hnm
   let := hP
   let F := toFullBlockMat (adaptedMean P (Geometry.explicitRoundedGrid jStar metric) j)
@@ -109,7 +109,7 @@ theorem meanPenalty_normalizedMean_compose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hRT : R * T = 1 := Matrix.nonsing_inv_mul T ((Matrix.isUnit_iff_isUnit_det T).mp hT.isUnit)
   have hTR : T * R = 1 := Matrix.mul_nonsing_inv T ((Matrix.isUnit_iff_isUnit_det T).mp hT.isUnit)
   have hTT : T * T = G⁻¹ := (matSqrt_spec hG.inv.posSemidef).2
-  have hTGT : T * G * T = 1 := matSqrt_inv_mul_self_mul_matSqrt_inv_full hG
+  have hTGT : T * G * T = 1 := matSqrt_inv_conj hG
   have hRR : R * R = G := by
     calc
       R * R = R * (T * G * T) * R := by rw [hTGT, mul_one]
@@ -117,7 +117,7 @@ theorem meanPenalty_normalizedMean_compose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       _ = G := by rw [hRT, hTR, one_mul, mul_one]
   let U := T * F * T - 1
   let V := R * H⁻¹ * R - 1
-  have hU : U.PosSemidef := Matrix.le_iff.mp (one_le_normalized hG hGF)
+  have hU : U.PosSemidef := Matrix.le_iff.mp (Recurrence.one_le_normalize hG hGF)
   have hV : V.PosSemidef := by
     have hv := hinv.conjTranspose_mul_mul_same R
     have hR : R.IsHermitian := hT.inv.isHermitian
@@ -164,26 +164,26 @@ theorem meanPenalty_normalizedMean_compose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     cases α <;> cases β <;> rfl
   have ht (a b : ℤ) (hb : (toFullBlockMat (adaptedMean P
       (Geometry.explicitRoundedGrid jStar metric) b)).PosDef) :
-      blockTrace (blockSub (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) a b)
+      blockTrace (blockSub (relMean P (Geometry.explicitRoundedGrid jStar metric) a b)
         (Book.Ch02.blockIdentity d)) =
       ((toFullBlockMat (adaptedMean P (Geometry.explicitRoundedGrid jStar metric) b))⁻¹ *
         toFullBlockMat (adaptedMean P (Geometry.explicitRoundedGrid jStar metric) a)).trace -
         (1 : FullBlockMat d).trace := by
-    rw [blockTrace, hsub, hI, Matrix.trace_sub, normalizedMean, normalizedBlock,
+    rw [blockTrace, hsub, hI, Matrix.trace_sub, relMean, normalizedBlock,
       toFullBlockMat_ofFullBlockMat, htrace _ _ hb]
-  have hscalar' : 1 + blockTrace (blockSub (normalizedMean P
+  have hscalar' : 1 + blockTrace (blockSub (relMean P
       (Geometry.explicitRoundedGrid jStar metric) j m) (Book.Ch02.blockIdentity d)) ≤
-      (1 + blockTrace (blockSub (normalizedMean P
+      (1 + blockTrace (blockSub (relMean P
         (Geometry.explicitRoundedGrid jStar metric) n m) (Book.Ch02.blockIdentity d))) *
-      (1 + blockTrace (blockSub (normalizedMean P
+      (1 + blockTrace (blockSub (relMean P
         (Geometry.explicitRoundedGrid jStar metric) j n) (Book.Ch02.blockIdentity d))) := by
     simpa only [ht j m hH, ht n m hH, ht j n hG] using hscalar
-  have hnn : 0 ≤ 1 + blockTrace (blockSub (normalizedMean P
+  have hnn : 0 ≤ 1 + blockTrace (blockSub (relMean P
       (Geometry.explicitRoundedGrid jStar metric) j m) (Book.Ch02.blockIdentity d)) := by
     have hpacket := Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
       jStar hjStar metric hmetric j m hj (hjn.trans hnm)
     have hsym := Analysis.toFullBlockMat_isHermitian_iff
-      (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j m)
+      (relMean P (Geometry.explicitRoundedGrid jStar metric) j m)
     have hp := Annealed.normalizedBlock_posDef _ _ hF hH
     have hnonneg := Analysis.blockTrace_identity_sub_nonneg _ (hsym.mp hp.isHermitian) hpacket.1
     linarith only [hnonneg]
@@ -206,13 +206,13 @@ theorem meanPenalty_normalizedMean_advance (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
         ∀ (metric : Mat d), metric.PosDef →
           ∀ j m k : ℤ, (jStar : ℤ) ≤ j → j ≤ m → m ≤ k →
             meanPenalty (bigQ d γ)
-                (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j k) ≤
+                (relMean P (Geometry.explicitRoundedGrid jStar metric) j k) ≤
               Real.exp ((bigQ d γ : ℝ) *
-                    logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m k) *
+                    detIncrement P (Geometry.explicitRoundedGrid jStar metric) m k) *
                   meanPenalty (bigQ d γ)
-                    (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j m) +
+                    (relMean P (Geometry.explicitRoundedGrid jStar metric) j m) +
                 Real.exp ((bigQ d γ : ℝ) *
-                  logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m k) - 1 := by
+                  detIncrement P (Geometry.explicitRoundedGrid jStar metric) m k) - 1 := by
   intro P E Ψ K S hP hstat hunit hdag jStar hjStar metric hmetric j m k hj hjm hmk
   let := hP
   set q := Geometry.explicitRoundedGrid jStar metric
@@ -225,22 +225,22 @@ theorem meanPenalty_normalizedMean_advance (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hpos := Annealed.normalizedBlock_posDef _ _
     (Annealed.adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric m)
     (Annealed.adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric k)
-  have ht : 0 ≤ blockTrace (blockSub (normalizedMean P q m k) (Book.Ch02.blockIdentity d)) :=
+  have ht : 0 ≤ blockTrace (blockSub (relMean P q m k) (Book.Ch02.blockIdentity d)) :=
     Analysis.blockTrace_identity_sub_nonneg _
       ((Analysis.toFullBlockMat_isHermitian_iff _).mp hpos.isHermitian) hp.1
-  have hbound : 1 + meanPenalty (bigQ d γ) (normalizedMean P q m k) ≤
-      Real.exp ((bigQ d γ : ℝ) * logDetLoss P q m k) := by
-    have hbase : 1 + blockTrace (blockSub (normalizedMean P q m k)
-        (Book.Ch02.blockIdentity d)) ≤ Real.exp (logDetLoss P q m k) := by
+  have hbound : 1 + meanPenalty (bigQ d γ) (relMean P q m k) ≤
+      Real.exp ((bigQ d γ : ℝ) * detIncrement P q m k) := by
+    have hbase : 1 + blockTrace (blockSub (relMean P q m k)
+        (Book.Ch02.blockIdentity d)) ≤ Real.exp (detIncrement P q m k) := by
       linarith only [hp.2.2.2.2.1]
     have hpow := pow_le_pow_left₀ (by linarith only [ht] :
-      0 ≤ 1 + blockTrace (blockSub (normalizedMean P q m k) (Book.Ch02.blockIdentity d)))
+      0 ≤ 1 + blockTrace (blockSub (relMean P q m k) (Book.Ch02.blockIdentity d)))
       hbase (bigQ d γ)
     rw [← Real.exp_nat_mul] at hpow
     unfold meanPenalty
     linarith only [hpow]
   have hmul := mul_le_mul_of_nonneg_right hbound
-    (by linarith only [hpjm.2.2.2.2.2] : 0 ≤ 1 + meanPenalty (bigQ d γ) (normalizedMean P q j m))
+    (by linarith only [hpjm.2.2.2.2.2] : 0 ≤ 1 + meanPenalty (bigQ d γ) (relMean P q j m))
   nlinarith only [hcomp, hmul]
 
 /-- `Ψ_Q(P^q_{j,k}) ≤ e^{QΔ^q_{j,k}} - 1`, the bound used for the generations above the base
@@ -257,9 +257,9 @@ theorem meanPenalty_normalizedMean_le_exp_sub_one (d : ℕ) (hd : 2 ≤ d) (γ :
         ∀ (metric : Mat d), metric.PosDef →
           ∀ j k : ℤ, (jStar : ℤ) ≤ j → j ≤ k →
             meanPenalty (bigQ d γ)
-                (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j k) ≤
+                (relMean P (Geometry.explicitRoundedGrid jStar metric) j k) ≤
               Real.exp ((bigQ d γ : ℝ) *
-                logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j k) - 1 := by
+                detIncrement P (Geometry.explicitRoundedGrid jStar metric) j k) - 1 := by
   intro P E Ψ K S hP hstat hunit hdag jStar hjStar metric hmetric j k hj hjk
   let := hP
   have h := meanPenalty_normalizedMean_advance d hd γ hγ P E Ψ K S hP hstat hunit hdag
@@ -281,9 +281,9 @@ theorem logDetLoss_le_blockTrace_normalizedMean (d : ℕ) (hd : 2 ≤ d) (γ : �
       ∀ (jStar : ℕ), 2 * d ≤ 3 ^ jStar →
         ∀ (metric : Mat d), metric.PosDef →
           ∀ j k : ℤ, (jStar : ℤ) ≤ j → j ≤ k →
-            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j k ≤
+            detIncrement P (Geometry.explicitRoundedGrid jStar metric) j k ≤
               blockTrace (blockSub
-                (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j k)
+                (relMean P (Geometry.explicitRoundedGrid jStar metric) j k)
                 (Book.Ch02.blockIdentity d)) := by
   intro P E Ψ K S hP hstat _hunit hdag jStar hjStar metric hmetric j k _hj _hjk
   let := hP
@@ -291,7 +291,7 @@ theorem logDetLoss_le_blockTrace_normalizedMean (d : ℕ) (hd : 2 ≤ d) (γ : �
     jStar hjStar metric hmetric j
   have hG := Annealed.adaptedMean_posDef d hd P γ E Ψ K S hstat hdag
     jStar hjStar metric hmetric k
-  have hp : (toFullBlockMat (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j k)).PosDef :=
+  have hp : (toFullBlockMat (relMean P (Geometry.explicitRoundedGrid jStar metric) j k)).PosDef :=
     Annealed.normalizedBlock_posDef _ _ hF hG
   have heig : ∀ i, 0 < hp.isHermitian.eigenvalues i := hp.eigenvalues_pos
   have hlog := blockLogDet_normalizedMean_eq_loss P
@@ -317,7 +317,7 @@ theorem logDetLoss_le_blockTrace_normalizedMean (d : ℕ) (hd : 2 ≤ d) (γ : �
 
 /-- The determinant drift is nonnegative: each printed increment `P^q_{j-1,m} - P^q_{j,m}` is a
 normalized positive semidefinite increment, and the weights are positive. -/
-theorem determinantDrift_nonneg (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (_hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
+theorem determinantDrift_nonneg (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) :
     ∀ (P : Measure (CoeffSpace d)) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
       (S : CoeffSpace d → ℝ),
       IsProbabilityMeasure P →
@@ -335,7 +335,7 @@ theorem determinantDrift_nonneg (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (_hγ : γ �
   apply mul_nonneg
   · exact Real.rpow_nonneg (by norm_num) _
   · have hj' := Finset.mem_Icc.mp hj
-    rw [normalizedMean, normalizedMean]
+    rw [relMean, relMean]
     have hF : (toFullBlockMat (adaptedMean P (Geometry.explicitRoundedGrid jStar metric) m)).PosDef :=
       Homogenization.HighContrast.Annealed.adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric m
     have horder : BlockMatLoewnerLE

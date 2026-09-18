@@ -14,7 +14,7 @@ source family to be one makes no claim about the separate source estimate.
 -/
 
 open Homogenization.HighContrast (gridRatio)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open scoped Matrix.Norms.L2Operator
 
@@ -47,4 +47,4 @@ theorem projective_step
   exact hgrid jStar hj m (geometryUpdate ε m mStar) hm
     (Geometry.geometryUpdate_posDef hm hStar ε) (hstep.trans hεone)
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

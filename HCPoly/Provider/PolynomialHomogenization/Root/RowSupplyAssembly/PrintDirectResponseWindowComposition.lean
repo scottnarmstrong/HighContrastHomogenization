@@ -4,19 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.L2RowAlgebra
-import HCPoly.Provider.PolynomialHomogenization.Root.Localization.LocalizationSupply
 import HCPoly.Provider.Regularity.AffineTransfer
 import HCPoly.Analytic.H1a0ToH10
 import HCPoly.Provider.PolynomialHomogenization.AffineCoeffFamily
 import HCPoly.Analytic.AffineNegSobolevNorm
 import HCPoly.Provider.Initialization.IdentityGrid
-import HCPoly.Provider.PolynomialHomogenization.ScalarCubeFluxComparison
 import HCPoly.Analytic.AffineH10
 import HCPoly.Provider.Recurrence.AdaptedCellDomain
 import HCPoly.Provider.PolynomialHomogenization.NormalizedRootCoefficient
 import HCPoly.Provider.Regularity.CorrectorGlobalEquation
 import HCPoly.Provider.PolynomialHomogenization.RuledLocalizationAssembly
-import HCPoly.Provider.PolynomialHomogenization.Root.Certificate.PrintOrderRateBearingEvent
 import HCPoly.Provider.PolynomialHomogenization.Root.Certificate.PrintOrderDecoupledTerminalSurface
 import HCPoly.Provider.Regularity.PrintOrderIdentityCubeDualRegularity
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.ResponseAttainabilityPricing
@@ -79,13 +76,12 @@ namespace Homogenization
 namespace HighContrast
 namespace RowSupply
 
-open _root_.Homogenization.HighContrast.Localization
 open Book Book.Ch03 MeasureTheory
 open scoped ENNReal Matrix.Norms.L2Operator
 
 noncomputable section
 
-/-! ## Task 2 — the window, once -/
+/-! ## The window, once -/
 
 /-- Any order above the supply-side threshold is positive. -/
 theorem responseWindow_pos {g b : ℝ} (hg : g ∈ Set.Ico (0 : ℝ) 1)
@@ -99,7 +95,7 @@ theorem responseWindow_lt_exponent {g b s : ℝ}
     (hs : s ∈ Set.Ico ((1 + g) / 4) (1 / 2 : ℝ)) : b < s :=
   lt_of_lt_of_le hbHigh hs.1
 
-/-! ## Task 1 — the witness -/
+/-! ## The witness inside the window -/
 
 /-- The witness: the midpoint of the window. -/
 def responseWindowOrder (g : ℝ) : ℝ := (3 + 5 * g) / 16

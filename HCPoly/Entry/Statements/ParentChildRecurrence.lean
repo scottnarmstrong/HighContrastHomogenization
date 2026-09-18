@@ -1,9 +1,18 @@
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
-import HCPoly.Entry.Setup.LogDetLoss
+import HCPoly.Frozen.CoarseEllipticityDagger
+import HCPoly.Setup.BlockAlgebra
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
+import HCPoly.Setup.Moments
+import HCPoly.Entry.Setup.NormalizedFluctuation
 import HCPoly.Entry.Setup.SchattenNorm
-import HCPoly.Entry.Setup.Stationarity
-import HCPoly.Entry.Setup.UnitRange
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Frozen.Stationarity
+import HCPoly.Setup.LocalSigmaFields
+import HCPoly.Frozen.UnitRange
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.ParentChildRecurrence
 
 /-!
@@ -15,7 +24,7 @@ the printed display.
 Reading of the display, stated here so that no divergence is silent:
 
 * `V^q_j` is `normalizedFluctuationSelf P q j`, the diagonal fluctuation `V^q_{j,j}(0)`
-  near `e.scale.selection.normalized.mean.fluctuation`, and `Δ^q_{j,j+h}` is `logDetLoss P q j (j+h)`
+  near `e.scale.selection.normalized.mean.fluctuation`, and `Δ^q_{j,j+h}` is `detIncrement P q j (j+h)`
   (`e.scale.selection.logdet.loss`); `‖·‖_{L^N(S_N)}` is `lqSchattenNorm`, real-valued under the real-valued reading, with the even `N ≥ 2` coerced to its real Schatten index.
 * `𝔪 > 0` is `Matrix.PosDef`, `q = 𝒬(𝔪)` is `Geometry.explicitRoundedGrid jStar m`, the standing
   `3^{j_*} ≥ 2d` near `e.rounded.grid.bounds` is `hj` and the standing `d ≥ 2` of `t.polynomial.entry` is `hd`.
@@ -39,10 +48,10 @@ Reading of the display, stated here so that no divergence is silent:
   gives the required `L^N(S_N)`-integrability", `p.fixed.geometry.parent.child.recurrence`) — and under the real-valued reading a
   non-integrable moment makes the corresponding norm Mathlib's junk `0`. The dependency graph
   records that integrability as a hypothesis of this node; the printed display does not, and the
-  display governs. No `MemLqSchatten` premise is added.
+  display governs. No `SchattenMemLp` premise is added.
 * `3^{-(d/2)h}`, `(2d)^{1/N}`, `d^{1−1/N}` and `(e^{Δ}−1)^{1/N}` are real powers, as printed.
 
-The proof is one application of `Homogenization.HighContrast.Provider.fixed_geometry_parent_child_recurrence` (`HCPoly/Entry/ParentChildRecurrence.lean`) to the binders of the statement.
+The proof is one application of `Homogenization.HighContrast.Entry.fixed_geometry_parent_child_recurrence` (`HCPoly/Entry/ParentChildRecurrence.lean`) to the binders of the statement.
 -/
 
 open Homogenization.HighContrast (CoeffSpace)
@@ -72,14 +81,14 @@ theorem fixed_geometry_parent_child_recurrence
             (normalizedFluctuationSelf P (Geometry.explicitRoundedGrid jStar m) (j + h)) ≤
           (N : ℝ) * (3 : ℝ) ^ ((d : ℝ) / 2) * (1 + (2 * (d : ℝ)) ^ ((N : ℝ))⁻¹) *
                 (3 : ℝ) ^ (-((d : ℝ) / 2) * (h : ℝ)) *
-                Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
+                Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
               lqSchattenNorm P (N : ℝ)
                 (normalizedFluctuationSelf P (Geometry.explicitRoundedGrid jStar m) j) +
             2 * (1 + (d : ℝ) ^ (1 - ((N : ℝ))⁻¹)) *
                 Real.exp
                   ((1 - ((N : ℝ))⁻¹) *
-                    logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
-                (Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) - 1) ^
-                  ((N : ℝ))⁻¹ := by exact Homogenization.HighContrast.Provider.fixed_geometry_parent_child_recurrence d hd γ hγ
+                    detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
+                (Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) - 1) ^
+                  ((N : ℝ))⁻¹ := by exact Homogenization.HighContrast.Entry.fixed_geometry_parent_child_recurrence d hd γ hγ
 
 end Homogenization.HighContrast

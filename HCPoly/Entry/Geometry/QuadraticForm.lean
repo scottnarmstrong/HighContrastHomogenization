@@ -71,7 +71,7 @@ theorem sq_dotProduct_mulVec_le {M : Mat d} (hM : Mᵀ = M)
     exact h
   have hd := discrim_le_zero key
   rw [discrim] at hd
-  nlinarith [hd]
+  nlinarith only [hd]
 
 /-! ## The operator norm bridge -/
 
@@ -183,7 +183,7 @@ theorem vecNormSq_le_vecNormSq_mulVec_of_le_dotProduct {M : Mat d} {c : ℝ} (hc
     exact vecNormSq_nonneg _
   · have h4 : (c ^ 2 * vecNormSq v) * vecNormSq v ≤ vecNormSq (M *ᵥ v) * vecNormSq v := by
       have e : (c * vecNormSq v) ^ 2 = (c ^ 2 * vecNormSq v) * vecNormSq v := by ring
-      linarith [h3, mul_comm (vecNormSq v) (vecNormSq (M *ᵥ v))]
+      linarith only [h3, e, mul_comm (vecNormSq v) (vecNormSq (M *ᵥ v))]
     exact le_of_mul_le_mul_right h4 h0
 
 end Homogenization.HighContrast.Geometry

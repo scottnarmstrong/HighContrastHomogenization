@@ -22,18 +22,6 @@ open scoped ENNReal Matrix.Norms.L2Operator
 
 noncomputable section
 
-/-- The printed coefficient application together with the fixed deterministic
-response provider.  No equality between their fractional orders is retained. -/
-structure OrderDecoupledRoundedResponseJoin
-    (d : ℕ) [NeZero d] (g : ℝ) (a : CoeffSpace d) (abar : Mat d)
-    (sourceAmplitude target kappa : ℝ) (X : CoeffSpace d → ℝ) where
-  application : PrintOrderRoundedCoefficientApplication
-    d g a abar sourceAmplitude target kappa X
-  responseSpine : PrivateRoundedPhysicalDirichletSpine d
-  responseSpine_eq : responseSpine = privateRoundedPhysicalDirichletSpine d
-  privateOrder_lt_printOrder :
-    responseSpine.order.1 < printCertificateOrder g
-
 /-- The private order is strictly below every admissible printed order. -/
 theorem privateRoundedOrder_lt_printCertificateOrder
     (d : ℕ) [NeZero d] {g : ℝ} (hg : g ∈ Set.Ico (0 : ℝ) 1) :

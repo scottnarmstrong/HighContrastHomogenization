@@ -1,6 +1,6 @@
 import HCPoly.Entry.Setup.GeometryUpdate
 import HCPoly.Setup.SourceObjects
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.ProjectiveStep
 
 /-!
@@ -40,7 +40,7 @@ Reading of the display, stated here so that no divergence is silent:
   inside its scope, which weakens nothing. The third conclusion is guarded by the printed
   `0 < ε ≤ 1`; `0 < ε` is already a hypothesis, so the guard carried there is `ε ≤ 1`.
 
-The proof applies `Homogenization.HighContrast.Provider.projective_step` (`HCPoly/Entry/ProjectiveStep.lean`).
+The proof applies `Homogenization.HighContrast.Entry.projective_step` (`HCPoly/Entry/ProjectiveStep.lean`).
 -/
 
 open Homogenization.HighContrast (gridRatio)
@@ -70,6 +70,6 @@ theorem projective_step
                   1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) + ε ∧
                 (ε ≤ 1 →
                   gridRatio (Geometry.explicitRoundedGrid jStar m)
-                      (Geometry.explicitRoundedGrid jStar (geometryUpdate ε m mStar)) ≤ C) := by exact Homogenization.HighContrast.Provider.projective_step d hd
+                      (Geometry.explicitRoundedGrid jStar (geometryUpdate ε m mStar)) ≤ C) := by exact Homogenization.HighContrast.Entry.projective_step d hd
 
 end Homogenization.HighContrast

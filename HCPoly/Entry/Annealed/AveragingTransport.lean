@@ -1,39 +1,24 @@
 import HCPoly.Entry.Annealed.ColourClasses
-import HCPoly.Entry.Annealed.AdaptedIntegrability
-import HCPoly.Entry.Annealed.AlignedSubdivision
-import HCPoly.Entry.Annealed.MeanOrder
+import HCPoly.Entry.Annealed.AdaptedCellFoundations
+import HCPoly.Entry.Annealed.AnnealedBlockOrder
 import HCPoly.Entry.Annealed.Normalization
 import HCPoly.Entry.Source.BoundedWindowFiniteness
-import HCPoly.Entry.Analysis.SchattenIntegrability
-import HCPoly.Entry.Analysis.SchattenMeasurable
+import HCPoly.Entry.Analysis.SchattenNormIntegrability
 
 /-!
-# Integrability receipts, centering at a lattice cell, stationarity transport
+# Integrability, lattice centering, and stationarity transport
 
-These statements carry **no** `MemLqSchatten` premise; everything
-analytic here is derived from the standing law and the accepted source estimate, which
-supplies **finiteness only**.
-
-Throughout, `q = Geometry.explicitRoundedGrid jStar m`, `A` is the deterministic centre and `R` the
-deterministic conjugator, and
-
-  `Y y = fun a => normalizedBlock (blockSub (coarseBlock (adaptedCellTranslate q j y) a) A) R`.
-
-* `adaptedCellTranslate_zero` — `adaptedCellTranslate q j 0 = adaptedCell q j`.  The
-  right-hand side names `HighContrast.adaptedCell`, the lattice picture names
-  `adaptedCellTranslate … 0`; the identity is proved once and reused, never silently rewritten.
-* `memLqSchatten_normalizedCentered` — `MemLqSchatten P N (Y y)` for every real `N ≥ 1`, every
-  `j` and every centre `y`, from `memLqSchatten_coarseBlock_adapted`, `MemLqSchatten.sub`
-  against the constant `adaptedMean`, and `memLqSchatten_normalizedBlock`.
-* `integral_normalizedCentered_lattice_eq_zero` — centering at a lattice cell: for
-  `z = adaptedCellCenter q j w` and `j_* ≤ j` the annealed block of the translated cell is
-  `adaptedMean P q j` (`annealedBlock_adaptedCellAtCenter`), so the entrywise mean of `Y z`
-  vanishes.  The shape difference between `fun α β => ∫ …` and `Matrix.of fun α β => ∫ …`
-  is bridged explicitly.
-* `lqSchattenNorm_normalizedCentered_transport` — the block-valued stationarity transport
-  `‖Y z‖_{L^N(S_N)} = ‖Y 0‖_{L^N(S_N)}`.  This is proved at the block level, not merely
-  entrywise.  The deterministic `A` and `R` are
-  held fixed under the shift: they do not move.
+For the cell `q = Geometry.explicitRoundedGrid jStar m`, deterministic centre `A`, conjugator `R`
+and
+`Y y = fun a => normalizedBlock (blockSub (coarseBlock (adaptedCellTranslate q j y) a) A) R`,
+the normalized recentred block `Y y` lies in `L^N(S_N)` for every real `N ≥ 1`, every generation
+`j` and every centre `y`, with no membership premise beyond the standing law; at a lattice centre
+`adaptedCellCenter q j w` of generation `j_* ≤ j` its entrywise mean vanishes; and the lattice
+translation that moves the centre to the origin leaves its block-valued mixed norm unchanged,
+`‖Y z‖_{L^N(S_N)} = ‖Y 0‖_{L^N(S_N)}`, with `A` and `R` held fixed.  These centering, moment and
+stationarity facts serve the finite-range matrix averaging lemma
+`l.fixed.geometry.matrix.averaging` and the mean and profile estimates of the two-grid transport
+`p.two.grid.transport`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace HasIntegrableCoarseBlock adaptedCellCenter
@@ -69,15 +54,15 @@ theorem memLqSchatten_normalizedCentered (d : ℕ) (hd : 2 ≤ d)
     (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hjS : 2 * d ≤ 3 ^ jStar) (m : Mat d) (hm : m.PosDef)
     (j : ℤ) (y : Vec d) (R : BlockMat d) (N : ℝ) (hN : 1 ≤ N) :
-    MemLqSchatten P N (fun a => normalizedBlock
+    SchattenMemLp P N (fun a => normalizedBlock
       (blockSub (coarseBlock
         (HighContrast.adaptedCellTranslate (Geometry.explicitRoundedGrid jStar m) j y) a)
         (adaptedMean P (Geometry.explicitRoundedGrid jStar m) j)) R) := by
-  have hcoarse : MemLqSchatten P N
+  have hcoarse : SchattenMemLp P N
       (fun a => coarseBlock
         (HighContrast.adaptedCellTranslate (Geometry.explicitRoundedGrid jStar m) j y) a) :=
     Source.memLqSchatten_coarseBlock_adapted d hd P γ E Ψ K S hstat hdag jStar hjS m hm j y N hN
-  have hconst : MemLqSchatten P N
+  have hconst : SchattenMemLp P N
       (fun _ => adaptedMean P (Geometry.explicitRoundedGrid jStar m) j) :=
     Analysis.memLqSchatten_const P hN _
       (isSymmetricBlockMat_annealedBlock P
@@ -93,7 +78,7 @@ theorem memLqSchatten_normalizedCentered_sum (d : ℕ) (hd : 2 ≤ d)
     (jStar : ℕ) (hjS : 2 * d ≤ 3 ^ jStar) (m : Mat d) (hm : m.PosDef)
     (j : ℤ) (R : BlockMat d) (N : ℝ) (hN : 1 ≤ N)
     {ι : Type*} (s : Finset ι) (w : ι → ℝ) (y : ι → Vec d) :
-    MemLqSchatten P N (fun a => ofFullBlockMat (∑ i ∈ s, w i • toFullBlockMat
+    SchattenMemLp P N (fun a => ofFullBlockMat (∑ i ∈ s, w i • toFullBlockMat
       (normalizedBlock (blockSub (coarseBlock
         (HighContrast.adaptedCellTranslate (Geometry.explicitRoundedGrid jStar m) j (y i)) a)
         (adaptedMean P (Geometry.explicitRoundedGrid jStar m) j)) R))) :=
@@ -173,7 +158,7 @@ theorem lqSchattenNorm_normalizedCentered_transport
     (P : Measure (CoeffSpace d)) (hstat : IsStationaryLaw P)
     (jStar : ℕ) (m : Mat d) {j : ℤ} (hj : (jStar : ℤ) ≤ j) (w : Fin d → ℤ)
     (A R : BlockMat d) {N : ℝ} (hN : 1 ≤ N)
-    (hmem : MemLqSchatten P N (fun a => normalizedBlock (blockSub
+    (hmem : SchattenMemLp P N (fun a => normalizedBlock (blockSub
       (coarseBlock (HighContrast.adaptedCell (Geometry.explicitRoundedGrid jStar m) j) a) A) R)) :
     lqSchattenNorm P N (fun a => normalizedBlock (blockSub (coarseBlock
         (HighContrast.adaptedCellTranslate (Geometry.explicitRoundedGrid jStar m) j

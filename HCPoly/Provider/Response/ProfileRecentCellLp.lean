@@ -3,7 +3,9 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Response.ProfileRecentCellSum
+import HCPoly.Provider.Response.ProfileRecentPointwise
+import HCPoly.Provider.PortableHistory.CheckpointMoment
+import HCPoly.Provider.Transport.NearIsometry
 import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 import Mathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 
@@ -84,70 +86,6 @@ theorem eLpNorm_ofReal_mul_le {X : CoeffSpace d → ℝ≥0∞}
   filter_upwards [] with x
   simp only [enorm_eq_self]
   exact le_rfl
-
-/-- The exact recent-cell estimate in `L²`. -/
-theorem eLpNorm_diagonalWeakCellSum_le_profile [NeZero d]
-    {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
-    {l : ℤ} {q : Mat d} (hq : q.PosDef) {jStar t : ℤ} {H : ℕ}
-    {Q alpha rhoMax : ℝ} (hQ : 2 ≤ Q) (hrho : 0 ≤ rhoMax)
-    (hP : HCPoly.Frozen.IsStationaryLaw P) (hgrid : IsRoundedGrid l q)
-    (hlj : l ≤ jStar)
-    (hfin : ∀ k : ℤ, jStar ≤ k → k ≤ t → HasFiniteAdaptedMean P q k)
-    (hstart : jStar ≤ t - (H : ℤ))
-    (hEt : BlockPosDef (adaptedMean P q t))
-    (hmean : ∀ k : ℤ, jStar ≤ k → k ≤ t →
-      BlockMatLoewnerLE (adaptedMean P q t) (adaptedMean P q k)) :
-    eLpNorm
-        (fun coeff ↦ diagonalWeakCellSum q t H (1 / 2)
-          (adaptedMean P q t) coeff) 2 P ≤
-      ENNReal.ofReal (centeredWindowCoefficient H rhoMax) *
-          centeredHistory P Q rhoMax q jStar t ^ Q⁻¹ +
-        ENNReal.ofReal (nonlinearCellWindowCoefficient H alpha Q) *
-          nonlinearHistory P Q alpha q jStar t ^ Q⁻¹ := by
-  let U : CoeffSpace d → ℝ := fun coeff ↦
-    diagonalWeakCellSum q t H (1 / 2) (adaptedMean P q t) coeff
-  let Z : CoeffSpace d → ℝ≥0∞ := profileCenteredMaximum P rhoMax q jStar t
-  let hnl : ℝ≥0∞ := nonlinearHistory P Q alpha q jStar t ^ Q⁻¹
-  let ccen : ℝ := centeredWindowCoefficient H rhoMax
-  let cnl : ℝ := nonlinearCellWindowCoefficient H alpha Q
-  have hU0 : ∀ coeff, 0 ≤ U coeff := fun coeff ↦
-    diagonalWeakCellSum_nonneg q t H (1 / 2) (adaptedMean P q t) coeff
-  have hZmeas : AEStronglyMeasurable Z P :=
-    (aemeasurable_profileCenteredMaximum hq hEt).aestronglyMeasurable
-  have hfirstMeas : AEStronglyMeasurable
-      (fun coeff ↦ ENNReal.ofReal ccen * Z coeff) P := by
-    have hcmeas : AEMeasurable
-        (fun _ : CoeffSpace d ↦ ENNReal.ofReal ccen) P := aemeasurable_const
-    exact (hcmeas.mul (aemeasurable_profileCenteredMaximum hq hEt)).aestronglyMeasurable
-  have hsecondMeas : AEStronglyMeasurable
-      (fun _ : CoeffSpace d ↦ ENNReal.ofReal cnl * hnl) P :=
-    aestronglyMeasurable_const
-  have hpoint : ∀ coeff, ENNReal.ofReal (U coeff) ≤
-      ENNReal.ofReal ccen * Z coeff + ENNReal.ofReal cnl * hnl := by
-    intro coeff
-    exact ofReal_diagonalWeakCellSum_le_profile hq
-      (by linarith only [hQ]) hrho hP hgrid hlj hfin hstart hEt hmean coeff
-  have hmono : eLpNorm (ENNReal.ofReal ∘ U) 2 P ≤
-      eLpNorm
-        ((fun coeff ↦ ENNReal.ofReal ccen * Z coeff) +
-          fun _ ↦ ENNReal.ofReal cnl * hnl) 2 P := by
-    refine eLpNorm_mono_enorm ?_
-    intro coeff
-    simpa only [Function.comp_apply, Pi.add_apply, enorm_eq_self] using hpoint coeff
-  have htriangle := eLpNorm_add_le hfirstMeas hsecondMeas
-    (by norm_num : (1 : ℝ≥0∞) ≤ 2)
-  have hfirst : eLpNorm (fun coeff ↦ ENNReal.ofReal ccen * Z coeff) 2 P ≤
-      ENNReal.ofReal ccen * centeredHistory P Q rhoMax q jStar t ^ Q⁻¹ :=
-    (eLpNorm_ofReal_mul_le hZmeas ccen 2).trans
-      (mul_right_mono (eLpNorm_two_profileCenteredMaximum_le hq hQ hEt))
-  have hsecond : eLpNorm
-      (fun _ : CoeffSpace d ↦ ENNReal.ofReal cnl * hnl) 2 P ≤
-      ENNReal.ofReal cnl * hnl := by
-    rw [eLpNorm_const _ (by norm_num : (2 : ℝ≥0∞) ≠ 0)
-      (IsProbabilityMeasure.ne_zero P), measure_univ, ENNReal.one_rpow, mul_one,
-      enorm_eq_self]
-  rw [← eLpNorm_ofReal U (_root_.Filter.Eventually.of_forall hU0)]
-  exact hmono.trans (htriangle.trans (add_le_add hfirst hsecond))
 
 end
 

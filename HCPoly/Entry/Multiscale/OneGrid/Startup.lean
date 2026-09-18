@@ -46,7 +46,7 @@ theorem profile_startup (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
                         C * (L : ℝ) *
                           (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
                             Real.exp ((bigQ d γ : ℝ) *
-                              logDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                              detIncrement P (Geometry.explicitRoundedGrid jStar metric)
                                 n (n + L)) - 1) := by
   obtain ⟨Csrc, hCsrc, C3, hC3, hfl⟩ := startup_fluctuation_sum_le d hd γ hγ
   obtain ⟨C2, hC2, hmean⟩ := meanPenalty_new_terms_span_sum_le d hd γ hγ
@@ -71,18 +71,18 @@ theorem profile_startup (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
     jStar hjStar metric hmetric (jStar : ℤ) n le_rfl hn
   have hH0 : 0 ≤ history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n := by
     unfold history
-    linarith [hfluc, hmean0]
-  have hx0 : 0 ≤ (bigQ d γ : ℝ) * logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L) :=
+    linarith only [hfluc, hmean0]
+  have hx0 : 0 ≤ (bigQ d γ : ℝ) * detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L) :=
     mul_nonneg (Nat.cast_nonneg _)
       (Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric
         n (n + L) hn hnL)
   have hL1 : (1 : ℝ) ≤ (L : ℝ) := by exact_mod_cast hL
-  have hLnonneg : (0 : ℝ) ≤ (L : ℝ) := by linarith [hL1]
+  have hLnonneg : (0 : ℝ) ≤ (L : ℝ) := by linarith only [hL1]
   have hR0 : 0 ≤ history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
-      Real.exp ((bigQ d γ : ℝ) * logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) -
+      Real.exp ((bigQ d γ : ℝ) * detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) -
         1 := by
     have hone := Real.one_le_exp hx0
-    linarith [hH0, hone]
+    linarith only [hH0, hone]
   have hflb := hfl P E Ψ K S hP hstat hunit hdag L hL jStar hjStar hsrc metric hmetric n hn hH1
   have hmeanb := hmean P E Ψ K S hP hstat hunit hdag L hL jStar hjStar metric hmetric n hn
   have hpen0 := (Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
@@ -96,58 +96,58 @@ theorem profile_startup (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
     nlinarith only [hγ.2, hL1]
   have hAB : (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (n : ℝ))) *
       (1 + meanPenalty (bigQ d γ)
-        (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n (n + L))) ≤
+        (relMean P (Geometry.explicitRoundedGrid jStar metric) n (n + L))) ≤
       Real.exp ((bigQ d γ : ℝ) *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) := by
+        detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) := by
     have hb0 : 0 ≤ 1 + meanPenalty (bigQ d γ)
-        (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) := by linarith [hpen0]
+        (relMean P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) := by linarith only [hpen0]
     have hstep := mul_le_of_le_one_left hb0 hweight
     have hble : 1 + meanPenalty (bigQ d γ)
-        (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) ≤
+        (relMean P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) ≤
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) := by linarith [hpenle]
-    linarith [hstep, hble]
+          detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) := by linarith only [hpenle]
+    linarith only [hstep, hble]
   have hT : (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (n : ℝ))) *
       (1 + meanPenalty (bigQ d γ)
-        (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n (n + L))) *
+        (relMean P (Geometry.explicitRoundedGrid jStar metric) n (n + L))) *
       history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n ≤
       history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1 := by
+          detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1 := by
     have hstep2 := mul_le_mul_of_nonneg_right hAB hH0
     have hstep3 := exp_mul_le_add_exp_sub_one
-      ((bigQ d γ : ℝ) * logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L))
+      ((bigQ d γ : ℝ) * detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L))
       (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n) hx0 hH0 hH1
-    linarith [hstep2, hstep3]
+    linarith only [hstep2, hstep3]
   have hexpsub : Real.exp ((bigQ d γ : ℝ) *
-      logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1 ≤
+      detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1 ≤
       history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1 := by
-    linarith [hH0]
+          detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1 := by
+    linarith only [hH0]
   have hmeanb2 := hmeanb.trans (mul_le_mul_of_nonneg_left hexpsub (mul_nonneg hC2.le hLnonneg))
   have hTL : history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
       Real.exp ((bigQ d γ : ℝ) *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1 ≤
+        detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1 ≤
       (L : ℝ) * (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) := by
+          detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) := by
     nlinarith only [hR0, hL1]
   have hring : (1 + C2 + C3) * (L : ℝ) *
       (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) =
+          detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) =
       (L : ℝ) * (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
           Real.exp ((bigQ d γ : ℝ) *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) +
+            detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) +
         C2 * (L : ℝ) * (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
           Real.exp ((bigQ d γ : ℝ) *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) +
+            detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) +
         C3 * (L : ℝ) * (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
           Real.exp ((bigQ d γ : ℝ) *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) := by ring
+            detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1) := by ring
   unfold profile meanHistory
-  linarith [hT, hmeanb2, hflb, hTL, hring]
+  linarith only [hT, hmeanb2, hflb, hTL, hring]
 
 /-- The absorbed drift advance (`p.fixed.geometry.one.grid.propagation`): when `D_{q,j_*}(m) ≤ 1`, applying
 `e^x a ≤ a + e^x - 1` to `e.fixed.geometry.drift.advance` gives coefficient one on the drift
@@ -167,17 +167,17 @@ theorem determinantDrift_advance_absorbed (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
               determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m ≤ 1 →
                 determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar (m + L) ≤
                   determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
-                    2 * (Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                    2 * (Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar metric)
                       m (m + L)) - 1) := by
   intro P E Ψ K S hprob hstat hunit hdagger L hL jStar hjStar metric hmetric m hm hD_bound
   let : IsProbabilityMeasure P := hprob
   let q := Geometry.explicitRoundedGrid jStar metric
   let D := determinantDrift P γ q jStar m
-  let Δ := logDetLoss P q m (m + L)
+  let Δ := detIncrement P q m (m + L)
   change determinantDrift P γ q jStar (m + L) ≤ D + 2 * (Real.exp Δ - 1)
   have hmk : m ≤ m + L := by omega
   have hD_nonneg : 0 ≤ D :=
-    determinantDrift_nonneg d hd γ hγ P E Ψ K S hprob hstat hunit hdagger jStar hjStar
+    determinantDrift_nonneg d hd γ P E Ψ K S hprob hstat hunit hdagger jStar hjStar
       metric hmetric m
   have hΔ_nonneg : 0 ≤ Δ := by
     dsimp [Δ, q]
@@ -255,7 +255,7 @@ theorem fixed_span_propagation (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈
                                 determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric)
                                   jStar m +
                                 Real.exp ((bigQ d γ : ℝ) *
-                                  logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m
+                                  detIncrement P (Geometry.explicitRoundedGrid jStar metric) m
                                     (m + L)) - 1) := by
   obtain ⟨Csrc1, hC1s, C1, hC1, hfix⟩ := profile_fixed_span d hd γ hγ
   obtain ⟨Csrc2, hC2s, C2, hC2, hstart⟩ := profile_startup d hd γ hγ
@@ -265,14 +265,14 @@ theorem fixed_span_propagation (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈
   let := hP
   have hlogb : 0 ≤ Real.logb 3 (2 * K) :=
     Real.logb_nonneg (by norm_num : (1 : ℝ) < 3)
-      (by linarith [hdag.one_lt_growthWitness] : (1 : ℝ) ≤ 2 * K)
+      (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) ≤ 2 * K)
   have hsrc1 : ⌈Csrc1 * Real.logb 3 (2 * K)⌉ ≤ (jStar : ℤ) :=
     le_trans (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left _ _) hlogb)) hsrc
   have hsrc2 : ⌈Csrc2 * Real.logb 3 (2 * K)⌉ ≤ (jStar : ℤ) :=
     le_trans (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_right _ _) hlogb)) hsrc
   set q := Geometry.explicitRoundedGrid jStar metric with hqdef
   have hQ1 : (1 : ℝ) ≤ (bigQ d γ : ℝ) := by
-    have hQ2 := bigQ_two_le d hd γ hγ
+    have hQ2 := bigQ_two_le d γ hγ
     have : (1 : ℕ) ≤ bigQ d γ := by omega
     exact_mod_cast this
   have hLr1 : (1 : ℝ) ≤ (L : ℝ) := by exact_mod_cast hL
@@ -305,27 +305,27 @@ theorem fixed_span_propagation (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈
     · exact Finset.sum_nonneg fun j _ => mul_nonneg (mul_nonneg (hw _) (Real.exp_nonneg _))
         (integral_nonneg fun _ => (bigQ_even d γ).pow_nonneg _)
   have hD0 : 0 ≤ determinantDrift P γ q jStar m :=
-    determinantDrift_nonneg d hd γ hγ P E Ψ K S hP hstat hunit hdag
+    determinantDrift_nonneg d hd γ P E Ψ K S hP hstat hunit hdag
       jStar hjStar metric hmetric m
-  have hp1 : profile P γ q jStar n m ≤ 1 := by linarith
-  have hD1 : determinantDrift P γ q jStar m ≤ 1 := by linarith
-  have hΔ : 0 ≤ logDetLoss P q m (m + L) :=
+  have hp1 : profile P γ q jStar n m ≤ 1 := by linarith only [hsum, hD0]
+  have hD1 : determinantDrift P γ q jStar m ≤ 1 := by linarith only [hsum, hp0]
+  have hΔ : 0 ≤ detIncrement P q m (m + L) :=
     Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric
       m (m + L) (by omega) (by omega)
-  have hx0 : 0 ≤ (bigQ d γ : ℝ) * logDetLoss P q m (m + L) :=
+  have hx0 : 0 ≤ (bigQ d γ : ℝ) * detIncrement P q m (m + L) :=
     mul_nonneg (Nat.cast_nonneg _) hΔ
-  have hexpx1 : 0 ≤ Real.exp ((bigQ d γ : ℝ) * logDetLoss P q m (m + L)) - 1 := by
+  have hexpx1 : 0 ≤ Real.exp ((bigQ d γ : ℝ) * detIncrement P q m (m + L)) - 1 := by
     have := Real.one_le_exp hx0
-    linarith
-  have hexpmono : Real.exp (logDetLoss P q m (m + L)) - 1 ≤
-      Real.exp ((bigQ d γ : ℝ) * logDetLoss P q m (m + L)) - 1 := by
-    have hle : logDetLoss P q m (m + L) ≤ (bigQ d γ : ℝ) * logDetLoss P q m (m + L) := by
+    linarith only [this]
+  have hexpmono : Real.exp (detIncrement P q m (m + L)) - 1 ≤
+      Real.exp ((bigQ d γ : ℝ) * detIncrement P q m (m + L)) - 1 := by
+    have hle : detIncrement P q m (m + L) ≤ (bigQ d γ : ℝ) * detIncrement P q m (m + L) := by
       nlinarith only [hQ1, hΔ]
     have := Real.exp_le_exp.mpr hle
-    linarith
+    linarith only [this]
   have hDm1 : determinantDrift P γ q jStar (m + L) ≤
       determinantDrift P γ q jStar m +
-        2 * (Real.exp (logDetLoss P q m (m + L)) - 1) :=
+        2 * (Real.exp (detIncrement P q m (m + L)) - 1) :=
     determinantDrift_advance_absorbed d hd γ hγ P E Ψ K S hP hstat hunit hdag
       L hL jStar hjStar metric hmetric m (by omega) hD1
   rcases hcase with heq | hcase
@@ -338,28 +338,28 @@ theorem fixed_span_propagation (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈
     have hstartn := hstart P E Ψ K S hP hstat hunit hdag L hL jStar hjStar hsrc2
       metric hmetric n hn hp1
     nlinarith only [hstartn, hDm1, hexpmono, hp0, hD0, hLr1, hC1.le, hC2.le, hexpx1,
-      mul_nonneg (mul_nonneg hC1.le (by linarith : (0:ℝ) ≤ (L:ℝ))) hD0,
-      mul_nonneg (mul_nonneg hC2.le (by linarith : (0:ℝ) ≤ (L:ℝ))) hp0,
-      mul_nonneg (mul_nonneg hC2.le (by linarith : (0:ℝ) ≤ (L:ℝ))) hD0,
-      mul_nonneg (mul_nonneg hC2.le (by linarith : (0:ℝ) ≤ (L:ℝ))) hexpx1,
-      mul_nonneg (by linarith : (0:ℝ) ≤ (L:ℝ)) hD0,
-      mul_nonneg (by linarith : (0:ℝ) ≤ (L:ℝ)) hexpx1,
-      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith : (0:ℝ) ≤ (L:ℝ))) hp0,
-      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith : (0:ℝ) ≤ (L:ℝ))) hD0,
-      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith : (0:ℝ) ≤ (L:ℝ))) hexpx1]
+      mul_nonneg (mul_nonneg hC1.le (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hD0,
+      mul_nonneg (mul_nonneg hC2.le (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hp0,
+      mul_nonneg (mul_nonneg hC2.le (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hD0,
+      mul_nonneg (mul_nonneg hC2.le (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hexpx1,
+      mul_nonneg (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ)) hD0,
+      mul_nonneg (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ)) hexpx1,
+      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hp0,
+      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hD0,
+      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hexpx1]
   · -- fixed-span case: n + h ≤ m
     have hfixm := hfix P E Ψ K S hP hstat hunit hdag h hh L hL jStar hjStar hsrc1
       metric hmetric n m hn hcase hp1
     nlinarith only [hfixm, hDm1, hexpmono, hp0, hD0, hLr1, hC1.le, hC2.le, hexpx1,
-      mul_nonneg (mul_nonneg hC1.le (by linarith : (0:ℝ) ≤ (L:ℝ))) hD0,
-      mul_nonneg (mul_nonneg hC2.le (by linarith : (0:ℝ) ≤ (L:ℝ))) hp0,
-      mul_nonneg (mul_nonneg hC2.le (by linarith : (0:ℝ) ≤ (L:ℝ))) hD0,
-      mul_nonneg (mul_nonneg hC2.le (by linarith : (0:ℝ) ≤ (L:ℝ))) hexpx1,
-      mul_nonneg (by linarith : (0:ℝ) ≤ (L:ℝ)) hD0,
-      mul_nonneg (by linarith : (0:ℝ) ≤ (L:ℝ)) hexpx1,
-      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith : (0:ℝ) ≤ (L:ℝ))) hp0,
-      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith : (0:ℝ) ≤ (L:ℝ))) hD0,
-      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith : (0:ℝ) ≤ (L:ℝ))) hexpx1]
+      mul_nonneg (mul_nonneg hC1.le (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hD0,
+      mul_nonneg (mul_nonneg hC2.le (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hp0,
+      mul_nonneg (mul_nonneg hC2.le (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hD0,
+      mul_nonneg (mul_nonneg hC2.le (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hexpx1,
+      mul_nonneg (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ)) hD0,
+      mul_nonneg (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ)) hexpx1,
+      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hp0,
+      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hD0,
+      mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 3) (by linarith only [hLr1] : (0:ℝ) ≤ (L:ℝ))) hexpx1]
 
 end
 

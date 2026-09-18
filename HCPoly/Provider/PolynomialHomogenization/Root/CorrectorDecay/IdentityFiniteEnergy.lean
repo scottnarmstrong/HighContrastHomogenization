@@ -3,7 +3,8 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.PolynomialHomogenization.Root.CorrectorDecay.IdentityGaugeApplication
+import HCPoly.Provider.PolynomialHomogenization.Root.CorrectorDecay.IdentityGaugeSpecialization
+import HCPoly.Provider.Regularity.PrintOrderIdentityCubeDualRegularity
 
 namespace Homogenization
 namespace HighContrast

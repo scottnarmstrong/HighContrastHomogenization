@@ -4,12 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.Recurrence.PositiveGapClosure
-import HCPoly.Provider.Transport.GapFunctions
+import HCPoly.Setup.TransportObjects
+import HCPoly.Provider.Transport.NearIsometry
+import HCPoly.Provider.Transport.WhitneySquareWeights
+import HCPoly.Provider.Transport.DiscreteConvolution
+import HCPoly.Provider.PortableHistory.MajorizationSup
 import HCPoly.Annealed.SchattenDefinedness
-import HCPoly.Provider.Transport.CellGap
 import HCPoly.Provider.Recurrence.RecurrenceAssembly
 import HCPoly.Provider.PortableHistory.MajorizationSize
-import HCPoly.Provider.Transport.HistoryDischarge
 import HCPoly.Provider.PortableHistory.CheckpointMoment
 
 /-!
@@ -208,32 +210,6 @@ theorem blockSize_filling_sum_le {F : BlockMat d} (hF : IsSymmetricBlockMat F)
 /-! ## The decomposition -/
 
 /-! ## The inherited leg at the centred history -/
-
-/-- **The ancestor statistics total the centred history, times the count.** -/
-theorem ancestor_total_le {P : Measure (CoeffSpace d)} {l : ℤ} {p q : Mat d}
-    {jStar : ℤ} {Q rhoMax Khop : ℝ} {b n : ℤ} {y : Vec d} {Z : Finset (Fin d → ℤ)}
-    (hd : 1 ≤ d) (hQ : 0 ≤ Q) (hP : HCPoly.Frozen.IsStationaryLaw P)
-    (hq : IsRoundedGrid l q) (hlb : l ≤ b) (hbn : b ≤ n) (hK : gridRatio q p ≤ Khop)
-    (hpdb : Book.Ch02.BlockPosDef (adaptedMean P q b))
-    (hZ : ∀ w ∈ Z, (adaptedCellAt q b w ∩ adaptedCellTranslate p n y).Nonempty) :
-    ∑ vB ∈ Z, ∫⁻ x, (⨆ (r : ℤ) (_ : jStar ≤ r) (_ : r ≤ b) (w : Fin d → ℤ)
-          (_ : adaptedCellAt q r w ⊆ adaptedCellAt q b vB),
-        ENNReal.ofReal ((3 : ℝ) ^ (-rhoMax * ((b : ℝ) - (r : ℝ))) *
-          blockSize (blockSub (adaptedResponse q r w x) (adaptedMean P q r))
-            (adaptedMean P q b))) ^ Q ∂P ≤
-      ENNReal.ofReal ((2 + Real.sqrt d * Khop) ^ d * (3 : ℝ) ^ ((n - b) * (d : ℤ))) *
-        centeredHistory P Q rhoMax q jStar b := by
-  calc ∑ vB ∈ Z, ∫⁻ x, (⨆ (r : ℤ) (_ : jStar ≤ r) (_ : r ≤ b) (w : Fin d → ℤ)
-          (_ : adaptedCellAt q r w ⊆ adaptedCellAt q b vB),
-        ENNReal.ofReal ((3 : ℝ) ^ (-rhoMax * ((b : ℝ) - (r : ℝ))) *
-          blockSize (blockSub (adaptedResponse q r w x) (adaptedMean P q r))
-            (adaptedMean P q b))) ^ Q ∂P
-      ≤ ∑ _vB ∈ Z, centeredHistory P Q rhoMax q jStar b :=
-        Finset.sum_le_sum fun vB _ => ancestor_stationarity_le hQ hP hq hlb hpdb vB
-    _ = (Z.card : ℝ≥0∞) * centeredHistory P Q rhoMax q jStar b := by
-        rw [Finset.sum_const, nsmul_eq_mul]
-    _ ≤ _ := mul_le_mul'
-        (card_ancestors_le_ofReal hd (Recurrence.posDef_of_isRoundedGrid hq) hbn hK hZ) le_rfl
 
 /-! ## The normalization bridge -/
 

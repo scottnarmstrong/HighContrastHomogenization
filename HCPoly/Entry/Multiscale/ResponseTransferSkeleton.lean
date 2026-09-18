@@ -1,18 +1,18 @@
 import HCPoly.Entry.Setup.SelectionData
 import HCPoly.Entry.Multiscale.ResponseTransferHelpers
-import HCPoly.Entry.Multiscale.ResponseInputs.Kernels
+import HCPoly.Entry.Response.Core.EccentricityScaleDecay
 import HCPoly.Entry.Geometry.CanonicalMetricBounds
-import HCPoly.Entry.Multiscale.ResponseInputs.AdaptedAssembly
+import HCPoly.Entry.Response.Transfer.AdaptedResponseAssembly
 
 /-!
 # Inputs for the proof of `p.response.transfer` (`HCPoly/Entry/Statements/ResponseTransfer.lean`)
 
 Decomposition of the printed proof `p.response.transfer` of Proposition
 `p.response.transfer` into a DAG of lemmas whose statements are
-the content. The assembly itself is `Homogenization.HighContrast.Provider.response_transfer`
+the content. The assembly itself is `Homogenization.HighContrast.Entry.response_transfer`
 (`HCPoly/Entry/ResponseTransfer.lean`), which imports this file.
 
-Conventions (following the ScaleSel skeleton and `DECOMP_REPORT.md` of that task):
+Conventions (following `p.scale.selection` and `HCPoly/Entry/Multiscale/ScaleSelection/`):
 
 * The antecedent clauses on `(P, E, Ψ, K, Src, B, jStar, F, s, t)` of `p.response.transfer`
   are bundled verbatim in the scaffold predicate `RawOutput`; the assembly unpacks its
@@ -42,7 +42,7 @@ open scoped Matrix.Norms.L2Operator
 open scoped Matrix MatrixOrder
 /-! `RawOutput` was declared here; it is now
 declared, verbatim and in this same namespace, in
-`HCPoly/Entry/Multiscale/ResponseInputs/AdaptedDefs.lean`, which this file imports.  It had to move so
+`HCPoly/Entry/Response/Core/ResponseBlockObjects.lean`, which this file imports.  It had to move so
 that the imported files can state their lemmas over
 it.  Nothing else about it changed, and R1's statement below is unchanged. -/
 
@@ -146,8 +146,8 @@ theorem adaptedCell_one (d : ℕ) (j : ℤ) :
     exact Matrix.one_mulVec x]
   exact Set.image_id (HighContrast.centeredCube d j)
 
-/-- `Θ_m = blockContrast 𝐀hom_{m,Id}` (`HCPoly/Entry/Setup/Response.lean`, `adaptedMean`,
-`adaptedCell_one`). -/
+/-- `Θ_m = blockContrast 𝐀hom_{m,Id}` (`HCPoly/Setup/Moments.lean`, `adaptedMean`;
+`HCPoly/Entry/Geometry/RoundedGridBasic.lean`, `adaptedCell_one`). -/
 theorem annealedContrast_eq (d : ℕ) (P : Measure (CoeffSpace d)) (m : ℤ) :
     annealedContrast P m = blockContrast (adaptedMean P (1 : Mat d) m) := by
   unfold annealedContrast adaptedMean
@@ -204,7 +204,7 @@ theorem nat_le_ceil_of_le (ℓ : ℕ) (x : ℝ) (h : (ℓ : ℝ) ≤ x) : (ℓ :
   have h2 : (↑(ℓ : ℤ) : ℝ) ≤ ↑⌈x⌉ := by simp only [Int.cast_natCast]; exact h1
   exact Int.cast_le.mp h2
 
-/-! ## Kernels (gated external inputs) -/
+/-! ## EccentricityScaleDecay (gated external inputs) -/
 
 /-- **R1** kernel `ext.adapted.response`: the adapted response estimate proper, exactly K1's third
 conjunct.  It is the adapted response estimate the paper takes as given at
@@ -231,7 +231,7 @@ theorem adapted_response_core (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ) (_hγ : γ �
 /-! The private copy of A12 `blockPosDef_of_toFullBlockMat_posDef` that stood here has been
 removed: `HCPoly/Entry/Multiscale/Initial/ScalarBounds.lean` declares it publicly in this same
 namespace, and it is now in this file's import graph (through
-`HCPoly/Entry/Multiscale/ResponseInputs/AdaptedDefs.lean`), so the private copy was a duplicate
+`HCPoly/Entry/Response/Core/ResponseBlockObjects.lean`), so the private copy was a duplicate
 declaration.  K1's proof below is unchanged and now uses the public A12, exactly the
 declaration the removed docstring named. -/
 
@@ -279,7 +279,7 @@ theorem adapted_response_kernel (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ) (_hγ : γ 
   have hcm : (explicitCanonicalMetric F).PosDef := Geometry.explicitCanonicalMetric_posDef raw.symm raw.pos
   have hfull := Homogenization.HighContrast.Annealed.adaptedMean_posDef d _hd P γ E Ψ K Src raw.stat
     raw.ell jStar raw.hj (explicitCanonicalMetric F) hcm t
-  exact ⟨Homogenization.HighContrast.Annealed.isSymmetricBlockMat_annealedBlock _ _,
+  exact ⟨isSymmetricBlockMat_annealedBlock _ _,
     blockPosDef_of_toFullBlockMat_posDef _ hfull,
     h P E Ψ K Src B jStar F s t raw⟩
 
@@ -330,7 +330,7 @@ theorem persistence_transfer_kernel (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ) (_hγ :
   let : NeZero d := ⟨by omega⟩
   have hm : (explicitCanonicalMetric F).PosDef := Geometry.explicitCanonicalMetric_posDef raw.symm raw.pos
   have hB1 : (1 : ℝ) ≤ B := le_trans (le_max_right _ _) raw.hB
-  have hPi : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.Annealed.one_le_aspectRatio raw.ell
+  have hPi : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger raw.ell
   have hlogPi : (0 : ℝ) ≤ Real.logb 3 (2 + aspectRatio E) :=
     Real.logb_nonneg (by norm_num) (by linarith only [hPi])
   have hlogK : (0 : ℝ) ≤ Real.logb 3 (2 * K) :=
@@ -373,7 +373,7 @@ theorem persistence_transfer_kernel (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ) (_hγ :
     blockPosDef_of_toFullBlockMat_posDef _
       (Homogenization.HighContrast.Annealed.adaptedMean_posDef d _hd P γ E Ψ K Src raw.stat raw.ell jStar
         raw.hj (explicitCanonicalMetric F) hm t)
-  refine ⟨ℓ, hl1, hlLe, Homogenization.HighContrast.Annealed.isSymmetricBlockMat_annealedBlock _ _, ?_, ?_⟩
+  refine ⟨ℓ, hl1, hlLe, isSymmetricBlockMat_annealedBlock _ _, ?_, ?_⟩
   · have hE2' := hE2 P E Ψ K Src raw.stat raw.unit raw.ell jStar raw.hj hsrc2
       (explicitCanonicalMetric F) hm t ht0 raw.cube ℓ r hl1 hr1
     have hP3 := adaptedMean_persistence d _hd P γ E Ψ K Src raw.stat raw.ell jStar raw.hj
@@ -400,24 +400,24 @@ theorem canonical_comparison_kernel {d : ℕ} (_hd : 2 ≤ d) (A M : BlockMat d)
     canonicalImbalance M ≤ (1 + ηiso) ^ 3 / (1 - ηiso) * (1 + δad) := by
   obtain ⟨hη0, hη1⟩ := hη
   obtain ⟨hδ0, hδ1⟩ := hδ
-  have hApos : (toFullBlockMat A).PosDef := full_posDef _hAs hA
+  have hApos : (toFullBlockMat A).PosDef := posDef_toFullBlockMat _hAs hA
   have hMh : (toFullBlockMat M).IsHermitian :=
     (Analysis.toFullBlockMat_isHermitian_iff M).2 _hMs
   have hsA : ∀ c : ℝ, (toFullBlockMat (blockScale c A)).IsHermitian := fun c =>
-    (Analysis.toFullBlockMat_isHermitian_iff _).2 (isSymm_blockScale c _hAs)
+    (Analysis.toFullBlockMat_isHermitian_iff _).2 (isSymmetricBlockMat_blockScale c _hAs)
   have hloF : (1 - ηiso) • toFullBlockMat A ≤ toFullBlockMat M := by
-    have h := full_le_of_block (hsA (1 - ηiso)) hMh hlo
-    rwa [full_blockScale] at h
+    have h := Analysis.matrixOrder_of_blockMatLoewnerLE (hsA (1 - ηiso)) hMh hlo
+    rwa [toFullBlockMat_blockScale] at h
   have hhiF : toFullBlockMat M ≤ (1 + ηiso) • toFullBlockMat A := by
-    have h := full_le_of_block hMh (hsA (1 + ηiso)) hhi
-    rwa [full_blockScale] at h
+    have h := Analysis.matrixOrder_of_blockMatLoewnerLE hMh (hsA (1 + ηiso)) hhi
+    rwa [toFullBlockMat_blockScale] at h
   have hMpos : (toFullBlockMat M).PosDef :=
     posDef_of_le (posDef_smul (by linarith only [hη1]) hApos) hMh hloF
   have hAu : IsUnit (toFullBlockMat A).det := (Matrix.isUnit_iff_isUnit_det _).1 hApos.isUnit
   have h1 := le_of_imbalance_le hApos himb
   have h4a : (1 + ηiso)⁻¹ • (toFullBlockMat A)⁻¹ ≤ (toFullBlockMat M)⁻¹ := by
-    have h := inv_antitone hMpos (posDef_smul (by linarith only [hη0]) hApos) hhiF
-    rwa [inv_smul_eq (by linarith only [hη0] : (1 : ℝ) + ηiso ≠ 0) hAu] at h
+    have h := inv_le_inv_of_le hMpos (posDef_smul (by linarith only [hη0]) hApos) hhiF
+    rwa [inv_smul_of_isUnit (by linarith only [hη0] : (1 : ℝ) + ηiso ≠ 0) hAu] at h
   have h4 : (toFullBlockMat A)⁻¹ ≤ (1 + ηiso) • (toFullBlockMat M)⁻¹ := by
     have h := smul_le_smul_left (c := 1 + ηiso) (by linarith only [hη0]) h4a
     rwa [smul_smul, mul_inv_cancel₀ (by linarith only [hη0] : (1 : ℝ) + ηiso ≠ 0), one_smul] at h
@@ -427,7 +427,7 @@ theorem canonical_comparison_kernel {d : ℕ} (_hd : 2 ≤ d) (A M : BlockMat d)
   have h5 : toFullBlockMat (blockSwap d) * (toFullBlockMat A)⁻¹ * toFullBlockMat (blockSwap d)
       ≤ (1 + ηiso) • (toFullBlockMat (blockSwap d) * (toFullBlockMat M)⁻¹ *
         toFullBlockMat (blockSwap d)) := by
-    have h := congr_le h4 (toFullBlockMat (blockSwap d))
+    have h := Analysis.matrix_congr_le h4 (toFullBlockMat (blockSwap d))
     rwa [hRt, Matrix.mul_smul, Matrix.smul_mul] at h
   have hb : (1 + ηiso) • toFullBlockMat A ≤
       ((1 + ηiso) * (1 + δad)) • (toFullBlockMat (blockSwap d) * (toFullBlockMat A)⁻¹ *
@@ -457,7 +457,7 @@ theorem euclidean_contrast_bridge_kernel {d : ℕ} (_hd : 2 ≤ d) (A : BlockMat
     (_hAs : IsSymmetricBlockMat A) (_hA : Book.Ch02.BlockPosDef A) {x : ℝ} (_hx : 0 ≤ x)
     (h : canonicalImbalance A ≤ 1 + x) :
     blockContrast A - 1 ≤ 3 * x := by
-  exact k4_main _hAs _hA _hx h
+  exact blockContrast_sub_one_le_of_canonicalImbalance_le _hAs _hA _hx h
 
 
 /-- Scalar dilation acts on the entire doubled quadratic form. -/

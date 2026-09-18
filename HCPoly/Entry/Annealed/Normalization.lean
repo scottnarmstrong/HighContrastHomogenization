@@ -1,12 +1,17 @@
-import HCPoly.Entry.Annealed.AdaptedIntegrability
-import HCPoly.Entry.Multiscale.ProfileIdentities
+import HCPoly.Entry.Annealed.AdaptedCellFoundations
+import HCPoly.Entry.Multiscale.DriftAdvance
 
 /-!
 # Actual expectation and identity normalization
 
-Finite entrywise expectations commute with deterministic matrix multiplication.
-The diagonal identity uses positive actual annealed blocks, without commuting
-expectation through inversion or changing the normalization.
+Finite entrywise expectations commute with deterministic matrix multiplication, so the
+entrywise integral of the actual coarse block is the annealed block and the entrywise
+integral of the normalized actual block is the normalized annealed mean.  Reading the
+identity normalizer at one generation fixes the diagonal normalized mean at the doubled
+identity; the actual block is then centered on its annealed mean, its centered fluctuations
+have all finite Schatten moments, and a positive actual normalizer keeps the normalized
+block positive definite.  These normalization identities are what the parent--child
+recurrence `p.fixed.geometry.parent.child.recurrence` applies to its normalized fluctuation.
 -/
 
 open Homogenization.HighContrast (CoeffSpace HasIntegrableCoarseBlock adaptedMean annealedBlock
@@ -71,7 +76,7 @@ theorem normalizedMean_self (d : ℕ) (hd : 2 ≤ d)
     (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hjStar : 2 * d ≤ 3 ^ jStar)
     (m : Mat d) (hm : m.PosDef) (j : ℤ) :
-    normalizedMean P (explicitRoundedGrid jStar m) j j = Book.Ch02.blockIdentity d := by
+    relMean P (explicitRoundedGrid jStar m) j j = Book.Ch02.blockIdentity d := by
   exact Multiscale.normalizedBlock_self_of_posDef _
     (adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hjStar m hm j)
 
@@ -122,7 +127,7 @@ theorem memLqSchatten_normalizedFluctuation (d : ℕ) (hd : 2 ≤ d)
     (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hjStar : 2 * d ≤ 3 ^ jStar)
     (m : Mat d) (hm : m.PosDef) (j k : ℤ) (y : Vec d) (N : ℝ) (hN : 1 ≤ N) :
-    MemLqSchatten P N (normalizedFluctuation P (explicitRoundedGrid jStar m) j k y) := by
+    SchattenMemLp P N (normalizedFluctuation P (explicitRoundedGrid jStar m) j k y) := by
   have hA := Source.memLqSchatten_coarseBlock_adapted d hd P γ E Ψ K S hstat hdag
     jStar hjStar m hm j y N hN
   have hM := Analysis.memLqSchatten_const P hN (adaptedMean P (explicitRoundedGrid jStar m) j)

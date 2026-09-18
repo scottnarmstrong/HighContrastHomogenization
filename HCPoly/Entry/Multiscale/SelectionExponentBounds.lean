@@ -1,12 +1,19 @@
-import HCPoly.Entry.Setup.SelectionExponents
+import HCPoly.Entry.Setup.AdaptedGridCells
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 
 /-!
 # Bounds for the fixed selection exponents
 
-This file proves the elementary arithmetic consequences of the definitions
-`bigQ` and `rhoMax` used in the scale-selection and two-grid estimates.
+On the standing range `γ ∈ [0,1)` the fixed moment `Q = 2⌈2(d+1)/(1-γ)⌉` is even, at
+least `2` and positive, and the fixed exponent `ρ_max = γ + (1/Q)(d + ¼(1-γ))` satisfies
+`γ ≤ ρ_max < 1`.  The identity `ρ_max - d/Q = γ + (1-γ)/(4Q)` puts the fluctuation decay
+exponent `d/2 - (1-γ)/(4Q)` strictly above `0`.  The same data give the moment order
+`2(d + Q)` of the source multiplier tail: it is at least `1`, and each of the two geometric
+tails retains the margin `d + Q`.
+
+These are the arithmetic inputs of the scale-selection alternatives `p.scale.selection` and
+of the source multiplier tail `e.source.multiplier`.
 -/
 
 namespace Homogenization.HighContrast.Multiscale
@@ -27,23 +34,23 @@ private theorem bigQ_two_le_of_lt_one (d : ℕ) {γ : ℝ} (hγlt : γ < 1) :
   have hceil : 1 ≤ ⌈2 * ((d : ℝ) + 1) / (1 - γ)⌉₊ :=
     (Nat.one_le_ceil_iff).2 harg_pos
   unfold bigQ
-  nlinarith
+  nlinarith only [hceil]
 
-theorem bigQ_two_le (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
+theorem bigQ_two_le (d : ℕ) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) : 2 ≤ bigQ d γ := by
   exact bigQ_two_le_of_lt_one d hγ.2
 
-theorem bigQ_pos (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
+theorem bigQ_pos (d : ℕ) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) : 0 < bigQ d γ := by
-  exact lt_of_lt_of_le (by norm_num : 0 < 2) (bigQ_two_le d hd γ hγ)
+  exact lt_of_lt_of_le (by norm_num : 0 < 2) (bigQ_two_le d γ hγ)
 
-theorem bigQ_ne_zero (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
+theorem bigQ_ne_zero (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) : bigQ d γ ≠ 0 :=
-  (bigQ_pos d hd γ hγ).ne'
+  (bigQ_pos d γ hγ).ne'
 
-theorem bigQ_real_pos (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
+theorem bigQ_real_pos (d : ℕ) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) : 0 < (bigQ d γ : ℝ) := by
-  exact_mod_cast bigQ_pos d hd γ hγ
+  exact_mod_cast bigQ_pos d γ hγ
 
 theorem bigQ_mul_one_sub_ge (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
@@ -72,34 +79,34 @@ private theorem rhoMax_numerator_lt_bigQ_mul_one_sub (d : ℕ) (hd : 2 ≤ d) (�
   have hγlt : γ < 1 := hγ.2
   have hd_nonneg : 0 ≤ (d : ℝ) := by positivity
   have hnum_lt : (d : ℝ) + (1 - γ) / 4 < 4 * ((d : ℝ) + 1) := by
-    nlinarith
+    linarith only [hγ_nonneg, hd_nonneg]
   exact hnum_lt.trans_le hbound
 
 theorem rhoMax_lt_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) : rhoMax d γ < 1 := by
-  have hq_pos : 0 < (bigQ d γ : ℝ) := bigQ_real_pos d hd γ hγ
+  have hq_pos : 0 < (bigQ d γ : ℝ) := bigQ_real_pos d γ hγ
   have hnum_lt := rhoMax_numerator_lt_bigQ_mul_one_sub d hd γ hγ
   have hfrac_lt : (bigQ d γ : ℝ)⁻¹ * ((d : ℝ) + (1 - γ) / 4) < 1 - γ := by
     rw [inv_mul_eq_div]
     exact (div_lt_iff₀ hq_pos).2 (by simpa [mul_comm] using hnum_lt)
   simp [rhoMax]
-  linarith
+  linarith only [hfrac_lt]
 
 theorem gamma_le_rhoMax (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) : γ ≤ rhoMax d γ := by
   have hq_nonneg : 0 ≤ ((bigQ d γ : ℝ)⁻¹) := by
-    exact inv_nonneg.mpr (le_of_lt (bigQ_real_pos d hd γ hγ))
+    exact inv_nonneg.mpr (le_of_lt (bigQ_real_pos d γ hγ))
   have hnum_nonneg : 0 ≤ (d : ℝ) + (1 - γ) / 4 := by
     have hgap : 0 ≤ 1 - γ := sub_nonneg.mpr hγ.2.le
     positivity
   simp [rhoMax]
   exact mul_nonneg hq_nonneg hnum_nonneg
 
-theorem rhoMax_sub_d_div_bigQ (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
+theorem rhoMax_sub_d_div_bigQ (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
     rhoMax d γ - (d : ℝ) / (bigQ d γ : ℝ) =
       γ + (1 - γ) / (4 * (bigQ d γ : ℝ)) := by
-  have hq_ne : (bigQ d γ : ℝ) ≠ 0 := ne_of_gt (bigQ_real_pos d hd γ hγ)
+  have hq_ne : (bigQ d γ : ℝ) ≠ 0 := ne_of_gt (bigQ_real_pos d γ hγ)
   simp [rhoMax, inv_mul_eq_div]
   field_simp [hq_ne]
   ring
@@ -108,20 +115,20 @@ theorem fluctuation_decay_exponent_pos (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
     0 < (d : ℝ) / 2 - (1 - γ) / (4 * (bigQ d γ : ℝ)) := by
   have hq_two : (2 : ℝ) ≤ (bigQ d γ : ℝ) := by
-    exact_mod_cast bigQ_two_le d hd γ hγ
+    exact_mod_cast bigQ_two_le d γ hγ
   have hq_pos : 0 < (bigQ d γ : ℝ) := lt_of_lt_of_le zero_lt_two hq_two
   have hd_two : (2 : ℝ) ≤ d := by exact_mod_cast hd
-  have hgap_le_one : 1 - γ ≤ 1 := by linarith [hγ.1]
+  have hgap_le_one : 1 - γ ≤ 1 := by linarith only [hγ.1]
   have hgap_nonneg : 0 ≤ 1 - γ := sub_nonneg.mpr hγ.2.le
   have hden_pos : 0 < 4 * (bigQ d γ : ℝ) := by positivity
   have hsmall : (1 - γ) / (4 * (bigQ d γ : ℝ)) ≤ 1 / 8 := by
-    have hden_ge : (8 : ℝ) ≤ 4 * (bigQ d γ : ℝ) := by nlinarith
+    have hden_ge : (8 : ℝ) ≤ 4 * (bigQ d γ : ℝ) := by linarith only [hq_two]
     calc
       (1 - γ) / (4 * (bigQ d γ : ℝ)) ≤ 1 / (4 * (bigQ d γ : ℝ)) := by
         exact div_le_div_of_nonneg_right hgap_le_one hden_pos.le
       _ ≤ 1 / 8 := by
         exact one_div_le_one_div_of_le (by norm_num) hden_ge
-  nlinarith
+  linarith only [hd_two, hsmall]
 
 /-- The moment order used in the source multiplier tail estimate. -/
 def sourceMomentExponent (d : ℕ) (γ : ℝ) : ℕ :=
@@ -132,19 +139,21 @@ theorem sourceMomentExponent_ge_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     1 ≤ sourceMomentExponent d γ := by
   have hd_pos : 0 < d := lt_of_lt_of_le (by norm_num : 0 < 2) hd
   unfold sourceMomentExponent
-  nlinarith [Nat.le_add_right d (bigQ d γ)]
+  nlinarith only [hd, Nat.zero_le (bigQ d γ)]
 
 /-- Explicit margins for the two geometric tails in the argument for `e.source.multiplier`. -/
-theorem sourceMomentExponent_tail_margins (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
+theorem sourceMomentExponent_tail_margins (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
     (d : ℝ) + (bigQ d γ : ℝ) ≤ (sourceMomentExponent d γ : ℝ) - (d : ℝ) ∧
     (d : ℝ) + (bigQ d γ : ℝ) ≤
       (sourceMomentExponent d γ : ℝ) - (bigQ d γ : ℝ) * γ := by
-  have hQ : 0 ≤ (bigQ d γ : ℝ) := (bigQ_real_pos d hd γ hγ).le
+  have hQ : 0 ≤ (bigQ d γ : ℝ) := (bigQ_real_pos d γ hγ).le
   have hγ1 : 0 ≤ 1 - γ := sub_nonneg.mpr hγ.2.le
   have hd0 : 0 ≤ (d : ℝ) := Nat.cast_nonneg d
   simp only [sourceMomentExponent, Nat.cast_mul, Nat.cast_ofNat, Nat.cast_add]
-  constructor <;> nlinarith [mul_nonneg hQ hγ1]
+  constructor
+  · linarith only [hQ]
+  · linarith only [hd0, mul_nonneg hQ hγ1]
 
 end
 

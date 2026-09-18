@@ -3,9 +3,15 @@ import HCPoly.Entry.Multiscale.Global.RunResidue
 /-!
 # The run assembly
 
-The assembly of `global_run` from `global_run_residue` (`HCPoly.Entry.Multiscale.Global.RunResidue`).
-The two `Selects` projections the run needs and the per-step case analysis `run_step_any`
-are in `HCPoly.Entry.Multiscale.Global.RunStepAny`.
+The assembly of `global_run` from `global_run_residue`
+(`HCPoly.Entry.Multiscale.Global.RunResidue`). From the residue — the
+`GlobalRunGapObligation` with its two run-independent constant choices left open — it makes
+those choices and discharges the two `Selects` projections with the per-step case analysis
+`run_step_any` (`HCPoly.Entry.Multiscale.Global.RunStepAny`), producing the global selection
+run: for every `S` with `S.Selects d γ`, constants `ε`, `Csrc`, `Cprof`, `C` and the
+`SelectedOutput` estimate for each coefficient law with the dagger ellipticity. This is the
+type of Proposition `p.global.selection`, and through that proposition it is part of the
+assembly of Theorem `t.polynomial.entry`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace aspectRatio aspectRatio_nonneg)
@@ -21,7 +27,7 @@ noncomputable section
 /-! ## §4 The assembly -/
 
 /-- `source_threshold_mono` with the sign case removed. -/
-private theorem src_threshold_of_bundled' (x y C C' : ℝ) (j : ℤ) (hy : 0 ≤ y) (hC' : 0 < C')
+private theorem src_threshold_of_bundled (x y C C' : ℝ) (j : ℤ) (hy : 0 ≤ y) (hC' : 0 < C')
     (hCC : C' ≤ C) (hj0 : 0 ≤ j) (hj : ⌈y + C * x⌉ ≤ j) : ⌈C' * x⌉ ≤ j := by
   rcases le_or_gt 0 x with hx | hx
   · exact source_threshold_mono x y C C' j hx hy hCC hj
@@ -82,12 +88,12 @@ theorem global_run_of_gap_outer
   intro C' hC'0 hC'le
   have hAR : 0 ≤ aspectRatio E := aspectRatio_nonneg E
   have hlogb : 0 ≤ Real.logb 3 (2 + aspectRatio E) :=
-    Real.logb_nonneg (by norm_num) (by linarith)
+    Real.logb_nonneg (by norm_num) (by linarith only [hAR])
   have hB1 : (1 : ℝ) ≤ B := le_trans (S.one_le_B0 ε σ hε hσ) hB
   have hy : 0 ≤ C * (B + 1) * Real.logb 3 (2 + aspectRatio E) := by
-    have : 0 ≤ C * (B + 1) := by nlinarith
+    have : 0 ≤ C * (B + 1) := mul_nonneg hC0.le (by linarith only [hB1])
     exact mul_nonneg this hlogb
-  exact src_threshold_of_bundled' (Real.logb 3 (2 * K))
+  exact src_threshold_of_bundled (Real.logb 3 (2 * K))
     (C * (B + 1) * Real.logb 3 (2 + aspectRatio E)) Csrc C' (jStar : ℤ)
     hy hC'0 hC'le (Int.natCast_nonneg jStar) hthr
 

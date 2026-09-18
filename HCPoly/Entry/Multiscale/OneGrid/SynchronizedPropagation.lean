@@ -46,9 +46,9 @@ theorem determinantDrift_advance (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
           ∀ m L : ℤ, (jStar : ℤ) ≤ m → 1 ≤ L →
             determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar (m + L) ≤
               (3 : ℝ) ^ (-((1 - γ) / 8) * (L : ℝ)) *
-                    Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) *
+                    Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) *
                     determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
-                  Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1 := by
+                  Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1 := by
   intro P E Ψ K S hprob hstat _hunit hdag jStar hjStar metric hmetric m L hm hL
   let : IsProbabilityMeasure P := hprob
   exact
@@ -85,18 +85,18 @@ theorem synchronized_propagation (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                           (m + (h : ℤ)) ≤
                       1 / 8 *
                           Real.exp ((bigQ d γ : ℝ) *
-                            synchronizedLogDetLoss P
+                            synchCharge P
                               (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
                           (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                             determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m) +
                         C * (Real.exp ((bigQ d γ : ℝ) *
-                          synchronizedLogDetLoss P
+                          synchCharge P
                             (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) := by
   obtain ⟨Csrc, hCsrc, C, hC, hcon⟩ := profile_contraction d hd γ hγ
-  refine ⟨Csrc, hCsrc, C + 1, by linarith, ?_⟩
+  refine ⟨Csrc, hCsrc, C + 1, by linarith only [hC], ?_⟩
   intro P E Ψ K S hP hstat hunit hdag h hh jStar hjStar hsrc metric hmetric n m hn hnm
   let := hP
-  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d hd γ hγ
+  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d γ hγ
   have hh1 : 1 ≤ h := by omega
   have hjm : (jStar : ℤ) ≤ m := by omega
   have hL1 : (1 : ℤ) ≤ (h : ℤ) := by omega
@@ -105,63 +105,63 @@ theorem synchronized_propagation (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     metric hmetric m (h : ℤ) hjm hL1
   push_cast at hD
   have hD0 : 0 ≤ determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m :=
-    determinantDrift_nonneg d hd γ hγ P E Ψ K S hP hstat hunit hdag jStar hjStar metric hmetric m
-  have hlog0 : 0 ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ)) :=
+    determinantDrift_nonneg d hd γ P E Ψ K S hP hstat hunit hdag jStar hjStar metric hmetric m
+  have hlog0 : 0 ≤ detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ)) :=
     Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric
       m (m + (h : ℤ)) hjm (by omega)
   have hsync0 := logDetLoss_le_synchronizedLogDetLoss d hd γ hγ P E Ψ K S hP hstat hunit hdag
     h hh1 jStar hjStar metric hmetric m (m + (h : ℤ)) (by omega) (by omega) (le_refl _)
   rw [add_sub_cancel_right] at hsync0
-  have hDhat0 : 0 ≤ synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m :=
+  have hDhat0 : 0 ≤ synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m :=
     le_trans hlog0 hsync0
   have hQ1 : (1 : ℝ) ≤ (bigQ d γ : ℝ) := by exact_mod_cast (by omega : 1 ≤ bigQ d γ)
-  have hDeltaQ : logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ)) ≤
-      (bigQ d γ : ℝ) * synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m :=
+  have hDeltaQ : detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ)) ≤
+      (bigQ d γ : ℝ) * synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m :=
     hsync0.trans (le_mul_of_one_le_left hDhat0 hQ1)
-  have hE : Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ))) ≤
+  have hE : Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ))) ≤
       Real.exp ((bigQ d γ : ℝ) *
-        synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) :=
+        synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) :=
     Real.exp_le_exp.mpr hDeltaQ
   have hcoef := three_rpow_neg_eighth_span_lt d hd γ hγ h hh
-  have hb1nn : 0 ≤ Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ))) :=
+  have hb1nn : 0 ≤ Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ))) :=
     Real.exp_nonneg _
   have hab : (3 : ℝ) ^ (-((1 - γ) / 8) * (h : ℝ)) *
-      Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ))) ≤
+      Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ))) ≤
       1 / 8 * Real.exp ((bigQ d γ : ℝ) *
-        synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) := by
+        synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) := by
     calc (3 : ℝ) ^ (-((1 - γ) / 8) * (h : ℝ)) *
-        Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ)))
-        ≤ 1 / 8 * Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ))) :=
+        Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ)))
+        ≤ 1 / 8 * Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + (h : ℤ))) :=
           mul_le_mul_of_nonneg_right hcoef.le hb1nn
       _ ≤ 1 / 8 * Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) :=
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) :=
           mul_le_mul_of_nonneg_left hE (by norm_num)
   have hDfinal : determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar (m + (h : ℤ)) ≤
       1 / 8 * Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
       (Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) := by
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) := by
     have hmul := mul_le_mul_of_nonneg_right hab hD0
-    linarith [hD, hmul, hE]
+    linarith only [hD, hmul, hE]
   have hsum := add_le_add hP1 hDfinal
   have heq :
       (1 / 8 * Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
         profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
         C * (Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1)) +
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1)) +
       (1 / 8 * Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
         (Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1)) =
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1)) =
       1 / 8 * Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
         (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m) +
       (C + 1) * (Real.exp ((bigQ d γ : ℝ) *
-          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) := by
+          synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) := by
     ring
   rw [heq] at hsum
   exact hsum

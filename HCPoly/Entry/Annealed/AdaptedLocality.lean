@@ -1,8 +1,15 @@
-import HCPoly.Entry.Annealed.LocalIndependence
+import HCPoly.Entry.Annealed.AdaptedDomainLocality
 import HCPoly.Entry.Geometry.AdaptedCell
-import HCPoly.Entry.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import HCPoly.Setup.BlockAlgebra
+import HCPoly.Setup.LocalSigmaFields
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Setup.CoefficientSpace
 import Homogenization.CoarseGraining.Translation
 import Homogenization.Book.Ch04.Internal.AEESliceAssembly.CarrierMuFamily
+import HCPoly.Provider.Transport.WhitneyLayer
 
 /-!
 # Local measurability and covariance of adapted coarse blocks
@@ -54,7 +61,7 @@ private theorem adaptedCellTranslate_translateSet {d : ℕ} (q : Mat d) (j : ℤ
     ext i
     have hi := congrFun hvx i
     simp only [Pi.add_apply, Pi.sub_apply] at hi ⊢
-    linarith
+    linarith only [hi]
 
 private theorem coarseBlock_translateCoeff_eq_translateSet {d : ℕ}
     (U : Set (Vec d)) (z : Fin d → ℤ) (a : CoeffSpace d) :
@@ -107,7 +114,7 @@ private theorem exists_smooth_cutoff_seq {U B : Set (Vec d)}
     dsimp [δ]
     have hn : 1 ≤ (n : ℝ) + 1 := by
       have hn0 : (0 : ℝ) ≤ (n : ℝ) := by positivity
-      linarith
+      linarith only [hn0]
     calc
       ε / ((n : ℝ) + 1) ≤ ε / 1 := by
         exact div_le_div_of_nonneg_left hεpos.le (by positivity) hn
@@ -612,7 +619,7 @@ theorem measurable_coarseBlock_entry_adapted
   have hU : IsOpen U := Geometry.isOpen_adaptedCellTranslate hq j y
   have hUb : Bornology.IsBounded U := by
     rw [show U = (fun v => y + matVecMul q v) '' HighContrast.centeredCube d j from
-      Geometry.adaptedCellTranslate_eq_image q j y]
+      Transport.adaptedCellTranslate_eq_image q j y]
     have hlin : Continuous (fun v : Vec d => y + matVecMul q v) :=
       continuous_const.add (Matrix.toLin' q).continuous_of_finiteDimensional
     exact (((isBounded_openCubeSet (originCube d j)).isCompact_closure).image hlin).isBounded.subset

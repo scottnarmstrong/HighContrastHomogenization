@@ -3,13 +3,12 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Response.PreYoungDischargeAssembly
 import HCPoly.Provider.Response.PreYoungFixedGridRows
 
 /-!
 # Unconditional pre-Young response families on a fixed rounded grid
 
-Fixed-grid sibling of `Response.exists_pre_young_response_families`: the grid is
+The unconditional pre-Young response families on a fixed rounded grid: the grid is
 rounded once at the fixed alignment `l` while the generation window `{s, t}`
 moves, and the aligned-cell integrability is drawn from the coarse ellipticity
 `e.coarse.ellipticity` instead of the window multiplier, whose coupled

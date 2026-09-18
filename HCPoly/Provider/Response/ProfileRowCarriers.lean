@@ -4,7 +4,9 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.Response.ProfileCarriers
-import HCPoly.Provider.Response.EndgameGlue
+import HCPoly.Geometry.DeterminantLoss
+import HCPoly.Provider.Initialization.Boundary
+import HCPoly.Provider.Transport.WindowMomentBound
 import Homogenization.Book.Ch02.Block
 
 /-!

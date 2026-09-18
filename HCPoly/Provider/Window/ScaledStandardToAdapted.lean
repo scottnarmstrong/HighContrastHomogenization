@@ -3,12 +3,16 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Window.StandardToAdapted
+import HCPoly.Provider.Window.CountableSubadditivity
+import HCPoly.Provider.Window.BurnSeries
+import HCPoly.Provider.Recurrence.AdaptedCellPositivity
+import HCPoly.Provider.Sharp.ReflectionOrder
+import HCPoly.Provider.Transport.WindowCellBounds
 
 /-!
 # The scale-adapted standard-to-adapted bridge
 
-The bridge `adapted_primal_of_standard` carries a uniform standard
+The standard-to-adapted bridge carries a uniform standard
 envelope `Y · burnDiscount` to the adapted cell at the same burn base as the
 grid.  The per-generation caps need the *scale-adapted* variant: when every
 standard subcell of scale `k` obeys the envelope `Y · 3^{g(r−k)}` (as the

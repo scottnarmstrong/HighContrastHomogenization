@@ -48,38 +48,38 @@ theorem profile_contraction_reduction (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                                 ((3 : ℝ) ^ d * (bigQ d γ : ℝ)) ^ bigQ d γ *
                                 (3 : ℝ) ^ (-((bigQ d γ : ℝ) * (d : ℝ) / 2) * (h : ℝ))) *
                             Real.exp ((bigQ d γ : ℝ) *
-                              synchronizedLogDetLoss P
+                              synchCharge P
                                 (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
                             profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                           C * (Real.exp ((bigQ d γ : ℝ) *
-                            synchronizedLogDetLoss P
+                            synchCharge P
                               (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) := by
   obtain ⟨Csrc, hCsrc, C3, hC3, hnew⟩ := new_fluctuation_sum_le d hd γ hγ
   obtain ⟨C1, hC1, htr⟩ := meanHistory_transport_le d hd γ hγ
   obtain ⟨C2, hC2, hup⟩ := meanPenalty_upper_block_sum_le d hd γ hγ
-  refine ⟨Csrc, hCsrc, C1 + C2 + C3, by linarith, ?_⟩
+  refine ⟨Csrc, hCsrc, C1 + C2 + C3, by linarith only [hC1, hC2, hC3], ?_⟩
   intro P E Ψ K S hP hstat hunit hdag h hh jStar hjStar hsrc metric hmetric n m hn hnm
   let := hP
   set q := Geometry.explicitRoundedGrid jStar metric with hq
-  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d hd γ hγ
+  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d γ hγ
   have hh1 : 1 ≤ h := by omega
   have hnm' : n ≤ m := by omega
   let w : ℝ → ℝ := fun x => (3 : ℝ) ^ (-((1 - γ) / 4) * x)
-  let p : ℤ → ℤ → ℝ := fun j k => meanPenalty (bigQ d γ) (normalizedMean P q j k)
+  let p : ℤ → ℤ → ℝ := fun j k => meanPenalty (bigQ d γ) (relMean P q j k)
   let v : ℤ → ℝ := fun j => ∫ a, absSchattenNorm (bigQ d γ : ℝ)
     (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P
   have hw (x : ℝ) : 0 ≤ w x := Real.rpow_nonneg (by norm_num) _
-  let e0 : ℝ := Real.exp ((bigQ d γ : ℝ) * logDetLoss P q m (m + (h : ℤ)))
-  let bigE : ℝ := Real.exp ((bigQ d γ : ℝ) * synchronizedLogDetLoss P q (h : ℤ) m)
+  let e0 : ℝ := Real.exp ((bigQ d γ : ℝ) * detIncrement P q m (m + (h : ℤ)))
+  let bigE : ℝ := Real.exp ((bigQ d γ : ℝ) * synchCharge P q (h : ℤ) m)
   let AH : ℝ := (2 : ℝ) ^ (bigQ d γ - 1) * ((3 : ℝ) ^ d * (bigQ d γ : ℝ)) ^ bigQ d γ *
       (3 : ℝ) ^ (-((bigQ d γ : ℝ) * (d : ℝ) / 2) * (h : ℝ))
   show profile P γ q jStar n (m + (h : ℤ)) ≤
       (w (h : ℝ) + AH) * bigE * profile P γ q jStar n m + (C1 + C2 + C3) * (bigE - 1)
-  have hsync : logDetLoss P q m (m + (h : ℤ)) ≤ synchronizedLogDetLoss P q (h : ℤ) m := by
+  have hsync : detIncrement P q m (m + (h : ℤ)) ≤ synchCharge P q (h : ℤ) m := by
     have hbound := logDetLoss_le_synchronizedLogDetLoss d hd γ hγ P E Ψ K S hP hstat hunit hdag
       h hh1 jStar hjStar metric hmetric m (m + (h : ℤ)) (by omega) (by omega) le_rfl
     simpa only [add_sub_cancel_right] using hbound
-  have hΔnonneg : 0 ≤ logDetLoss P q m (m + (h : ℤ)) :=
+  have hΔnonneg : 0 ≤ detIncrement P q m (m + (h : ℤ)) :=
     Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric
       m (m + (h : ℤ)) (by omega) (by omega)
   have he0_ge1 : 1 ≤ e0 := Real.one_le_exp (mul_nonneg (Nat.cast_nonneg _) hΔnonneg)
@@ -140,12 +140,12 @@ theorem profile_contraction_reduction (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       (mul_le_mul_of_nonneg_left hadv_n (mul_nonneg (hw (h : ℝ)) (hw ((m : ℝ) - (n : ℝ)))))
       hhistory
     nlinarith only [h']
-  -- old fluctuation sum: exact rewrite via additivity of logDetLoss
+  -- old fluctuation sum: exact rewrite via additivity of detIncrement
   have hsumFold : (∑ j ∈ Finset.Icc (n + 1) m,
       w (((m + (h : ℤ) : ℤ) : ℝ) - (j : ℝ)) *
-        Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (m + (h : ℤ))) * v j) =
+        Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (m + (h : ℤ))) * v j) =
       w (h : ℝ) * e0 * ∑ j ∈ Finset.Icc (n + 1) m,
-        w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j m) * v j := by
+        w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * detIncrement P q j m) * v j := by
     rw [Finset.mul_sum]
     apply Finset.sum_congr rfl
     intro j _
@@ -170,7 +170,7 @@ theorem profile_contraction_reduction (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   -- new fluctuation sum via new_fluctuation_sum_le
   have hFnew_le : (∑ j ∈ Finset.Icc (m + 1) (m + (h : ℤ)),
       w (((m + (h : ℤ) : ℤ) : ℝ) - (j : ℝ)) *
-        Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (m + (h : ℤ))) * v j) ≤
+        Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (m + (h : ℤ))) * v j) ≤
       AH * bigE * profile P γ q jStar n m + C3 * (bigE - 1) :=
     hnew P E Ψ K S hP hstat hunit hdag h hh jStar hjStar hsrc metric hmetric n m hn hnm
   -- decompose profile at m + h and at m
@@ -180,14 +180,14 @@ theorem profile_contraction_reduction (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
           w (((m + (h : ℤ) : ℤ) : ℝ) - 1 - (j : ℝ)) * p j (m + (h : ℤ))) +
         ∑ j ∈ Finset.Icc (n + 1) (m + (h : ℤ)),
           w (((m + (h : ℤ) : ℤ) : ℝ) - (j : ℝ)) *
-            Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (m + (h : ℤ))) * v j := by
+            Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (m + (h : ℤ))) * v j := by
     unfold profile meanHistory
     rfl
   have hRHSeq : profile P γ q jStar n m =
       w ((m : ℝ) - (n : ℝ)) * (1 + p n m) * history P γ q jStar n +
         meanHistory P γ q n m +
         ∑ j ∈ Finset.Icc (n + 1) m,
-          w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j m) * v j := by
+          w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * detIncrement P q j m) * v j := by
     unfold profile
     rfl
   have hMunion : Finset.Ico n m ∪ Finset.Ico m (m + (h : ℤ)) = Finset.Ico n (m + (h : ℤ)) :=
@@ -213,18 +213,18 @@ theorem profile_contraction_reduction (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       omega)
   have hFsplit : (∑ j ∈ Finset.Icc (n + 1) (m + (h : ℤ)),
       w (((m + (h : ℤ) : ℤ) : ℝ) - (j : ℝ)) *
-        Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (m + (h : ℤ))) * v j) =
+        Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (m + (h : ℤ))) * v j) =
       (∑ j ∈ Finset.Icc (n + 1) m,
         w (((m + (h : ℤ) : ℤ) : ℝ) - (j : ℝ)) *
-          Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (m + (h : ℤ))) * v j) +
+          Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (m + (h : ℤ))) * v j) +
       (∑ j ∈ Finset.Icc (m + 1) (m + (h : ℤ)),
         w (((m + (h : ℤ) : ℤ) : ℝ) - (j : ℝ)) *
-          Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (m + (h : ℤ))) * v j) := by
+          Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (m + (h : ℤ))) * v j) := by
     rw [← hFunion, Finset.sum_union hFdisj]
   have hdistrib : w (h : ℝ) * e0 * (w ((m : ℝ) - (n : ℝ)) * (1 + p n m) * history P γ q jStar n) +
       w (h : ℝ) * e0 * meanHistory P γ q n m +
       w (h : ℝ) * e0 * (∑ j ∈ Finset.Icc (n + 1) m,
-        w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j m) * v j) =
+        w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * detIncrement P q j m) * v j) =
       w (h : ℝ) * e0 * profile P γ q jStar n m := by
     rw [hRHSeq]; ring
   have hstepE : w (h : ℝ) * e0 * profile P γ q jStar n m ≤
@@ -257,11 +257,11 @@ theorem profile_contraction (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
                     profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n (m + (h : ℤ)) ≤
                       1 / 8 *
                           Real.exp ((bigQ d γ : ℝ) *
-                            synchronizedLogDetLoss P
+                            synchCharge P
                               (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
                           profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                         C * (Real.exp ((bigQ d γ : ℝ) *
-                          synchronizedLogDetLoss P
+                          synchCharge P
                             (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) := by
   obtain ⟨Csrc, hCsrc, C, hC, hred⟩ := profile_contraction_reduction d hd γ hγ
   refine ⟨Csrc, hCsrc, C, hC, ?_⟩
@@ -298,28 +298,28 @@ theorem profile_contraction (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
         (integral_nonneg fun _ => (bigQ_even d γ).pow_nonneg _)
   have hcoef := contraction_coefficient_lt d hd γ hγ h hh
   have hE : 0 ≤ Real.exp ((bigQ d γ : ℝ) *
-      synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) :=
+      synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) :=
     Real.exp_nonneg _
   calc profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n (m + (h : ℤ))
       ≤ ((3 : ℝ) ^ (-((1 - γ) / 4) * (h : ℝ)) +
               (2 : ℝ) ^ (bigQ d γ - 1) * ((3 : ℝ) ^ d * (bigQ d γ : ℝ)) ^ bigQ d γ *
                 (3 : ℝ) ^ (-((bigQ d γ : ℝ) * (d : ℝ) / 2) * (h : ℝ))) *
             Real.exp ((bigQ d γ : ℝ) *
-              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
+              synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
             profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
           C * (Real.exp ((bigQ d γ : ℝ) *
-            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) :=
+            synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) :=
         hred P E Ψ K S hP hstat hunit hdag h hh jStar hjStar hsrc metric hmetric n m hn hnm
     _ ≤ 1 / 8 *
             Real.exp ((bigQ d γ : ℝ) *
-              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
+              synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) *
             profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
           C * (Real.exp ((bigQ d γ : ℝ) *
-            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) :=
+            synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ) m) - 1) :=
         by
           have hstep := mul_le_mul_of_nonneg_right
             (mul_le_mul_of_nonneg_right hcoef.le hE) hprof0
-          linarith [hstep]
+          linarith only [hstep]
 
 
 end

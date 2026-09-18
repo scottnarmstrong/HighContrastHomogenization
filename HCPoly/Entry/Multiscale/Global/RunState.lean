@@ -1,4 +1,5 @@
 import HCPoly.Entry.Multiscale.Global.Run
+import HCPoly.Provider.Recurrence.AdaptedCellMeasurability
 
 /-!
 # The finite run of `p.scale.selection`: the state and the entry/initialization lemmas
@@ -115,7 +116,7 @@ private theorem explicitRoundedGrid_opNorm_le_two_exp {d : ℕ} [NeZero d] (jSta
   have h2 : Real.sqrt (‖m‖ * ‖m⁻¹‖) ≤ Real.exp e := by
     rw [Geometry.eccentricity_eq_exp_half_log hm]
     exact Real.exp_le_exp.mpr hecc
-  linarith
+  linarith only [h1, h2]
 
 /-- **(R1) Entry containment.** The containment premise of `Selects`, for two grids whose
 metrics both have eccentricity at most `e`. Route: `explicitRoundedGrid_opNorm_le` gives
@@ -139,17 +140,17 @@ theorem run_entry_containment {d : ℕ} (hd : 2 ≤ d) (jStar : ℕ) (hjStar : 2
     have : 0 < d := by omega
     exact_mod_cast this
   have hexp : (1 : ℝ) ≤ Real.exp e := Real.one_le_exp he
-  have hρ : (0 : ℝ) < 2 * Real.exp e := by linarith
+  have hρ : (0 : ℝ) < 2 * Real.exp e := by linarith only [hexp]
   have hlog := logb_containment_arg (d : ℝ) e hdR
   refine Set.union_subset ?_ ?_
   · refine adaptedCell_subset_centeredCube_of_opNorm _ (2 * Real.exp e) j jStar
       (explicitRoundedGrid_opNorm_le_two_exp jStar hjStar m hm e hecc) hρ ?_
     rw [hlog]
-    linarith
+    linarith only [hj]
   · refine adaptedCell_subset_centeredCube_of_opNorm _ (2 * Real.exp e) jP jStar
       (explicitRoundedGrid_opNorm_le_two_exp jStar hjStar mP hmP e heccP) hρ ?_
     rw [hlog]
-    linarith
+    linarith only [hjP]
 
 /-! ## §3 Initialization (landed) -/
 
@@ -177,7 +178,7 @@ theorem run_initial {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0
     (hgeo : projectiveDistance (1 : Mat d)
         (explicitCanonicalMetric (adaptedMean P (1 : Mat d) n₀)) ≤
       Cgeom * Real.log (2 + 4 * aspectRatio E))
-    (hdet : logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ)) ≤
+    (hdet : detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ)) ≤
       Cdet * Real.log (2 + aspectRatio E))
     (harith : ∀ AR Δ : ℝ, 0 ≤ AR → 0 ≤ Δ → Δ ≤ Cdet * Real.log (2 + AR) →
       Real.log (1 + C * (S.h : ℝ)) + (bigQ d γ : ℝ) * Δ +
@@ -191,7 +192,7 @@ theorem run_initial {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0
       C * (profile P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ n₀ +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar n₀ +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) - 1))
+          detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))) - 1))
     (hone' : n₀ = n₀ + (S.h : ℤ) →
       profile P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar (n₀ + (S.h : ℤ))
           (n₀ + (S.h : ℤ)) +
@@ -203,6 +204,7 @@ theorem run_initial {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0
           C' * Real.logb 3 (2 + aspectRatio E) := by
   let := hP
   let : NeZero d := ⟨by omega⟩
+  have _ := hγ
   have _ := hur
   have _ := hCdet
   have _ := hCgeom
@@ -210,7 +212,7 @@ theorem run_initial {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0
   have hσ0 : 0 < σ := hσ.1
   have hAR0 : 0 ≤ aspectRatio E := aspectRatio_nonneg E
   have hlogb0 : 0 ≤ B * Real.logb 3 (2 + aspectRatio E) :=
-    mul_nonneg (by linarith) (Real.logb_nonneg (by norm_num) (by linarith))
+    mul_nonneg (by linarith only [hB]) (Real.logb_nonneg (by norm_num) (by linarith only [hAR0]))
   have hceil0 : (0 : ℤ) ≤ ⌈B * Real.logb 3 (2 + aspectRatio E)⌉ := Int.ceil_nonneg hlogb0
   have hjn₀ : (jStar : ℤ) ≤ n₀ := by omega
   have hgrid : Geometry.explicitRoundedGrid jStar (1 : Mat d) = (1 : Mat d) :=
@@ -223,14 +225,14 @@ theorem run_initial {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0
     rw [hlhs]
     have hL0 : (0 : ℝ) < (S.L ε σ : ℝ) := by
       have h1 : (1 : ℝ) ≤ (S.L ε σ : ℝ) := by exact_mod_cast hL1
-      linarith
+      linarith only [h1]
     have hfrac : 0 ≤ ε / (S.L ε σ : ℝ) := le_of_lt (div_pos hε0 hL0)
     have hcast : ((jStar : ℤ) : ℝ) + ((⌈B * Real.logb 3 (2 + aspectRatio E)⌉ : ℤ) : ℝ) ≤
         (n₀ : ℝ) := by exact_mod_cast hn₀
     have hnn : 0 ≤ (n₀ : ℝ) - (jStar : ℝ) -
         ((⌈B * Real.logb 3 (2 + aspectRatio E)⌉ : ℤ) : ℝ) := by
       push_cast at hcast ⊢
-      linarith
+      linarith only [hcast]
     exact mul_nonneg hfrac hnn
   have hprself : projectiveDistance (1 : Mat d) (1 : Mat d) = 0 :=
     (Geometry.projectiveDistance_eq_zero_iff (Geometry.one_posDef d)
@@ -251,48 +253,48 @@ theorem run_initial {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0
       (n₀ + (S.h : ℤ)) +
     determinantDrift P γ (Geometry.explicitRoundedGrid jStar (1 : Mat d)) jStar (n₀ + (S.h : ℤ))
     with hx'def
-  set y : ℝ := logDetLoss P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))
+  set y : ℝ := detIncrement P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀ (n₀ + (S.h : ℤ))
     with hydef
   have hx0 : 0 ≤ x := by
     rw [hxdef]
-    exact profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hjStar
+    exact profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
       (1 : Mat d) (Geometry.one_posDef d) n₀ n₀ hjn₀ le_rfl
   have hx'0 : 0 ≤ x' := by
     rw [hx'def]
-    exact profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hjStar
+    exact profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
       (1 : Mat d) (Geometry.one_posDef d) n₀ (n₀ + (S.h : ℤ)) hjn₀ (by omega)
   have hy0 : 0 ≤ y := by
     rw [hydef]
     exact Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
       (1 : Mat d) (Geometry.one_posDef d) n₀ (n₀ + (S.h : ℤ)) hjn₀ (by omega)
   have hηmem : S.eta ε σ ∈ Set.Ioc (0 : ℝ) 1 := by
-    refine ⟨?_, SelectionData_eta_le_one S ε σ hε hσ⟩
+    refine ⟨?_, selectionData_eta_le_one S ε σ hε hσ⟩
     have hc0 : 0 < S.c := S.c_mem.1
     have hpos : 0 < S.c * ε * σ := by positivity
     simpa [SelectionData.eta] using hpos
   have hQ0 : (0 : ℝ) ≤ (bigQ d γ : ℝ) := Nat.cast_nonneg _
-  have hspan := scalar_span (S.eta ε σ) (bigQ d γ : ℝ) C 1 x x' y hηmem (by linarith)
-    le_rfl hQ0 hx0 hinit hy0 hx'0 (by rw [mul_one]; linarith [hstart])
+  have hspan := scalar_span (S.eta ε σ) (bigQ d γ : ℝ) C 1 x x' y hηmem (by linarith only [hC])
+    le_rfl hQ0 hx0 hinit hy0 hx'0 (by rw [mul_one]; linarith only [hstart])
   have hmetric : projectiveDistance (1 : Mat d)
       (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀)) ≤
       Cgeom * Real.log (2 + 4 * aspectRatio E) := by rw [hgrid]; exact hgeo
-  have ha0 : (0 : ℝ) ≤ a := by linarith
+  have ha0 : (0 : ℝ) ≤ a := by linarith only [ha1]
   have hmetric' : a * projectiveDistance (1 : Mat d)
       (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀)) ≤
       a * Cgeom * Real.log (2 + 4 * aspectRatio E) := by
     have hm2 := mul_le_mul_of_nonneg_left hmetric ha0
-    linarith [hm2]
+    linarith only [hm2]
   have hlogmono : Real.log (1 + C * 1) ≤ Real.log (1 + C * (S.h : ℝ)) := by
     have hh : (1 : ℝ) ≤ (S.h : ℝ) := by exact_mod_cast hh1
-    have hC0 : (0 : ℝ) < C := by linarith
-    exact Real.log_le_log (by linarith) (by nlinarith)
+    have hC0 : (0 : ℝ) < C := by linarith only [hC]
+    exact Real.log_le_log (by linarith only [hC0]) (by nlinarith only [hC0, hh])
   have hfin := harith (aspectRatio E) y hAR0 hy0 (by rw [hydef]; exact hdet)
   have hpot : potential P γ jStar (S.eta ε σ) a (1 : Mat d) n₀ (n₀ + (S.h : ℤ)) =
       S.eta ε σ * Real.log (1 + x' / S.eta ε σ) +
         a * projectiveDistance (1 : Mat d)
           (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀)) := rfl
   rw [hpot]
-  linarith [hspan, hmetric', hlogmono, hfin]
+  linarith only [hspan, hmetric', hlogmono, hfin]
 
 /-- **(R5) The charge budget, as the initial reserve bound** (`p.global.selection`).
 The determinant charges are transferred into the reserve step by step
@@ -333,19 +335,19 @@ theorem run_initial_reserve {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
     intro r hr
     have hloss := Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
       (1 : Mat d) (Geometry.one_posDef d) n₀ r hjn₀ hr
-    simp only [logDetLoss] at hloss
-    linarith
+    simp only [detIncrement] at hloss
+    linarith only [hloss]
   have hres := run_reserve_initial
     (fun r => blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) r)) h n₀ hmono
   have hApos : Book.Ch02.BlockPosDef (adaptedMean P (1 : Mat d) n₀) := by
-    have := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce jStar hjStar
+    have := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce jStar hjStar
       (1 : Mat d) (Geometry.one_posDef d) n₀
     rwa [hgrid] at this
   have hdet : blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar (1 : Mat d)) n₀) ≤
       (d : ℝ) * Real.log (24 * aspectRatio E) := by
     rw [hgrid]
     exact blockLogDet_le_of_initial_sandwich E (adaptedMean P (1 : Mat d) n₀) hEs hE
-      (adaptedMean_isSymmetric P (1 : Mat d) n₀) hApos hAR
+      (Recurrence.isSymmetricBlockMat_adaptedMean P (1 : Mat d) n₀) hApos hAR
       (refBlock_le_six_aspect E hEs hE) hsand₂
   have hh2 : (0 : ℝ) ≤ (h : ℝ) + 2 := by positivity
   calc run_reserve

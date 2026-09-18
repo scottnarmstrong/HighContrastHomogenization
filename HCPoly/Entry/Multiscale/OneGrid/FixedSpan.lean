@@ -1,4 +1,4 @@
-import HCPoly.Entry.Multiscale.OneGrid.SpanFluctuations
+import HCPoly.Entry.Multiscale.OneGrid.SpanFluctuationSeeds
 
 /-!
 # Step 4 — propagation over a fixed span
@@ -43,23 +43,23 @@ theorem profile_old_terms_advance_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                 profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m ≤ 1 →
                   (3 : ℝ) ^ (-((1 - γ) / 4) * (((m + L : ℤ) : ℝ) - (n : ℝ))) *
                           (1 + meanPenalty (bigQ d γ)
-                            (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n (m + L))) *
+                            (relMean P (Geometry.explicitRoundedGrid jStar metric) n (m + L))) *
                           history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
                         (∑ j ∈ Finset.Ico n m,
                           (3 : ℝ) ^ (-((1 - γ) / 4) * (((m + L : ℤ) : ℝ) - 1 - (j : ℝ))) *
                             meanPenalty (bigQ d γ)
-                              (normalizedMean P (Geometry.explicitRoundedGrid jStar metric)
+                              (relMean P (Geometry.explicitRoundedGrid jStar metric)
                                 j (m + L))) +
                         ∑ j ∈ Finset.Icc (n + 1) m,
                           (3 : ℝ) ^ (-((1 - γ) / 4) * (((m + L : ℤ) : ℝ) - (j : ℝ))) *
                               Real.exp ((bigQ d γ : ℝ) *
-                                logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j (m + L)) *
+                                detIncrement P (Geometry.explicitRoundedGrid jStar metric) j (m + L)) *
                             ∫ a, absSchattenNorm (bigQ d γ : ℝ)
                                 (normalizedFluctuationSelf P
                                   (Geometry.explicitRoundedGrid jStar metric) j a) ^ bigQ d γ ∂P ≤
                     profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                       C * (Real.exp ((bigQ d γ : ℝ) *
-                        logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1) := by
+                        detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1) := by
   let B : ℝ := (1 - (3 : ℝ) ^ (-((1 - γ) / 4)))⁻¹
   have hB : 0 < B := by
     apply inv_pos.mpr
@@ -71,10 +71,10 @@ theorem profile_old_terms_advance_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let := hP
   set q := Geometry.explicitRoundedGrid jStar metric
   let w : ℝ → ℝ := fun x => (3 : ℝ) ^ (-((1 - γ) / 4) * x)
-  let p : ℤ → ℤ → ℝ := fun j k => meanPenalty (bigQ d γ) (normalizedMean P q j k)
+  let p : ℤ → ℤ → ℝ := fun j k => meanPenalty (bigQ d γ) (relMean P q j k)
   let v : ℤ → ℝ := fun j => ∫ a, absSchattenNorm (bigQ d γ : ℝ)
     (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P
-  let e := Real.exp ((bigQ d γ : ℝ) * logDetLoss P q m (m + L))
+  let e := Real.exp ((bigQ d γ : ℝ) * detIncrement P q m (m + L))
   have hw (x : ℝ) : 0 ≤ w x := Real.rpow_nonneg (by norm_num) _
   have hwL : w (L : ℝ) ≤ 1 := by
     apply Real.rpow_le_one_of_one_le_of_nonpos (by norm_num)
@@ -153,9 +153,9 @@ theorem profile_old_terms_advance_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     exact hterms.trans (add_le_add le_rfl htail)
   have hsum : (∑ j ∈ Finset.Icc (n + 1) m,
       w (((m + L : ℤ) : ℝ) - (j : ℝ)) *
-        Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (m + L)) * v j) =
+        Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (m + L)) * v j) =
       w (L : ℝ) * e * ∑ j ∈ Finset.Icc (n + 1) m,
-        w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j m) * v j := by
+        w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * detIncrement P q j m) * v j := by
     rw [Finset.mul_sum]
     apply Finset.sum_congr rfl
     intro j _
@@ -189,7 +189,7 @@ theorem profile_old_terms_advance_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       w (L : ℝ) * e * (w ((m : ℝ) - (n : ℝ)) * (1 + p n m) * history P γ q jStar n) +
         (w (L : ℝ) * e * meanHistory P γ q n m + B * (e - 1)) +
         w (L : ℝ) * e * (∑ j ∈ Finset.Icc (n + 1) m,
-          w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j m) * v j) =
+          w ((m : ℝ) - (j : ℝ)) * Real.exp ((bigQ d γ : ℝ) * detIncrement P q j m) * v j) =
         w (L : ℝ) * e * profile P γ q jStar n m + B * (e - 1) := by
     dsimp only [profile, w, p, v]
     ring
@@ -214,18 +214,18 @@ theorem meanPenalty_new_terms_span_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                 ∑ j ∈ Finset.Ico m (m + L),
                     (3 : ℝ) ^ (-((1 - γ) / 4) * (((m + L : ℤ) : ℝ) - 1 - (j : ℝ))) *
                       meanPenalty (bigQ d γ)
-                        (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j (m + L)) ≤
+                        (relMean P (Geometry.explicitRoundedGrid jStar metric) j (m + L)) ≤
                   C * (L : ℝ) *
                     (Real.exp ((bigQ d γ : ℝ) *
-                      logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1) := by
+                      detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1) := by
   refine ⟨1, zero_lt_one, ?_⟩
   intro P E Ψ K S hP hstat hunit hdag L hL jStar hjStar metric hmetric m hm
   let := hP
   set q := Geometry.explicitRoundedGrid jStar metric
   have hterm (j : ℤ) (hj : j ∈ Finset.Ico m (m + L)) :
       (3 : ℝ) ^ (-((1 - γ) / 4) * (((m + L : ℤ) : ℝ) - 1 - (j : ℝ))) *
-      meanPenalty (bigQ d γ) (normalizedMean P q j (m + L)) ≤
-      Real.exp ((bigQ d γ : ℝ) * logDetLoss P q m (m + L)) - 1 := by
+      meanPenalty (bigQ d γ) (relMean P q j (m + L)) ≤
+      Real.exp ((bigQ d γ : ℝ) * detIncrement P q m (m + L)) - 1 := by
     have hj' := Finset.mem_Ico.mp hj
     have hpen := meanPenalty_normalizedMean_le_exp_sub_one d hd γ hγ P E Ψ K S hP hstat hunit hdag
       jStar hjStar metric hmetric j (m + L) (hm.trans hj'.1) hj'.2.le
@@ -239,7 +239,7 @@ theorem meanPenalty_new_terms_span_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     have hinc := Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag
       jStar hjStar metric hmetric m j hm hj'.1
     have hadd := logDetLoss_add P q m j (m + L)
-    have hloss : logDetLoss P q j (m + L) ≤ logDetLoss P q m (m + L) := by
+    have hloss : detIncrement P q j (m + L) ≤ detIncrement P q m (m + L) := by
       linarith only [hinc, hadd]
     exact (mul_le_of_le_one_left hp hweight).trans (hpen.trans
       (sub_le_sub_right (Real.exp_le_exp.mpr (mul_le_mul_of_nonneg_left hloss (Nat.cast_nonneg _))) 1))
@@ -270,7 +270,7 @@ theorem profile_fixed_span (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
                           C * (L : ℝ) *
                             (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                               Real.exp ((bigQ d γ : ℝ) *
-                                logDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                                detIncrement P (Geometry.explicitRoundedGrid jStar metric)
                                   m (m + L)) - 1) := by
   obtain ⟨Csrc, hCsrc, C3, hC3, hnew⟩ := new_fluctuations_span_le d hd γ hγ
   obtain ⟨C1, hC1, hold⟩ := profile_old_terms_advance_le d hd γ hγ
@@ -287,7 +287,7 @@ theorem profile_fixed_span (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   have hnew' := hnew P E Ψ K S hP hstat hunit hdag h hh L hL jStar hjStar hsrc metric hmetric
     n m hn hnm hprof
   set p := profile P γ q jStar n m with hp_def
-  set x := (bigQ d γ : ℝ) * logDetLoss P q m (m + L) with hx_def
+  set x := (bigQ d γ : ℝ) * detIncrement P q m (m + L) with hx_def
   have hp0 : 0 ≤ p := by
     have hpen := (Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
       jStar hjStar metric hmetric n m hn hnm').2.2.2.2.2
@@ -319,7 +319,7 @@ theorem profile_fixed_span (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   have hx0 : 0 ≤ x := mul_nonneg (Nat.cast_nonneg _)
     (Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric
       m (m + L) hm (by omega))
-  have he'0 : 0 ≤ Real.exp x - 1 := by linarith [Real.one_le_exp hx0]
+  have he'0 : 0 ≤ Real.exp x - 1 := by linarith only [Real.one_le_exp hx0]
   have hL0 : (0 : ℝ) ≤ (L : ℝ) := by
     have : (0 : ℤ) ≤ L := by omega
     exact_mod_cast this

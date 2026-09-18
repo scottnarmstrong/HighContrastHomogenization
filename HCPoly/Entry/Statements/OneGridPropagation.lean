@@ -1,8 +1,16 @@
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
+import HCPoly.Frozen.CoarseEllipticityDagger
+import HCPoly.Setup.BlockAlgebra
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
 import HCPoly.Entry.Setup.Profile
-import HCPoly.Entry.Setup.Stationarity
-import HCPoly.Entry.Setup.UnitRange
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Frozen.Stationarity
+import HCPoly.Setup.LocalSigmaFields
+import HCPoly.Frozen.UnitRange
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.OneGridPropagation
 
 /-!
@@ -16,7 +24,7 @@ Reading of the display:
 
 * `𝒫_q(m;n)` is `profile P γ q jStar n m` (the definition takes the base scale first),
   `ℋ_q(m)` is `history P γ q jStar m`, `D_{q,j_*}(m)` is `determinantDrift`, `Δ^q_{j,k}` is
-  `logDetLoss` and `Δ̂^q_h(m)` is `synchronizedLogDetLoss`. `Q` is `bigQ d γ` of
+  `detIncrement` and `Δ̂^q_h(m)` is `synchCharge`. `Q` is `bigQ d γ` of
   `e.scale.selection.Q.choice`.
 * `C = C(d,γ) < ∞` depends on the dimension and the coarse-ellipticity exponent only, so its
   quantifier precedes `h`, `L`, `j_*`, the law and the geometry; `0 < C` is written for the
@@ -41,7 +49,7 @@ Reading of the display:
   premise excluding them and none is added here.
 
 The proof is one application of
-`Homogenization.HighContrast.Provider.fixed_geometry_one_grid_propagation`
+`Homogenization.HighContrast.Entry.fixed_geometry_one_grid_propagation`
 (`HCPoly/Entry/OneGridPropagation.lean`) to the binders of the statement.
 -/
 
@@ -83,13 +91,13 @@ theorem fixed_geometry_one_grid_propagation
                             (m + (h : ℤ)) ≤
                         1 / 8 *
                             Real.exp ((bigQ d γ : ℝ) *
-                              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                              synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                                 (h : ℤ) m) *
                             (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                               determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m) +
                           C *
                             (Real.exp ((bigQ d γ : ℝ) *
-                                synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                                synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                                   (h : ℤ) m) - 1)) ∧
                     ((m = n ∨ n + (h : ℤ) ≤ m) →
                       profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
@@ -100,15 +108,15 @@ theorem fixed_geometry_one_grid_propagation
                             (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                               determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
                               Real.exp ((bigQ d γ : ℝ) *
-                                logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m
+                                detIncrement P (Geometry.explicitRoundedGrid jStar metric) m
                                   (m + L)) - 1)) ∧
                     (∀ m₀ : ℤ, (jStar : ℤ) + (h : ℤ) ≤ m₀ →
                       ∀ Ksteps : ℕ, 1 ≤ Ksteps →
                         ∑ k ∈ Finset.range Ksteps,
-                            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ)
+                            synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ)
                               (m₀ + (k : ℤ) * (h : ℤ)) ≤
                           (h : ℝ) *
-                            logDetLoss P (Geometry.explicitRoundedGrid jStar metric)
-                              (m₀ + 1 - (h : ℤ)) (m₀ + (Ksteps : ℤ) * (h : ℤ))) := by exact Homogenization.HighContrast.Provider.fixed_geometry_one_grid_propagation d hd γ hγ
+                            detIncrement P (Geometry.explicitRoundedGrid jStar metric)
+                              (m₀ + 1 - (h : ℤ)) (m₀ + (Ksteps : ℤ) * (h : ℤ))) := by exact Homogenization.HighContrast.Entry.fixed_geometry_one_grid_propagation d hd γ hγ
 
 end Homogenization.HighContrast

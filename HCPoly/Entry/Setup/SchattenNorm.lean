@@ -1,12 +1,99 @@
-import HCPoly.Entry.Setup.BlockCalculus
+import HCPoly.Entry.Setup.ProjectiveDistance
+import HCPoly.Setup.BlockAlgebra
+import HCPoly.Setup.CoefficientSpace
 import HCPoly.Setup.LocalSigmaFields
+import HCPoly.Setup.SpectralBound
 import Mathlib.Analysis.Matrix.Order
 import Mathlib.Analysis.SpecialFunctions.Pow.NNReal
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
-import HCPoly.Setup.CoefficientSpace
 
 /-!
-# The Schatten norm `|M|_{S_N}` and the mixed norm `‖H‖_{L^N(S_N)}`
+# Schatten Norm
+
+The spectral bound of a doubled block and the Schatten norm the printed statements are stated with.
+
+The spectral norm `|M|` of a symmetric positive semidefinite matrix is the least `t ≥ 0` with
+`M ≤ t I`, encoded as `specBound`; `matSqrt` is its positive semidefinite square root.  On top of
+these, the deterministic Schatten norm `|M|_{S_N}` and the mixed norm `‖H‖_{L^N(S_N)}` are those
+of the display near `e.scale.selection.Q.choice`, and the predicate `SchattenMemLp` carries the
+printed "`H` in `L^N(S_N)`" that the hypotheses of `l.fixed.geometry.positive.gap` use.
+-/
+
+section
+/-!
+## The scalar Loewner bound and the positive semidefinite square root
+
+The print writes `|M|` for the spectral norm of a symmetric positive semidefinite matrix and
+`m^{1/2}` for the positive square root.  This file proves that the encodings `specBound` and
+`matSqrt` are those objects: `specBound M` is the least `t ≥ 0` with `M ≤ t I`, and
+`matSqrt M` is *the* positive semidefinite square root, independently of the choice made in
+its definition.
+-/
+
+open Homogenization.HighContrast (lambdaRef matSqrt matSqrt_eq specBound_nonneg)
+namespace Homogenization.HighContrast
+
+open scoped MatrixOrder
+
+noncomputable section
+
+variable {d : ℕ}
+
+private theorem matVecMul_smul_one (t : ℝ) (x : Vec d) :
+    matVecMul (t • (1 : Mat d)) x = t • x := by
+  funext i
+  simp [matVecMul, Matrix.one_apply, mul_comm]
+
+private theorem vecDot_smul_self (t : ℝ) (x : Vec d) : vecDot x (t • x) = t * vecNormSq x := by
+  simp only [vecDot, vecNormSq, Pi.smul_apply, smul_eq_mul, Finset.mul_sum]
+  exact Finset.sum_congr rfl fun i _ => by ring
+
+/-- The scalar Loewner bound of `M` by `t` is the pointwise inequality of quadratic forms. -/
+theorem matLoewnerLE_smul_one_iff (M : Mat d) (t : ℝ) :
+    MatLoewnerLE M (t • (1 : Mat d)) ↔
+      ∀ x : Vec d, vecDot x (matVecMul M x) ≤ t * vecNormSq x := by
+  simp only [MatLoewnerLE, matVecMul_smul_one, vecDot_smul_self]
+  constructor
+  · intro h x
+    have := h x
+    linarith only [this]
+  · intro h x
+    have := h x
+    linarith only [this]
+
+private theorem specBoundSet_isClosed (M : Mat d) :
+    IsClosed {t : ℝ | 0 ≤ t ∧ MatLoewnerLE M (t • (1 : Mat d))} := by
+  have hset : {t : ℝ | 0 ≤ t ∧ MatLoewnerLE M (t • (1 : Mat d))} =
+      Set.Ici 0 ∩ ⋂ x : Vec d, {t : ℝ | vecDot x (matVecMul M x) ≤ t * vecNormSq x} := by
+    ext t
+    simp only [Set.mem_ofPred_eq, Set.mem_inter_iff, Set.mem_Ici, Set.mem_iInter,
+      matLoewnerLE_smul_one_iff]
+  rw [hset]
+  exact isClosed_Ici.inter (isClosed_iInter fun x =>
+    isClosed_le continuous_const (continuous_id.mul continuous_const))
+
+/-! ## The positive semidefinite square root -/
+
+/-- On positive semidefinite data `matSqrt` is Mathlib's continuous-functional-calculus square
+root, the object `explicitRoundedGrid` is written with. -/
+theorem matSqrt_eq_cfc_sqrt {n : Type*} [Fintype n] [DecidableEq n]
+    {M : Matrix n n ℝ} (hM : M.PosSemidef) : matSqrt M = CFC.sqrt M :=
+  matSqrt_eq hM (Matrix.nonneg_iff_posSemidef.1 (CFC.sqrt_nonneg M)) (CFC.sqrt_mul_sqrt_self M)
+
+/-! ## Junk guards on the contrast constants -/
+
+/-- `λ_0` is nonnegative, junk branch included. -/
+theorem lambdaRef_nonneg (E : BlockMat d) : 0 ≤ lambdaRef E :=
+  inv_nonneg.2 (specBound_nonneg _)
+
+end
+
+end Homogenization.HighContrast
+end
+
+section
+/-!
+## The Schatten norm `|M|_{S_N}` and the mixed norm `‖H‖_{L^N(S_N)}`
 
 Near `e.scale.selection.Q.choice`:
 
@@ -18,7 +105,7 @@ Near `e.scale.selection.Q.choice`:
 Two renderings of the first display are given, and the reason is recorded here rather than
 left for a reader to reconstruct (operating rules, the standing honesty rule).
 
-* `schattenNormEigen` is the display transcribed symbol for symbol: the sum runs over the
+* `schattenNormEigen` is the display symbol for symbol: the sum runs over the
   index type `BlockCoord d`, which has `2d` elements, and `hM.eigenvalues` is Mathlib's
   eigenvalue family of a Hermitian matrix.  It takes the symmetry of `M` as an argument,
   because Mathlib's eigenvalues of a matrix exist only relative to such a proof.
@@ -33,14 +120,14 @@ symmetric matrices is `0` by the junk convention of `cfc`.  Discharging
 `absSchattenNorm N M = schattenNormEigen hM N` for symmetric `M` is one of the eight equalities
 left unproved here.
 
-**The second display is real-valued, and the carrier is the predicate `MemLqSchatten`**.
+**The second display is real-valued, and the carrier is the predicate `SchattenMemLp`**.
 The expectation `E[|H|_{S_N}^N]` is the Bochner integral of the real
 function `a ↦ |H(a)|_{S_N}^N`, and `‖H‖_{L^N(S_N)}` is its `1/N`-th power.  Two consequences
 are recorded rather than left to be discovered:
 
 * On an integrand that is not `P`-integrable Mathlib's Bochner integral is `0`, so
   `lqSchattenNorm P N H` is junk there.  This is exactly what the printed "`H` in
-  `L^N(S_N)`" excludes, and that phrase is `MemLqSchatten P N H`, carried as a premise where
+  `L^N(S_N)`" excludes, and that phrase is `SchattenMemLp P N H`, carried as a premise where
   the paper carries it — not as an extra hypothesis, since the paper states its propositions
   for such matrices.  The printed occurrence is `l.fixed.geometry.positive.gap`
   (`l.fixed.geometry.positive.gap`): "let `F` and `G` be positive semidefinite random
@@ -73,7 +160,7 @@ variable {d : ℕ}
 /-! ## The Schatten norm of a deterministic block -/
 
 /-- The Schatten norm `|M|_{S_N} = (∑_{j=1}^{2d} |λ_j(M)|^N)^{1/N}` of a symmetric
-`2d`-by-`2d` matrix, transcribed from the display near `e.scale.selection.Q.choice`.
+`2d`-by-`2d` matrix, as in the display near `e.scale.selection.Q.choice`.
 The eigenvalue family is Mathlib's, so the symmetry of `M` is an explicit argument. -/
 def schattenNormEigen {M : FullBlockMat d} (hM : M.IsHermitian) (N : ℝ) : ℝ :=
   (∑ j, |hM.eigenvalues j| ^ N) ^ N⁻¹
@@ -96,7 +183,7 @@ def absSchattenNorm (N : ℝ) (H : BlockMat d) : ℝ :=
 /-- The mixed norm `‖H‖_{L^N(S_N)} = (E[|H|_{S_N}^N])^{1/N}` of a random doubled block
 (near `e.scale.selection.Q.choice`), real-valued: the expectation is the
 Bochner integral of `a ↦ |H(a)|_{S_N}^N`.  On an integrand that is not `P`-integrable the
-integral is Mathlib's junk `0`; the printed "`H` in `L^N(S_N)`" is `MemLqSchatten P N H`,
+integral is Mathlib's junk `0`; the printed "`H` in `L^N(S_N)`" is `SchattenMemLp P N H`,
 carried as a premise where the paper carries it. -/
 def lqSchattenNorm (P : Measure (CoeffSpace d)) (N : ℝ) (H : CoeffSpace d → BlockMat d) :
     ℝ :=
@@ -105,7 +192,8 @@ def lqSchattenNorm (P : Measure (CoeffSpace d)) (N : ℝ) (H : CoeffSpace d → 
 /-! ## The carrier: a random symmetric block in `L^N(S_N)` -/
 
 /-- Measurability of a random doubled block for the law `P`, entry by entry; the shape is
-the one `HCPoly/Entry/Setup/Response.lean` already uses for the coarse response. -/
+the one `HasMeasurableCoarseBlock` of `HCPoly/Setup/Response.lean` already uses for the
+coarse response. -/
 def HasMeasurableBlock (P : Measure (CoeffSpace d)) (H : CoeffSpace d → BlockMat d) : Prop :=
   ∀ α β : BlockCoord d, AEStronglyMeasurable (fun a => blockMatEntry (H a) α β) P
 
@@ -113,7 +201,7 @@ def HasMeasurableBlock (P : Measure (CoeffSpace d)) (H : CoeffSpace d → BlockM
 measurable for the law, almost surely symmetric, and its `N`-th Schatten moment is
 `P`-integrable, which under the real-valued reading of `‖·‖_{L^N(S_N)}` is what "in
 `L^N(S_N)`" adds. -/
-structure MemLqSchatten (P : Measure (CoeffSpace d)) (N : ℝ)
+structure SchattenMemLp (P : Measure (CoeffSpace d)) (N : ℝ)
     (H : CoeffSpace d → BlockMat d) : Prop where
   /-- Every entry of `H` is almost surely strongly measurable for the law. -/
   measurable : HasMeasurableBlock P H
@@ -125,3 +213,4 @@ structure MemLqSchatten (P : Measure (CoeffSpace d)) (N : ℝ)
 end
 
 end Homogenization.HighContrast
+end

@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.Regularity.CorrectorGradientTranslationStabilityWeakRow
-import HCPoly.Provider.Regularity.CorrectorGradientTranslateCubeLpBound
+import HCPoly.Provider.Regularity.CorrectorNormalizedL2Bridge
 import HCPoly.Provider.Regularity.IntrinsicSlopeGlobalGradientUniqueness
 import HCPoly.Provider.Regularity.CorrectorIntrinsicSlopeCanonical
 

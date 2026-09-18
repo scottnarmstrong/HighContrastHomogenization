@@ -1,6 +1,22 @@
 import HCPoly.Entry.Annealed.TransportDriftAlgebra
 import HCPoly.Entry.Annealed.BridgeComparisons
 import HCPoly.Entry.Annealed.BridgeComparisonsOneSided
+import HCPoly.Provider.Window.CellGeometry
+
+/-!
+# Transport drift comparison on two rounded grids
+
+The deterministic drift estimates consumed by the two-grid transport.  The module proves the
+scaling-composition law `blockScale a (blockScale b A) = blockScale (a * b) A` and a
+cross-source comparison bounding the annealed mean of one rounded grid by a constant multiple
+of the annealed mean of a second rounded grid.  It then removes the temporary source-scale cap
+from the maximal-family partition comparison, assembles the complete Whitney drift comparison,
+and deduces the printed determinant-drift estimate: on two positive definite geometries within
+bounded projective distance, the drift of the transported geometry is bounded by the scaled
+drift of the reference geometry plus the partition, source and terminal-decay terms.  These
+estimates serve Proposition `p.two.grid.transport`.
+-/
+
 open Homogenization.HighContrast (CoeffSpace adaptedCellCenter adaptedMean aspectRatio blockScale
   blockSub blockTrace blockVecDot_blockMatVecMul_eq_sum gridRatio normalizedBlock)
 open Homogenization.HighContrast (adaptedCell adaptedCellTranslate centeredCube)
@@ -21,7 +37,7 @@ private lemma three_rpow_nonneg (x : ℝ) : (0 : ℝ) ≤ (3 : ℝ) ^ x :=
 theorem transport_scale_scale {d : ℕ} (a b : ℝ) (A : BlockMat d) :
     blockScale a (blockScale b A) = blockScale (a * b) A := by
   have h : toFullBlockMat (blockScale a (blockScale b A)) = toFullBlockMat (blockScale (a * b) A) := by
-    simp only [transport_full_scale, smul_smul]
+    simp only [toFullBlockMat_blockScale, smul_smul]
   simpa only [ofFullBlockMat_toFullBlockMat] using congrArg ofFullBlockMat h
 
 /-- Source normalization compares means on either rounded geometry, with a single outer constant. -/
@@ -104,7 +120,7 @@ theorem exists_transport_drift_partition_raw (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   classical
   let : NeZero d := ⟨by omega⟩
   obtain ⟨Cs, Ct, hCs, hCt, hcomp⟩ := bridge_partition_comparison d hd γ hγ
-  obtain ⟨Cg, _hCg, hwhitney⟩ := Provider.two_grid_whitney d hd
+  obtain ⟨Cg, _hCg, hwhitney⟩ := Entry.two_grid_whitney d hd
   obtain ⟨Cw, hCw, hwhitney⟩ := hwhitney K₀ hK₀
   refine ⟨max Cs (Cg γ), Cw, Ct, hCs.trans_le (le_max_left _ _), hCw, hCt, ?_⟩
   intro P hP E Ψ K S hstat hdag jStar hj hsrc m mPlus hm hmPlus hratio j terminal htJ L hL hbJ hW hT
@@ -115,7 +131,7 @@ theorem exists_transport_drift_partition_raw (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let I := {p : ℤ × (Fin d → ℤ) | IsMaximalAdaptedCellIn W q b p.1 p.2}
   have hq : IsUnit q := isUnit_roundedGrid hj hm
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hsC := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left Cs (Cg γ)) hlog)).trans hsrc
   have hsG := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_right Cs (Cg γ)) hlog)).trans hsrc
   have hzero : (0 : Vec d) ∈ adaptedLatticeAtScale qPlus j := by
@@ -126,7 +142,7 @@ theorem exists_transport_drift_partition_raw (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   obtain ⟨hfin, hsub, hdis, hnull, _hvol, _hcard, _hcount, hmass, hrow⟩ :=
     (hwhitney γ hγ K hdag.one_lt_growthWitness jStar hj hsG m mPlus hm hmPlus hratio j L hL).1 0 hzero
   have _hcapmass := bridge_whitney_cap_mass_le_one (adaptedCellTranslate qPlus j 0) q hq b
-    (volume_adaptedCellTranslate_ne_top _ _ _) hfin hmass
+    (Transport.volume_adaptedCellTranslate_ne_top _ _ _) hfin hmass
   simp only [adaptedCellTranslate, zero_add, Set.image_id'] at hfin hsub hdis hnull hrow
   have hraw := hcomp P E Ψ K S hstat hdag jStar hj hsC m m mPlus hm hm hmPlus
     (max (jStar : ℤ) (b - 1)) b j terminal (le_max_left _ _) hbJ htJ hW hT
@@ -149,7 +165,7 @@ theorem exists_transport_drift_partition_raw (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
         have hp := p.1.2; have he := p.2; omega⟩
       rw [tsum_empty]
       exact mul_nonneg hCw.le (Real.rpow_nonneg (by norm_num) _)
-  simpa only [transport_full_scale, toFullBlockMat_ofFullBlockMat] using hraw hrows
+  simpa only [toFullBlockMat_blockScale, toFullBlockMat_ofFullBlockMat] using hraw hrows
 
 /-- The temporary cap adds only the source-scale term, even at the first target generation. -/
 theorem transport_drift_cap_sum (J b j : ℤ) (hJb : J ≤ b) (f : ℤ → ℝ) (hfJ : 0 ≤ f J) :
@@ -272,7 +288,7 @@ theorem exists_transport_whitney_drift_comparison (d : ℕ) (hd : 2 ≤ d) (γ :
   refine ⟨max Cs CnSrc, C, hCs.trans_le (le_max_left _ _), hC, ?_⟩
   intro P hP E Ψ K S hstat hdag jStar hj hsrc m mPlus hm hmPlus hratio j terminal htJ L hL hbJ hW hT
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hsR := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left Cs CnSrc) hlog)).trans hsrc
   have hsN := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_right Cs CnSrc) hlog)).trans hsrc
   let A := fun r => adaptedMean P (explicitRoundedGrid jStar m) r
@@ -280,11 +296,11 @@ theorem exists_transport_whitney_drift_comparison (d : ℕ) (hd : 2 ≤ d) (γ :
   let e := Real.sqrt (‖m‖ * ‖m⁻¹‖)
   let ePlus := Real.sqrt (‖mPlus‖ * ‖mPlus⁻¹‖)
   let B := 1 + aspectRatio E * (e + ePlus) ^ 2
-  have hPi : 0 ≤ aspectRatio E := (one_le_aspectRatio hdag).trans' (by norm_num)
+  have hPi : 0 ≤ aspectRatio E := (one_le_aspectRatio_of_coarseEllipticityDagger hdag).trans' (by norm_num)
   have he : 0 ≤ e := Real.sqrt_nonneg _
   have hePlus : 0 ≤ ePlus := Real.sqrt_nonneg _
   have hJB : adaptedCell (explicitRoundedGrid jStar m) (jStar : ℤ) ⊆ centeredCube d (2 * (jStar : ℤ)) :=
-    (Set.image_mono (Source.centeredCube_mono htJ)).trans hT
+    (Set.image_mono (Window.centeredCube_mono htJ)).trans hT
   have hs := hnorm P E Ψ K S hstat hdag jStar hj hsN m m hm hm terminal (jStar : ℤ) htJ le_rfl hT hJB
   have hs' : BlockMatLoewnerLE (A jStar) (blockScale (Cn * aspectRatio E * e ^ 2) F) := by
     convert hs using 1
@@ -372,7 +388,7 @@ theorem exists_two_grid_drift_comparison (d : ℕ) (hd : 2 ≤ d)
   refine ⟨max CwSrc CnSrc, C, hCwSrc.trans_le (le_max_left _ _), hC, ?_⟩
   intro P hP E Ψ K S hstat hdag jStar hj hsrc m mPlus hm hmPlus hratio n hn L hL hwindow δ hδ hlow hup
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hsW := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left CwSrc CnSrc) hlog)).trans hsrc
   have hsN := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_right CwSrc CnSrc) hlog)).trans hsrc
   let q := explicitRoundedGrid jStar m
@@ -381,8 +397,8 @@ theorem exists_two_grid_drift_comparison (d : ℕ) (hd : 2 ≤ d)
   let s := n + 2 * (L : ℤ)
   let F := adaptedMean P q s
   let H := adaptedMean P qPlus t
-  let f := fun r => blockTrace (blockSub (normalizedMean P q r s) (Book.Ch02.blockIdentity d))
-  let g := fun j => blockTrace (blockSub (normalizedMean P qPlus j t) (Book.Ch02.blockIdentity d))
+  let f := fun r => blockTrace (blockSub (relMean P q r s) (Book.Ch02.blockIdentity d))
+  let g := fun j => blockTrace (blockSub (relMean P qPlus j t) (Book.Ch02.blockIdentity d))
   let B := 1 + aspectRatio E * (Real.sqrt (‖m‖ * ‖m⁻¹‖) + Real.sqrt (‖mPlus‖ * ‖mPlus⁻¹‖)) ^ 2
   let R := (3 : ℝ) ^ (-a * ((n : ℝ) - jStar))
   let grow := (3 : ℝ) ^ (2 * a * (L : ℝ))
@@ -397,7 +413,7 @@ theorem exists_two_grid_drift_comparison (d : ℕ) (hd : 2 ≤ d)
     transport_drift_trace_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm r s (Finset.mem_Icc.mp hr).1
       (by have := (Finset.mem_Icc.mp hr).2; omega)
   have hDold : 0 ≤ Dold := bridge_determinantDrift_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm s
-  have hPi : 0 ≤ aspectRatio E := (one_le_aspectRatio hdag).trans' (by norm_num)
+  have hPi : 0 ≤ aspectRatio E := (one_le_aspectRatio_of_coarseEllipticityDagger hdag).trans' (by norm_num)
   have hB : 0 ≤ B := by
     dsimp only [B]
     exact add_nonneg zero_le_one (mul_nonneg hPi (sq_nonneg _))
@@ -419,7 +435,7 @@ theorem exists_two_grid_drift_comparison (d : ℕ) (hd : 2 ≤ d)
   have htW : adaptedCell qPlus t ⊆ centeredCube d (2 * (jStar : ℤ)) := Set.Subset.trans Set.subset_union_right hwindow
   have hsW' : adaptedCell q s ⊆ centeredCube d (2 * (jStar : ℤ)) := Set.Subset.trans Set.subset_union_left hwindow
   have hjW (j : ℤ) (hjt : j ≤ t) : adaptedCell qPlus j ⊆ centeredCube d (2 * (jStar : ℤ)) :=
-    (Set.image_mono (Source.centeredCube_mono hjt)).trans htW
+    (Set.image_mono (Window.centeredCube_mono hjt)).trans htW
   have hpoint (j : ℤ) (hj' : j ∈ Finset.Icc (jStar : ℤ) (t - 1)) :
       g j ≤ (4 / 3 : ℝ) * (if j < (jStar : ℤ) + L then 0 else f (j - (L : ℤ)) +
         (Cw * K₀) * ∑ r ∈ Finset.Icc (jStar : ℤ) (j - (L : ℤ) - 1), (3 : ℝ) ^ ((r : ℝ) - j) * f r) +
@@ -510,7 +526,7 @@ theorem exists_two_grid_drift_comparison (d : ℕ) (hd : 2 ≤ d)
     calc
       _ ≤ Cs * B * (1 + (n : ℝ) + L - jStar) * R := by
         gcongr
-        linarith
+        linarith only [hpoly]
       _ ≤ _ := mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right
         (mul_le_mul_of_nonneg_right hCsC hB) hpoly) (by dsimp only [R]; exact three_rpow_nonneg _)
   have hfinal : determinantDrift P γ qPlus jStar t ≤

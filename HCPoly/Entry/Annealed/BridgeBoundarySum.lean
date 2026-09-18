@@ -34,13 +34,19 @@ private theorem bridge_telescope {E : Type*} [AddCommGroup E]
     rw [ih]
     abel
 
+private lemma bridge_self_le_three_halves_mul {P : ℝ} (hP : 0 ≤ P) :
+    P ≤ (3 / 2 : ℝ) * P := by
+  linarith only [hP]
+
 private theorem bridge_geometric_interval (J cap m : ℤ) :
     (∑ r ∈ Finset.Icc J cap, (3 : ℝ) ^ ((r : ℝ) - m)) ≤
       (3 / 2 : ℝ) * (3 : ℝ) ^ ((cap : ℝ) - m) := by
   classical
   by_cases hJ : J ≤ cap
   · induction cap, hJ using Int.leInduction with
-    | base => simp only [Finset.Icc_self, Finset.sum_singleton]; nlinarith [Real.rpow_pos_of_pos (by norm_num : (0 : ℝ) < 3) ((J : ℝ) - m)]
+    | base =>
+      simp only [Finset.Icc_self, Finset.sum_singleton]
+      exact bridge_self_le_three_halves_mul (Real.rpow_nonneg (by norm_num) _)
     | succ cap hJ ih =>
       have he : Finset.Icc J (cap + 1) = insert (cap + 1) (Finset.Icc J cap) := by
         ext r
@@ -160,7 +166,7 @@ theorem bridge_increment_trace_bound {d : ℕ} (H F : BlockMat d)
     ext (i | i) (j | j) <;> rfl
   have hnscale (c : ℝ) : toFullBlockMat (normalizedBlock (blockScale c F) F) = c • 1 := by
     rw [normalizedBlock, toFullBlockMat_ofFullBlockMat, hscale, Matrix.mul_smul, Matrix.smul_mul,
-      matSqrt_inv_mul_self_mul_matSqrt_inv_full hF]
+      matSqrt_inv_conj hF]
   apply bridge_unnormalize_order hH.isHermitian
     (by rw [hscale]; simp only [Matrix.IsHermitian, Matrix.conjTranspose_smul, star_trivial, hF.isHermitian.eq]) hF
   apply (fullBlock_le_iff hN.isHermitian _).1
@@ -301,7 +307,7 @@ theorem bridge_boundary_sum (d : ℕ) (hd : 2 ≤ d)
     (fun r hr => adaptedMean_antitone d hd P γ E Ψ K S hstat hdag jStar hj m hm
       (r - 1) r (by have := hr.1; omega) (by omega))
     ((1 - γ) / 8) ⟨by linarith only [hγ.2], by linarith only [hγ.1]⟩
-  simpa only [determinantDrift, normalizedMean, Int.cast_natCast] using h
+  simpa only [determinantDrift, relMean, Int.cast_natCast] using h
 
 /-- The actual determinant drift is nonnegative; positivity of its normalized
 increments is proved before reading the real sum. Empty ranges need no exception. -/
@@ -323,7 +329,7 @@ theorem bridge_determinantDrift_nonneg (d : ℕ) (hd : 2 ≤ d)
     rw [bridge_full_sub]
     exact Matrix.le_iff.mp ((fullBlock_le_iff (hp j).isHermitian (hp (j - 1)).isHermitian).2 ho)
   apply mul_nonneg (Real.rpow_nonneg (by norm_num) _)
-  simpa only [normalizedMean, bridge_normalized_sub_trace] using
+  simpa only [relMean, bridge_normalized_sub_trace] using
     (bridge_increment_trace_bound (blockSub (A (j - 1)) (A j)) (A n) hdiff (hp n)).1
 
 private theorem bridge_exp_sub_one_le_two_mul {x : ℝ} (hx0 : 0 ≤ x) (hx1 : x ≤ 1) :
@@ -342,8 +348,8 @@ theorem bridge_drift_advance_pair (d : ℕ) (hd : 2 ≤ d)
     (n : ℤ) (hn : (jStar : ℤ) ≤ n) (L : ℕ) (hL : 1 ≤ L)
     (ε : ℝ) (hε : ε ∈ Set.Icc (0 : ℝ) 1)
     (hD : determinantDrift P γ (explicitRoundedGrid jStar m) jStar n ≤ ε)
-    (hΔ : logDetLoss P (explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤ ε) :
-    let Δ := logDetLoss P (explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ))
+    (hΔ : detIncrement P (explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤ ε) :
+    let Δ := detIncrement P (explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ))
     let δ := Real.exp ((d : ℝ)⁻¹ * Δ) - 1
     δ ∈ Set.Icc (0 : ℝ) 1 ∧ δ ≤ 2 * ε ∧ (1 + δ) ^ d = Real.exp Δ ∧
       Real.exp Δ - 1 ≤ 2 * ε ∧
@@ -385,12 +391,12 @@ theorem bridge_drift_advance_pair (d : ℕ) (hd : 2 ≤ d)
       n (n + s) hn (by omega)
     have hr0 := logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm
       (n + s) (n + 2 * (L : ℤ)) (by omega) (by omega)
-    have hle : logDetLoss P q n (n + s) ≤ ε := by
+    have hle : detIncrement P q n (n + s) ≤ ε := by
       have ht := logDetLoss_add P q n (n + s) (n + 2 * (L : ℤ))
       linarith only [ht, hr0, hΔ]
-    have he : Real.exp (logDetLoss P q n (n + s)) - 1 ≤ 2 * ε :=
+    have he : Real.exp (detIncrement P q n (n + s)) - 1 ≤ 2 * ε :=
       (bridge_exp_sub_one_le_two_mul hl0 (hle.trans hε.2)).trans (by linarith only [hle])
-    have he3 : Real.exp (logDetLoss P q n (n + s)) ≤ 3 := by linarith only [he, hε.2]
+    have he3 : Real.exp (detIncrement P q n (n + s)) ≤ 3 := by linarith only [he, hε.2]
     have hw : (3 : ℝ) ^ (-((1 - γ) / 8) * (s : ℝ)) ≤ 1 := by
       apply Real.rpow_le_one_of_one_le_of_nonpos (by norm_num)
       exact mul_nonpos_of_nonpos_of_nonneg
@@ -401,9 +407,9 @@ theorem bridge_drift_advance_pair (d : ℕ) (hd : 2 ≤ d)
       (fun r hr => adaptedMean_antitone d hd P γ E Ψ K S hstat hdag jStar hj m hm
         (r - 1) r (by have := hr.1; omega) (by omega))
     have hmul : (3 : ℝ) ^ (-((1 - γ) / 8) * (s : ℝ)) *
-        Real.exp (logDetLoss P q n (n + s)) * determinantDrift P γ q jStar n ≤ 3 * ε := by
+        Real.exp (detIncrement P q n (n + s)) * determinantDrift P γ q jStar n ≤ 3 * ε := by
       calc
-        _ ≤ Real.exp (logDetLoss P q n (n + s)) * determinantDrift P γ q jStar n := by
+        _ ≤ Real.exp (detIncrement P q n (n + s)) * determinantDrift P γ q jStar n := by
           rw [mul_assoc]
           exact mul_le_of_le_one_left (mul_nonneg (Real.exp_pos _).le hDn0) hw
         _ ≤ 3 * determinantDrift P γ q jStar n := mul_le_mul_of_nonneg_right he3 hDn0
@@ -427,14 +433,14 @@ theorem bridge_mean_sandwich (d : ℕ) (hd : 2 ≤ d)
     BlockMatLoewnerLE F (adaptedMean P q (n + (L : ℤ))) ∧
       BlockMatLoewnerLE (adaptedMean P q (n + (L : ℤ))) (adaptedMean P q n) ∧
       BlockMatLoewnerLE (adaptedMean P q n)
-        (blockScale (Real.exp (logDetLoss P q n (n + 2 * (L : ℤ)))) F) := by
+        (blockScale (Real.exp (detIncrement P q n (n + 2 * (L : ℤ)))) F) := by
   intro q F
   have hp := fun r => adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hj m hm r
   have ho := fun j k hjk hkl => adaptedMean_antitone d hd P γ E Ψ K S hstat hdag jStar hj
     m hm j k hjk hkl
   refine ⟨ho _ _ (by omega) (by omega), ho _ _ hn (by omega), ?_⟩
   let A := adaptedMean P q n
-  let c := Real.exp (logDetLoss P q n (n + 2 * (L : ℤ)))
+  let c := Real.exp (detIncrement P q n (n + 2 * (L : ℤ)))
   have hF : (toFullBlockMat F).PosDef := hp _
   have hA : (toFullBlockMat A).PosDef := hp _
   have hR := matSqrt_inv_posDef_full hF
@@ -443,7 +449,7 @@ theorem bridge_mean_sandwich (d : ℕ) (hd : 2 ≤ d)
       hA.posSemidef.conjTranspose_mul_mul_same (matSqrt (toFullBlockMat F)⁻¹)
   have hI : (1 : FullBlockMat d) ≤ toFullBlockMat (normalizedBlock A F) := by
     simpa only [normalizedBlock, toFullBlockMat_ofFullBlockMat] using
-      one_le_normalized hF ((fullBlock_le_iff hF.isHermitian hA.isHermitian).2 (ho _ _ hn (by omega)))
+      Recurrence.one_le_normalize hF ((fullBlock_le_iff hF.isHermitian hA.isHermitian).2 (ho _ _ hn (by omega)))
   have hb := matrix_le_det_smul_one hN.isHermitian hI
   have hdet := (adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag jStar hj m hm
     n (n + 2 * (L : ℤ)) hn (by omega)).2.2.1
@@ -453,7 +459,7 @@ theorem bridge_mean_sandwich (d : ℕ) (hd : 2 ≤ d)
     ext (i | i) (j | j) <;> rfl
   have hnscale : toFullBlockMat (normalizedBlock (blockScale c F) F) = c • 1 := by
     rw [normalizedBlock, toFullBlockMat_ofFullBlockMat, hscale, Matrix.mul_smul, Matrix.smul_mul,
-      matSqrt_inv_mul_self_mul_matSqrt_inv_full hF]
+      matSqrt_inv_conj hF]
   change BlockMatLoewnerLE A (blockScale c F)
   apply bridge_unnormalize_order hA.isHermitian
     (by rw [hscale]; simp only [Matrix.IsHermitian, Matrix.conjTranspose_smul,
@@ -519,7 +525,7 @@ theorem bridge_endpoint_errors (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                 centeredCube d (2 * (jStar : ℤ)) →
               ∀ ε : ℝ, ε ∈ Set.Icc (0 : ℝ) 1 →
                 determinantDrift P γ (explicitRoundedGrid jStar m) jStar n ≤ ε →
-                logDetLoss P (explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤ ε →
+                detIncrement P (explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤ ε →
                 let F := adaptedMean P (explicitRoundedGrid jStar m) (n + 2 * (L : ℤ))
                 let H := adaptedMean P (explicitRoundedGrid jStar mPlus) (n + (L : ℤ))
                 let T := (1 + aspectRatio E * (Real.sqrt (‖m‖ * ‖m⁻¹‖) +
@@ -547,7 +553,7 @@ theorem bridge_endpoint_errors (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   intro P hP E Ψ K S hstat hdag jStar hj hsrc m mPlus hm hmPlus hratio n L hn hL
     hcontain ε hε hD hΔ F H T
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hsrcU := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left CsU CsV) hlog)).trans hsrc
   have hsrcV := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_right CsU CsV) hlog)).trans hsrc
   have hu := hupper P E Ψ K S hstat hdag jStar hj hsrcU m mPlus hm hmPlus hratio n L hn hL hcontain
@@ -556,7 +562,7 @@ theorem bridge_endpoint_errors (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let A := fun r => adaptedMean P q r
   let w := (3 : ℝ) ^ (-(L : ℝ))
   let W := 1 + aspectRatio E * (Real.sqrt (‖m‖ * ‖m⁻¹‖) + Real.sqrt (‖mPlus‖ * ‖mPlus⁻¹‖)) ^ 2
-  have hW : 0 ≤ W := by dsimp [W]; have := one_le_aspectRatio hdag; positivity
+  have hW : 0 ≤ W := by dsimp [W]; have := one_le_aspectRatio_of_coarseEllipticityDagger hdag; positivity
   have hLn : (0 : ℝ) ≤ L := Nat.cast_nonneg L
   have hnR : (jStar : ℝ) ≤ n := by exact_mod_cast hn
   have hT : 0 ≤ T := mul_nonneg (mul_nonneg hW (by linarith only [hnR, hLn]))

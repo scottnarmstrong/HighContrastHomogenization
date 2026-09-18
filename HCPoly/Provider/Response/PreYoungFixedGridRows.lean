@@ -3,14 +3,13 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Response.PreYoungAdjointRows
 import HCPoly.Provider.Response.PreYoungRecentDefectRows
 import HCPoly.Provider.Response.PreYoungFixedGridComponentRows
 
 /-!
 # Cutoff-mean rows, fixed grid
 
-Fixed-rounded-grid sibling of `HCPoly.Provider.Response.PreYoungPrimalRows`, `HCPoly.Provider.Response.PreYoungAdjointRows`: the grid stays rounded at the fixed
+The cutoff-mean rows on a fixed rounded grid: the grid stays rounded at the fixed
 alignment `l` while the generation window `{s, t}` moves, the aligned-cell
 integrability coming from the `AlignedCellsIntegrable` carrier instead of the
 window multiplier's carrier equality.  The proof is unchanged apart from the

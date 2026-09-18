@@ -1,6 +1,6 @@
 import HCPoly.Entry.Setup.GeometryUpdate
-import HCPoly.Entry.Setup.SpectralBound
-import HCPoly.Entry.Geometry.PositiveSqrt
+import HCPoly.Entry.Setup.SchattenNorm
+import HCPoly.Entry.Geometry.PositiveSqrtCongruence
 import HCPoly.Entry.Geometry.ProjectiveMetric
 import Mathlib.Analysis.Matrix.Order
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Basic
@@ -9,10 +9,17 @@ import Mathlib.LinearAlgebra.Matrix.ZPow
 /-!
 # Bounds for the geometry update
 
-This file contains deterministic support for the update
-`geometryUpdate ε m mStar`.  The metric/O6 facts are owned by
-`HCPoly.Entry.Geometry.ProjectiveMetric`; this file only proves the update-side facts
-that do not require the projective-distance separation theorem.
+For positive definite `m` and `mStar`, the update `geometryUpdate ε m mStar` is again
+positive definite.  On the branch where `m` and `mStar` are not projectively equal, its
+normalized form is the real CFC power `matPow θ (normalizedMat m mStar)` with
+`θ = min (ε / projectiveDistance m mStar) 1 ∈ (0, 1]`, and
+`projectiveDistance m (geometryUpdate ε m mStar) = min ε (projectiveDistance m mStar)`,
+so the update advances the projective class of `m` by exactly the requested step, capped
+at the distance to `mStar`.  The spectral thresholds `specBound` and `specMin`, and their
+ratio, of a positive CFC power are the corresponding scalar powers of the originals.
+These are the update-side estimates that do not require the projective-distance separation
+theorem of `HCPoly.Entry.Geometry.ProjectiveMetric`; they serve `l.projective.step` and the
+step advance of the finite run in `p.global.selection`.
 -/
 
 open Homogenization.HighContrast (matPow matSqrt specBound specBound_nonneg)

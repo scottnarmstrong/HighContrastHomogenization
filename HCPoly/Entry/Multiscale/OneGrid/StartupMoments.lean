@@ -51,7 +51,7 @@ theorem profile_diagonal_eq_history (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
         (toFullBlockMat
           (adaptedMean P (Geometry.explicitRoundedGrid jStar metric) n)) :=
     Annealed.adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric n
-  simp [normalizedMean,
+  simp [relMean,
     normalizedBlock_self_of_posDef (adaptedMean P (Geometry.explicitRoundedGrid jStar metric) n) hF,
     meanPenalty_identity]
 
@@ -79,7 +79,7 @@ theorem moment_diagonal_le_fluctuationHistory (d : ℕ) (hd : 2 ≤ d) (γ : ℝ
   let := hP
   open scoped Matrix.Norms.L2Operator in
   set q := Geometry.explicitRoundedGrid jStar metric
-  have hQ : 1 ≤ bigQ d γ := le_trans (by norm_num) (bigQ_two_le d hd γ hγ)
+  have hQ : 1 ≤ bigQ d γ := le_trans (by norm_num) (bigQ_two_le d γ hγ)
   have hQR : (1 : ℝ) ≤ (bigQ d γ : ℝ) := by exact_mod_cast hQ
   have hfiniteSup {ι : Type} (s : Set ι) (hs : s.Finite)
       (f : ι → CoeffSpace d → ℝ) (hf : ∀ i a, 0 ≤ f i a)
@@ -119,14 +119,14 @@ theorem moment_diagonal_le_fluctuationHistory (d : ℕ) (hd : 2 ≤ d) (γ : ℝ
       constructor
       · rintro ⟨⟨w, rfl⟩, hw⟩
         refine ⟨w, ?_, rfl⟩
-        rw [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter] at hw
+        rw [Recurrence.adaptedCellCenter_eq] at hw
         obtain ⟨x, hx, he⟩ := hw
         have he' := hqinj he
         change HighContrast.standardCellCenter j w ∈ HighContrast.centeredCube d n
         exact he' ▸ hx
       · rintro ⟨w, hw, rfl⟩
         refine ⟨⟨w, rfl⟩, ?_⟩
-        rw [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter]
+        rw [Recurrence.adaptedCellCenter_eq]
         exact ⟨_, hw, rfl⟩
     rw [hset]
     exact hs.image _
@@ -137,7 +137,7 @@ theorem moment_diagonal_le_fluctuationHistory (d : ℕ) (hd : 2 ≤ d) (γ : ℝ
       change (3 : ℝ) ^ n • (Matrix.mulVec q (0 : Vec d)) = 0
       rw [Matrix.mulVec_zero, smul_zero]
     · refine ⟨(0 : Vec d), ?_, ?_⟩
-      · rw [Geometry.mem_centeredCube_iff]
+      · rw [Recurrence.mem_centeredCube_iff]
         intro i
         simp only [Pi.zero_apply]
         have hpos : 0 < (3 : ℝ) ^ n / 2 := by positivity
@@ -238,14 +238,14 @@ theorem startup_fluctuation_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                       ∑ j ∈ Finset.Icc (n + 1) (n + L),
                           (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (j : ℝ))) *
                               Real.exp ((bigQ d γ : ℝ) *
-                                logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j (n + L)) *
+                                detIncrement P (Geometry.explicitRoundedGrid jStar metric) j (n + L)) *
                             ∫ a, absSchattenNorm (bigQ d γ : ℝ)
                                 (normalizedFluctuationSelf P
                                   (Geometry.explicitRoundedGrid jStar metric) j a) ^ bigQ d γ ∂P ≤
                         C * (L : ℝ) *
                           (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
                             Real.exp ((bigQ d γ : ℝ) *
-                              logDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                              detIncrement P (Geometry.explicitRoundedGrid jStar metric)
                                 n (n + L)) - 1) := by
   obtain ⟨Csrc, hCsrc, hpow⟩ := parent_child_powered d hd γ hγ
   set A : ℝ := (2 : ℝ) ^ (bigQ d γ - 1) * ((3 : ℝ) ^ d * (bigQ d γ : ℝ)) ^ bigQ d γ with hAdef
@@ -259,7 +259,7 @@ theorem startup_fluctuation_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let := hP
   set q := Geometry.explicitRoundedGrid jStar metric with hqdef
   set H := history P γ q jStar n with hHdef
-  set x := (bigQ d γ : ℝ) * logDetLoss P q n (n + L) with hxdef
+  set x := (bigQ d γ : ℝ) * detIncrement P q n (n + L) with hxdef
   have hnL : n ≤ n + L := by omega
   have hnnL : (jStar : ℤ) ≤ n + L := by omega
   have hx0 : 0 ≤ x := by
@@ -307,7 +307,7 @@ theorem startup_fluctuation_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
           positivity
   have hterm : ∀ j ∈ Finset.Icc (n + 1) (n + L),
       (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (j : ℝ))) *
-          Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (n + L)) *
+          Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (n + L)) *
         (∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P) ≤
       (2 * (d : ℝ) * A + B) * (H + Real.exp x - 1) := by
@@ -328,57 +328,57 @@ theorem startup_fluctuation_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       exact mul_nonpos_of_nonpos_of_nonneg h1 h2
     have hjbound : (∫ a, absSchattenNorm (bigQ d γ : ℝ)
         (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P) ≤
-        A * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) *
+        A * Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) *
           (∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P q n a) ^ bigQ d γ ∂P) +
-        B * (Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) - 1) := by
+        B * (Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) - 1) := by
       have h1 : A * (3 : ℝ) ^ (-((bigQ d γ : ℝ) * (d : ℝ) / 2) * (r : ℝ)) *
-          Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) *
+          Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) *
           (∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P q n a) ^ bigQ d γ ∂P) ≤
-          A * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) *
+          A * Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) *
           (∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P q n a) ^ bigQ d γ ∂P) := by
         apply mul_le_mul_of_nonneg_right _ (hmom n)
         calc A * (3 : ℝ) ^ (-((bigQ d γ : ℝ) * (d : ℝ) / 2) * (r : ℝ)) *
-              Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j)
-            ≤ A * 1 * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) := by
+              Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j)
+            ≤ A * 1 * Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) := by
               apply mul_le_mul_of_nonneg_right _ (Real.exp_nonneg _)
               exact mul_le_mul_of_nonneg_left hdrop hA0
-          _ = A * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) := by ring
+          _ = A * Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) := by ring
       calc (∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P)
           ≤ A * (3 : ℝ) ^ (-((bigQ d γ : ℝ) * (d : ℝ) / 2) * (r : ℝ)) *
-              Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) *
+              Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) *
               (∫ a, absSchattenNorm (bigQ d γ : ℝ)
                 (normalizedFluctuationSelf P q n a) ^ bigQ d γ ∂P) +
-            B * (Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) - 1) := hstep
+            B * (Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) - 1) := hstep
         _ ≤ _ := add_le_add h1 le_rfl
-    set e2 : ℝ := Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (n + L)) with he2def
+    set e2 : ℝ := Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (n + L)) with he2def
     have he2_1 : 1 ≤ e2 := by
       rw [he2def]
       apply Real.one_le_exp
       apply mul_nonneg (Nat.cast_nonneg _)
       exact Annealed.logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric
         j (n + L) hpj hjnL
-    have he2_0 : 0 ≤ e2 := by linarith
+    have he2_0 : 0 ≤ e2 := by linarith only [he2_1]
     have hmul : e2 * (∫ a, absSchattenNorm (bigQ d γ : ℝ)
         (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P) ≤
-        e2 * (A * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) *
+        e2 * (A * Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) *
           (∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P q n a) ^ bigQ d γ ∂P) +
-          B * (Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) - 1)) :=
+          B * (Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) - 1)) :=
       mul_le_mul_of_nonneg_left hjbound he2_0
-    have hadd : logDetLoss P q n j + logDetLoss P q j (n + L) = logDetLoss P q n (n + L) :=
+    have hadd : detIncrement P q n j + detIncrement P q j (n + L) = detIncrement P q n (n + L) :=
       logDetLoss_add P q n j (n + L)
-    have hexp_mul : Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) * e2 = Real.exp x := by
+    have hexp_mul : Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) * e2 = Real.exp x := by
       rw [he2def, hxdef, ← Real.exp_add]
       congr 1
       rw [← mul_add, hadd]
-    have hrhs_eq : e2 * (A * Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) *
+    have hrhs_eq : e2 * (A * Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) *
           (∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P q n a) ^ bigQ d γ ∂P) +
-          B * (Real.exp ((bigQ d γ : ℝ) * logDetLoss P q n j) - 1)) =
+          B * (Real.exp ((bigQ d γ : ℝ) * detIncrement P q n j) - 1)) =
         A * Real.exp x * (∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P q n a) ^ bigQ d γ ∂P) +
         B * (Real.exp x - e2) := by
@@ -386,7 +386,7 @@ theorem startup_fluctuation_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       ring
     rw [hrhs_eq] at hmul
     have hB_e2 : B * (Real.exp x - e2) ≤ B * (Real.exp x - 1) :=
-      mul_le_mul_of_nonneg_left (by linarith) hB0
+      mul_le_mul_of_nonneg_left (by linarith only [he2_1]) hB0
     have hA_seed : A * Real.exp x * (∫ a, absSchattenNorm (bigQ d γ : ℝ)
         (normalizedFluctuationSelf P q n a) ^ bigQ d γ ∂P) ≤
         A * Real.exp x * (2 * (d : ℝ) * H) := by
@@ -409,21 +409,21 @@ theorem startup_fluctuation_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
             add_le_add hA_seed hB_e2
         _ = 2 * (d : ℝ) * A * (Real.exp x * H) + B * (Real.exp x - 1) := by ring
         _ ≤ 2 * (d : ℝ) * A * (H + Real.exp x - 1) + B * (H + Real.exp x - 1) :=
-            add_le_add hAfinal (mul_le_mul_of_nonneg_left (by linarith) hB0)
+            add_le_add hAfinal (mul_le_mul_of_nonneg_left (by linarith only [hH0]) hB0)
         _ = (2 * (d : ℝ) * A + B) * (H + Real.exp x - 1) := by ring
     have hw : (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (j : ℝ))) ≤ 1 := by
       apply Real.rpow_le_one_of_one_le_of_nonpos (by norm_num)
       have h1 : -((1 - γ) / 4) ≤ 0 := by linarith only [hγ.2]
       have h2 : (0 : ℝ) ≤ ((n + L : ℤ) : ℝ) - (j : ℝ) := by
         have : (j : ℝ) ≤ ((n + L : ℤ) : ℝ) := by exact_mod_cast hj'.2
-        linarith
+        linarith only [this]
       exact mul_nonpos_of_nonpos_of_nonneg h1 h2
     have hw0 : (0 : ℝ) ≤ (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (j : ℝ))) :=
       Real.rpow_nonneg (by norm_num) _
     have he2j0 : 0 ≤ e2 * (∫ a, absSchattenNorm (bigQ d γ : ℝ)
         (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P) := mul_nonneg he2_0 (hmom j)
     calc (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (j : ℝ))) *
-          Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (n + L)) *
+          Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (n + L)) *
           (∫ a, absSchattenNorm (bigQ d γ : ℝ)
               (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P)
         = (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (j : ℝ))) *
@@ -438,7 +438,7 @@ theorem startup_fluctuation_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       _ ≤ (2 * (d : ℝ) * A + B) * (H + Real.exp x - 1) := hkey
   have hsum := Finset.sum_le_card_nsmul (Finset.Icc (n + 1) (n + L))
     (fun j => (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (j : ℝ))) *
-        Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (n + L)) *
+        Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (n + L)) *
       (∫ a, absSchattenNorm (bigQ d γ : ℝ)
           (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P))
     ((2 * (d : ℝ) * A + B) * (H + Real.exp x - 1)) hterm
@@ -453,7 +453,7 @@ theorem startup_fluctuation_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   rw [hLcast] at hsum
   calc (∑ j ∈ Finset.Icc (n + 1) (n + L),
         (3 : ℝ) ^ (-((1 - γ) / 4) * (((n + L : ℤ) : ℝ) - (j : ℝ))) *
-            Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j (n + L)) *
+            Real.exp ((bigQ d γ : ℝ) * detIncrement P q j (n + L)) *
           (∫ a, absSchattenNorm (bigQ d γ : ℝ)
               (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P))
       ≤ (L : ℝ) * ((2 * (d : ℝ) * A + B) * (H + Real.exp x - 1)) := hsum

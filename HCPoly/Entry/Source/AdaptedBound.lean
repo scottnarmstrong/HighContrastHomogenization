@@ -1,8 +1,9 @@
 import HCPoly.Entry.Annealed.AdaptedLocality
 import HCPoly.Entry.Source.Multiplier
-import HCPoly.Entry.Geometry.RoundedGrid
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.Source.Subdivision
 import HCPoly.Entry.Source.CoarseSubadditivity
+import HCPoly.Provider.Window.CellGeometry
 
 /-!
 # From a successful source depth to adapted bounds
@@ -42,14 +43,14 @@ theorem source_finer_standard_bound {d : ℕ} (γ : ℝ) (E : BlockMat d)
       (blockScale ((3 : ℝ) ^ (γ * (((jStar + r : ℕ) : ℝ) - (k : ℝ)))) E) := by
   let m : ℤ := (jStar + r : ℕ)
   obtain ⟨v, hv⟩ := exists_standardCell_ancestor hkm w
-  have hcenter := hv (standardCellCenter_mem k w)
+  have hcenter := hv (Recurrence.standardCellCenter_mem_standardCell k w)
   have hbig : standardCell d m v ⊆ centeredCube d ((2 * jStar + r : ℕ) : ℤ) := by
-    have hpoint := (centeredCube_mono (d := d)
+    have hpoint := (Window.centeredCube_mono (d := d)
       (show 2 * (jStar : ℤ) ≤ ((2 * jStar + r : ℕ) : ℤ) by omega))
-      (hcell (standardCellCenter_mem k w))
+      (hcell (Recurrence.standardCellCenter_mem_standardCell k w))
     rw [centeredCube_eq_standardCell] at hpoint ⊢
     exact standardCell_subset_of_mem (by dsimp [m]; omega) hcenter hpoint
-  have hs := hsuccess v (hbig (standardCellCenter_mem m v))
+  have hs := hsuccess v (hbig (Recurrence.standardCellCenter_mem_standardCell m v))
   let n : ℕ := (m - k).toNat
   have hkn : k + (n : ℤ) = m := by
     dsimp [n]
@@ -63,14 +64,14 @@ theorem source_finer_standard_bound {d : ℕ} (γ : ℝ) (E : BlockMat d)
     simp only [standardCellCenter, u, Int.cast_sub, Int.cast_mul, Int.cast_pow, Int.cast_ofNat, hp]
     ring
   have hu : standardCellCenter k u ∈ centeredCube d m := by
-    rw [mem_centeredCube_iff]
-    rw [mem_standardCell_iff] at hcenter
+    rw [Recurrence.mem_centeredCube_iff]
+    rw [Recurrence.mem_standardCell_iff] at hcenter
     change ∀ i, ((v i : ℝ) - 1 / 2) * (3 : ℝ) ^ m < standardCellCenter k w i ∧
       standardCellCenter k w i < ((v i : ℝ) + 1 / 2) * (3 : ℝ) ^ m at hcenter
     intro i
     rw [hrel]
     dsimp only [standardCellCenter] at hcenter ⊢
-    constructor <;> nlinarith [(hcenter i).1, (hcenter i).2]
+    constructor <;> linarith only [(hcenter i).1, (hcenter i).2]
   have htranslate : translateSet (standardCellCenter m v) (standardCell d k u) = standardCell d k w := by
     simpa only [hkn, u, sub_add_cancel] using translate_standardCell_by_coarser_center k n v u
   have hb := hcoarse (fun i => (3 : ℤ) ^ (jStar + r) * v i) m
@@ -99,13 +100,13 @@ theorem source_standard_bound {d : ℕ} [NeZero d] (γ : ℝ) (E : BlockMat d)
   by_cases hkm : k ≤ ((jStar + r : ℕ) : ℤ)
   · have hkmR : 0 ≤ ((jStar + r : ℕ) : ℝ) - (k : ℝ) := by
       have hh : (k : ℝ) ≤ ((jStar + r : ℕ) : ℝ) := by exact_mod_cast hkm
-      linarith
+      linarith only [hh]
     rw [max_eq_left hkmR]
     exact source_finer_standard_bound γ E S a jStar r hcoarse hsuccess k w hkm hcell
   have hmk : ((jStar + r : ℕ) : ℤ) ≤ k := le_of_lt (lt_of_not_ge hkm)
   have hmkR : ((jStar + r : ℕ) : ℝ) - (k : ℝ) ≤ 0 := by
     have hh : ((jStar + r : ℕ) : ℝ) ≤ (k : ℝ) := by exact_mod_cast hmk
-    linarith
+    linarith only [hh]
   rw [max_eq_right hmkR, mul_zero, Real.rpow_zero]
   let m : ℤ := (jStar + r : ℕ)
   let W : Set (Vec d) := standardCell d k w
@@ -144,12 +145,12 @@ theorem source_penalty_decay (γ J j r : ℝ) (hγ : 0 ≤ γ) (hr : r ≤ j) :
       (3 : ℝ) ^ (γ * max (J - j) 0) * (3 : ℝ) ^ ((1 - γ) * (r - j)) := by
   have hm : max (J - r) 0 ≤ max (J - j) 0 + (j - r) := by
     apply max_le
-    · linarith [le_max_left (J - j) 0]
-    · linarith [le_max_right (J - j) 0]
+    · linarith only [le_max_left (J - j) 0]
+    · linarith only [le_max_right (J - j) 0, hr]
   rw [← Real.rpow_add (by norm_num : (0 : ℝ) < 3),
     ← Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
   apply Real.rpow_le_rpow_of_exponent_le (by norm_num)
-  nlinarith [mul_le_mul_of_nonneg_left hm hγ]
+  nlinarith only [mul_le_mul_of_nonneg_left hm hγ]
 
 /-- The full Whitney series has a summable source penalty, with the exact geometric
 ratio. Reindexing by the nonnegative deficit retains every selected cell. -/
@@ -174,7 +175,7 @@ theorem source_whitney_weighted_sum {d : ℕ} [NeZero d]
   let ρ : ℝ := (3 : ℝ) ^ (-(1 - γ))
   have hf0 (t : s) : 0 ≤ f t := by dsimp [f]; positivity
   have hρ0 : 0 ≤ ρ := by dsimp [ρ]; positivity
-  have hρ1 : ρ < 1 := Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith [hγ.2])
+  have hρ1 : ρ < 1 := Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith only [hγ.2])
   have hD : 0 ≤ D := by dsimp [D]; positivity
   have hgeom : Summable (fun n : ℕ => D * ρ ^ n) :=
     (summable_geometric_of_lt_one hρ0 hρ1).mul_left D
@@ -227,7 +228,7 @@ theorem source_whitney_weighted_sum {d : ℕ} [NeZero d]
           ((3 : ℝ) ^ (γ * max ((J : ℝ) - (j : ℝ)) 0) * (3 : ℝ) ^ ((1 - γ) * ((r : ℝ) - (j : ℝ)))) := by
         rw [mul_assoc, ← Real.rpow_intCast, Int.cast_sub]
         exact mul_le_mul_of_nonneg_left
-          (source_penalty_decay γ J j r hγ.1 (by dsimp [r]; push_cast; linarith)) (by positivity)
+          (source_penalty_decay γ J j r hγ.1 (by dsimp [r]; push_cast; linarith only [Nat.cast_nonneg (α := ℝ) n])) (by positivity)
       _ = D * ρ ^ n := by
         simp only [D, ρ, r, Int.cast_sub, Int.cast_natCast, ← Real.rpow_natCast,
           ← Real.rpow_mul (by norm_num : (0 : ℝ) ≤ 3)]
@@ -258,11 +259,11 @@ theorem source_penalty_factor (γ : ℝ) (hγ : 0 ≤ γ) (J r : ℕ) (k : ℤ) 
       (r : ℝ) + max ((J : ℝ) - (k : ℝ)) 0 := by
     push_cast
     apply max_le
-    · linarith [le_max_left ((J : ℝ) - (k : ℝ)) 0]
+    · linarith only [le_max_left ((J : ℝ) - (k : ℝ)) 0]
     · positivity
   rw [← Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
   apply Real.rpow_le_rpow_of_exponent_le (by norm_num)
-  nlinarith [mul_le_mul_of_nonneg_left hm hγ]
+  nlinarith only [mul_le_mul_of_nonneg_left hm hγ]
 
 /-- One simultaneous standard bound controls every contained adapted cell.
 The full countable partition is assembled through the mixed response identity. -/
@@ -378,7 +379,7 @@ theorem source_multiplier_and_adapted_bound (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   obtain ⟨Csrc, hCsrc, hsource⟩ := source_multiplier d hd γ hγ
   let C : ℝ := 12 * (d : ℝ) ^ ((3 : ℝ) / 2) / (1 - (3 : ℝ) ^ (-(1 - γ)))
   have hden : 0 < 1 - (3 : ℝ) ^ (-(1 - γ)) := sub_pos.mpr
-    (Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith [hγ.2]))
+    (Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith only [hγ.2]))
   have hC : 0 < C := by dsimp [C]; positivity
   refine ⟨Csrc, C, hCsrc, hC, ?_⟩
   intro P hP E Ψ K S hstat hdag jStar hj hthreshold Good

@@ -1,4 +1,16 @@
 import HCPoly.Entry.Annealed.TransportProfile
+
+/-!
+# Abel summation and the drift-weight algebra of the two-grid transport
+
+The finite summation-by-parts identity on integer intervals, the exact base-three difference of
+the exponential drift weights, and the resulting total-mass-one identity those weights satisfy.
+The same algebra is applied to the actual determinant drift and the actual normalized means,
+separating the terminal boundary trace from the interior geometric convolution of trace
+excesses, and is quantified into the error, sum, bulk, boundary, source and scalar-assembly
+bounds that supply the drift term of `p.two.grid.transport`.
+-/
+
 open Homogenization.HighContrast (CoeffSpace adaptedMean blockScale blockSub blockTrace
   normalizedBlock)
 namespace Homogenization.HighContrast.Annealed
@@ -45,21 +57,21 @@ theorem transport_abel_mass (a : ℝ) (J t : ℤ) (hJt : J < t) :
 /-- The trace of a block difference is the difference of its traces. -/
 theorem transport_trace_sub {d : ℕ} (A B : BlockMat d) :
     blockTrace (blockSub A B) = blockTrace A - blockTrace B := by
-  rw [blockTrace, transport_fullBlock_sub, Matrix.trace_sub]; rfl
+  rw [blockTrace, toFullBlockMat_blockSub_annealed, Matrix.trace_sub]; rfl
 
 /-- Abel summation for the actual determinant drift and actual normalized means. -/
 theorem transport_determinantDrift_abel {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (q : Mat d)
     (jStar : ℕ) (t : ℤ) (hJt : (jStar : ℤ) < t) (ht : (toFullBlockMat (adaptedMean P q t)).PosDef) :
     determinantDrift P γ q jStar t =
       (3 : ℝ) ^ (-((1 - γ) / 8) * ((t : ℝ) - jStar - 1)) *
-        blockTrace (blockSub (normalizedMean P q jStar t) (Book.Ch02.blockIdentity d)) +
+        blockTrace (blockSub (relMean P q jStar t) (Book.Ch02.blockIdentity d)) +
       (1 - (3 : ℝ) ^ (-((1 - γ) / 8))) *
         ∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) (t - 1),
           (3 : ℝ) ^ (-((1 - γ) / 8) * ((t : ℝ) - j - 1)) *
-            blockTrace (blockSub (normalizedMean P q j t) (Book.Ch02.blockIdentity d)) := by
-  let f := fun j => blockTrace (blockSub (normalizedMean P q j t) (Book.Ch02.blockIdentity d))
-  have hf : f t = 0 := by simp only [f, normalizedMean, normalizedBlock_self_of_posDef _ ht, transport_trace_sub, sub_self]
-  have hdiff (j : ℤ) : blockTrace (blockSub (normalizedMean P q (j - 1) t) (normalizedMean P q j t)) = f (j - 1) - f j := by
+            blockTrace (blockSub (relMean P q j t) (Book.Ch02.blockIdentity d)) := by
+  let f := fun j => blockTrace (blockSub (relMean P q j t) (Book.Ch02.blockIdentity d))
+  have hf : f t = 0 := by simp only [f, relMean, normalizedBlock_self_of_posDef _ ht, transport_trace_sub, sub_self]
+  have hdiff (j : ℤ) : blockTrace (blockSub (relMean P q (j - 1) t) (relMean P q j t)) = f (j - 1) - f j := by
     simp only [f, transport_trace_sub]; ring
   have h := transport_abel_identity (fun r => (3 : ℝ) ^ (-((1 - γ) / 8) * ((t : ℝ) - r))) f jStar t hJt
   simp only [transport_abel_weight, mul_assoc, ← Finset.mul_sum, hf, mul_zero, sub_zero, Int.cast_add, Int.cast_one, Int.cast_natCast] at h
@@ -73,7 +85,7 @@ theorem transport_abel_error (a : ℝ) (ha : 0 ≤ a) (J t : ℤ) (hJt : J < t)
       ∑ j ∈ Finset.Icc (J + 1) (t - 1), (3 : ℝ) ^ (-a * ((t : ℝ) - j - 1)) * f j ≤
     (3 : ℝ) ^ (-a * ((t : ℝ) - J - 1)) * g J + (1 - (3 : ℝ) ^ (-a)) *
       ∑ j ∈ Finset.Icc (J + 1) (t - 1), (3 : ℝ) ^ (-a * ((t : ℝ) - j - 1)) * g j + D := by
-  have hc : 0 ≤ 1 - (3 : ℝ) ^ (-a) := sub_nonneg.mpr (Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by linarith))
+  have hc : 0 ≤ 1 - (3 : ℝ) ^ (-a) := sub_nonneg.mpr (Real.rpow_le_one_of_one_le_of_nonpos (by norm_num) (by linarith only [ha]))
   have hsum := Finset.sum_le_sum (s := Finset.Icc (J + 1) (t - 1)) (fun j hj => mul_le_mul_of_nonneg_left
     (hfg j (Finset.mem_Icc.mpr ⟨by have := (Finset.mem_Icc.mp hj).1; omega, (Finset.mem_Icc.mp hj).2⟩))
     (by positivity : 0 ≤ (3 : ℝ) ^ (-a * ((t : ℝ) - j - 1))))
@@ -170,7 +182,7 @@ theorem transport_drift_trace_nonneg (d : ℕ) (hd : 2 ≤ d)
     (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hj : 2 * d ≤ 3 ^ jStar) (m : Mat d) (hm : m.PosDef)
     (r t : ℤ) (hJr : (jStar : ℤ) ≤ r) (hrt : r ≤ t) :
-    0 ≤ blockTrace (blockSub (normalizedMean P (explicitRoundedGrid jStar m) r t) (Book.Ch02.blockIdentity d)) := by
+    0 ≤ blockTrace (blockSub (relMean P (explicitRoundedGrid jStar m) r t) (Book.Ch02.blockIdentity d)) := by
   have h := (adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag jStar hj m hm r t hJr hrt).1
   rw [transport_trace_sub]
   exact sub_nonneg.mpr (Source.blockTrace_le_of_order h)
@@ -185,7 +197,7 @@ theorem transport_normalized_trace_sum {d : ℕ} (A : ℤ → BlockMat d) (F : B
   simp only [blockTrace, normalizedBlock, toFullBlockMat_ofFullBlockMat, mul_add, add_mul,
     Matrix.mul_smul, Matrix.smul_mul, Finset.mul_sum, Finset.sum_mul,
     Matrix.trace_add, Matrix.trace_sum, Matrix.trace_smul, smul_eq_mul,
-    matSqrt_inv_mul_self_mul_matSqrt_inv_full hF, Matrix.trace_one,
+    matSqrt_inv_conj hF, Matrix.trace_one,
     BlockCoord, Fintype.card_sum, Fintype.card_fin, Nat.cast_add, two_mul]
 
 /-- Taking a normalized trace of the Whitney matrix bound separates excess and identity. -/
@@ -226,7 +238,7 @@ theorem transport_drift_identity_row (J j : ℤ) (L : ℕ) :
       mul_le_mul_of_nonneg_left h (by positivity)
     _ ≤ _ := by
       rw [mul_comm]
-      exact mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_exponent_le (by norm_num) (by linarith))
+      exact mul_le_mul_of_nonneg_left (Real.rpow_le_rpow_of_exponent_le (by norm_num) (by linarith only []))
         (one_div_nonneg.mpr (transport_geometric_Icc 1 (by norm_num) J j).1.le)
 
 /-- Nonnegative Abel coefficients are bounded by the corresponding full geometric sum. -/
@@ -371,7 +383,7 @@ theorem transport_normalized_trace_scalar_bound {d : ℕ} (A F : BlockMat d)
     blockTrace (blockSub (normalizedBlock A F) (Book.Ch02.blockIdentity d)) ≤ 2 * (d : ℝ) * M := by
   have h := Source.blockTrace_le_of_order (transport_normalized_psd_bound hA hF hM hbound).2
   change blockTrace (normalizedBlock A F) ≤ Matrix.trace (toFullBlockMat (blockScale M (Book.Ch02.blockIdentity d))) at h
-  rw [transport_full_scale, transport_full_identity, Matrix.trace_smul, Matrix.trace_one] at h
+  rw [toFullBlockMat_blockScale, toFullBlockMat_blockIdentity, Matrix.trace_smul, Matrix.trace_one] at h
   simp only [BlockCoord, Fintype.card_sum, Fintype.card_fin, Nat.cast_add, smul_eq_mul] at h
   rw [transport_trace_excess]
   nlinarith only [h, (Nat.cast_nonneg d : (0 : ℝ) ≤ d)]

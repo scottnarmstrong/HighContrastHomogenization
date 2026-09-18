@@ -4,6 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import Homogenization.Probability.Source.AKL
+import Homogenization.Probability.RandomField
+import Homogenization.Book.Ch04.Internal.CoarseObservableMeasurability.Basic
 import Mathlib.LinearAlgebra.Matrix.PosDef
 
 /-!
@@ -26,7 +28,27 @@ qualitative integrability condition `e.qualitative.ellipticity` contains it
 in turn; all quantitative content — the reference aspect ratio `Π`, the
 concentration gauge and its growth witness, the annealed contrast `Θ_m`, and
 every dimensional constant — is unchanged.
+
+**The canonical measurable structure on `Mat d`.**  Several modules of the
+reference library introduce a measurable structure on `Mat d`, all of them the
+entrywise product structure transported from `Fin d → Fin d → ℝ`; one of them,
+`Homogenization.Book.Ch04.SourceObservable`, declares its copy `private`, which
+hides the name but still registers the instance globally.  Whichever copy
+instance resolution happens to select, `BorelSpace (Mat d)` is then searched for
+*that* copy, and the two Borel instances of the reference library are stated for
+two of the others, so a goal `BorelSpace (Mat d)` becomes unsolvable in any
+import closure where the private copy wins.  The pair
+`Homogenization.instMeasurableSpaceMat` and `Homogenization.instBorelSpaceMat`
+is the canonical path, and it is raised here to a priority no other copy
+reaches, so that every module of this library — both the polynomial-entry route
+and the proofs of the other three theorems — resolves `MeasurableSpace (Mat d)`
+and `BorelSpace (Mat d)` along one and the same path.  All the copies are the
+same structure up to unfolding, so nothing stated for another of them stops
+applying.
 -/
+
+attribute [instance 10000] Homogenization.instMeasurableSpaceMat
+attribute [instance 10000] Homogenization.instBorelSpaceMat
 
 namespace Homogenization
 namespace HighContrast

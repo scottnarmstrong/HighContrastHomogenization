@@ -1,4 +1,4 @@
-import HCPoly.Entry.Geometry.RoundedGrid
+import HCPoly.Entry.Geometry.RoundedGridBasic
 
 /-!
 # `l.source.whitney`
@@ -7,7 +7,7 @@ This file attaches the rounded-grid geometry theorem to the
 `HCPoly/Entry/Statements/SourceWhitney.lean` interface.  It does not import or consume that statement.
 -/
 
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory
 
@@ -41,4 +41,4 @@ theorem source_whitney
   let : NeZero d := ⟨Nat.ne_of_gt (lt_of_lt_of_le Nat.zero_lt_two hd)⟩
   exact Geometry.source_whitney_roundedGrid hj hm j y
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

@@ -1,11 +1,18 @@
 import HCPoly.Setup.BlockAlgebra
-import HCPoly.Entry.Setup.CanonicalMetric
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
+import HCPoly.Entry.Setup.ProjectiveDistance
+import HCPoly.Frozen.CoarseEllipticityDagger
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
 import HCPoly.Entry.Setup.GeometryUpdate
 import HCPoly.Entry.Setup.Profile
-import HCPoly.Entry.Setup.Stationarity
-import HCPoly.Entry.Setup.UnitRange
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Frozen.Stationarity
+import HCPoly.Setup.LocalSigmaFields
+import HCPoly.Frozen.UnitRange
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import Mathlib.Algebra.Order.Archimedean.Real.Basic
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 
@@ -36,12 +43,12 @@ Two later statements reach back for these constants:
 uses `L`, `η` and `B_0` at that pair: a structure with `ε` and `σ` as fields could not be
 quantified over before they are chosen.
 
-**Successor version: `SelectionData.Selects` is added below.**  The words
+**The predicate `SelectionData.Selects`.**  The words
 "furnished there" and "as in Proposition `p.scale.selection`" bind these constants to the
 *conclusion* of that proposition, and it is stated in the
 objects (`𝒫`, `D`, `Δ`, `Δ̂`, `m(F)`, `d_pr`, `𝔪_+`) that are all fixed.  The structure
-`SelectionData` and `SelectionData.eta` are unchanged, byte
-for byte and in their elaborated types; what is new is the predicate `S.Selects d γ`, the printed
+`SelectionData` packages the constants with their printed ranges, and the predicate
+`S.Selects d γ` is the printed
 conclusion of `p.scale.selection` with `S`'s constants in
 the printed places.  The statement in `HCPoly/Entry/Statements/ScaleSelection.lean` then reads
 `∃ S : SelectionData, S.Selects d γ`, and the two fragment propositions take
@@ -97,8 +104,7 @@ as a predicate on the selection data, at the dimension `d` and the coarse-ellipt
 `η := cεσ`. … Exactly one of the following alternatives holds. … In every alternative,
 [`e.renormalization.eccentricity.output`] and [`e.renormalization.output`]."
 
-The reading of the display, recorded here because a reader comparing this file to the manuscript
-must not have to reconstruct it (the standing honesty rule):
+The display is read in the following terms:
 
 * `C(d,γ)`, the constant of `e.renormalization.startup`, `e.renormalization.service` and
   `e.renormalization.transport.output`, depends on `d` and `γ` only; it is therefore existential
@@ -118,10 +124,10 @@ must not have to reconstruct it (the standing honesty rule):
   `B_0(ε,σ,d,γ)` say that none of them depends on the law.
 * `𝔪 > 0` is `Matrix.PosDef`, `q = 𝒬(𝔪)` is `Geometry.explicitRoundedGrid jStar m`, `Π` is
   `aspectRatio E`, `Q` is `bigQ d γ`, `𝒫_q(m;n)` is `profile P γ q jStar n m`, `D_{q,j_*}` is
-  `determinantDrift`, `Δ` is `logDetLoss`, `Δ̂_h` is `synchronizedLogDetLoss`, `m(F)` is
+  `determinantDrift`, `Δ` is `detIncrement`, `Δ̂_h` is `synchCharge`, `m(F)` is
   `explicitCanonicalMetric`, `𝔪_+` is `geometryUpdate ε 𝔪 𝔪_*` and `η` is `S.eta ε σ`. The three local
   abbreviations `𝔪_*`, `𝔪_+`, `q_+` are `let`-bound exactly where the display introduces them.
-* "Exactly one of the following alternatives holds" is transcribed as the disjunction of the
+* "Exactly one of the following alternatives holds" is the disjunction of the
   five guarded clauses the three alternatives contain (alternative 1 has two, alternative 3 has
   two). The guards are `k = n` against `k < n`, then `𝒫+D > η` against `𝒫+D ≤ η`, then
   `d^{-1}Δ̂_h(n) ≤ σ` against `> σ` and `d^{-1}Δ_{n,n+2L} ≤ εσ` against `> εσ`: pairwise
@@ -131,8 +137,8 @@ must not have to reconstruct it (the standing honesty rule):
   "in every alternative" (`e.renormalization.eccentricity.output`,
   `e.renormalization.output`), instantiated at that tuple. The print states them once for all
   alternatives; stating them per clause is the same content with the tuple substituted.
-* `½ log(|𝔪||𝔪^{-1}|)` and the ceilings are transcribed literally, with Mathlib's L2 operator
-  norm and the ceiling into `ℤ`.
+* `½ log(|𝔪||𝔪^{-1}|)` and the ceilings match the printed display symbol for symbol, with
+  Mathlib's L2 operator norm and the ceiling into `ℤ`.
 
 This predicate asserts nothing about `d ≥ 2` or `γ ∈ [0,1)`; those are hypotheses of the
 statements that use it. -/
@@ -179,7 +185,7 @@ def SelectionData.Selects (S : SelectionData) (d : ℕ) (γ : ℝ) : Prop :=
                               (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
                                 determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
                                 Real.exp ((bigQ d γ : ℝ) *
-                                  logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+                                  detIncrement P (Geometry.explicitRoundedGrid jStar m) n
                                     (n + (S.h : ℤ))) - 1)) ∧
                           1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) ≤
                             ε / (S.L ε σ : ℝ) *
@@ -197,7 +203,7 @@ def SelectionData.Selects (S : SelectionData) (d : ℕ) (γ : ℝ) : Prop :=
                               determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n >
                             S.eta ε σ ∧
                           (d : ℝ)⁻¹ *
-                              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+                              synchCharge P (Geometry.explicitRoundedGrid jStar m)
                                 (S.h : ℤ) n ≤ σ ∧
                           profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k
                                 (n + (S.h : ℤ)) +
@@ -207,7 +213,7 @@ def SelectionData.Selects (S : SelectionData) (d : ℕ) (γ : ℝ) : Prop :=
                                 (profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
                                   determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n) +
                               C *
-                                synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+                                synchCharge P (Geometry.explicitRoundedGrid jStar m)
                                   (S.h : ℤ) n) ∧
                           1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) ≤
                             ε / (S.L ε σ : ℝ) *
@@ -225,7 +231,7 @@ def SelectionData.Selects (S : SelectionData) (d : ℕ) (γ : ℝ) : Prop :=
                               determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n ≤
                             S.eta ε σ ∧
                           (d : ℝ)⁻¹ *
-                              logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+                              detIncrement P (Geometry.explicitRoundedGrid jStar m) n
                                 (n + 2 * (S.L ε σ : ℤ)) ≤ ε * σ ∧
                           profile P γ (Geometry.explicitRoundedGrid jStar mPlus) jStar
                                 (n + (S.L ε σ : ℤ)) (n + (S.L ε σ : ℤ)) +
@@ -249,7 +255,7 @@ def SelectionData.Selects (S : SelectionData) (d : ℕ) (γ : ℝ) : Prop :=
                               determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n >
                             S.eta ε σ ∧
                           (d : ℝ)⁻¹ *
-                              synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m)
+                              synchCharge P (Geometry.explicitRoundedGrid jStar m)
                                 (S.h : ℤ) n > σ) ∧
                           1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) ≤
                             ε / (S.L ε σ : ℝ) *
@@ -267,7 +273,7 @@ def SelectionData.Selects (S : SelectionData) (d : ℕ) (γ : ℝ) : Prop :=
                               determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n ≤
                             S.eta ε σ ∧
                           (d : ℝ)⁻¹ *
-                              logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+                              detIncrement P (Geometry.explicitRoundedGrid jStar m) n
                                 (n + 2 * (S.L ε σ : ℤ)) > ε * σ) ∧
                           1 / 2 * Real.log (‖m‖ * ‖m⁻¹‖) ≤
                             ε / (S.L ε σ : ℝ) *
@@ -307,7 +313,7 @@ def SelectionData.Selects (S : SelectionData) (d : ℕ) (γ : ℝ) : Prop :=
                       projectiveDistance m mPlus ≤ 1 →
                       profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
                             determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
-                          logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+                          detIncrement P (Geometry.explicitRoundedGrid jStar m) n
                             (n + 2 * (S.L ε σ : ℤ)) ≤
                         (S.c + (d : ℝ)) * ε * σ →
                         BlockMatLoewnerLE

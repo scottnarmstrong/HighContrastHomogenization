@@ -1,4 +1,5 @@
 import HCPoly.Entry.Multiscale.Initial.Nonnegativity
+import HCPoly.Geometry.ReferenceAspectRatio
 
 /-!
 # Initialization: Step 1, the crude profile bound
@@ -25,7 +26,7 @@ private theorem normalizedMean_one_isSymm {d : ℕ} (hd : 2 ≤ d) (γ : ℝ)
     (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P] (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
     (Src : CoeffSpace d → ℝ) (hstat : IsStationaryLaw P)
     (hdag : CoarseEllipticityDagger P γ E Ψ K Src) (jStar : ℕ) (hjStar : 2 * d ≤ 3 ^ jStar)
-    (j m : ℤ) : IsSymmetricBlockMat (normalizedMean P (1 : Mat d) j m) := by
+    (j m : ℤ) : IsSymmetricBlockMat (relMean P (1 : Mat d) j m) := by
   have : NeZero d := ⟨by omega⟩
   have hAj : Matrix.PosDef (toFullBlockMat (adaptedMean P (1 : Mat d) j)) := by
     have h := Annealed.adaptedMean_posDef d hd P γ E Ψ K Src hstat hdag jStar hjStar
@@ -58,20 +59,20 @@ theorem meanHistory_one_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   intro P E Ψ K Src hP hstat hunit hdag jStar hjStar hthr n m hn hnm
   have := hP
   have : NeZero d := ⟨by omega⟩
-  have hPi : (1 : ℝ) ≤ aspectRatio E := Annealed.one_le_aspectRatio hdag
-  have hc : (1 : ℝ) ≤ 24 * aspectRatio E := by linarith
+  have hPi : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
+  have hc : (1 : ℝ) ≤ 24 * aspectRatio E := by linarith only [hPi]
   have hdnn : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
   have hbase : (1 : ℝ) ≤ 1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1) :=
     le_add_of_nonneg_right (mul_nonneg (mul_nonneg (by norm_num) hdnn) (sub_nonneg.mpr hc))
   have hB : (0 : ℝ) ≤ (1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1)) ^ bigQ d γ - 1 := by
     have := one_le_pow₀ (n := bigQ d γ) hbase
-    linarith
+    linarith only [this]
   have hθ : (0 : ℝ) < (1 - γ) / 4 := by
     have := hγ.2
-    linarith
+    linarith only [this]
   have hstep : ∀ j ∈ Finset.Ico n m,
       (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - 1 - (j : ℝ))) *
-          meanPenalty (bigQ d γ) (normalizedMean P (1 : Mat d) j m) ≤
+          meanPenalty (bigQ d γ) (relMean P (1 : Mat d) j m) ≤
         (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - 1 - (j : ℝ))) *
           ((1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1)) ^ bigQ d γ - 1) := by
     intro j hj
@@ -85,7 +86,7 @@ theorem meanHistory_one_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   calc meanHistory P γ (1 : Mat d) n m
       = ∑ j ∈ Finset.Ico n m,
           (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - 1 - (j : ℝ))) *
-            meanPenalty (bigQ d γ) (normalizedMean P (1 : Mat d) j m) := rfl
+            meanPenalty (bigQ d γ) (relMean P (1 : Mat d) j m) := rfl
     _ ≤ ∑ j ∈ Finset.Ico n m,
           (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - 1 - (j : ℝ))) *
             ((1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1)) ^ bigQ d γ - 1) :=
@@ -123,33 +124,33 @@ theorem determinantDrift_one_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
   have hsub : ∀ A B : BlockMat d, blockTrace (blockSub A B) = blockTrace A - blockTrace B := by
     intro A B
     unfold blockTrace
-    rw [toFullBlockMat_blockSub', Matrix.trace_sub]
-  have hsymm : ∀ j : ℤ, IsSymmetricBlockMat (normalizedMean P (1 : Mat d) j m) := fun j =>
+    rw [Recurrence.toFullBlockMat_blockSub, Matrix.trace_sub]
+  have hsymm : ∀ j : ℤ, IsSymmetricBlockMat (relMean P (1 : Mat d) j m) := fun j =>
     normalizedMean_one_isSymm hd γ P E Ψ K Src hstat hdag jStar hjStar j m
   have htnn : ∀ i j : ℤ, (jStar : ℤ) ≤ i → i ≤ j →
-      0 ≤ blockTrace (blockSub (normalizedMean P (1 : Mat d) i m)
-        (normalizedMean P (1 : Mat d) j m)) := by
+      0 ≤ blockTrace (blockSub (relMean P (1 : Mat d) i m)
+        (relMean P (1 : Mat d) j m)) := by
     intro i j hi hij
     have hle := hanti i j m hi hij
-    have hHi : (toFullBlockMat (normalizedMean P (1 : Mat d) i m)).IsHermitian :=
+    have hHi : (toFullBlockMat (relMean P (1 : Mat d) i m)).IsHermitian :=
       (Analysis.toFullBlockMat_isHermitian_iff _).2 (hsymm i)
-    have hHj : (toFullBlockMat (normalizedMean P (1 : Mat d) j m)).IsHermitian :=
+    have hHj : (toFullBlockMat (relMean P (1 : Mat d) j m)).IsHermitian :=
       (Analysis.toFullBlockMat_isHermitian_iff _).2 (hsymm j)
-    have hraw : toFullBlockMat (normalizedMean P (1 : Mat d) j m) ≤
-        toFullBlockMat (normalizedMean P (1 : Mat d) i m) :=
+    have hraw : toFullBlockMat (relMean P (1 : Mat d) j m) ≤
+        toFullBlockMat (relMean P (1 : Mat d) i m) :=
       (Annealed.fullBlock_le_iff hHj hHi).mpr hle
     have hpsd := Matrix.le_iff.mp hraw
     unfold blockTrace
-    rw [toFullBlockMat_blockSub']
+    rw [Recurrence.toFullBlockMat_blockSub]
     exact hpsd.trace_nonneg
   have hθ : (0 : ℝ) < (1 - γ) / 8 := by
     have := hγ.2
-    linarith
+    linarith only [this]
   -- Step 1: drop the weights.
   have hstep1 : determinantDrift P γ (1 : Mat d) jStar m ≤
       ∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
-        (blockTrace (normalizedMean P (1 : Mat d) (j - 1) m) -
-          blockTrace (normalizedMean P (1 : Mat d) j m)) := by
+        (blockTrace (relMean P (1 : Mat d) (j - 1) m) -
+          blockTrace (relMean P (1 : Mat d) j m)) := by
     unfold determinantDrift
     refine Finset.sum_le_sum ?_
     intro j hj
@@ -165,13 +166,13 @@ theorem determinantDrift_one_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
     exact mul_le_of_le_one_left ht hw
   -- Step 2: telescope.
   have hstep2 : (∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
-        (blockTrace (normalizedMean P (1 : Mat d) (j - 1) m) -
-          blockTrace (normalizedMean P (1 : Mat d) j m))) =
-      blockTrace (normalizedMean P (1 : Mat d) (jStar : ℤ) m) -
-        blockTrace (normalizedMean P (1 : Mat d) m m) :=
-    sum_Icc_int_telescope (fun j => blockTrace (normalizedMean P (1 : Mat d) j m)) hm
+        (blockTrace (relMean P (1 : Mat d) (j - 1) m) -
+          blockTrace (relMean P (1 : Mat d) j m))) =
+      blockTrace (relMean P (1 : Mat d) (jStar : ℤ) m) -
+        blockTrace (relMean P (1 : Mat d) m m) :=
+    sum_Icc_int_telescope (fun j => blockTrace (relMean P (1 : Mat d) j m)) hm
   -- Step 3: the endpoint is the identity.
-  have hend : normalizedMean P (1 : Mat d) m m = Book.Ch02.blockIdentity d := by
+  have hend : relMean P (1 : Mat d) m m = Book.Ch02.blockIdentity d := by
     have h := Annealed.normalizedMean_self d hd P γ E Ψ K Src hstat hdag jStar hjStar
       (1 : Mat d) (Geometry.one_posDef d) m
     rwa [Geometry.explicitRoundedGrid_one] at h
@@ -179,10 +180,10 @@ theorem determinantDrift_one_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
   obtain ⟨-, -, -, hMc, -⟩ :=
     hnorm P E Ψ K Src hP hstat hunit hdag jStar hjStar hthr (jStar : ℤ) m le_rfl hm
   have hfin := blockTrace_sub_identity_le_of_le_scale
-    (normalizedMean P (1 : Mat d) (jStar : ℤ) m) (24 * aspectRatio E) hMc
+    (relMean P (1 : Mat d) (jStar : ℤ) m) (24 * aspectRatio E) hMc
   rw [hsub] at hfin
   rw [hstep2, hend] at hstep1
-  linarith [hstep1, hfin]
+  linarith only [hstep1, hfin]
 
 /-- D3. The seed term of `𝒫_Id(m;j_*)` (`p.initial.fixed.grid.scale`). -/
 theorem profile_one_seed_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
@@ -197,7 +198,7 @@ theorem profile_one_seed_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
           ⌈Csrc * Real.logb 3 (2 * K)⌉ ≤ (jStar : ℤ) →
           ∀ m : ℤ, (jStar : ℤ) ≤ m →
             (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - ((jStar : ℤ) : ℝ))) *
-                  (1 + meanPenalty (bigQ d γ) (normalizedMean P (1 : Mat d) (jStar : ℤ) m)) *
+                  (1 + meanPenalty (bigQ d γ) (relMean P (1 : Mat d) (jStar : ℤ) m)) *
                 history P γ (1 : Mat d) jStar (jStar : ℤ) ≤
               (1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1)) ^ bigQ d γ *
                 (2 * (d : ℝ) * (1 + (24 * aspectRatio E) ^ bigQ d γ)) := by
@@ -212,8 +213,8 @@ theorem profile_one_seed_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
     ceil_source_threshold_le_of_le K hK Cnorm (max Cnorm Cmom) (le_max_left _ _) _ hthr
   have hthrM : ⌈Cmom * Real.logb 3 (2 * K)⌉ ≤ (jStar : ℤ) :=
     ceil_source_threshold_le_of_le K hK Cmom (max Cnorm Cmom) (le_max_right _ _) _ hthr
-  have hPi : (1 : ℝ) ≤ aspectRatio E := Annealed.one_le_aspectRatio hdag
-  have hc : (1 : ℝ) ≤ 24 * aspectRatio E := by linarith
+  have hPi : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
+  have hc : (1 : ℝ) ≤ 24 * aspectRatio E := by linarith only [hPi]
   have hdnn : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
   have hbase : (1 : ℝ) ≤ 1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1) :=
     le_add_of_nonneg_right (mul_nonneg (mul_nonneg (by norm_num) hdnn) (sub_nonneg.mpr hc))
@@ -224,15 +225,15 @@ theorem profile_one_seed_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
     hnorm P E Ψ K Src hP hstat hunit hdag jStar hjStar hthrN (jStar : ℤ) m le_rfl hm
   have hsymm := normalizedMean_one_isSymm hd γ P E Ψ K Src hstat hdag jStar hjStar (jStar : ℤ) m
   have hmp := meanPenalty_le_of_le_scale (bigQ d γ)
-    (normalizedMean P (1 : Mat d) (jStar : ℤ) m) hsymm (24 * aspectRatio E) hc hIM hMc
-  have hmp0 : 0 ≤ 1 + meanPenalty (bigQ d γ) (normalizedMean P (1 : Mat d) (jStar : ℤ) m) := by
+    (relMean P (1 : Mat d) (jStar : ℤ) m) hsymm (24 * aspectRatio E) hc hIM hMc
+  have hmp0 : 0 ≤ 1 + meanPenalty (bigQ d γ) (relMean P (1 : Mat d) (jStar : ℤ) m) := by
     have ht := Analysis.blockTrace_identity_sub_nonneg
-      (normalizedMean P (1 : Mat d) (jStar : ℤ) m) hsymm hIM
+      (relMean P (1 : Mat d) (jStar : ℤ) m) hsymm hIM
     have := one_le_pow₀ (n := bigQ d γ)
-      (show (1 : ℝ) ≤ 1 + blockTrace (blockSub (normalizedMean P (1 : Mat d) (jStar : ℤ) m)
-        (Book.Ch02.blockIdentity d)) by linarith)
+      (show (1 : ℝ) ≤ 1 + blockTrace (blockSub (relMean P (1 : Mat d) (jStar : ℤ) m)
+        (Book.Ch02.blockIdentity d)) by linarith only [ht])
     simp only [meanPenalty]
-    linarith
+    linarith only [this]
   -- The history factor.
   have hhist : history P γ (1 : Mat d) jStar (jStar : ℤ) =
       fluctuationHistory P γ (1 : Mat d) jStar (jStar : ℤ) := by
@@ -257,10 +258,10 @@ theorem profile_one_seed_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
     Real.rpow_nonneg (by norm_num) _
   -- Assemble.
   have hfirst : (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - ((jStar : ℤ) : ℝ))) *
-      (1 + meanPenalty (bigQ d γ) (normalizedMean P (1 : Mat d) (jStar : ℤ) m)) ≤
+      (1 + meanPenalty (bigQ d γ) (relMean P (1 : Mat d) (jStar : ℤ) m)) ≤
       (1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1)) ^ bigQ d γ := by
     refine le_trans (mul_le_of_le_one_left hmp0 hw1) ?_
-    linarith [hmp]
+    linarith only [hmp]
   refine mul_le_mul hfirst hHle hH0 (le_trans zero_le_one hB1)
 
 /-- D4. The new-fluctuation sum of `𝒫_Id(m;j_*)` (`p.initial.fixed.grid.scale`). -/
@@ -277,7 +278,7 @@ theorem profile_one_fluct_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
           ∀ m : ℤ, (jStar : ℤ) ≤ m →
             (∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
                 (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-                    Real.exp ((bigQ d γ : ℝ) * logDetLoss P (1 : Mat d) j m) *
+                    Real.exp ((bigQ d γ : ℝ) * detIncrement P (1 : Mat d) j m) *
                   ∫ a, absSchattenNorm (bigQ d γ : ℝ)
                     (normalizedFluctuationSelf P (1 : Mat d) j a) ^ bigQ d γ ∂P) ≤
               (24 * aspectRatio E) ^ (2 * d * bigQ d γ) *
@@ -296,16 +297,16 @@ theorem profile_one_fluct_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
     ceil_source_threshold_le_of_le K hdag.one_lt_growthWitness Cmom (max Cnorm Cmom)
       (le_max_right _ _) (jStar : ℤ) hceil
   have hPi_pos : (0 : ℝ) < 24 * aspectRatio E := by
-    have hPi : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.Annealed.one_le_aspectRatio hdag
+    have hPi : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
     exact mul_pos (by norm_num) (lt_of_lt_of_le zero_lt_one hPi)
   have hQpos : (0 : ℝ) < (bigQ d γ : ℝ) :=
-    Homogenization.HighContrast.Multiscale.bigQ_real_pos d hd γ hγ
+    Homogenization.HighContrast.Multiscale.bigQ_real_pos d γ hγ
   have hQone : (1 : ℝ) ≤ (bigQ d γ : ℝ) := by
     exact_mod_cast (le_trans (by norm_num : 1 ≤ 2)
-      (Homogenization.HighContrast.Multiscale.bigQ_two_le d hd γ hγ))
+      (Homogenization.HighContrast.Multiscale.bigQ_two_le d γ hγ))
   have htheta_pos : 0 < (1 - γ) / 4 := by
     rcases hγ with ⟨hγ0, hγ1⟩
-    linarith
+    linarith only [hγ1]
   let B : ℝ := (24 * aspectRatio E) ^ (2 * d * bigQ d γ)
   let A : ℝ := 2 * (d : ℝ) * (1 + (24 * aspectRatio E) ^ bigQ d γ)
   have hBnn : 0 ≤ B := by
@@ -318,17 +319,17 @@ theorem profile_one_fluct_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
   have hsummand :
       ∀ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
         (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-              Real.exp ((bigQ d γ : ℝ) * logDetLoss P (1 : Mat d) j m) *
+              Real.exp ((bigQ d γ : ℝ) * detIncrement P (1 : Mat d) j m) *
             ∫ a, absSchattenNorm (bigQ d γ : ℝ)
               (normalizedFluctuationSelf P (1 : Mat d) j a) ^ bigQ d γ ∂P
           ≤
         (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) * (B * A) := by
     intro j hj
     have hjbounds := Finset.mem_Icc.mp hj
-    have hjle : (jStar : ℤ) ≤ j := by linarith
+    have hjle : (jStar : ℤ) ≤ j := by linarith only [hjbounds.1]
     have hjm : j ≤ m := hjbounds.2
     have hlog :
-        logDetLoss P (1 : Mat d) j m ≤
+        detIncrement P (1 : Mat d) j m ≤
           2 * (d : ℝ) * Real.log (24 * aspectRatio E) :=
       (hnorm P E Ψ K Src hP hstat hunit hdag jStar hjStar hceil_norm j m hjle hjm).2.2.2.2.2
     have hmoment :
@@ -337,9 +338,9 @@ theorem profile_one_fluct_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
       dsimp [A]
       exact hmom P E Ψ K Src hP hstat hunit hdag jStar hjStar hceil_mom j hjle
     have hexp :
-        Real.exp ((bigQ d γ : ℝ) * logDetLoss P (1 : Mat d) j m) ≤ B := by
+        Real.exp ((bigQ d γ : ℝ) * detIncrement P (1 : Mat d) j m) ≤ B := by
       have hmul :
-          (bigQ d γ : ℝ) * logDetLoss P (1 : Mat d) j m ≤
+          (bigQ d γ : ℝ) * detIncrement P (1 : Mat d) j m ≤
             (bigQ d γ : ℝ) * (2 * (d : ℝ) * Real.log (24 * aspectRatio E)) :=
         mul_le_mul_of_nonneg_left hlog hQpos.le
       refine (Real.exp_le_exp.mpr hmul).trans_eq ?_
@@ -366,17 +367,17 @@ theorem profile_one_fluct_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
         (Homogenization.HighContrast.Analysis.absSchattenNorm_nonneg
           ((Homogenization.HighContrast.Analysis.toFullBlockMat_isHermitian_iff _).2 hsym) hQone) _
     have hcore :
-        Real.exp ((bigQ d γ : ℝ) * logDetLoss P (1 : Mat d) j m) *
+        Real.exp ((bigQ d γ : ℝ) * detIncrement P (1 : Mat d) j m) *
             (∫ a, absSchattenNorm (bigQ d γ : ℝ)
               (normalizedFluctuationSelf P (1 : Mat d) j a) ^ bigQ d γ ∂P) ≤ B * A :=
       mul_le_mul hexp hmoment hmoment_nonneg hBnn
     calc
       (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-              Real.exp ((bigQ d γ : ℝ) * logDetLoss P (1 : Mat d) j m) *
+              Real.exp ((bigQ d γ : ℝ) * detIncrement P (1 : Mat d) j m) *
             ∫ a, absSchattenNorm (bigQ d γ : ℝ)
               (normalizedFluctuationSelf P (1 : Mat d) j a) ^ bigQ d γ ∂P
           = (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-              (Real.exp ((bigQ d γ : ℝ) * logDetLoss P (1 : Mat d) j m) *
+              (Real.exp ((bigQ d γ : ℝ) * detIncrement P (1 : Mat d) j m) *
             ∫ a, absSchattenNorm (bigQ d γ : ℝ)
               (normalizedFluctuationSelf P (1 : Mat d) j a) ^ bigQ d γ ∂P) := by ring
       _ ≤ (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) * (B * A) :=
@@ -385,7 +386,7 @@ theorem profile_one_fluct_sum_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
   calc
     (∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
         (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-            Real.exp ((bigQ d γ : ℝ) * logDetLoss P (1 : Mat d) j m) *
+            Real.exp ((bigQ d γ : ℝ) * detIncrement P (1 : Mat d) j m) *
           ∫ a, absSchattenNorm (bigQ d γ : ℝ)
             (normalizedFluctuationSelf P (1 : Mat d) j a) ^ bigQ d γ ∂P)
       ≤ ∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
@@ -428,13 +429,13 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
   obtain ⟨C2, hC2, hmean⟩ := meanHistory_one_le d hd γ hγ
   obtain ⟨C3, hC3, hfluct⟩ := profile_one_fluct_sum_le d hd γ hγ
   obtain ⟨C4, hC4, hdrift⟩ := determinantDrift_one_le d hd γ hγ
-  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d hd γ hγ
+  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d γ hγ
   have hθ : (0 : ℝ) < (1 - γ) / 4 := by
     have := hγ.2
-    linarith
+    linarith only [this]
   have hlt : (3 : ℝ) ^ (-((1 - γ) / 4)) < 1 :=
-    Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith)
-  have hw : (0 : ℝ) < (1 - (3 : ℝ) ^ (-((1 - γ) / 4)))⁻¹ := inv_pos.mpr (by linarith)
+    Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith only [hθ])
+  have hw : (0 : ℝ) < (1 - (3 : ℝ) ^ (-((1 - γ) / 4)))⁻¹ := inv_pos.mpr (by linarith only [hlt])
   set Q := bigQ d γ with hQdef
   set w : ℝ := (1 - (3 : ℝ) ^ (-((1 - γ) / 4)))⁻¹ with hwdef
   set N : ℕ := 2 * d * Q + Q + Q with hNdef
@@ -452,7 +453,7 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
   have hc3 : (0 : ℝ) ≤ c3 := by
     rw [hc3def]; exact mul_nonneg (by positivity) hw.le
   have hc4 : (0 : ℝ) ≤ c4 := by rw [hc4def]; positivity
-  refine ⟨max (max C1 C2) (max C3 C4), ?_, c1 + c2 + c3 + c4 + 1, by linarith, N, ?_⟩
+  refine ⟨max (max C1 C2) (max C3 C4), ?_, c1 + c2 + c3 + c4 + 1, by linarith only [hc1, hc2, hc3, hc4], N, ?_⟩
   · exact lt_of_lt_of_le hC1 (le_trans (le_max_left _ _) (le_max_left _ _))
   intro P E Ψ K Src hP hstat hunit hdag jStar hjStar hthr m hm
   have := hP
@@ -466,9 +467,9 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
     ceil_source_threshold_le_of_le K hK C3 _ (le_trans (le_max_left _ _) (le_max_right _ _)) _ hthr
   have hth4 : ⌈C4 * Real.logb 3 (2 * K)⌉ ≤ (jStar : ℤ) :=
     ceil_source_threshold_le_of_le K hK C4 _ (le_trans (le_max_right _ _) (le_max_right _ _)) _ hthr
-  have hPi : (1 : ℝ) ≤ aspectRatio E := Annealed.one_le_aspectRatio hdag
+  have hPi : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hdnn : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
-  have hX : (1 : ℝ) ≤ 2 + aspectRatio E := by linarith
+  have hX : (1 : ℝ) ≤ 2 + aspectRatio E := by linarith only [hPi]
   have hXQ : (1 : ℝ) ≤ (2 + aspectRatio E) ^ Q := one_le_pow₀ hX
   have hXN : (0 : ℝ) ≤ (2 + aspectRatio E) ^ N := by positivity
   -- Elementary polynomial envelopes in the aspect ratio.
@@ -476,15 +477,15 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
       (1 + 48 * (d : ℝ)) ^ Q * (2 + aspectRatio E) ^ Q := by
     have hnn : (0 : ℝ) ≤ 1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1) := by
       have h1 : (0 : ℝ) ≤ 2 * (d : ℝ) * (24 * aspectRatio E - 1) :=
-        mul_nonneg (by positivity) (by linarith)
-      linarith
+        mul_nonneg (by positivity) (by linarith only [hPi])
+      linarith only [h1]
     have hle : 1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1) ≤ (1 + 48 * (d : ℝ)) * aspectRatio E := by
       have hid : (1 + 48 * (d : ℝ)) * aspectRatio E -
           (1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1)) = aspectRatio E - 1 + 2 * (d : ℝ) := by
         ring
-      linarith
+      linarith only [hid, hPi, hdnn]
     exact (pow_le_pow_left₀ hnn hle Q).trans
-      (aspect_pow_le_two_add_pow (aspectRatio E) hPi (1 + 48 * (d : ℝ)) (by linarith) Q)
+      (aspect_pow_le_two_add_pow (aspectRatio E) hPi (1 + 48 * (d : ℝ)) (by linarith only [hdnn]) Q)
   have hmomQ : (24 * aspectRatio E) ^ Q ≤ (24 : ℝ) ^ Q * (2 + aspectRatio E) ^ Q :=
     aspect_pow_le_two_add_pow (aspectRatio E) hPi 24 (by norm_num) Q
   have hmomBig : (24 * aspectRatio E) ^ (2 * d * Q) ≤
@@ -494,7 +495,7 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
       (2 * (d : ℝ) * (1 + 24 ^ Q)) * (2 + aspectRatio E) ^ Q := by
     have hin : 1 + (24 * aspectRatio E) ^ Q ≤ (1 + 24 ^ Q) * (2 + aspectRatio E) ^ Q := by
       calc 1 + (24 * aspectRatio E) ^ Q
-          ≤ (2 + aspectRatio E) ^ Q + (24 : ℝ) ^ Q * (2 + aspectRatio E) ^ Q := by linarith
+          ≤ (2 + aspectRatio E) ^ Q + (24 : ℝ) ^ Q * (2 + aspectRatio E) ^ Q := by linarith only [hmomQ, hXQ]
         _ = (1 + 24 ^ Q) * (2 + aspectRatio E) ^ Q := by ring
     calc 2 * (d : ℝ) * (1 + (24 * aspectRatio E) ^ Q)
         ≤ 2 * (d : ℝ) * ((1 + 24 ^ Q) * (2 + aspectRatio E) ^ Q) :=
@@ -510,7 +511,7 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
   have h3 := hfluct P E Ψ K Src hP hstat hunit hdag jStar hjStar hth3 m hm
   have h4 := hdrift P E Ψ K Src hP hstat hunit hdag jStar hjStar hth4 m hm
   have e1 : (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - ((jStar : ℤ) : ℝ))) *
-        (1 + meanPenalty Q (normalizedMean P (1 : Mat d) (jStar : ℤ) m)) *
+        (1 + meanPenalty Q (relMean P (1 : Mat d) (jStar : ℤ) m)) *
       history P γ (1 : Mat d) jStar (jStar : ℤ) ≤ c1 * (2 + aspectRatio E) ^ N := by
     refine le_const_mul_pow hX hc1 hk1 (h1.trans ?_)
     calc (1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1)) ^ Q *
@@ -523,11 +524,11 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
     refine le_const_mul_pow hX hc2 hk2 (h2.trans ?_)
     calc ((1 + 2 * (d : ℝ) * (24 * aspectRatio E - 1)) ^ Q - 1) * w
         ≤ ((1 + 48 * (d : ℝ)) ^ Q * (2 + aspectRatio E) ^ Q) * w :=
-          mul_le_mul_of_nonneg_right (by linarith) hw.le
+          mul_le_mul_of_nonneg_right (by linarith only [hbaseQ]) hw.le
       _ = c2 * (2 + aspectRatio E) ^ Q := by rw [hc2def]; ring
   have e3 : (∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
         (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-            Real.exp ((Q : ℝ) * logDetLoss P (1 : Mat d) j m) *
+            Real.exp ((Q : ℝ) * detIncrement P (1 : Mat d) j m) *
           ∫ a, absSchattenNorm (Q : ℝ)
             (normalizedFluctuationSelf P (1 : Mat d) j a) ^ Q ∂P) ≤
       c3 * (2 + aspectRatio E) ^ N := by
@@ -548,15 +549,15 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
     rw [hc4def, pow_one]
     have hid : 48 * (d : ℝ) * (2 + aspectRatio E) -
         2 * (d : ℝ) * (24 * aspectRatio E - 1) = 98 * (d : ℝ) := by ring
-    linarith
+    linarith only [hid, hdnn]
   have hprof : profile P γ (1 : Mat d) jStar (jStar : ℤ) m =
       (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - ((jStar : ℤ) : ℝ))) *
-            (1 + meanPenalty Q (normalizedMean P (1 : Mat d) (jStar : ℤ) m)) *
+            (1 + meanPenalty Q (relMean P (1 : Mat d) (jStar : ℤ) m)) *
           history P γ (1 : Mat d) jStar (jStar : ℤ) +
         meanHistory P γ (1 : Mat d) (jStar : ℤ) m +
         ∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
           (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-              Real.exp ((Q : ℝ) * logDetLoss P (1 : Mat d) j m) *
+              Real.exp ((Q : ℝ) * detIncrement P (1 : Mat d) j m) *
             ∫ a, absSchattenNorm (Q : ℝ)
               (normalizedFluctuationSelf P (1 : Mat d) j a) ^ Q ∂P := rfl
   rw [hprof]
@@ -567,7 +568,7 @@ theorem initial_crude_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
         c3 * (2 + aspectRatio E) ^ N + c4 * (2 + aspectRatio E) ^ N +
         (2 + aspectRatio E) ^ N := by ring
   rw [hEq]
-  linarith
+  linarith only [hXN]
 
 end
 

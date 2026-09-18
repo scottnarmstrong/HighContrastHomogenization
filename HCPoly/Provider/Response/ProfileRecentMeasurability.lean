@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.Response.ProfileCenterPointwise
-import HCPoly.Provider.Response.ProfileRecentAverageLp
+import Mathlib.MeasureTheory.Function.SpecialFunctions.Basic
 
 /-!
 # Measurability of the recent weak-norm sums
@@ -134,36 +134,6 @@ theorem aemeasurable_diagonalWeakCellSum
           diagonalWeakCellDefect q (t - (j : ℤ)) t E a by rfl]
   exact Finset.aemeasurable_fun_sum (Finset.range (H + 1)) fun j _ ↦
     (aemeasurable_diagonalWeakCellDefect hq (t - (j : ℤ)) t hE hEpd).const_mul _
-
-/-- The recent averaged-defect sum is almost everywhere measurable under the
-retained-scale hypotheses. -/
-theorem aemeasurable_diagonalWeakAverageSum [NeZero d]
-    {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
-    {l : ℤ} {q : Mat d} (hq : q.PosDef)
-    (hP : HCPoly.Frozen.IsStationaryLaw P) (hgrid : IsRoundedGrid l q)
-    {jStar t : ℤ} {H : ℕ} (hlj : l ≤ jStar)
-    (hfin : ∀ k : ℤ, jStar ≤ k → k ≤ t → HasFiniteAdaptedMean P q k)
-    (hstart : jStar ≤ t - (H : ℤ)) (s rho : ℝ) :
-    AEMeasurable
-      (diagonalWeakAverageSum q t H s rho (adaptedMean P q t)) P := by
-  rw [show diagonalWeakAverageSum q t H s rho (adaptedMean P q t) =
-      fun a ↦ ∑ j ∈ Finset.range (H + 1),
-        (3 : ℝ) ^ (-(s - rho / 2) * (j : ℝ)) *
-          Real.sqrt
-            (blockSize
-              (diagonalWeakAverageDefect q (t - (j : ℤ)) t
-                (adaptedMean P q t) a) (blockIdentity d)) by rfl]
-  refine Finset.aemeasurable_fun_sum (Finset.range (H + 1)) fun j hj ↦ ?_
-  have hjH : j ≤ H := by
-    have hjlt := Finset.mem_range.mp hj
-    omega
-  have hklo : jStar ≤ t - (j : ℤ) := by
-    have hjH' : (j : ℤ) ≤ (H : ℤ) := by exact_mod_cast hjH
-    exact hstart.trans (sub_le_sub_left hjH' t)
-  have hkhi : t - (j : ℤ) ≤ t := sub_le_self t (Int.natCast_nonneg j)
-  exact (aemeasurable_sqrt_diagonalWeakAverageDefect hq hP hgrid
-    (hlj.trans hklo) hkhi (hfin _ hklo hkhi)
-      (hfin _ (hklo.trans hkhi) le_rfl)).const_mul _
 
 end
 

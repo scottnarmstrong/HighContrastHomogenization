@@ -3,7 +3,7 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Persistence.AdaptedIntegrability
+import HCPoly.Provider.Recurrence.MeanOrder
 import HCPoly.Provider.Sharp.CoarseBlockPositivity
 import HCPoly.Geometry.CanonicalDeterminant
 import HCPoly.Geometry.DeterminantLoss
@@ -134,56 +134,6 @@ theorem one_le_blockImbalance_adaptedMean [Nonempty (Fin d)] [IsProbabilityMeasu
     (fullBlockSharp_toFullBlockMat_adaptedMean_le hq r hfin)
 
 /-! ## The persistence clause -/
-
-/-- **The determinant-loss half of the persistence clause**: the entry mean lies
-below `(1+δ_ad)^d` times every coarser mean of the tower.
-
-The determinant quotient of the ordered pair `E_u^q ≤ E_t^q` is at most
-`𝔡(E_t^q)^d ≤ (1+δ_ad)^d`, since the coarser mean has determinant at least one,
-and `e.global.selection.metric.loss` reads that quotient as the Loewner
-comparison. -/
-theorem adaptedMean_le_blockScale (hd : 2 ≤ d) [IsProbabilityMeasure P]
-    (hP : HCPoly.Frozen.IsStationaryLaw P) (hq : IsRoundedGrid l q) {t : ℤ} (hlt : l ≤ t)
-    (hfin : HasFiniteAdaptedMean P q t) {deltaAd : ℝ}
-    (himb : blockImbalance (adaptedMean P q t) ≤ 1 + deltaAd) {u : ℤ} (htu : t ≤ u) :
-    BlockMatLoewnerLE (adaptedMean P q t)
-      (blockScale ((1 + deltaAd) ^ d) (adaptedMean P q u)) := by
-  have : NeZero d := ⟨by omega⟩
-  have : Nonempty (Fin d) := ⟨⟨0, by omega⟩⟩
-  have hfinu : HasFiniteAdaptedMean P q u := hasFiniteAdaptedMean_of_le hP hq hlt hfin htu
-  have hEt : (toFullBlockMat (adaptedMean P q t)).PosDef :=
-    Recurrence.posDef_toFullBlockMat_adaptedMean hq t hfin
-  have hEu : (toFullBlockMat (adaptedMean P q u)).PosDef :=
-    Recurrence.posDef_toFullBlockMat_adaptedMean hq u hfinu
-  -- the two ends of the determinant account
-  have hdetu : 1 ≤ (toFullBlockMat (adaptedMean P q u)).det :=
-    one_le_det_adaptedMean hq u hfinu
-  have hdett : (toFullBlockMat (adaptedMean P q t)).det ≤ (1 + deltaAd) ^ d := by
-    refine le_trans (det_adaptedMean_le_blockImbalance_pow hq t hfin) ?_
-    exact pow_le_pow_left₀
-      (le_trans zero_le_one (one_le_blockImbalance_adaptedMean hq t hfin)) himb d
-  have hquot : (toFullBlockMat (adaptedMean P q t)).det /
-      (toFullBlockMat (adaptedMean P q u)).det ≤ (1 + deltaAd) ^ d :=
-    le_trans (div_le_self hEt.det_pos.le hdetu) hdett
-  refine blockMatLoewnerLE_of_le ?_
-  rw [toFullBlockMat_blockScale]
-  exact le_smul_of_det_div_le hd hEt hEu
-    (Recurrence.toFullBlockMat_adaptedMean_le hP hq hlt htu hfin hfinu) hquot
-
-/-- **The persistence clause**, both halves: the adapted means of the tower above
-the entry scale decrease in the Loewner order, and they lose at most the factor
-`(1+δ_ad)^d` of the adapted imbalance. -/
-theorem adapted_persistence (hd : 2 ≤ d) [IsProbabilityMeasure P]
-    (hP : HCPoly.Frozen.IsStationaryLaw P) (hq : IsRoundedGrid l q) {t : ℤ} (hlt : l ≤ t)
-    (hfin : HasFiniteAdaptedMean P q t) {deltaAd : ℝ}
-    (himb : blockImbalance (adaptedMean P q t) ≤ 1 + deltaAd) {u : ℤ} (htu : t ≤ u) :
-    BlockMatLoewnerLE (adaptedMean P q u) (adaptedMean P q t) ∧
-      BlockMatLoewnerLE (adaptedMean P q t)
-        (blockScale ((1 + deltaAd) ^ d) (adaptedMean P q u)) := by
-  have : NeZero d := ⟨by omega⟩
-  exact ⟨Recurrence.adaptedMean_le hP hq hlt htu hfin
-      (hasFiniteAdaptedMean_of_le hP hq hlt hfin htu),
-    adaptedMean_le_blockScale hd hP hq hlt hfin himb htu⟩
 
 end
 

@@ -1,4 +1,4 @@
-import HCPoly.Entry.Setup.SpectralBound
+import HCPoly.Entry.Setup.SchattenNorm
 import HCPoly.Entry.Setup.ProjectiveDistance
 import Mathlib.Analysis.CStarAlgebra.Matrix
 import Mathlib.Analysis.CStarAlgebra.ContinuousFunctionalCalculus.Order
@@ -8,9 +8,13 @@ import Mathlib.Analysis.Matrix.PosDef
 /-!
 # Spectral extrema for the Loewner thresholds
 
-This file identifies the scalar Loewner thresholds `specMin` and
-`specBound` with the attained minimum and maximum Hermitian eigenvalues on the
-positive definite matrices used by the projective geometry.
+On a positive definite matrix `M`, the scalar Loewner thresholds `specMin M` and
+`specBound M` are the attained minimum and maximum Hermitian eigenvalues of `M`, and
+they equal the L2 operator norms of `M⁻¹` and `M` respectively; for a positive
+continuous-functional-calculus power of `M` the two thresholds are the corresponding
+scalar powers of the originals.  These spectral identities provide the
+projective-distance and geometry-update comparisons used in `l.projective.step` and in
+the finite run of `p.global.selection`.
 -/
 
 open Homogenization.HighContrast (matLoewnerLE_specBound_smul_one specBound specBound_le)
@@ -41,7 +45,7 @@ private theorem matLoewnerLE_of_matrixOrder {A B : Mat d} (hAB : A ≤ B) :
   have hnonneg : 0 ≤ dotProduct x (Matrix.mulVec (B - A) x) :=
     hBA.dotProduct_mulVec_nonneg x
   rw [Matrix.sub_mulVec, dotProduct_sub] at hnonneg
-  nlinarith
+  linarith only [hnonneg]
 
 private theorem matrixOrder_of_matLoewnerLE_of_isHermitian {A B : Mat d}
     (hA : A.IsHermitian) (hB : B.IsHermitian) (hAB : MatLoewnerLE A B) :
@@ -55,7 +59,7 @@ private theorem matrixOrder_of_matLoewnerLE_of_isHermitian {A B : Mat d}
       (1 / 2 : ℝ) * dotProduct x (Matrix.mulVec A x) ≤
         (1 / 2 : ℝ) * dotProduct x (Matrix.mulVec B x) := by
     simpa [vecDot, matVecMul] using! hAB x
-  nlinarith
+  linarith only [hAB']
 
 private theorem eigenvalue_mem_real_spectrum {M : Mat d} (hM : M.IsHermitian) (i : Fin d) :
     hM.eigenvalues i ∈ spectrum ℝ M := by

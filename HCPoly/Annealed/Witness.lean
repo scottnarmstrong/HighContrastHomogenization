@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Annealed.WitnessBlock
-import HCPoly.Annealed.WitnessSigmaField
+import HCPoly.Consistency.WitnessSigmaField
 import HCPoly.Frozen.Stationarity
 import HCPoly.Frozen.UnitRange
 import HCPoly.Frozen.CoarseEllipticityDagger

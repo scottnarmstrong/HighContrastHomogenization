@@ -23,7 +23,7 @@ noncomputable section
 private theorem bridge_zero_mem_cell {d : ℕ} (q : Mat d) (j : ℤ) :
     (0 : Vec d) ∈ adaptedCell q j := by
   refine ⟨0, ?_, matVecMul_zero q⟩
-  rw [mem_centeredCube_iff]
+  rw [Recurrence.mem_centeredCube_iff]
   intro i
   have hp : (0 : ℝ) < 3 ^ j := zpow_pos (by norm_num) _
   simp only [Pi.zero_apply]
@@ -43,7 +43,7 @@ private theorem bridge_lattice_cell_finite {d : ℕ} [NeZero d] (q : Mat d) (hq 
   have hzero : adaptedCellAtCenter q k 0 = adaptedCell q k := by
     simp only [adaptedCellAtCenter, bridge_center_zero, adaptedCellTranslate, zero_add, Set.image_id']
   have hv : volume (adaptedCell q k) ≠ ⊤ := by
-    simpa only [adaptedCellTranslate, zero_add, Set.image_id'] using volume_adaptedCellTranslate_ne_top q k 0
+    simpa only [adaptedCellTranslate, zero_add, Set.image_id'] using Transport.volume_adaptedCellTranslate_ne_top q k 0
   have hf := finite_contained_adaptedCellIndices hq hv j
   refine ⟨(hf.image (adaptedCellCenter q j)).subset ?_, ⟨0, ⟨⟨0, bridge_center_zero q j⟩, bridge_zero_mem_cell q k⟩⟩⟩
   rintro z ⟨⟨w, rfl⟩, hz⟩
@@ -85,7 +85,7 @@ private theorem bridge_integrable_finite_sup {Ω ι : Type*} [MeasurableSpace Ω
   exact Finset.single_le_sum (fun r hr => hf0 r (hs.mem_toFinset.mp hr) a) (hs.mem_toFinset.mpr hi)
 
 private theorem bridge_integrable_opNorm_pow {d Q : ℕ} {P : Measure (CoeffSpace d)}
-    {H : CoeffSpace d → BlockMat d} (hH : MemLqSchatten P (Q : ℝ) H) (hQ : 1 ≤ (Q : ℝ)) :
+    {H : CoeffSpace d → BlockMat d} (hH : SchattenMemLp P (Q : ℝ) H) (hQ : 1 ≤ (Q : ℝ)) :
     Integrable (fun a => blockOpNorm (H a) ^ Q) P := by
   have hm : AEMeasurable (fun a => toFullBlockMat (H a)) P :=
     aemeasurable_pi_lambda _ fun i => aemeasurable_pi_lambda _ fun j => (hH.measurable i j).aemeasurable
@@ -102,11 +102,12 @@ in both the profile and its history. This invokes bounded-window finiteness,
 without imposing the original source window on auxiliary cells. -/
 theorem bridge_fluctuation_memLqSchatten (d : ℕ) (hd : 2 ≤ d)
     (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P]
-    (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
+    (γ : ℝ) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
     (S : CoeffSpace d → ℝ) (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hj : 2 * d ≤ 3 ^ jStar) (m : Mat d) (hm : m.PosDef) (j k : ℤ) (z : Vec d) :
-    MemLqSchatten P (bigQ d γ : ℝ) (normalizedFluctuation P (explicitRoundedGrid jStar m) j k z) := by
-  have hQ : 1 ≤ (bigQ d γ : ℝ) := by exact_mod_cast (bigQ_pos d hd γ hγ)
+    SchattenMemLp P (bigQ d γ : ℝ) (normalizedFluctuation P (explicitRoundedGrid jStar m) j k z) := by
+  have hγ := hdag.g_mem
+  have hQ : 1 ≤ (bigQ d γ : ℝ) := by exact_mod_cast (bigQ_pos d γ hγ)
   have hA := Source.memLqSchatten_coarseBlock_adapted d hd P γ E Ψ K S hstat hdag jStar hj m hm j z _ hQ
   have hc := Analysis.memLqSchatten_const P hQ (adaptedMean P (explicitRoundedGrid jStar m) j)
     ((Analysis.toFullBlockMat_isHermitian_iff _).1
@@ -118,7 +119,7 @@ families, and its defining random variable is integrable. In particular its
 expectation is nonnegative for its intended reason. -/
 theorem bridge_fluctuationHistory_integrable (d : ℕ) (hd : 2 ≤ d)
     (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P]
-    (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
+    (γ : ℝ) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
     (S : CoeffSpace d → ℝ) (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hj : 2 * d ≤ 3 ^ jStar) (m : Mat d) (hm : m.PosDef)
     (k : ℤ) (hk : (jStar : ℤ) ≤ k) :
@@ -128,7 +129,8 @@ theorem bridge_fluctuationHistory_integrable (d : ℕ) (hd : 2 ≤ d)
           blockOpNorm (normalizedFluctuation P (explicitRoundedGrid jStar m) j k z a) ^ bigQ d γ) P ∧
       0 ≤ fluctuationHistory P γ (explicitRoundedGrid jStar m) jStar k := by
   let : NeZero d := ⟨by omega⟩
-  have hQ : 1 ≤ (bigQ d γ : ℝ) := by exact_mod_cast (bigQ_pos d hd γ hγ)
+  have hγ := hdag.g_mem
+  have hQ : 1 ≤ (bigQ d γ : ℝ) := by exact_mod_cast (bigQ_pos d γ hγ)
   let q := explicitRoundedGrid jStar m
   have hq := isUnit_roundedGrid hj hm
   have hinner (j : ℤ) (hji : j ∈ Set.Icc (jStar : ℤ) k) :=
@@ -136,7 +138,7 @@ theorem bridge_fluctuationHistory_integrable (d : ℕ) (hd : 2 ≤ d)
       (bridge_lattice_cell_finite q hq j k hji.2).2
       (fun z a => blockOpNorm (normalizedFluctuation P q j k z a) ^ bigQ d γ)
       (fun z _ => bridge_integrable_opNorm_pow
-        (bridge_fluctuation_memLqSchatten d hd P γ hγ E Ψ K S hstat hdag jStar hj m hm j k z) hQ)
+        (bridge_fluctuation_memLqSchatten d hd P γ E Ψ K S hstat hdag jStar hj m hm j k z) hQ)
       (fun _ _ _ => pow_nonneg (norm_nonneg _) _)
   have houter := bridge_integrable_finite_sup P (Set.finite_Icc (jStar : ℤ) k) (Set.nonempty_Icc.mpr hk)
     (fun j a => (3 : ℝ) ^ (-(bigQ d γ : ℝ) * rhoMax d γ * ((k : ℝ) - j)) *
@@ -150,21 +152,22 @@ theorem bridge_fluctuationHistory_integrable (d : ℕ) (hd : 2 ≤ d)
 and history suprema justified by the preceding receipts. -/
 theorem bridge_profile_nonneg (d : ℕ) (hd : 2 ≤ d)
     (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P]
-    (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
+    (γ : ℝ) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
     (S : CoeffSpace d → ℝ) (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hj : 2 * d ≤ 3 ^ jStar) (m : Mat d) (hm : m.PosDef)
     (k n : ℤ) (hk : (jStar : ℤ) ≤ k) (hkn : k ≤ n) :
     0 ≤ profile P γ (explicitRoundedGrid jStar m) jStar k n := by
+  have hγ := hdag.g_mem
   let q := explicitRoundedGrid jStar m
-  have hQ : 1 ≤ (bigQ d γ : ℝ) := by exact_mod_cast (bigQ_pos d hd γ hγ)
+  have hQ : 1 ≤ (bigQ d γ : ℝ) := by exact_mod_cast (bigQ_pos d γ hγ)
   have hmean (a b : ℤ) (ha : (jStar : ℤ) ≤ a) (hab : a ≤ b) :
-      0 ≤ meanPenalty (bigQ d γ) (normalizedMean P q a b) :=
+      0 ≤ meanPenalty (bigQ d γ) (relMean P q a b) :=
     (adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag jStar hj m hm a b ha hab).2.2.2.2.2
   have hhist (a b : ℤ) (ha : (jStar : ℤ) ≤ a) : 0 ≤ meanHistory P γ q a b := by
     unfold meanHistory
     exact Finset.sum_nonneg (fun j hj => mul_nonneg (Real.rpow_nonneg (by norm_num) _)
       (hmean j b (ha.trans (Finset.mem_Ico.mp hj).1) (Finset.mem_Ico.mp hj).2.le))
-  obtain ⟨_hHistoryIntegrable, hfluc⟩ := bridge_fluctuationHistory_integrable d hd P γ hγ E Ψ K S
+  obtain ⟨_hHistoryIntegrable, hfluc⟩ := bridge_fluctuationHistory_integrable d hd P γ E Ψ K S
     hstat hdag jStar hj m hm k hk
   have hHistory : 0 ≤ history P γ q jStar k := add_nonneg hfluc (hhist jStar k le_rfl)
   unfold profile
@@ -173,7 +176,7 @@ theorem bridge_profile_nonneg (d : ℕ) (hd : 2 ≤ d)
     (hhist k n hk))
   apply Finset.sum_nonneg
   intro j _
-  have hmem := bridge_fluctuation_memLqSchatten d hd P γ hγ E Ψ K S hstat hdag jStar hj m hm j j 0
+  have hmem := bridge_fluctuation_memLqSchatten d hd P γ E Ψ K S hstat hdag jStar hj m hm j j 0
   have _hMomentIntegrable : Integrable (fun a =>
       absSchattenNorm (bigQ d γ : ℝ) (normalizedFluctuationSelf P q j a) ^ bigQ d γ) P := by
     simpa only [Real.rpow_natCast] using! hmem.integrable
@@ -394,7 +397,7 @@ private theorem bridge_normalized_error_iff {d : ℕ} [NeZero d] (H F : BlockMat
     simp only [Matrix.IsHermitian, Matrix.conjTranspose_smul, star_trivial, hF.isHermitian.eq]
   have hs : toFullBlockMat (normalizedBlock (blockScale ε F) F) = ε • 1 := by
     rw [normalizedBlock, toFullBlockMat_ofFullBlockMat, bridge_full_scale, Matrix.mul_smul,
-      Matrix.smul_mul, matSqrt_inv_mul_self_mul_matSqrt_inv_full hF]
+      Matrix.smul_mul, matSqrt_inv_conj hF]
   let M := toFullBlockMat (blockSub (normalizedBlock H F) (Book.Ch02.blockIdentity d))
   have hM : M.IsHermitian := by
     dsimp only [M]
@@ -404,12 +407,12 @@ private theorem bridge_normalized_error_iff {d : ℕ} [NeZero d] (H F : BlockMat
     dsimp only [M]
     rw [bridge_full_difference, bridge_full_identity]
     simp only [normalizedBlock, toFullBlockMat_ofFullBlockMat, bridge_full_difference, mul_sub,
-      sub_mul, matSqrt_inv_mul_self_mul_matSqrt_inv_full hF]
+      sub_mul, matSqrt_inv_conj hF]
   have h₂ : toFullBlockMat (normalizedBlock (blockSub F H) F) = -M := by
     dsimp only [M]
     rw [bridge_full_difference, bridge_full_identity]
     simp only [normalizedBlock, toFullBlockMat_ofFullBlockMat, bridge_full_difference, mul_sub,
-      sub_mul, matSqrt_inv_mul_self_mul_matSqrt_inv_full hF, neg_sub]
+      sub_mul, matSqrt_inv_conj hF, neg_sub]
   change ‖M‖ ≤ ε ↔ _
   rw [bridge_hermitian_norm_iff hM ε]
   constructor
@@ -541,7 +544,7 @@ theorem bridge_preliminary_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                   projectiveDistance m mPlus ≤ 1 →
                   profile P γ (explicitRoundedGrid jStar m) jStar k n +
                       determinantDrift P γ (explicitRoundedGrid jStar m) jStar n +
-                    logDetLoss P (explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤ c₀ * σ →
+                    detIncrement P (explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤ c₀ * σ →
                   blockOpNorm (blockSub
                     (normalizedBlock (adaptedMean P (explicitRoundedGrid jStar mPlus) (n + (L : ℤ)))
                       (adaptedMean P (explicitRoundedGrid jStar m) (n + 2 * (L : ℤ)))) (Book.Ch02.blockIdentity d)) ≤
@@ -567,19 +570,19 @@ theorem bridge_preliminary_comparison (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hε0 : 0 ≤ c₀ * σ := mul_nonneg hc₀.1.le hσ.1.le
   have hε1 : c₀ * σ ≤ 1 := by
     exact (mul_le_mul_of_nonneg_right hc₀.2.le hσ.1.le).trans (by simpa using hσ.2)
-  have hprofile := bridge_profile_nonneg d hd P γ hγ E Ψ K S hstat hdag jStar hj m hm k n hk hkn
+  have hprofile := bridge_profile_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm k n hk hkn
   have hD0 := bridge_determinantDrift_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm n
   have hΔ0 := logDetLoss_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm n
     (n + 2 * (L : ℤ)) (hk.trans hkn) (by omega)
   have hD : determinantDrift P γ q jStar n ≤ c₀ * σ := by linarith only [hsmall, hprofile, hΔ0]
-  have hΔ : logDetLoss P q n (n + 2 * (L : ℤ)) ≤ c₀ * σ := by linarith only [hsmall, hprofile, hD0]
+  have hΔ : detIncrement P q n (n + 2 * (L : ℤ)) ≤ c₀ * σ := by linarith only [hsmall, hprofile, hD0]
   have herr := hbridge P E Ψ K S hstat hdag jStar hj hsrc m mPlus hm hmPlus
     (hratio jStar hj m mPlus hm hmPlus hpr) n L (hk.trans hkn) hL hcontain (c₀ * σ) ⟨hε0, hε1⟩ hD hΔ
   have hnorm := (bridge_normalized_error_iff H F
     (adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hj mPlus hmPlus (n + (L : ℤ))).isHermitian
     (adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hj m hm (n + 2 * (L : ℤ)))
     (Cb * (c₀ * σ) + Cb * K₀ * (3 : ℝ) ^ (-(L : ℝ)) + Cb * T)).2 herr
-  have hPi := one_le_aspectRatio hdag
+  have hPi := one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hbase : 0 < 2 + aspectRatio E := by linarith only [hPi]
   have hV : 0 ≤ V := mul_nonneg (by positivity) (Real.rpow_nonneg hbase.le _)
   have hR := bracket_nonneg_of_eccentricity hm hc₀.1 hL hecc
@@ -634,7 +637,7 @@ theorem successful_short_bridge_roundedGrid (d : ℕ) (hd : 2 ≤ d)
                     projectiveDistance m mPlus ≤ 1 →
                     profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
                           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
-                        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤
+                        detIncrement P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤
                       c₀ * σ →
                     BlockMatLoewnerLE
                         (blockScale (1 - σ)
@@ -667,7 +670,7 @@ theorem successful_short_bridge_roundedGrid (d : ℕ) (hd : 2 ≤ d)
     have hh := mul_le_mul_of_nonneg_left hdecay (mul_nonneg hC.le (zero_lt_one.trans_le hK₀).le)
     have hb := mul_le_mul_of_nonneg_right hboundary hσ.1.le
     nlinarith only [hh, hb]
-  have h₃ := hsource (aspectRatio E) (one_le_aspectRatio hdag)
+  have h₃ := hsource (aspectRatio E) (one_le_aspectRatio_of_coarseEllipticityDagger hdag)
   have hnorm : blockOpNorm (blockSub
       (normalizedBlock (adaptedMean P (explicitRoundedGrid jStar mPlus) (n + (L : ℤ)))
         (adaptedMean P (explicitRoundedGrid jStar m) (n + 2 * (L : ℤ)))) (Book.Ch02.blockIdentity d)) ≤ σ := by

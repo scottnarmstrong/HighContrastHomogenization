@@ -24,7 +24,7 @@ open Homogenization.HighContrast (aspectRatio bigLambdaRef blockMatEntry_blockSc
 namespace Homogenization.HighContrast.Multiscale
 
 open Matrix
-open GeoMean
+open GeometricMean
 open MeasureTheory
 open scoped Matrix.Norms.L2Operator MatrixOrder
 
@@ -36,7 +36,7 @@ section Blocks
 
 variable {d : ℕ}
 
-private theorem matLE_iff' {A B : Mat d} (hA : A.IsHermitian) (hB : B.IsHermitian) :
+private theorem matLE_iff {A B : Mat d} (hA : A.IsHermitian) (hB : B.IsHermitian) :
     A ≤ B ↔ MatLoewnerLE A B := by
   constructor
   · intro h x
@@ -63,10 +63,6 @@ private theorem fullLE_of_block {A B : BlockMat d} (hA : IsSymmetricBlockMat A)
     toFullBlockVec_ofFullBlockVec] at hx
   simp only [star_trivial, Matrix.sub_mulVec, dotProduct_sub]
   linarith only [hx]
-
-private theorem fullScale' (c : ℝ) (E : BlockMat d) :
-    toFullBlockMat (blockScale c E) = c • toFullBlockMat E := by
-  ext (i | i) (j | j) <;> rfl
 
 private theorem symm_blockScale {c : ℝ} {E : BlockMat d} (hE : IsSymmetricBlockMat E) :
     IsSymmetricBlockMat (blockScale c E) := by
@@ -102,7 +98,11 @@ private theorem projectiveDistance_le_of_sandwich {d : ℕ} [NeZero d] {m₀ m�
     have hLinv : (0:ℝ) < L⁻¹ := inv_pos.mpr hL
     have hstep : L⁻¹ ≤ a⁻¹ := (inv_le_inv₀ hL ha).2 haL
     have hUpos : (0:ℝ) < U := lt_of_lt_of_le hL hLU
-    have h1 : U * L⁻¹ ≤ b * a⁻¹ := by nlinarith [hUb, hstep, hLinv, hUpos]
+    have hb : 0 ≤ b := le_trans (le_of_lt hUpos) hUb
+    have h1 : U * L⁻¹ ≤ b * a⁻¹ := by
+      calc
+        U * L⁻¹ ≤ b * L⁻¹ := mul_le_mul_of_nonneg_right hUb (le_of_lt hLinv)
+        _ ≤ b * a⁻¹ := mul_le_mul_of_nonneg_left hstep hb
     simpa [div_eq_mul_inv] using h1
   rw [hdist]
   have hpos : 0 < U / L := div_pos (lt_of_lt_of_le hL hLU) hL
@@ -189,7 +189,7 @@ private theorem schurSigma_le_bigLambdaRef {d : ℕ} [NeZero d] {E : BlockMat d}
     schurSigma E ≤ bigLambdaRef E • (1 : Mat d) := by
   obtain ⟨h, _hh, hLam⟩ := exists_isSkewMat_bigLambdaRef_eq hp
   have hA : skewCorrectedForm E h ≤ bigLambdaRef E • (1 : Mat d) := by
-    refine (matLE_iff' (skewCorrectedForm_isHermitian hs hp h) (hermSmulOne _)).2 ?_
+    refine (matLE_iff (skewCorrectedForm_isHermitian hs hp h) (hermSmulOne _)).2 ?_
     rw [hLam]
     exact matLoewnerLE_specBound_smul_one _
   exact (Analysis.schurSigma_le_corrected hs hp h).trans hA
@@ -210,8 +210,8 @@ theorem explicitCanonicalMetric_projectiveDistance_le_of_sandwich (d : ℕ) (hd 
   have hκ0 : (0:ℝ) < κ := lt_of_lt_of_le zero_lt_one hκ
   have hκc : (0:ℝ) < κ * c := mul_pos hκ0 hc
   have hRsymm := swapFullHerm d
-  have hAFpos : (toFullBlockMat F).PosDef := Annealed.fullBlock_posDef_of_pos hF hFpos
-  have hAGpos : (toFullBlockMat G).PosDef := Annealed.fullBlock_posDef_of_pos hG hGpos
+  have hAFpos : (toFullBlockMat F).PosDef := posDef_toFullBlockMat hF hFpos
+  have hAGpos : (toFullBlockMat G).PosDef := posDef_toFullBlockMat hG hGpos
   have hSF : (toFullBlockMat (blockSwap d) * (toFullBlockMat F)⁻¹ *
       toFullBlockMat (blockSwap d)).PosDef := Geometry.swapConj_inv_posDef hF hFpos
   have hSG : (toFullBlockMat (blockSwap d) * (toFullBlockMat G)⁻¹ *
@@ -223,25 +223,25 @@ theorem explicitCanonicalMetric_projectiveDistance_le_of_sandwich (d : ℕ) (hd 
   -- the two block comparisons, transported to the full matrices
   have hloF : c • AG ≤ AF := by
     have h := fullLE_of_block (symm_blockScale hG) hF hlo
-    rwa [fullScale'] at h
+    rwa [toFullBlockMat_blockScale] at h
   have hhiF : AF ≤ (κ * c) • AG := by
     have h := fullLE_of_block hF (symm_blockScale hG) hhi
-    rwa [fullScale'] at h
+    rwa [toFullBlockMat_blockScale] at h
   have hcG : (c • AG).PosDef := hAGpos.smul hc
   have hkcG : ((κ * c) • AG).PosDef := hAGpos.smul hκc
   -- inverses reverse the order, and conjugation by `R` preserves it
   have hinv1 : AF⁻¹ ≤ c⁻¹ • AG⁻¹ := by
-    have h := invAnti' hcG hAFpos hloF
-    rwa [smulInv' hAGpos hc.ne'] at h
+    have h := inv_le_inv_of_le hcG hAFpos hloF
+    rwa [inv_smul_of_posDef hAGpos hc.ne'] at h
   have hinv2 : (κ * c)⁻¹ • AG⁻¹ ≤ AF⁻¹ := by
-    have h := invAnti' hAFpos hkcG hhiF
-    rwa [smulInv' hAGpos hκc.ne'] at h
+    have h := inv_le_inv_of_le hAFpos hkcG hhiF
+    rwa [inv_smul_of_posDef hAGpos hκc.ne'] at h
   have hconj1 : RR * AF⁻¹ * RR ≤ c⁻¹ • (RR * AG⁻¹ * RR) := by
-    have h := conjLe' hRsymm hinv1
+    have h := conj_le_conj' hRsymm hinv1
     rwa [show RR * (c⁻¹ • AG⁻¹) * RR = c⁻¹ • (RR * AG⁻¹ * RR) by
       simp] at h
   have hconj2 : (κ * c)⁻¹ • (RR * AG⁻¹ * RR) ≤ RR * AF⁻¹ * RR := by
-    have h := conjLe' hRsymm hinv2
+    have h := conj_le_conj' hRsymm hinv2
     rwa [show RR * ((κ * c)⁻¹ • AG⁻¹) * RR = (κ * c)⁻¹ • (RR * AG⁻¹ * RR) by
       simp] at h
   -- joint monotonicity and homogeneity of the geometric mean
@@ -274,11 +274,11 @@ theorem explicitCanonicalMetric_projectiveDistance_le_of_sandwich (d : ℕ) (hd 
   have hmF : (LF⁻¹).PosDef := hLF.inv
   have hmG : (LG⁻¹).PosDef := hLG.inv
   have hstep1 : LF⁻¹ ≤ Real.sqrt κ • LG⁻¹ := by
-    have h := invAnti' (hLG.smul (inv_pos.mpr hsk)) hLF hLlo
-    rwa [smulInv' hLG (inv_pos.mpr hsk).ne', inv_inv] at h
+    have h := inv_le_inv_of_le (hLG.smul (inv_pos.mpr hsk)) hLF hLlo
+    rwa [inv_smul_of_posDef hLG (inv_pos.mpr hsk).ne', inv_inv] at h
   have hstep2 : (Real.sqrt κ)⁻¹ • LG⁻¹ ≤ LF⁻¹ := by
-    have h := invAnti' hLF (hLG.smul hsk) hLhi
-    rwa [smulInv' hLG hsk.ne'] at h
+    have h := inv_le_inv_of_le hLF (hLG.smul hsk) hLhi
+    rwa [inv_smul_of_posDef hLG hsk.ne'] at h
   have hstep3 : (Real.sqrt κ)⁻¹ • LF⁻¹ ≤ LG⁻¹ := by
     have h := smul_le_smul_of_nonneg_left hstep1 (le_of_lt (inv_pos.mpr hsk))
     rwa [smul_smul, inv_mul_cancel₀ hsk.ne', one_smul] at h
@@ -287,9 +287,9 @@ theorem explicitCanonicalMetric_projectiveDistance_le_of_sandwich (d : ℕ) (hd 
     rwa [smul_smul, mul_inv_cancel₀ hsk.ne', one_smul] at h
   -- the projective sandwich
   have hlo' : MatLoewnerLE ((Real.sqrt κ)⁻¹ • LF⁻¹) (LG⁻¹) :=
-    (matLE_iff' (hmF.smul (inv_pos.mpr hsk)).isHermitian hmG.isHermitian).1 hstep3
+    (matLE_iff (hmF.smul (inv_pos.mpr hsk)).isHermitian hmG.isHermitian).1 hstep3
   have hhi' : MatLoewnerLE (LG⁻¹) (Real.sqrt κ • LF⁻¹) :=
-    (matLE_iff' hmG.isHermitian (hmF.smul hsk).isHermitian).1 hstep4
+    (matLE_iff hmG.isHermitian (hmF.smul hsk).isHermitian).1 hstep4
   have hfin := projectiveDistance_le_of_sandwich hmF hmG (inv_pos.mpr hsk) hlo' hhi'
   have hratio : Real.sqrt κ / (Real.sqrt κ)⁻¹ = κ := by
     field_simp
@@ -309,7 +309,7 @@ theorem explicitCanonicalMetric_refBlock_projectiveDistance_le (d : ℕ) (hd : 2
   have : NeZero d := ⟨by omega⟩
   refine ⟨1 / 2, by norm_num, ?_⟩
   intro E hsymm hpos horder
-  have hAE : (toFullBlockMat E).PosDef := Annealed.fullBlock_posDef_of_pos hsymm hpos
+  have hAE : (toFullBlockMat E).PosDef := posDef_toFullBlockMat hsymm hpos
   have hSE : (toFullBlockMat (blockSwap d) * (toFullBlockMat E)⁻¹ *
       toFullBlockMat (blockSwap d)).PosDef := Geometry.swapConj_inv_posDef hsymm hpos
   have hlam0 : 0 < lambdaRef E := Analysis.lambdaRef_pos hsymm hpos
@@ -345,29 +345,29 @@ theorem explicitCanonicalMetric_refBlock_projectiveDistance_le (d : ℕ) (hd : 2
     simpa using h.inv
   -- invert the two block comparisons
   have hup : L⁻¹ ≤ schurSigma E := by
-    have h := invAnti' hsig.inv hLpos hL1
-    rwa [Matrix.nonsing_inv_nonsing_inv _ (detUnit hsig)] at h
-  have hlow : E.lowerRight⁻¹ ≤ L⁻¹ := invAnti' hLpos hElr hL2
+    have h := inv_le_inv_of_le hsig.inv hLpos hL1
+    rwa [Matrix.nonsing_inv_nonsing_inv _ (isUnit_det_of_posDef hsig)] at h
+  have hlow : E.lowerRight⁻¹ ≤ L⁻¹ := inv_le_inv_of_le hLpos hElr hL2
   -- the two scalar bounds
   have hDle : E.lowerRight ≤ specBound E.lowerRight • (1 : Mat d) :=
-    (matLE_iff' hElr.isHermitian (hermSmulOne _)).2
+    (matLE_iff hElr.isHermitian (hermSmulOne _)).2
       (matLoewnerLE_specBound_smul_one E.lowerRight)
   have hspec : 0 < specBound E.lowerRight := by
     have : lambdaRef E = (specBound E.lowerRight)⁻¹ := rfl
     rw [this] at hlam0
     exact inv_pos.mp hlam0
   have hlam : lambdaRef E • (1 : Mat d) ≤ E.lowerRight⁻¹ := by
-    have h := invAnti' hElr (Matrix.PosDef.one.smul hspec) hDle
-    rwa [smulInv' Matrix.PosDef.one hspec.ne', inv_one] at h
+    have h := inv_le_inv_of_le hElr (Matrix.PosDef.one.smul hspec) hDle
+    rwa [inv_smul_of_posDef Matrix.PosDef.one hspec.ne', inv_one] at h
   have hLam : L⁻¹ ≤ bigLambdaRef E • (1 : Mat d) :=
     hup.trans (schurSigma_le_bigLambdaRef hsymm hpos)
   have hfin := projectiveDistance_le_of_sandwich (d := d) Matrix.PosDef.one hLpos.inv hlam0
-    ((matLE_iff' (hermSmulOne _) hLpos.inv.isHermitian).1 (hlam.trans hlow))
-    ((matLE_iff' hLpos.inv.isHermitian (hermSmulOne _)).1 hLam)
+    ((matLE_iff (hermSmulOne _) hLpos.inv.isHermitian).1 (hlam.trans hlow))
+    ((matLE_iff hLpos.inv.isHermitian (hermSmulOne _)).1 hLam)
   have hasp : bigLambdaRef E / lambdaRef E = aspectRatio E := rfl
   rw [hasp] at hfin
   refine hfin.trans (mul_le_mul_of_nonneg_left ?_ (by norm_num))
-  exact Real.log_le_log (lt_of_lt_of_le zero_lt_one hAsp) (by linarith)
+  exact Real.log_le_log (lt_of_lt_of_le zero_lt_one hAsp) (by linarith only [hAsp])
 
 /-- A19. The entry-radius estimate (`p.initial.fixed.grid.scale`): a block sandwiched between
 `½𝐑𝐄⁻¹𝐑` and `2𝐄` has canonical metric within `C(d) log(2+4Π)` of `Id`. -/
@@ -387,7 +387,7 @@ theorem entry_radius (d : ℕ) (hd : 2 ≤ d) :
           Cgeom * Real.log (2 + 4 * aspectRatio E) := by
   let : NeZero d := ⟨by omega⟩
   obtain ⟨Cgeom_ref, hCgeom_ref_pos, href⟩ := explicitCanonicalMetric_refBlock_projectiveDistance_le d hd
-  refine ⟨Cgeom_ref + 1, by linarith, ?_⟩
+  refine ⟨Cgeom_ref + 1, by linarith only [hCgeom_ref_pos], ?_⟩
   intro E A hsymm hpos horder hAfull hlow hhigh
   have hAsymm : IsSymmetricBlockMat A :=
     (Analysis.toFullBlockMat_isHermitian_iff A).mp hAfull.isHermitian
@@ -418,7 +418,7 @@ theorem entry_radius (d : ℕ) (hd : 2 ≤ d) :
     convert hlow using 1
     field_simp [hPi_pos.ne']
     ring_nf
-  have hκ : 1 ≤ 24 * aspectRatio E := by nlinarith [hPi]
+  have hκ : 1 ≤ 24 * aspectRatio E := by linarith only [hPi]
   have hhi' : BlockMatLoewnerLE A
       (blockScale ((24 * aspectRatio E) * (12 * aspectRatio E)⁻¹) E) := by
     refine hhigh.trans ?_

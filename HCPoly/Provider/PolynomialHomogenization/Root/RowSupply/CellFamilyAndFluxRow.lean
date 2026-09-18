@@ -10,11 +10,10 @@ import HCPoly.Provider.Initialization.IdentityGrid
 import HCPoly.Provider.PolynomialHomogenization.AffineCoeffFamily
 import HCPoly.Provider.PolynomialHomogenization.NormalizedRootCoefficient
 import HCPoly.Provider.PolynomialHomogenization.RuledLocalizationAssembly
-import HCPoly.Provider.PolynomialHomogenization.ScalarCubeFluxComparison
+import Homogenization.Book.Ch03.ABK26.FluxComparisonLocalization
+import Homogenization.Sobolev.Fractional.CenteredCubeFractionalCZFullNorm
 import HCPoly.Provider.PolynomialHomogenization.Root.Certificate.PrintOrderDecoupledTerminalSurface
-import HCPoly.Provider.PolynomialHomogenization.Root.Certificate.PrintOrderRateBearingEvent
 import HCPoly.Provider.PolynomialHomogenization.Root.RowSupply.L2RowAlgebra
-import HCPoly.Provider.PolynomialHomogenization.Root.Localization.LocalizationSupply
 import HCPoly.Provider.Recurrence.AdaptedCellDomain
 import HCPoly.Provider.Regularity.AffineTransfer
 import HCPoly.Provider.Regularity.CorrectorGlobalEquation

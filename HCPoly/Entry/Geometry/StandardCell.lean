@@ -1,5 +1,8 @@
 import Homogenization.Geometry.CubeMeasure
 import HCPoly.Setup.Geometry
+import HCPoly.Provider.Recurrence.AdaptedCell
+import HCPoly.Provider.Recurrence.AdaptedCellDomain
+import HCPoly.Provider.Recurrence.AlignedSubdivision
 
 /-!
 # Standard aligned cubes
@@ -20,41 +23,18 @@ variable {d : ℕ}
 
 /-! ## Definitions -/
 
-/-- The index of the parent of the generation-`k` cube with index `w`: the unique
-generation-`k+1` aligned cube containing it. -/
-def parentIndex (w : Fin d → ℤ) : Fin d → ℤ :=
-  fun i => (w i + 1) / 3
-
 /-! ## Membership -/
-
-theorem mem_standardCell_iff {k : ℤ} {w : Fin d → ℤ} {x : Vec d} :
-    x ∈ standardCell d k w ↔
-      ∀ i, ((w i : ℝ) - 1 / 2) * (3 : ℝ) ^ k < x i ∧ x i < ((w i : ℝ) + 1 / 2) * (3 : ℝ) ^ k := by
-  simp [standardCell, openCubeSet, translateCube, originCube, cubeScaleFactor]
-
-theorem mem_centeredCube_iff {j : ℤ} {x : Vec d} :
-    x ∈ centeredCube d j ↔
-      ∀ i, -(1 / 2 : ℝ) * (3 : ℝ) ^ j < x i ∧ x i < (1 / 2 : ℝ) * (3 : ℝ) ^ j := by
-  simp [centeredCube, openCubeSet, originCube, cubeScaleFactor]
 
 theorem centeredCube_eq_standardCell (j : ℤ) : centeredCube d j = standardCell d j 0 := by
   ext x
-  simp [mem_centeredCube_iff, mem_standardCell_iff]
+  simp [Recurrence.mem_centeredCube_iff, Recurrence.mem_standardCell_iff]
 
 theorem standardCell_eq_pi_Ioo (k : ℤ) (w : Fin d → ℤ) :
     standardCell d k w =
       Set.pi Set.univ fun i =>
         Set.Ioo (((w i : ℝ) - 1 / 2) * (3 : ℝ) ^ k) (((w i : ℝ) + 1 / 2) * (3 : ℝ) ^ k) := by
   ext x
-  simp [mem_standardCell_iff]
-
-theorem standardCellCenter_mem (k : ℤ) (w : Fin d → ℤ) :
-    standardCellCenter k w ∈ standardCell d k w := by
-  rw [mem_standardCell_iff]
-  intro i
-  have h3 : (0 : ℝ) < (3 : ℝ) ^ k := by positivity
-  simp only [standardCellCenter]
-  constructor <;> nlinarith only [h3]
+  simp [Recurrence.mem_standardCell_iff]
 
 theorem measurableSet_standardCell (k : ℤ) (w : Fin d → ℤ) :
     MeasurableSet (standardCell d k w) :=
@@ -83,11 +63,6 @@ theorem volume_standardCell (k : ℤ) (w : Fin d → ℤ) :
 theorem volume_centeredCube (j : ℤ) :
     volume (centeredCube d j) = ENNReal.ofReal ((3 : ℝ) ^ j) ^ d := by
   rw [centeredCube_eq_standardCell, volume_standardCell]
-
-theorem volume_standardCell_ne_top (k : ℤ) (w : Fin d → ℤ) :
-    volume (standardCell d k w) ≠ ⊤ := by
-  rw [volume_standardCell]
-  exact ENNReal.pow_ne_top ENNReal.ofReal_ne_top
 
 theorem volume_standardCell_pos (k : ℤ) (w : Fin d → ℤ) :
     0 < volume (standardCell d k w) := by
@@ -138,14 +113,14 @@ theorem standardCell_subset_or_disjoint {k k' : ℤ} (hkk' : k ≤ k') (w w' : F
   · exact Or.inr hdis
   left
   obtain ⟨x, hx, hx'⟩ := Set.not_disjoint_iff.mp hdis
-  rw [mem_standardCell_iff] at hx hx'
+  rw [Recurrence.mem_standardCell_iff] at hx hx'
   have h3 : (0 : ℝ) < (3 : ℝ) ^ k := by positivity
   have hpow : (3 : ℝ) ^ k' = (3 : ℝ) ^ ((k' - k).toNat) * (3 : ℝ) ^ k := by
     rw [← zpow_natCast, Int.toNat_of_nonneg (by omega), ← zpow_add₀ (by norm_num : (3 : ℝ) ≠ 0)]
     congr 1
     ring
   intro y hy
-  rw [mem_standardCell_iff] at hy ⊢
+  rw [Recurrence.mem_standardCell_iff] at hy ⊢
   intro i
   obtain ⟨hlo, hhi⟩ := hx i
   obtain ⟨hlo', hhi'⟩ := hx' i
@@ -159,7 +134,7 @@ theorem standardCell_disjoint_of_ne (k : ℤ) {w w' : Fin d → ℤ} (hww' : w �
   obtain ⟨i, hi⟩ := Function.ne_iff.mp hww'
   rw [Set.disjoint_left]
   intro x hx hx'
-  rw [mem_standardCell_iff] at hx hx'
+  rw [Recurrence.mem_standardCell_iff] at hx hx'
   have h3 : (0 : ℝ) < (3 : ℝ) ^ k := by positivity
   obtain ⟨hlo, hhi⟩ := hx i
   obtain ⟨hlo', hhi'⟩ := hx' i
@@ -176,25 +151,6 @@ theorem standardCell_disjoint_of_ne (k : ℤ) {w w' : Fin d → ℤ} (hww' : w �
     have : (w' i : ℝ) < (w i : ℝ) + 1 := by linarith only [h2]
     exact_mod_cast this
   exact hi (by omega)
-
-/-- An aligned cube lies in its parent. -/
-theorem standardCell_subset_parent (k : ℤ) (w : Fin d → ℤ) :
-    standardCell d k w ⊆ standardCell d (k + 1) (parentIndex w) := by
-  intro x hx
-  rw [mem_standardCell_iff] at hx ⊢
-  intro i
-  obtain ⟨hlo, hhi⟩ := hx i
-  have h3 : (0 : ℝ) < (3 : ℝ) ^ k := by positivity
-  have hpow : (3 : ℝ) ^ (k + 1) = (3 : ℝ) ^ k * 3 := zpow_add_one₀ (by norm_num) k
-  have hp1 : 3 * ((w i + 1) / 3) - 1 ≤ w i := by omega
-  have hp2 : w i ≤ 3 * ((w i + 1) / 3) + 1 := by omega
-  have hp1' : 3 * (((w i + 1) / 3 : ℤ) : ℝ) - 1 ≤ (w i : ℝ) := by exact_mod_cast hp1
-  have hp2' : (w i : ℝ) ≤ 3 * (((w i + 1) / 3 : ℤ) : ℝ) + 1 := by exact_mod_cast hp2
-  simp only [parentIndex]
-  rw [hpow]
-  constructor
-  · nlinarith only [h3, hp1', hlo]
-  · nlinarith only [h3, hp2', hhi]
 
 /-- A cube of generation `k` is contained in a cube of generation `k' ≥ k` that meets it. -/
 theorem standardCell_subset_of_mem {k k' : ℤ} (hkk' : k ≤ k') {w w' : Fin d → ℤ} {x : Vec d}
@@ -221,7 +177,7 @@ theorem eq_of_standardCell_eq [NeZero d] {k k' : ℤ} {w w' : Fin d → ℤ}
   by_contra hne
   have hdis := standardCell_disjoint_of_ne (d := d) k hne
   rw [h, disjoint_self, Set.bot_eq_empty] at hdis
-  exact (Set.nonempty_of_mem (standardCellCenter_mem k w')).ne_empty hdis
+  exact (Set.nonempty_of_mem (Recurrence.standardCellCenter_mem_standardCell k w')).ne_empty hdis
 
 /-! ## Size -/
 
@@ -230,7 +186,7 @@ most `d 3^{2k}`. -/
 theorem sum_sq_sub_le_of_mem_standardCell {k : ℤ} {w : Fin d → ℤ} {x x' : Vec d}
     (hx : x ∈ standardCell d k w) (hx' : x' ∈ standardCell d k w) :
     ∑ i, (x i - x' i) ^ 2 ≤ (d : ℝ) * ((3 : ℝ) ^ k) ^ 2 := by
-  rw [mem_standardCell_iff] at hx hx'
+  rw [Recurrence.mem_standardCell_iff] at hx hx'
   have hterm : ∀ i ∈ (Finset.univ : Finset (Fin d)), (x i - x' i) ^ 2 ≤ ((3 : ℝ) ^ k) ^ 2 := by
     intro i _
     obtain ⟨hlo, hhi⟩ := hx i
@@ -247,7 +203,7 @@ theorem standardCell_subset_ball {k : ℤ} {w : Fin d → ℤ} {x : Vec d}
     (hx : x ∈ standardCell d k w) :
     standardCell d k w ⊆ Metric.ball x ((3 : ℝ) ^ k) := by
   intro y hy
-  rw [mem_standardCell_iff] at hx hy
+  rw [Recurrence.mem_standardCell_iff] at hx hy
   have h3 : (0 : ℝ) < (3 : ℝ) ^ k := by positivity
   rw [Metric.mem_ball, dist_pi_lt_iff h3]
   intro i
@@ -264,29 +220,17 @@ theorem standardCell_subset_ball {k : ℤ} {w : Fin d → ℤ} {x : Vec d}
 def gridFaces (d : ℕ) (k : ℤ) : Set (Vec d) :=
   ⋃ i : Fin d, ⋃ n : ℤ, {x | x i = ((n : ℝ) + 1 / 2) * (3 : ℝ) ^ k}
 
-/-- A coordinate hyperplane is Lebesgue-null. -/
-theorem volume_coordHyperplane (i : Fin d) (c : ℝ) : volume {x : Vec d | x i = c} = 0 := by
-  classical
-  refine measure_mono_null (t := Set.pi Set.univ (Function.update (fun _ => Set.univ) i {c})) ?_ ?_
-  · intro x hx j _
-    by_cases hj : j = i
-    · subst hj
-      simpa using hx
-    · simp [Function.update_of_ne hj]
-  · rw [volume_pi_pi]
-    exact Finset.prod_eq_zero (Finset.mem_univ i) (by simp)
-
 theorem volume_gridFaces (k : ℤ) : volume (gridFaces d k) = 0 := by
   unfold gridFaces
   refine measure_iUnion_null fun i => measure_iUnion_null fun n => ?_
-  exact volume_coordHyperplane i _
+  exact Recurrence.volume_coord_eq i _
 
 /-- A point off the generation-`k` grid faces lies in an aligned cube of generation `k`. -/
 theorem exists_mem_standardCell_of_not_mem_gridFaces {k : ℤ} {x : Vec d}
     (hx : x ∉ gridFaces d k) : ∃ w : Fin d → ℤ, x ∈ standardCell d k w := by
   have h3 : (0 : ℝ) < (3 : ℝ) ^ k := by positivity
   refine ⟨fun i => ⌊x i / (3 : ℝ) ^ k + 1 / 2⌋, ?_⟩
-  rw [mem_standardCell_iff]
+  rw [Recurrence.mem_standardCell_iff]
   intro i
   set w : ℤ := ⌊x i / (3 : ℝ) ^ k + 1 / 2⌋ with hw
   have hfl := Int.floor_le (x i / (3 : ℝ) ^ k + 1 / 2)

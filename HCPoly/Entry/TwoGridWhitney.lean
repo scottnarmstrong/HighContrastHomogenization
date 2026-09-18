@@ -1,5 +1,5 @@
 import HCPoly.Entry.Geometry.TwoGridWhitney
-import HCPoly.Entry.Geometry.RoundedGrid
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import Mathlib.Analysis.SpecialFunctions.Log.Base
 
 /-!
@@ -13,7 +13,7 @@ estimate. No definition or selection rule is replaced.
 -/
 
 open Homogenization.HighContrast (gridRatio)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory
 
@@ -159,4 +159,4 @@ theorem two_grid_whitney
     exact (hrow r hr).trans
       (mul_le_mul_of_nonneg_right (le_max_right _ _) (by positivity))
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

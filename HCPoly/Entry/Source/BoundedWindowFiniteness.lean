@@ -1,5 +1,5 @@
 import HCPoly.Entry.Annealed.AdaptedLocality
-import HCPoly.Entry.Analysis.SchattenMeasurable
+import HCPoly.Entry.Analysis.SchattenNormIntegrability
 import HCPoly.Entry.Source.AdaptedBound
 import HCPoly.Entry.Source.Multiplier
 
@@ -39,7 +39,10 @@ theorem source_minimum_memLp_all {d : ℕ} (P : Measure (CoeffSpace d)) [IsProba
     ∀ N : ℝ, 1 ≤ N → MemLp X (ENNReal.ofReal N) P ∧ Integrable (fun a => X a ^ N) P := by
   intro N hN
   let p : ℝ := γ * N + 1
-  have hp : 1 ≤ p := by dsimp [p]; nlinarith [hdag.g_mem.1]
+  have hp : 1 ≤ p := by
+    dsimp [p]
+    have hN0 : 0 ≤ N := le_trans zero_le_one hN
+    linarith only [mul_nonneg hdag.g_mem.1 hN0]
   obtain ⟨C, hC, hsource⟩ := CoarseEllipticityDagger.source_moment_bound p hp
   have hI := (hsource P γ E Ψ K S hdag).2.2
   let b : ℝ := (3 : ℝ) ^ (γ * N)
@@ -54,7 +57,7 @@ theorem source_minimum_memLp_all {d : ℕ} (P : Measure (CoeffSpace d)) [IsProba
     rw [← Real.rpow_add (by norm_num : (0 : ℝ) < 3)]
     apply Real.rpow_lt_one_of_one_lt_of_neg (by norm_num)
     dsimp [p]
-    linarith
+    linarith only []
   have hden : 0 < 1 - b * q := sub_pos.mpr hbq
   have ht (r : ℕ) : P.real {a | r < ell a} ≤ A * q ^ r := by
     calc
@@ -121,15 +124,17 @@ theorem exists_auxiliary_source_window {d : ℕ} {W : Set (Vec d)}
       2 * R = (3 : ℝ) ^ Real.logb 3 (2 * R) :=
         (Real.rpow_logb (by norm_num) (by norm_num) (by positivity)).symm
       _ < (3 : ℝ) ^ (2 * (J : ℝ)) :=
-        Real.rpow_lt_rpow_of_exponent_lt (by norm_num) (by linarith)
+        Real.rpow_lt_rpow_of_exponent_lt (by norm_num) (by linarith only [hJ, hJ0])
       _ = _ := by rw [← Real.rpow_intCast]; norm_cast
   refine ⟨J, fun x hx => ?_⟩
-  rw [mem_centeredCube_iff]
+  rw [Recurrence.mem_centeredCube_iff]
   intro i
   have hxnorm : |x i| ≤ ‖x‖ := by simpa only [Real.norm_eq_abs] using norm_le_pi_norm x i
   have hi : |x i| ≤ R := hxnorm.trans (hbound x hx)
   obtain ⟨hl, hu⟩ := abs_le.mp hi
-  constructor <;> linarith
+  constructor
+  · linarith only [hp, hl]
+  · linarith only [hp, hu]
 
 /-- A bounded region has one measurable source envelope with every finite real
 moment, simultaneously for all adapted cells with the rounded inverse bound.
@@ -172,7 +177,7 @@ theorem memLqSchatten_of_order_envelope {d : ℕ} {P : Measure (CoeffSpace d)}
     (hAp : ∀ᵐ a ∂P, Book.Ch02.BlockPosDef (A a))
     {X : CoeffSpace d → ℝ} (hX : MemLp X (ENNReal.ofReal N) P) (D : ℝ)
     (horder : ∀ᵐ a ∂P, BlockMatLoewnerLE (A a) (blockScale (D * X a) E)) :
-    MemLqSchatten P N A := by
+    SchattenMemLp P N A := by
   have hsm := Analysis.aestronglyMeasurable_absSchattenNorm hAm hN
   have hscalar : MemLp (fun a => absSchattenNorm N (A a)) (ENNReal.ofReal N) P := by
     apply (hX.const_mul (D * blockTrace E)).mono' hsm
@@ -205,7 +210,7 @@ theorem memLqSchatten_coarseBlock_adapted (d : ℕ) (hd : 2 ≤ d)
     (jStar : ℕ) (hj : 2 * d ≤ 3 ^ jStar)
     (m : Mat d) (hm : m.PosDef) (j : ℤ) (y : Vec d)
     (N : ℝ) (hN : 1 ≤ N) :
-    MemLqSchatten P N
+    SchattenMemLp P N
       (fun a => coarseBlock (adaptedCellTranslate (explicitRoundedGrid jStar m) j y) a) := by
   let : NeZero d := ⟨by omega⟩
   let q := explicitRoundedGrid jStar m
@@ -234,9 +239,9 @@ theorem memLqSchatten_coarseBlock_adapted (d : ℕ) (hd : 2 ≤ d)
 /-- Deterministic full-matrix congruence preserves finite Schatten membership.
 No annealed identity or positivity normalization is used. -/
 theorem memLqSchatten_congruence {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ}
-    {A : CoeffSpace d → BlockMat d} (hA : MemLqSchatten P N A) (hN : 1 ≤ N)
+    {A : CoeffSpace d → BlockMat d} (hA : SchattenMemLp P N A) (hN : 1 ≤ N)
     (B : FullBlockMat d) :
-    MemLqSchatten P N (fun a => ofFullBlockMat (B.conjTranspose * toFullBlockMat (A a) * B)) := by
+    SchattenMemLp P N (fun a => ofFullBlockMat (B.conjTranspose * toFullBlockMat (A a) * B)) := by
   have hm : AEMeasurable (fun a => toFullBlockMat (A a)) P :=
     aemeasurable_pi_lambda _ (fun α => aemeasurable_pi_lambda _ (fun β =>
       (hA.measurable α β).aemeasurable))
@@ -269,8 +274,8 @@ theorem memLqSchatten_congruence {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ
 membership. The root's total definition is symmetric even at its junk branch;
 a source consumer may in particular take any positive reference block R. -/
 theorem memLqSchatten_normalizedBlock {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ}
-    {A : CoeffSpace d → BlockMat d} (hA : MemLqSchatten P N A) (hN : 1 ≤ N)
-    (R : BlockMat d) : MemLqSchatten P N (fun a => normalizedBlock (A a) R) := by
+    {A : CoeffSpace d → BlockMat d} (hA : SchattenMemLp P N A) (hN : 1 ≤ N)
+    (R : BlockMat d) : SchattenMemLp P N (fun a => normalizedBlock (A a) R) := by
   have hr : (matSqrt ((toFullBlockMat R)⁻¹)).IsHermitian := by
     unfold matSqrt
     split_ifs with h
@@ -283,8 +288,8 @@ theorem memLqSchatten_normalizedBlock {d : ℕ} {P : Measure (CoeffSpace d)} {N 
 The empty family is included, and the dimension factor proves finiteness only. -/
 theorem memLqSchatten_finset_sum {d : ℕ} {ι : Type*} {P : Measure (CoeffSpace d)} {N : ℝ}
     (hN : 1 ≤ N) (s : Finset ι) (w : ι → ℝ) (A : ι → CoeffSpace d → BlockMat d)
-    (hA : ∀ i ∈ s, MemLqSchatten P N (A i)) :
-    MemLqSchatten P N (fun a => ofFullBlockMat (∑ i ∈ s, w i • toFullBlockMat (A i a))) := by
+    (hA : ∀ i ∈ s, SchattenMemLp P N (A i)) :
+    SchattenMemLp P N (fun a => ofFullBlockMat (∑ i ∈ s, w i • toFullBlockMat (A i a))) := by
   classical
   let X := fun a => ∑ i ∈ s, |w i| * absSchattenNorm N (A i a)
   have hX : MemLp X (ENNReal.ofReal N) P := memLp_finsetSum s (fun i hi =>

@@ -1,4 +1,4 @@
-import HCPoly.Entry.Geometry.RoundedGrid
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.Geometry.GeometryUpdateBounds
 import Homogenization.Ambient.MatrixOrderBridge
 import HCPoly.Setup.SourceObjects

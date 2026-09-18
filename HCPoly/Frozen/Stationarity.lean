@@ -22,3 +22,14 @@ def HCPoly.Frozen.IsStationaryLaw {d : ℕ}
     (P : MeasureTheory.Measure (Homogenization.HighContrast.CoeffSpace d)) : Prop :=
   ∀ z : Fin d → ℤ,
     MeasureTheory.Measure.map (Homogenization.HighContrast.translateCoeff z) P = P
+
+/-! ## The assumption under the project namespace
+
+`Homogenization.HighContrast.IsStationaryLaw` is `HCPoly.Frozen.IsStationaryLaw` itself, not a second
+reading of it: the proofs of the paper's propositions are written in the project
+namespace and use the frozen declaration through this name. -/
+namespace Homogenization.HighContrast
+
+export HCPoly.Frozen (IsStationaryLaw)
+
+end Homogenization.HighContrast

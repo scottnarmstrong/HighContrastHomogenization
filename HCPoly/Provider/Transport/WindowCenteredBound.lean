@@ -3,7 +3,7 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Transport.WindowWholeCell
+import HCPoly.Provider.Transport.WindowTerminalNormalization
 
 /-!
 # The centered bound for a dominated cell

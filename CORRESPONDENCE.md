@@ -13,6 +13,11 @@ Loher), so a reader of the paper can locate where each result is proved.
 - The main results are exposed, stated in full, in
   [`HCPoly/MainResults.lean`](HCPoly/MainResults.lean); each is
   comparator-checked (see [`HCPolyAudit/`](HCPolyAudit/)).
+- The modules under [`HCPoly/Consistency/`](HCPoly/Consistency/) check the
+  definitions the statements are written with; they are not results of the
+  paper and have no rows below.  The one exception is the containment of the
+  coefficient class in the paper's qualitative class, which the hypotheses of
+  Theorems B, C and D need and which is listed with the standing assumptions.
 
 ## Main results
 
@@ -29,7 +34,7 @@ Loher), so a reader of the paper can locate where each result is proved.
 | Source | Lean declaration | File | Status |
 |---|---|---|---|
 | coefficient fields and the qualitative class, `e.qualitative.ellipticity` | `Homogenization.HighContrast.CoeffSpace`, `AEUniformlyEllipticField` | `HCPoly/Setup/CoefficientSpace.lean` | definition |
-| containment of the formalized class in the qualitative class | `Homogenization.HighContrast.isQualitativeEllipticField_of_aeUniformlyEllipticField` | `HCPoly/Setup/QualitativeClass.lean` | proved |
+| containment of the formalized class in the qualitative class | `Homogenization.HighContrast.isQualitativeEllipticField_of_aeUniformlyEllipticField` | `HCPoly/Consistency/QualitativeClass.lean` | proved |
 | ℤ^d-stationarity of the law | `HCPoly.Frozen.IsStationaryLaw` | `HCPoly/Frozen/Stationarity.lean` | definition |
 | unit range of dependence | `HCPoly.Frozen.IsUnitRangeLaw` | `HCPoly/Frozen/UnitRange.lean` | definition |
 | coarse ellipticity above the source scale, `e.coarse.ellipticity`, with the source tail `e.source.tail` | `HCPoly.Frozen.CoarseEllipticityDagger` | `HCPoly/Frozen/CoarseEllipticityDagger.lean` | definition |

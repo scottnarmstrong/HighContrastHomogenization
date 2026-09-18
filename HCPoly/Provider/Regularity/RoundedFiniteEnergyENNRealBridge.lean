@@ -3,11 +3,36 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Regularity.CommonScaleRoundedOneStepAffineExcess
+import HCPoly.Provider.Regularity.FiniteLipschitzCoreDefinitions
+import HCPoly.Provider.Regularity.CorrectorNormalizedL2Bridge
+import HCPoly.Provider.Regularity.AffineTransfer
+import HCPoly.Provider.Regularity.RoundedReferenceConstantMatrix
+import HCPoly.Provider.Response.AffineResponseGeometry
+import HCPoly.Provider.Selection.EnclosureGeometry
+import HCPoly.Provider.Transport.WhitneySquareWeights
+import HCPoly.Provider.Regularity.CubeVolume
+import Homogenization.Deterministic.ConstantCoefficientDirichletBesov.CenteredCubeHsRegularity
+import Homogenization.Deterministic.HomogenizationBlackBoxes.DualityPositiveBridge.CoordinateStandard
+import Homogenization.Sobolev.Fractional.ContinuousInterpolation.OverlapCoordinateBridge
+import Homogenization.Sobolev.Fractional.ExactOverlapEuclideanComparison
+import HCPoly.Provider.Regularity.CenteredCubeEuclideanHsFullNormConstantMatrix
+import HCPoly.Provider.Regularity.CommonQuantitativeAffineScale
+import HCPoly.Provider.Regularity.RoundedOuterSpatialResponsePowerTail
+import HCPoly.Provider.Regularity.RoundedPhysicalDirichletEuclideanHs
+import Homogenization.Besov.Negative.ExactAggregationBridge
+import Homogenization.Besov.PositiveOverlapBridge
+import Homogenization.Book.Ch01.Theorems.NegativeBesovLocalize
+import Homogenization.Sobolev.Fractional.ExactOverlapEuclideanFullComparison
+import HCPoly.Provider.Regularity.RoundedCenteredCoeffFamily
+import HCPoly.Provider.Regularity.RoundedHarmonicReplacement
+import Homogenization.Book.Ch02.Theorems.HomogenizationError.AEEq
+import Homogenization.Book.Ch03.Theorems.PublicInternalBridges.WeakSolutionConstructors
+import Homogenization.Deterministic.CoarseFluxResponse.Response
+import Homogenization.Deterministic.CoarseFluxResponse.RHSCorrections
+import Homogenization.Deterministic.CoarsePoincare.QTwo
 import HCPoly.Provider.Regularity.CorrectorWeightedGradientBridge
 import HCPoly.Provider.Regularity.FiniteCubeEnergyRestriction
 import HCPoly.Provider.Regularity.FiniteSequenceBounds
-import HCPoly.Provider.Regularity.RoundedFiniteEnergyAnalyticBounds
 import HCPoly.Provider.Regularity.SmallTailIteration
 
 /-!

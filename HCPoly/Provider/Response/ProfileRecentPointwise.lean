@@ -7,7 +7,6 @@ import HCPoly.Provider.Response.ProfileCarriers
 import HCPoly.Provider.Response.DiagonalWeakNormComparison
 import HCPoly.Provider.Response.LoadCalibrationTheta
 import HCPoly.Provider.PortableHistory.MajorizationSup
-import HCPoly.Provider.Transport.GapFunctions
 
 /-!
 # Pointwise bounds for the recent profile terms
@@ -87,54 +86,6 @@ theorem traceGap_le_frakH_rpow_inv {Q x : ℝ} (hQ : 1 ≤ Q) (hx : 0 ≤ x) :
       rw [← Real.rpow_mul hx, mul_inv_cancel₀ (by linarith only [hQ] : Q ≠ 0),
         Real.rpow_one]
     _ ≤ ((1 + x) ^ Q - 1) ^ Q⁻¹ := hroot
-
-/-- A positive annealed mean increment is bounded by the root of the nonlinear
-gain of its relative mean. -/
-theorem blockSize_adaptedMean_sub_le_frakH [NeZero d]
-    {P : Measure (CoeffSpace d)} {q : Mat d} {k t : ℤ} {Q : ℝ}
-    (hQ : 1 ≤ Q)
-    (hEt : BlockPosDef (adaptedMean P q t))
-    (hmean : BlockMatLoewnerLE (adaptedMean P q t) (adaptedMean P q k)) :
-    blockSize (blockSub (adaptedMean P q k) (adaptedMean P q t))
-        (adaptedMean P q t) ≤
-      frakH Q (relMean P q k t) ^ Q⁻¹ := by
-  let Ek := adaptedMean P q k
-  let Et := adaptedMean P q t
-  let Pm := relMean P q k t
-  have hEks : IsSymmetricBlockMat Ek :=
-    Recurrence.isSymmetricBlockMat_adaptedMean P q k
-  have hEts : IsSymmetricBlockMat Et :=
-    Recurrence.isSymmetricBlockMat_adaptedMean P q t
-  have hEtfull : (toFullBlockMat Et).PosDef := posDef_toFullBlockMat hEts hEt
-  have hle : toFullBlockMat Et ≤ toFullBlockMat Ek :=
-    (blockMatLoewnerLE_iff_le hEts hEks).mp hmean
-  have hIP : (1 : FullBlockMat d) ≤ toFullBlockMat Pm := by
-    dsimp only [Pm, relMean, Ek, Et]
-    rw [Recurrence.toFullBlockMat_normalizedBlock]
-    exact Recurrence.one_le_normalize hEtfull hle
-  have hPpsd : (toFullBlockMat Pm).PosSemidef :=
-    (Transport.posDef_of_one_le hIP).posSemidef
-  have hgap0 : 0 ≤ blockTrace Pm - 2 * (d : ℝ) := Transport.zero_le_trace_gap hIP
-  have hnorm : ‖toFullBlockMat Pm - 1‖ ≤ blockTrace Pm - 2 * (d : ℝ) := by
-    rw [norm_sub_one_eq_norm_sub_one hPpsd hIP]
-    have htop := Transport.norm_le_one_add_trace_gap hIP
-    change ‖toFullBlockMat Pm‖ ≤ 1 + (blockTrace Pm - 2 * (d : ℝ)) at htop
-    linarith only [htop]
-  have hnormalized :
-      toFullBlockMat (normalizedBlock (blockSub Ek Et) Et) =
-        toFullBlockMat Pm - 1 := by
-    dsimp only [Pm]
-    rw [Recurrence.toFullBlockMat_normalizedBlock_blockSub,
-      Recurrence.toFullBlockMat_relMean, matSqrt_inv_conj hEtfull]
-  calc
-    blockSize (blockSub Ek Et) Et =
-        ‖toFullBlockMat (normalizedBlock (blockSub Ek Et) Et)‖ :=
-      PortableHistory.blockSize_eq_norm (isSymmetricBlockMat_blockSub hEks hEts) hEts hEt
-    _ = ‖toFullBlockMat Pm - 1‖ := by rw [hnormalized]
-    _ ≤ blockTrace Pm - 2 * (d : ℝ) := hnorm
-    _ ≤ ((1 + (blockTrace Pm - 2 * (d : ℝ))) ^ Q - 1) ^ Q⁻¹ :=
-      traceGap_le_frakH_rpow_inv hQ hgap0
-    _ = frakH Q Pm ^ Q⁻¹ := by rw [frakH]
 
 /-! ## Reading the centered maximum -/
 

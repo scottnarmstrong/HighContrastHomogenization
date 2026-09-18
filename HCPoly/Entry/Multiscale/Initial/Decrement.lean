@@ -50,14 +50,14 @@ theorem initial_log_decrement (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
                             determinantDrift P γ (1 : Mat d) jStar
                               (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))))) -
                         Real.log (16 / 9) +
-                        C * synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+                        C * synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
                           (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))) := by
   obtain ⟨Csrc, hCsrc, Cp, hCp, hprop⟩ := synchronized_propagation_one d hd γ hγ
   refine ⟨Csrc, hCsrc, ?_⟩
   intro η₀ hη₀
   have hη₀pos : (0 : ℝ) < η₀ := hη₀.1
   have hη₀inv : (0 : ℝ) < η₀⁻¹ := inv_pos.mpr hη₀pos
-  have hQpos : (0 : ℝ) < (bigQ d γ : ℝ) := bigQ_real_pos d hd γ hγ
+  have hQpos : (0 : ℝ) < (bigQ d γ : ℝ) := bigQ_real_pos d γ hγ
   have hCdiv : (0 : ℝ) < Cp / η₀ := div_pos hCp hη₀pos
   refine ⟨(bigQ d γ : ℝ) + 8 / 9 * (Cp / η₀) * (bigQ d γ : ℝ),
     add_pos hQpos (mul_pos (mul_pos (by norm_num : (0 : ℝ) < 8 / 9) hCdiv) hQpos), ?_⟩
@@ -89,9 +89,9 @@ theorem initial_log_decrement (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
     (jStar : ℤ) (R + 2 * (bigQ d γ : ℤ) + ((ℓ + 1 : ℕ) : ℤ) * (2 * (bigQ d γ : ℤ))) le_rfl hTnext
   have hdnn' := determinantDrift_one_nonneg d hd γ hγ P E Ψ K Src hP hstat hunit hdag jStar
     hjStar (R + 2 * (bigQ d γ : ℤ) + ((ℓ + 1 : ℕ) : ℤ) * (2 * (bigQ d γ : ℤ)))
-  have hy : 0 ≤ synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+  have hy : 0 ≤ synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
       (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))) := by
-    rw [synchronizedLogDetLoss]
+    rw [synchCharge]
     refine Finset.sum_nonneg ?_
     intro a ha
     rw [Finset.mem_Icc] at ha
@@ -112,17 +112,17 @@ theorem initial_log_decrement (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
     linarith only [hcancel, hmono]
   have hexpand : η₀⁻¹ *
       (1 / 8 *
-          Real.exp ((bigQ d γ : ℝ) * synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+          Real.exp ((bigQ d γ : ℝ) * synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) *
           (profile P γ (1 : Mat d) jStar (jStar : ℤ)
               (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))) +
             determinantDrift P γ (1 : Mat d) jStar
               (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) +
         Cp *
-          (Real.exp ((bigQ d γ : ℝ) * synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+          (Real.exp ((bigQ d γ : ℝ) * synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) - 1)) =
       1 / 8 *
-          Real.exp ((bigQ d γ : ℝ) * synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+          Real.exp ((bigQ d γ : ℝ) * synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) *
           (η₀⁻¹ *
             (profile P γ (1 : Mat d) jStar (jStar : ℤ)
@@ -130,7 +130,7 @@ theorem initial_log_decrement (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ 
               determinantDrift P γ (1 : Mat d) jStar
                 (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))))) +
         Cp / η₀ *
-          (Real.exp ((bigQ d γ : ℝ) * synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+          (Real.exp ((bigQ d γ : ℝ) * synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) - 1) := by
     rw [div_eq_mul_inv]
     ring
@@ -156,13 +156,13 @@ theorem synchronized_loss_budget_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
             ∀ R : ℤ, (jStar : ℤ) ≤ R →
               ∀ Ksteps : ℕ, 1 ≤ Ksteps →
                 (∑ ℓ ∈ Finset.range Ksteps,
-                    synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+                    synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
                       (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) ≤
                   C * Real.logb 3 (2 + aspectRatio E) := by
   obtain ⟨Cs₁, hCs₁, hmult⟩ := synchronized_multiplicity_one d hd γ hγ
   obtain ⟨Cs₂, hCs₂, hnorm⟩ := initial_normalization_bounds_all d hd γ hγ
-  have hQpos : (0 : ℝ) < (bigQ d γ : ℝ) := bigQ_real_pos d hd γ hγ
-  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d hd γ hγ
+  have hQpos : (0 : ℝ) < (bigQ d γ : ℝ) := bigQ_real_pos d γ hγ
+  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d γ hγ
   have hlog24 : (0 : ℝ) < Real.log 24 := Real.log_pos (by norm_num)
   have hlog3 : (0 : ℝ) < Real.log 3 := Real.log_pos (by norm_num)
   have hdR : (0 : ℝ) < (d : ℝ) := by
@@ -200,7 +200,7 @@ theorem synchronized_loss_budget_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     linarith only [hQZ, hKnn]
   obtain ⟨-, -, -, -, -, hlog⟩ := hnorm P E Ψ K Src hP hstat hunit hdag jStar hjStar h₂
     (R + 1) (R + 2 * (bigQ d γ : ℤ) + (Ksteps : ℤ) * (2 * (bigQ d γ : ℤ))) hjle hmle
-  have hPi : 1 ≤ aspectRatio E := Homogenization.HighContrast.Annealed.one_le_aspectRatio hdag
+  have hPi : 1 ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
   have hlogb := log_aspect_le_logb (aspectRatio E) hPi
   have h2Qnn : (0 : ℝ) ≤ 2 * (bigQ d γ : ℝ) := by linarith only [hQpos]
   have hdnn : (0 : ℝ) ≤ 2 * (d : ℝ) := by linarith only [hdR]
@@ -231,19 +231,22 @@ theorem starting_log_le_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
   intro η₀ hη
   obtain ⟨hη0, hη1⟩ := hη
   have hηinv : (0 : ℝ) < η₀⁻¹ := inv_pos.mpr hη0
-  have hA1 : (1 : ℝ) ≤ 1 + η₀⁻¹ * C₁ := by nlinarith [hηinv, hC₁]
+  have hA1 : (1 : ℝ) ≤ 1 + η₀⁻¹ * C₁ := by
+    have hnn : (0 : ℝ) ≤ η₀⁻¹ * C₁ := mul_nonneg hηinv.le hC₁.le
+    linarith only [hnn]
   have hlogA : (0 : ℝ) ≤ Real.log (1 + η₀⁻¹ * C₁) := Real.log_nonneg hA1
   have hlog3 : (0 : ℝ) < Real.log 3 := Real.log_pos (by norm_num)
   have hNlog3 : (0 : ℝ) ≤ (N : ℝ) * Real.log 3 :=
     mul_nonneg (Nat.cast_nonneg N) hlog3.le
-  refine ⟨Real.log (1 + η₀⁻¹ * C₁) + (N : ℝ) * Real.log 3 + 1, by linarith, ?_⟩
+  refine ⟨Real.log (1 + η₀⁻¹ * C₁) + (N : ℝ) * Real.log 3 + 1,
+    by linarith only [hlogA, hNlog3], ?_⟩
   intro P E Ψ K Src hP hstat hunit hdag jStar hjStar hthr m hm
   have := hP
   have : NeZero d := ⟨by omega⟩
-  have hPi : (1 : ℝ) ≤ aspectRatio E := Annealed.one_le_aspectRatio hdag
-  have h3le : (3 : ℝ) ≤ 2 + aspectRatio E := by linarith
-  have hXpos : (0 : ℝ) < 2 + aspectRatio E := by linarith
-  have hXN1 : (1 : ℝ) ≤ (2 + aspectRatio E) ^ N := one_le_pow₀ (by linarith)
+  have hPi : (1 : ℝ) ≤ aspectRatio E := Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger hdag
+  have h3le : (3 : ℝ) ≤ 2 + aspectRatio E := by linarith only [hPi]
+  have hXpos : (0 : ℝ) < 2 + aspectRatio E := by linarith only [hPi]
+  have hXN1 : (1 : ℝ) ≤ (2 + aspectRatio E) ^ N := one_le_pow₀ (by linarith only [hPi])
   have hXNpos : (0 : ℝ) < (2 + aspectRatio E) ^ N := by positivity
   have hL : (1 : ℝ) ≤ Real.logb 3 (2 + aspectRatio E) :=
     one_le_logb_three_of_three_le _ h3le
@@ -252,11 +255,11 @@ theorem starting_log_le_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
     (jStar : ℤ) m le_rfl hm
   have hd0 := determinantDrift_one_nonneg d hd γ hγ P E Ψ K Src hP hstat hunit hdag jStar hjStar m
   have hsum0 : (0 : ℝ) ≤ profile P γ (1 : Mat d) jStar (jStar : ℤ) m +
-      determinantDrift P γ (1 : Mat d) jStar m := by linarith
+      determinantDrift P γ (1 : Mat d) jStar m := by linarith only [hp0, hd0]
   have hpos : (0 : ℝ) < 1 + η₀⁻¹ * (profile P γ (1 : Mat d) jStar (jStar : ℤ) m +
       determinantDrift P γ (1 : Mat d) jStar m) := by
     have := mul_nonneg hηinv.le hsum0
-    linarith
+    linarith only [this]
   have harg : 1 + η₀⁻¹ * (profile P γ (1 : Mat d) jStar (jStar : ℤ) m +
         determinantDrift P γ (1 : Mat d) jStar m) ≤
       (1 + η₀⁻¹ * C₁) * (2 + aspectRatio E) ^ N := by
@@ -266,11 +269,11 @@ theorem starting_log_le_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
     have hexp : (1 + η₀⁻¹ * C₁) * (2 + aspectRatio E) ^ N =
         (2 + aspectRatio E) ^ N + η₀⁻¹ * (C₁ * (2 + aspectRatio E) ^ N) := by ring
     rw [hexp]
-    linarith
+    linarith only [hstep, hXN1]
   have hlogle := Real.log_le_log hpos harg
   have hprod : Real.log ((1 + η₀⁻¹ * C₁) * (2 + aspectRatio E) ^ N) =
       Real.log (1 + η₀⁻¹ * C₁) + (N : ℝ) * Real.log (2 + aspectRatio E) := by
-    rw [Real.log_mul (by linarith) (ne_of_gt hXNpos), Real.log_pow]
+    rw [Real.log_mul (ne_of_gt (by linarith only [hA1])) (ne_of_gt hXNpos), Real.log_pow]
   have hlogb : Real.log (2 + aspectRatio E) =
       Real.log 3 * Real.logb 3 (2 + aspectRatio E) := by
     rw [Real.logb]
@@ -289,9 +292,9 @@ theorem starting_log_le_one (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Se
       Real.log (1 + η₀⁻¹ * C₁) =
       Real.log (1 + η₀⁻¹ * C₁) * (Real.logb 3 (2 + aspectRatio E) - 1) := by ring
   have hkey0 : (0 : ℝ) ≤ Real.log (1 + η₀⁻¹ * C₁) * (Real.logb 3 (2 + aspectRatio E) - 1) :=
-    mul_nonneg hlogA (by linarith)
+    mul_nonneg hlogA (by linarith only [hL])
   rw [hR]
-  linarith [hlogle, hmid, hkey, hkey0, hL]
+  linarith only [hlogle, hmid, hkey, hkey0, hL]
 
 end
 

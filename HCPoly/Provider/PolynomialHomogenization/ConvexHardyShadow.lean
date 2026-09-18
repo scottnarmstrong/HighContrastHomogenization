@@ -4,7 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.PolynomialHomogenization.ConvexHardyBallChain
-import HCPoly.Provider.PolynomialHomogenization.ConvexHardyLocalRowMass
+import HCPoly.Provider.PolynomialHomogenization.ConvexWhitneyGeometry
 
 /-!
 # Shadows of convex-domain ball chains

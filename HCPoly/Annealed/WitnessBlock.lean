@@ -3,8 +3,7 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Annealed.WitnessField
-
+import HCPoly.Consistency.WitnessField
 /-!
 # The coarse response of the constant identity field is uniformly dominated
 

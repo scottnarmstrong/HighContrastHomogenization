@@ -2,8 +2,8 @@ import HCPoly.Entry.Geometry.BridgeEccentricity
 import HCPoly.Entry.Annealed.BridgeSourceTail
 import HCPoly.Entry.Annealed.BridgeComparisons
 import HCPoly.Entry.Annealed.AveragingTransport
-import HCPoly.Entry.Annealed.RecurrenceTransport
-import HCPoly.Entry.Annealed.AlignedSubdivision
+import HCPoly.Entry.Annealed.ParentChildRecurrence
+import HCPoly.Entry.Annealed.AdaptedCellFoundations
 import HCPoly.Entry.Multiscale.SelectionExponentBounds
 import HCPoly.Entry.Analysis.PositiveGapMaximal
 import HCPoly.Entry.TwoGridWhitney
@@ -12,7 +12,16 @@ import Mathlib.Analysis.Convex.Mul
 import Mathlib.Analysis.Convex.Jensen
 import HCPoly.Entry.MatrixAveraging
 
-/-! Two-grid transport support, kept in dependency order within the owned file boundary. -/
+/-! This module assembles the two-grid transport estimates behind `p.two.grid.transport`.
+For the rounded grids it derives grid-ratio and eccentricity control from the dimension, the
+operator-norm identity `‖bridgeMap A B‖ ^ 2 = blockOpNorm (normalizedBlock A B)` for positive
+definite normalizers, the covariance of `normalizedBlock` under scaling, and the pointwise and
+Schatten comparisons that exchange one normalizer for another at the cost of the grid proximity.
+It then regroups a Whitney partition of an adapted cell into a capped row, a finite boundary
+range and the fine cells, and shows that the resulting series orders the normalized coarse block
+by the target mean, has finite moments, a positive full-matrix sum, finite rows and an exact row
+reindexing; a fixed enlargement of the old coordinates contains the entire new-grid target, with
+aligned parents at every higher generation. -/
 open Homogenization.HighContrast.CG
 
 open Homogenization.HighContrast (CoeffSpace adaptedCellCenter adaptedMean aspectRatio
@@ -38,31 +47,22 @@ theorem exists_transport_grid_constant (d : ℕ) (hd : 2 ≤ d) :
   exact ⟨K₀, hK₀, fun jStar hj m mPlus hm hmPlus hpr =>
     ⟨hbound jStar hj m mPlus hm hmPlus hpr,
       eccentricity_le_of_projectiveDistance_le hm hmPlus hpr, Source.one_le_source_eccentricity hm⟩⟩
-/-- The doubled block identity is the full matrix identity. -/
-theorem transport_full_identity {d : ℕ} :
-    toFullBlockMat (Book.Ch02.blockIdentity d) = 1 := by
-  ext (i | i) (j | j) <;>
-    simp [Book.Ch02.blockIdentity, Book.Ch02.blockDiag, toFullBlockMat, Matrix.one_apply]
 /-- The C-star identity for arbitrary positive definite normalizers on either grid. -/
 theorem transportMatrix_sq_opNorm_eq_general {d : ℕ} {A B : BlockMat d}
     (hA : (toFullBlockMat A).PosDef) (hB : (toFullBlockMat B).PosDef) :
-    ‖transportMatrix A B‖ ^ 2 = blockOpNorm (normalizedBlock A B) := by
+    ‖bridgeMap A B‖ ^ 2 = blockOpNorm (normalizedBlock A B) := by
   have he := normalizedBlock_transport_congr hA hB A
-  rw [normalizedBlock_self_of_posDef A hA, transport_full_identity, mul_one] at he; rw [blockOpNorm, he]
-  have hn := CStarRing.norm_star_mul_self (x := transportMatrix A B)
-  simpa only [show (star (transportMatrix A B) : FullBlockMat d) = (transportMatrix A B)ᵀ from rfl,
+  rw [normalizedBlock_self_of_posDef A hA, toFullBlockMat_blockIdentity, mul_one] at he; rw [blockOpNorm, he]
+  have hn := CStarRing.norm_star_mul_self (x := bridgeMap A B)
+  simpa only [show (star (bridgeMap A B) : FullBlockMat d) = (bridgeMap A B)ᵀ from rfl,
     pow_two] using hn.symm
-/-- Block scaling is scalar multiplication of the full matrix. -/
-theorem transport_full_scale {d : ℕ} (c : ℝ) (F : BlockMat d) :
-    toFullBlockMat (blockScale c F) = c • toFullBlockMat F := by
-  ext (i | i) (j | j) <;> rfl
 theorem transport_normalized_scale {d : ℕ} (c : ℝ) {F : BlockMat d}
     (hF : (toFullBlockMat F).PosDef) :
     normalizedBlock (blockScale c F) F = blockScale c (Book.Ch02.blockIdentity d) := by
-  rw [normalizedBlock, transport_full_scale, Matrix.mul_smul, Matrix.smul_mul,
-    matSqrt_inv_mul_self_mul_matSqrt_inv_full hF]
+  rw [normalizedBlock, toFullBlockMat_blockScale, Matrix.mul_smul, Matrix.smul_mul,
+    matSqrt_inv_conj hF]
   rw [← ofFullBlockMat_toFullBlockMat (blockScale c (Book.Ch02.blockIdentity d)),
-    transport_full_scale, transport_full_identity]
+    toFullBlockMat_blockScale, toFullBlockMat_blockIdentity]
 theorem transport_normalized_order {d : ℕ} {A B F : BlockMat d} (hA : (toFullBlockMat A).IsHermitian) (hB : (toFullBlockMat B).IsHermitian)
     (hF : (toFullBlockMat F).PosDef) (hAB : BlockMatLoewnerLE A B) :
     BlockMatLoewnerLE (normalizedBlock A F) (normalizedBlock B F) := by
@@ -75,14 +75,14 @@ private theorem transport_normalized_upper {d : ℕ} {F G : BlockMat d} (hF : (t
       blockOpNorm (normalizedBlock F G) ≤ c ∧
       blockLogDet F - blockLogDet G ≤ 2 * (d : ℝ) * Real.log c := by
   have hscale : (toFullBlockMat (blockScale c G)).PosDef := by
-    rw [transport_full_scale]; exact hG.smul hc
+    rw [toFullBlockMat_blockScale]; exact hG.smul hc
   have ho := transport_normalized_order hF.isHermitian hscale.isHermitian hG hFG
   rw [transport_normalized_scale c hG] at ho
   have hN := normalizedBlock_posDef F G hF hG
   have hI : (toFullBlockMat (blockScale c (Book.Ch02.blockIdentity d))).IsHermitian := by
-    rw [transport_full_scale, transport_full_identity]; exact (Matrix.PosDef.one.smul hc).isHermitian
+    rw [toFullBlockMat_blockScale, toFullBlockMat_blockIdentity]; exact (Matrix.PosDef.one.smul hc).isHermitian
   have hupper : toFullBlockMat (normalizedBlock F G) ≤ c • (1 : FullBlockMat d) := by
-    simpa only [transport_full_scale, transport_full_identity] using (fullBlock_le_iff hN.isHermitian hI).2 ho
+    simpa only [toFullBlockMat_blockScale, toFullBlockMat_blockIdentity] using (fullBlock_le_iff hN.isHermitian hI).2 ho
   have heig (i) : hN.isHermitian.eigenvalues i ≤ c := by
     apply (le_algebraMap_iff_spectrum_le (a := toFullBlockMat (normalizedBlock F G))
       (r := c) (ha := hN.isHermitian)).mp
@@ -127,10 +127,10 @@ theorem transport_normalizer_comparison {d : ℕ} {F H : BlockMat d} (hF : (toFu
     (hup : BlockMatLoewnerLE H (blockScale (1 + δ) F)) :
     BlockMatLoewnerLE (blockScale (1 - δ) (Book.Ch02.blockIdentity d)) (normalizedBlock H F) ∧
       BlockMatLoewnerLE (normalizedBlock H F) (blockScale (1 + δ) (Book.Ch02.blockIdentity d)) ∧
-      ‖transportMatrix H F‖ ^ 2 ≤ 1 + δ ∧ ‖transportMatrix F H‖ ^ 2 ≤ (1 - δ)⁻¹ := by
+      ‖bridgeMap H F‖ ^ 2 ≤ 1 + δ ∧ ‖bridgeMap F H‖ ^ 2 ≤ (1 - δ)⁻¹ := by
   have hδ1 : δ < 1 := lt_of_le_of_lt hδ.2 (by norm_num)
   have hl : (toFullBlockMat (blockScale (1 - δ) F)).PosDef := by
-    rw [transport_full_scale]; exact hF.smul (sub_pos.mpr hδ1)
+    rw [toFullBlockMat_blockScale]; exact hF.smul (sub_pos.mpr hδ1)
   have ho := transport_normalized_order hl.isHermitian hH.isHermitian hF hlow
   rw [transport_normalized_scale _ hF] at ho
   have hu := transport_normalized_upper hH hF (by linarith only [hδ.1] : 0 < 1 + δ) hup
@@ -140,12 +140,12 @@ theorem transport_normalizer_comparison {d : ℕ} {F H : BlockMat d} (hF : (toFu
 private theorem transport_pointwise {d : ℕ} {A B X : BlockMat d} (hA : (toFullBlockMat A).PosDef) (hB : (toFullBlockMat B).PosDef)
     (hX : (toFullBlockMat X).IsHermitian) {N : ℝ} (hN : 1 ≤ N) :
     absSchattenNorm N (normalizedBlock X B) ≤
-      ‖transportMatrix A B‖ ^ 2 * absSchattenNorm N (normalizedBlock X A) := by
+      ‖bridgeMap A B‖ ^ 2 * absSchattenNorm N (normalizedBlock X A) := by
   have hS := matSqrt_inv_posDef_full hA
   have hXA : (toFullBlockMat (normalizedBlock X A)).IsHermitian := by
     simpa only [normalizedBlock, toFullBlockMat_ofFullBlockMat, hS.isHermitian.eq] using
       Matrix.isHermitian_conjTranspose_mul_mul (matSqrt (toFullBlockMat A)⁻¹) hX
-  have hh := Analysis.absSchattenNorm_congr_le (normalizedBlock X A) (transportMatrix A B) hXA hN
+  have hh := Analysis.absSchattenNorm_congr_le (normalizedBlock X A) (bridgeMap A B) hXA hN
   rwa [← normalizedBlock_transport_congr hA hB X, ofFullBlockMat_toFullBlockMat] at hh
 /-- The pointwise normalization change needed inside the joint maximum, in both directions. -/
 theorem transport_schatten_normalizer_comparison {d : ℕ} {F H X : BlockMat d} (hF : (toFullBlockMat F).PosDef) (hH : (toFullBlockMat H).PosDef)
@@ -195,7 +195,7 @@ theorem transport_fine_source_tail (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                 (∀ t : ℤ, (∑' i : {i // r i = t}, w i) ≤ Cw * (3 : ℝ) ^ ((t : ℝ) - j)) →
                 let M := fun a => ofFullBlockMat (∑' i, w i • toFullBlockMat
                   (coarseBlock (adaptedCellTranslate (explicitRoundedGrid jStar m) (r i) (y i)) a))
-                MemLqSchatten P (bigQ d γ : ℝ) M ∧
+                SchattenMemLp P (bigQ d γ : ℝ) M ∧
                   (∀ᵐ a ∂P, Summable (fun i => w i • toFullBlockMat (coarseBlock
                     (adaptedCellTranslate (explicitRoundedGrid jStar m) (r i) (y i)) a)) ∧
                     BlockMatLoewnerLE (M a)
@@ -220,7 +220,7 @@ theorem transport_fine_source_tail (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   refine ⟨max Cs (max CbSrc CnSrc), Ct * Cn, hCs.trans_le (le_max_left _ _), mul_pos hCt hCn, ?_⟩
   intro P hP E Ψ K S hstat hdag jStar hjStar hsrc
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hsrcs := (Int.ceil_mono (mul_le_mul_of_nonneg_right (le_max_left Cs (max CbSrc CnSrc)) hlog)).trans hsrc
   have hsrcb := (Int.ceil_mono (mul_le_mul_of_nonneg_right
     ((le_max_left CbSrc CnSrc).trans (le_max_right Cs _)) hlog)).trans hsrc
@@ -229,7 +229,7 @@ theorem transport_fine_source_tail (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   obtain ⟨ell, X, _hell, _hXm, hform, _hgood, hX, _hXi, _hmoment, hnorm, hbound⟩ := hsource P E Ψ K S hstat hdag jStar hjStar hsrcs
   obtain ⟨_Xb, _hXb0, _hXb, _hXbi, _hEXb, hfine⟩ := hbridge P E Ψ K S hstat hdag jStar hjStar hsrcb
   have hX0 (a) : 0 ≤ X a := by rw [hform]; positivity
-  have hQ : 1 ≤ (bigQ d γ : ℝ) := by exact_mod_cast (bigQ_two_le d hd γ hγ).trans' (by norm_num)
+  have hQ : 1 ≤ (bigQ d γ : ℝ) := by exact_mod_cast (bigQ_two_le d γ hγ).trans' (by norm_num)
   have hEX := source_envelope_integral_le_two d hd γ hγ P X hX0 hX hnorm
   refine ⟨X, hX0, hX, hnorm, hX.integrable (ENNReal.one_le_ofReal.mpr hQ), hEX, ?_⟩
   intro m mPlus hm hmPlus s hs hswindow W hW ι hι r y w hr hw0 hw hcell j hj Cw hCw hrow M
@@ -308,7 +308,7 @@ theorem transport_mean_weight_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
         (3 : ℝ) ^ (-((bigQ d γ : ℝ) * γ + (1 - γ) / 4) * t) ∧
       (3 : ℝ) ^ (-((bigQ d γ : ℝ) * rhoMax d γ - (d : ℝ)) * t) ≤
         (3 : ℝ) ^ (-((1 - γ) / 4) * t) := by
-  have hQ := bigQ_real_pos d hd γ hγ
+  have hQ := bigQ_real_pos d γ hγ
   have he : (bigQ d γ : ℝ) * rhoMax d γ - (d : ℝ) = (bigQ d γ : ℝ) * γ + (1 - γ) / 4 := by
     calc
       _ = (bigQ d γ : ℝ) * (rhoMax d γ - (d : ℝ) / (bigQ d γ : ℝ)) := by field_simp
@@ -316,7 +316,7 @@ theorem transport_mean_weight_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ �
       _ = _ := by field_simp
   rw [he]
   refine ⟨rfl, Real.rpow_le_rpow_of_exponent_le (by norm_num) ?_⟩
-  exact mul_le_mul_of_nonneg_right (by have := mul_nonneg hQ.le hγ.1; linarith) ht
+  exact mul_le_mul_of_nonneg_right (by linarith only [mul_nonneg hQ.le hγ.1]) ht
 /-- Actual target blocks have finite moments, positive order, and the stationary normalized mean. -/
 theorem transport_target_ordered_mean (d : ℕ) (hd : 2 ≤ d)
     (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P] (γ : ℝ) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ) (S : CoeffSpace d → ℝ) (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
@@ -324,9 +324,9 @@ theorem transport_target_ordered_mean (d : ℕ) (hd : 2 ≤ d)
     (j t : ℤ) (hj : (jStar : ℤ) ≤ j) (hjt : j ≤ t) (w : Fin d → ℤ) (N : ℝ) (hN : 1 ≤ N) :
     let q := explicitRoundedGrid jStar mPlus
     let F := fun a => normalizedBlock (coarseBlock (adaptedCellAtCenter q j w) a) (adaptedMean P q t)
-    MemLqSchatten P N F ∧ (∀ a, BlockMatLoewnerLE (ofFullBlockMat 0) (F a)) ∧
-      ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F a) α β ∂P) = normalizedMean P q j t ∧
-      BlockMatLoewnerLE (Book.Ch02.blockIdentity d) (normalizedMean P q j t) := by
+    SchattenMemLp P N F ∧ (∀ a, BlockMatLoewnerLE (ofFullBlockMat 0) (F a)) ∧
+      ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F a) α β ∂P) = relMean P q j t ∧
+      BlockMatLoewnerLE (Book.Ch02.blockIdentity d) (relMean P q j t) := by
   let : NeZero d := ⟨by omega⟩
   intro q F
   have hRaw := Source.memLqSchatten_coarseBlock_adapted d hd P γ E Ψ K S hstat hdag
@@ -335,7 +335,7 @@ theorem transport_target_ordered_mean (d : ℕ) (hd : 2 ≤ d)
   refine ⟨Source.memLqSchatten_normalizedBlock hRaw hN _, ?_, ?_,
     (adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag jStar hjStar mPlus hmPlus j t hj hjt).1⟩
   · intro a
-    have hp := fullBlock_posDef_of_pos (isSymmetricBlockMat_coarseBlockMatrix _ (⇑a.1)) (blockPosDef_coarseBlock_adapted q (isUnit_roundedGrid hjStar hmPlus) j (adaptedCellCenter q j w) a)
+    have hp := posDef_toFullBlockMat (isSymmetricBlockMat_coarseBlockMatrix _ (⇑a.1)) (blockPosDef_coarseBlock_adapted q (isUnit_roundedGrid hjStar hmPlus) j (adaptedCellCenter q j w) a)
     have hn := normalizedBlock_posDef _ _ hp hMean
     apply (fullBlock_le_iff (by rw [toFullBlockMat_ofFullBlockMat]; exact Matrix.isHermitian_zero) hn.isHermitian).1
     simpa only [toFullBlockMat_ofFullBlockMat] using hn.posSemidef.nonneg
@@ -362,7 +362,7 @@ theorem transport_whitney_sum_mem (d : ℕ) (hd : 2 ≤ d)
     (cap j : ℤ) (hr : ∀ i, r i ≤ cap) (hw0 : ∀ i, 0 ≤ w i) (hw : Summable w) (hcell : ∀ i, adaptedCellTranslate (explicitRoundedGrid jStar m) (r i) (y i) ⊆ W) (Cw : ℝ) (hCw : 0 ≤ Cw)
     (hrow : ∀ t : ℤ, (∑' i : {i // r i = t}, w i) ≤ Cw * (3 : ℝ) ^ ((t : ℝ) - j))
     (N : ℝ) (hN : 1 ≤ N) :
-    MemLqSchatten P N (fun a => ofFullBlockMat (∑' i, w i • toFullBlockMat
+    SchattenMemLp P N (fun a => ofFullBlockMat (∑' i, w i • toFullBlockMat
       (coarseBlock (adaptedCellTranslate (explicitRoundedGrid jStar m) (r i) (y i)) a))) ∧
       (∀ᵐ a ∂P, Summable (fun i => w i • toFullBlockMat
         (coarseBlock (adaptedCellTranslate (explicitRoundedGrid jStar m) (r i) (y i)) a))) := by
@@ -434,7 +434,7 @@ theorem transport_partition_order {d : ℕ} [NeZero d] {ι : Type*} {I : Set ι}
       (normalizedBlock (ofFullBlockMat (∑' i : I,
         ((volume (U i)).toReal / (volume W).toReal) • toFullBlockMat (coarseBlock (U i) a))) R) := by
   intro W U hsub hdis hnull hseries
-  have hWfin : volume W ≠ ⊤ := volume_adaptedCellTranslate_ne_top q j y
+  have hWfin : volume W ≠ ⊤ := Transport.volume_adaptedCellTranslate_ne_top q j y
   let : IsFiniteMeasure (volumeMeasureOn W) := ⟨by simpa [volumeMeasureOn] using hWfin.lt_top⟩
   have hWvol : (volume W).toReal ≠ 0 := by
     dsimp only [W]; rw [volume_adaptedCellTranslate_toReal]
@@ -502,15 +502,15 @@ theorem exists_transport_whitney_ordered_data (d : ℕ) (hd : 2 ≤ d)
           let G := fun a => normalizedBlock (ofFullBlockMat (∑' p : I,
             ((volume (adaptedCellAtCenter q p.1.1 p.1.2)).toReal / (volume W).toReal) •
               toFullBlockMat (coarseBlock (adaptedCellAtCenter q p.1.1 p.1.2) a))) (adaptedMean P qPlus t)
-          MemLqSchatten P N F ∧ MemLqSchatten P N G ∧
+          SchattenMemLp P N F ∧ SchattenMemLp P N G ∧
             (∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a) ∧ BlockMatLoewnerLE (F a) (G a)) ∧
-            ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F a) α β ∂P) = normalizedMean P qPlus j t ∧
-            BlockMatLoewnerLE (Book.Ch02.blockIdentity d) (normalizedMean P qPlus j t) ∧
+            ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F a) α β ∂P) = relMean P qPlus j t ∧
+            BlockMatLoewnerLE (Book.Ch02.blockIdentity d) (relMean P qPlus j t) ∧
             (∀ᵐ a ∂P, Summable (fun p : I =>
               ((volume (adaptedCellAtCenter q p.1.1 p.1.2)).toReal / (volume W).toReal) •
                 toFullBlockMat (coarseBlock (adaptedCellAtCenter q p.1.1 p.1.2) a))) := by
   let : NeZero d := ⟨by omega⟩
-  obtain ⟨Cs, hCs, hWhitney⟩ := Provider.two_grid_whitney d hd
+  obtain ⟨Cs, hCs, hWhitney⟩ := Entry.two_grid_whitney d hd
   obtain ⟨C, hC, hpart⟩ := hWhitney K₀ hK₀
   apply Exists.intro (Cs γ)
   apply And.intro
@@ -527,7 +527,7 @@ theorem exists_transport_whitney_ordered_data (d : ℕ) (hd : 2 ≤ d)
   let w := fun p : I => (volume (adaptedCellAtCenter q p.1.1 p.1.2)).toReal / (volume W).toReal
   have hsubI (p : ℤ × (Fin d → ℤ)) (hp : p ∈ I) : adaptedCellAtCenter q p.1 p.2 ⊆ W := hsub p.1 p.2 hp
   have hw0 (p) : 0 ≤ w p := by dsimp only [w]; positivity
-  have hWfin : volume W ≠ ⊤ := volume_adaptedCellTranslate_ne_top qPlus j (adaptedCellCenter qPlus j v)
+  have hWfin : volume W ≠ ⊤ := Transport.volume_adaptedCellTranslate_ne_top qPlus j (adaptedCellCenter qPlus j v)
   let : IsFiniteMeasure (volumeMeasureOn W) := ⟨by simpa [volumeMeasureOn] using hWfin.lt_top⟩
   have hw : Summable w := summable_volumeRatio (U := fun p : ℤ × (Fin d → ℤ) => adaptedCellAtCenter q p.1 p.2) (W := W) (s := I)
     (fun p _ => (isOpen_adaptedCellTranslate hq p.1 (adaptedCellCenter q p.1 p.2)).measurableSet) hsubI hdis
@@ -660,7 +660,7 @@ theorem transport_normalized_psd_bound {d : ℕ} {M R : BlockMat d} (hM : (toFul
     simpa only [normalizedBlock, toFullBlockMat_ofFullBlockMat, hS.isHermitian.eq] using
       hM.conjTranspose_mul_mul_same (matSqrt (toFullBlockMat R)⁻¹)
   have hsc : (toFullBlockMat (blockScale c R)).IsHermitian := by
-    rw [transport_full_scale]; exact (hR.posSemidef.smul hc).isHermitian
+    rw [toFullBlockMat_blockScale]; exact (hR.posSemidef.smul hc).isHermitian
   refine ⟨hn, ?_⟩
   have hb := transport_normalized_order hM.isHermitian hsc hR hbound
   rwa [transport_normalized_scale c hR] at hb
@@ -685,11 +685,11 @@ theorem exists_transport_parent_enlargement (d : ℕ) (hd : 2 ≤ d) (K₀ : ℝ
       _ ≤ ∑ _j : Fin d, K₀ * ((3 : ℝ) ^ t / 2) := by
         apply Finset.sum_le_sum
         intro j _; rw [abs_mul]; exact mul_le_mul ((abs_entry_le_opNorm A i j).trans hA)
-          (abs_le.mpr ⟨by linarith only [(mem_centeredCube_iff.mp hv j).1],
-            by linarith only [(mem_centeredCube_iff.mp hv j).2]⟩) (abs_nonneg _) hK0
+          (abs_le.mpr ⟨by linarith only [(Recurrence.mem_centeredCube_iff.mp hv j).1],
+            by linarith only [(Recurrence.mem_centeredCube_iff.mp hv j).2]⟩) (abs_nonneg _) hK0
       _ = _ := by simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul]; ring
   have hvold : A *ᵥ v ∈ centeredCube d (t + (h : ℤ)) := by
-    rw [mem_centeredCube_iff]
+    rw [Recurrence.mem_centeredCube_iff]
     intro i
     have hp := (hcoord i).trans_lt (mul_lt_mul_of_pos_right hhpow hrad)
     rw [zpow_add₀ (by norm_num : (3 : ℝ) ≠ 0), zpow_natCast]
@@ -707,9 +707,9 @@ theorem transport_exists_standard_parent {d : ℕ} (r : ℤ) (h : ℕ) (w : Fin 
   | zero => exact ⟨w, by simpa only [Nat.cast_zero, add_zero] using Set.Subset.rfl⟩
   | succ h ih =>
     obtain ⟨v, hv⟩ := ih
-    refine ⟨parentIndex v, ?_⟩
+    refine ⟨Transport.gridParent v, ?_⟩
     simpa only [Nat.cast_add, Nat.cast_one, ← add_assoc] using
-      hv.trans (standardCell_subset_parent (r + h) v)
+      hv.trans (Transport.standardCell_subset_parent (r + h) v)
 /-- Every old cell below k inside the target lies in one of the fixed, finite
 scale-k parents of the enlarged old target. The index family has its exact count. -/
 theorem transport_old_parent_family {d : ℕ} (q qPlus : Mat d) (hq : IsUnit q) (k t : ℤ) (hkt : k ≤ t) (h : ℕ)
@@ -737,8 +737,8 @@ theorem transport_old_parent_family {d : ℕ} (q qPlus : Mat d) (hq : IsUnit q) 
     have heq := matVecMul_injective_of_isUnit q hq (he.trans hc.symm)
     exact heq ▸ hx
   have hpar : standardCell d k v ⊆ centeredCube d (t + h) := by
-    rw [centeredCube_eq_standardCell] at hcenter ⊢; exact standardCell_subset_of_mem (by omega) (hv (standardCellCenter_mem r w)) hcenter
-  refine ⟨v, hpar (standardCellCenter_mem k v), ?_⟩
+    rw [centeredCube_eq_standardCell] at hcenter ⊢; exact standardCell_subset_of_mem (by omega) (hv (Recurrence.standardCellCenter_mem_standardCell r w)) hcenter
+  refine ⟨v, hpar (Recurrence.standardCellCenter_mem_standardCell k v), ?_⟩
   rw [adaptedCellAtCenter_eq_affine_standardCell, adaptedCellAtCenter_eq_affine_standardCell]; exact Set.image_mono hv
 
 end

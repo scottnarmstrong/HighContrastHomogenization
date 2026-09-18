@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Setup.SelectionObjects
-import HCPoly.Setup.Exponents
 
 /-!
 # The burn and scale account of the entry argument
@@ -251,81 +250,6 @@ private theorem exists_ceil_and_pow {C b : ℝ} (hb : 0 < b) {ment : ℤ} (hment
     linarith only [h2, h3, h4]
 
 /-! ## The scale account of the entry argument -/
-
-/-- **The scale account.**  A single constant depending only on the dimension,
-the coarse-growth exponent and the selector constants bounds the entry
-generation by the printed ceiling and its triadic exponential by the printed
-polynomial. -/
-theorem exists_entry_scale_constant (d : ℕ) (_hd : 2 ≤ d) (g : ℝ)
-    (hg : g ∈ Set.Ico (0 : ℝ) 1) (Cexec Csel Cgap : ℝ) (hCexec : 0 < Cexec)
-    (hCsel : 0 < Csel) (hCgap : 0 < Cgap) :
-    ∃ C : ℝ, 0 < C ∧
-      ∀ (E : BlockMat d) (K : ℝ), 1 < K → 1 ≤ aspectRatio E →
-        ∀ jdag ment : ℤ,
-          jdag =
-            coupledExecBurn d (initExpQ d g : ℝ) K Cexec
-              (Real.logb 3 (2 + aspectRatio E)) →
-          (ment : ℝ) ≤
-            (jdag : ℝ) + (Csel + Cgap) * Real.logb 3 (2 + aspectRatio E) →
-          0 ≤ ment →
-          ∃ mEnt : ℕ, (mEnt : ℤ) = ment ∧
-            (mEnt : ℤ) ≤ ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ∧
-            (3 : ℝ) ^ (mEnt : ℕ) ≤ 3 * (2 + aspectRatio E * K) ^ C := by
-  have hd0 : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg d
-  have hQ1 : (1 : ℝ) ≤ ((initExpQ d g : ℕ) : ℝ) := by
-    exact_mod_cast le_trans (by norm_num : 1 ≤ 2) (InitializationExponents.two_le_initExpQ d hg.2)
-  have hlog2 : (0 : ℝ) ≤ Real.logb 3 2 := Real.logb_nonneg (by norm_num) (by norm_num)
-  obtain ⟨A, Bc, hA0, hBc0, hburn⟩ := exists_sourceBurn_bound d hQ1
-  refine ⟨A + (Bc + 8 * ((d : ℝ) + 1)) * (1 + Real.logb 3 2) + Cexec + 2 + Csel + Cgap, ?_, ?_⟩
-  · have h1 : (0 : ℝ) ≤ (Bc + 8 * ((d : ℝ) + 1)) * (1 + Real.logb 3 2) :=
-      mul_nonneg (by linarith only [hBc0, hd0]) (by linarith only [hlog2])
-    linarith only [hA0, h1, hCexec, hCsel, hCgap]
-  intro E K hK hAR jdag ment hjdagdef hmentUp hment0
-  have hK0 : (0 : ℝ) < K := by linarith only [hK]
-  have hPiK : K ≤ aspectRatio E * K := by
-    linarith only [mul_le_mul_of_nonneg_right hAR hK0.le]
-  have hPiPiK : aspectRatio E ≤ aspectRatio E * K := by
-    linarith only [mul_le_mul_of_nonneg_left hK.le
-      (by linarith only [hAR] : (0 : ℝ) ≤ aspectRatio E)]
-  have hbase : (0 : ℝ) < 2 + aspectRatio E * K := by linarith only [hPiK, hK0]
-  -- the two logarithmic scales
-  have hLS1 : (1 : ℝ) ≤ Real.logb 3 (2 + aspectRatio E * K) := by
-    have h := Real.logb_le_logb_of_le (b := 3) (by norm_num) (by norm_num : (0 : ℝ) < 3)
-      (by linarith only [hPiK, hK] : (3 : ℝ) ≤ 2 + aspectRatio E * K)
-    rwa [Real.logb_self_eq_one (by norm_num)] at h
-  have hLP1 : (1 : ℝ) ≤ Real.logb 3 (2 + aspectRatio E) := by
-    have h := Real.logb_le_logb_of_le (b := 3) (by norm_num) (by norm_num : (0 : ℝ) < 3)
-      (by linarith only [hAR] : (3 : ℝ) ≤ 2 + aspectRatio E)
-    rwa [Real.logb_self_eq_one (by norm_num)] at h
-  have hLPS : Real.logb 3 (2 + aspectRatio E) ≤ Real.logb 3 (2 + aspectRatio E * K) :=
-    Real.logb_le_logb_of_le (by norm_num) (by linarith only [hAR])
-      (by linarith only [hPiPiK])
-  -- the growth witness against the gauge scale
-  have hgb2 : (2 : ℝ) ≤ growthBar K := le_max_left _ _
-  have hLKth : Real.logb 3 (growthBar K) ≤
-      (1 + Real.logb 3 2) * Real.logb 3 (2 + aspectRatio E * K) := by
-    have h1 : Real.logb 3 (growthBar K) ≤ Real.logb 3 (2 * K) :=
-      Real.logb_le_logb_of_le (by norm_num) (by linarith only [hgb2])
-        (max_le (by linarith only [hK]) (by linarith only [hK0]))
-    have h2 : Real.logb 3 (2 * K) = Real.logb 3 2 + Real.logb 3 K :=
-      Real.logb_mul (by norm_num) (ne_of_gt hK0)
-    have h3 : Real.logb 3 K ≤ Real.logb 3 (2 + aspectRatio E * K) :=
-      Real.logb_le_logb_of_le (by norm_num) hK0 (by linarith only [hPiK])
-    have h4 : Real.logb 3 2 * 1 ≤ Real.logb 3 2 * Real.logb 3 (2 + aspectRatio E * K) :=
-      mul_le_mul_of_nonneg_left hLS1 hlog2
-    linarith only [h1, h2, h3, h4]
-  -- the two burns
-  have hjd : (jdag : ℝ) ≤
-      A + Bc * Real.logb 3 (growthBar K) +
-        (Cexec * Real.logb 3 (2 + aspectRatio E) + 2 +
-          8 * ((d : ℝ) + 1) * Real.logb 3 (growthBar K)) := by
-    rw [hjdagdef]
-    exact coupledExecBurn_le d hCexec.le (by linarith only [hLP1]) hA0 hBc0 (hburn K)
-  have hfin : (ment : ℝ) ≤
-      (A + (Bc + 8 * ((d : ℝ) + 1)) * (1 + Real.logb 3 2) + Cexec + 2 + Csel + Cgap) *
-        Real.logb 3 (2 + aspectRatio E * K) :=
-    ment_le_mul_of_bounds hA0 hBc0 hLS1 hLPS hLKth hCexec.le hCsel.le hCgap.le hjd hmentUp
-  exact exists_ceil_and_pow hbase hment0 hfin
 
 end
 

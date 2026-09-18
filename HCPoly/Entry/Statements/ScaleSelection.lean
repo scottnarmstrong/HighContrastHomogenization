@@ -29,7 +29,7 @@ Reading of the display, stated here so that no divergence is silent:
   to every statement whose type mentions `j_*`, whether or not its display restates the
   condition and whether or not its proof uses the source estimate.
 
-The proof is one application of `Homogenization.HighContrast.Provider.scale_selection` (`HCPoly/Entry/ScaleSelection.lean`) to the binders of the statement.
+The proof is one application of `Homogenization.HighContrast.Entry.scale_selection` (`HCPoly/Entry/ScaleSelection.lean`) to the binders of the statement.
 -/
 
 namespace Homogenization.HighContrast
@@ -41,6 +41,6 @@ and `ε_0(d,γ), c(d,γ) ∈ (0,1)` such that, for every `ε ∈ (0,ε_0]` and `
 theorem scale_selection
     (d : ℕ) (hd : 2 ≤ d)
     (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
-    ∃ S : SelectionData, S.Selects d γ := by exact Homogenization.HighContrast.Provider.scale_selection d hd γ hγ
+    ∃ S : SelectionData, S.Selects d γ := by exact Homogenization.HighContrast.Entry.scale_selection d hd γ hγ
 
 end Homogenization.HighContrast

@@ -5,8 +5,14 @@ import HCPoly.Entry.Setup.AdaptedGridCells
 /-!
 # Transport for adapted cells
 
-Affine descriptions of the adapted-cell definitions.  These are support
-lemmas for the first groups of the two-grid Whitney geometry task.
+For an invertible matrix `q`, an adapted cell is the image of the corresponding
+standard cell under the linear map `matVecMul q`: the center of the adapted cell
+is the image of the standard center, and its volume is `|det q|` times the
+standard volume. Preimages along `matVecMul q` convert adapted cells into
+standard cells and back, preserving inclusion, disjointness and maximality, so
+that the maximal adapted cells of a set are exactly the transported maximal
+standard cells. These are the geometric support lemmas for the adapted Whitney
+partitions of `l.two.grid.whitney`.
 -/
 
 open Homogenization.HighContrast (adaptedCellCenter)
@@ -18,41 +24,6 @@ open MeasureTheory
 
 variable {d : ℕ}
 
-theorem adaptedCellCenter_eq_matVecMul_standardCellCenter
-    (q : Mat d) (r : ℤ) (w : Fin d → ℤ) :
-    adaptedCellCenter q r w = matVecMul q (standardCellCenter r w) := by
-  funext i
-  unfold Homogenization.HighContrast.adaptedCellCenter standardCellCenter matVecMul
-  simp only [Pi.smul_apply, smul_eq_mul]
-  rw [Finset.mul_sum]
-  refine Finset.sum_congr rfl ?_
-  intro j _
-  ring
-
-theorem standardCell_eq_translate_centeredCube (r : ℤ) (w : Fin d → ℤ) :
-    standardCell d r w = (fun v => standardCellCenter r w + v) '' centeredCube d r := by
-  ext x
-  constructor
-  · intro hx
-    refine ⟨x - standardCellCenter r w, ?_, ?_⟩
-    · rw [mem_standardCell_iff] at hx
-      rw [mem_centeredCube_iff]
-      intro i
-      have h3 : (0 : ℝ) < (3 : ℝ) ^ r := by positivity
-      obtain ⟨hlo, hhi⟩ := hx i
-      simp only [Pi.sub_apply, standardCellCenter]
-      constructor <;> nlinarith
-    · ext i
-      simp
-  · rintro ⟨v, hv, rfl⟩
-    rw [mem_centeredCube_iff] at hv
-    rw [mem_standardCell_iff]
-    intro i
-    have h3 : (0 : ℝ) < (3 : ℝ) ^ r := by positivity
-    obtain ⟨hlo, hhi⟩ := hv i
-    simp only [Pi.add_apply, standardCellCenter]
-    constructor <;> nlinarith
-
 theorem adaptedCellAtCenter_eq_affine_standardCell
     (q : Mat d) (r : ℤ) (w : Fin d → ℤ) :
     adaptedCellAtCenter q r w = matVecMul q '' standardCell d r w := by
@@ -61,18 +32,18 @@ theorem adaptedCellAtCenter_eq_affine_standardCell
   · intro hx
     rcases mem_adaptedCellTranslate_iff.mp hx with ⟨v, hv, hvx⟩
     refine ⟨standardCellCenter r w + v, ?_, ?_⟩
-    · rw [standardCell_eq_translate_centeredCube]
+    · rw [Recurrence.standardCell_eq_image]
       exact ⟨v, hv, rfl⟩
-    · rw [← hvx, adaptedCellCenter_eq_matVecMul_standardCellCenter]
+    · rw [← hvx, Recurrence.adaptedCellCenter_eq]
       ext i
       simp [matVecMul, mul_add, Finset.sum_add_distrib]
   · rintro ⟨u, hu, rfl⟩
     change matVecMul q u ∈ adaptedCellTranslate q r (adaptedCellCenter q r w)
     rw [mem_adaptedCellTranslate_iff]
-    rw [standardCell_eq_translate_centeredCube] at hu
+    rw [Recurrence.standardCell_eq_image] at hu
     rcases hu with ⟨v, hv, rfl⟩
     refine ⟨v, hv, ?_⟩
-    rw [adaptedCellCenter_eq_matVecMul_standardCellCenter]
+    rw [Recurrence.adaptedCellCenter_eq]
     ext i
     simp [matVecMul, mul_add, Finset.sum_add_distrib]
 
@@ -161,7 +132,7 @@ theorem volume_preimage_matVecMul_ne_top
       matVecMul q⁻¹ '' W = (fun v : Vec d => (0 : Vec d) + matVecMul q⁻¹ v) '' W := by
     ext x
     simp
-  rw [himage, volume_image_affine]
+  rw [himage, Transport.volume_image_affine]
   exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top hW
 
 theorem IsAdaptedCellIn.to_standard_preimage {W : Set (Vec d)} {q : Mat d}
@@ -266,6 +237,6 @@ theorem volume_image_iUnion_gridFaces (q : Mat d) :
   have himage : matVecMul q '' (⋃ k : ℤ, gridFaces d k) =
       (fun v : Vec d => (0 : Vec d) + matVecMul q v) '' (⋃ k : ℤ, gridFaces d k) := by
     simp only [zero_add]
-  rw [himage, volume_image_affine, measure_iUnion_null (fun k => volume_gridFaces k), mul_zero]
+  rw [himage, Transport.volume_image_affine, measure_iUnion_null (fun k => volume_gridFaces k), mul_zero]
 
 end Homogenization.HighContrast.Geometry

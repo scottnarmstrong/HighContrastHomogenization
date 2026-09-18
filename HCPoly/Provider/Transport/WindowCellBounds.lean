@@ -3,7 +3,7 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Transport.WindowDefinedness
+import HCPoly.Provider.Transport.CellDomination
 import HCPoly.Provider.PortableHistory.MajorizationSize
 
 /-!
@@ -234,27 +234,6 @@ theorem blockSize_le_of_blockMatLoewnerLE_blockScale {H F : BlockMat d}
       rw [neg_smul, sub_neg_eq_add]
     rw [hrw]
     exact hHps.add (hFfull.posSemidef.smul hc)
-
-/-- **The coarse response on a cell of the window is integrable over the law.**
-Its entries are bounded by a multiple of the multiplier, which is integrable
-because its excess over one has the source gauge's tail. -/
-theorem hasIntegrableCoarseBlock_adaptedCellTranslate
-    (hY : IsWindowMultiplier P g E Ψ K Cd jStar M Y) {nu : Mat d} (hnu : nu.PosDef)
-    (hq : IsRoundedGrid jStar (roundedGrid jStar nu)) (r : ℤ) (y : Vec d)
-    (hcont : adaptedCellTranslate (roundedGrid jStar nu) r y ⊆ centeredCube d M) :
-    HasIntegrableCoarseBlock P (adaptedCellTranslate (roundedGrid jStar nu) r y) := by
-  intro α β
-  refine Integrable.mono'
-    ((integrable_of_isWindowMultiplier hY).const_mul
-      (2 * (|boundaryConst Cd g nu * burnDiscount g jStar r| * blockEntrySum E)))
-    (hasMeasurableCoarseBlock_adaptedCellTranslate P (Recurrence.posDef_of_isRoundedGrid hq) r y α β)
-    ?_
-  filter_upwards [ae_blockMatLoewnerLE_coarseBlock_adaptedCellTranslate hY hnu r y hcont]
-    with a ha
-  have h := abs_blockMatEntry_coarseBlock_le_of_blockMatLoewnerLE ha α β
-  rw [abs_mul, abs_of_nonneg (le_trans zero_le_one (hY.one_le a))] at h
-  rw [Real.norm_eq_abs]
-  exact h.trans_eq (by ring)
 
 /-- **The primal cell moment, pathwise**: the scalar normalization
 `|𝐄^{-1/2}𝐀(V)𝐄^{-1/2}|` of a cell of the window is below

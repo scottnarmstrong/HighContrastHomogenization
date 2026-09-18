@@ -1,16 +1,22 @@
-import HCPoly.Entry.Geometry.EuclideanGrid
-import HCPoly.Entry.Setup.CanonicalMetric
-import HCPoly.Entry.Setup.Attainment
-import HCPoly.Entry.Annealed.AdaptedIntegrability
-import HCPoly.Entry.Multiscale.ProfileIdentities
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.Setup.ProjectiveDistance
+import HCPoly.Setup.Contrast
+import Mathlib.Topology.Instances.Matrix
+import Mathlib.Topology.Order.Compact
+import HCPoly.Setup.Attainment
+import HCPoly.Setup.BlockAlgebra
+import HCPoly.Setup.SpectralBound
+import HCPoly.Entry.Annealed.AdaptedCellFoundations
+import HCPoly.Entry.Multiscale.DriftAdvance
 
 /-!
 # Positivity of the canonical metric
 
 This proves positive definiteness of the closed printed definition of
 `explicitCanonicalMetric`; it does not introduce a geometric-mean characterization or
-the metric-loss estimate, which belong to the global selection.
+the metric-loss estimate, which belong to the global selection.  The positivity of the
+canonical metric, and its specialization to the rounded adapted means, underlies the
+projective-distance geometry serving `p.global.selection` and `p.scale.selection`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedCell adaptedMean matSqrt posDef_lowerRight)
@@ -83,7 +89,7 @@ theorem swapConj_inv_posDef [NeZero d] {F : BlockMat d}
   let A : FullBlockMat d := toFullBlockMat F
   let R : FullBlockMat d := toFullBlockMat (blockSwap d)
   have hA : A.PosDef := by
-    simpa [A] using Homogenization.HighContrast.Annealed.fullBlock_posDef_of_pos hsymm hpos
+    simpa [A] using posDef_toFullBlockMat hsymm hpos
   have h := hA.inv.conjTranspose_mul_mul_same (B := R) (by
     simpa [R] using blockSwap_mulVec_injective d)
   have hRt : Rᵀ = R := by
@@ -100,7 +106,7 @@ theorem explicitCanonicalMetric_inner_posDef [NeZero d] {F : BlockMat d}
   let R : FullBlockMat d := toFullBlockMat (blockSwap d)
   let S : FullBlockMat d := matSqrt A⁻¹
   have hA : A.PosDef := by
-    simpa [A] using Homogenization.HighContrast.Annealed.fullBlock_posDef_of_pos hsymm hpos
+    simpa [A] using posDef_toFullBlockMat hsymm hpos
   have hRAR : (R * A⁻¹ * R).PosDef := by
     simpa [A, R] using swapConj_inv_posDef (d := d) hsymm hpos
   have hS : S.PosDef := by
@@ -134,7 +140,7 @@ theorem explicitCanonicalMetric_outer_posDef [NeZero d] {F : BlockMat d}
       (matSqrt A⁻¹ * toFullBlockMat (blockSwap d) * A⁻¹ *
         toFullBlockMat (blockSwap d) * matSqrt A⁻¹)
   have hA : A.PosDef := by
-    simpa [A] using Homogenization.HighContrast.Annealed.fullBlock_posDef_of_pos hsymm hpos
+    simpa [A] using posDef_toFullBlockMat hsymm hpos
   have hT : T.PosDef := by
     simpa [T, A] using matSqrt_posDef_full hA
   have hM : M.PosDef := by
@@ -269,7 +275,7 @@ theorem explicitCanonicalMetric_adaptedMean_posDef (d : ℕ) (hd : 2 ≤ d)
   let : NeZero d := ⟨by omega⟩
   have hsymm : IsSymmetricBlockMat (adaptedMean P (explicitRoundedGrid jStar m) j) := by
     simpa [adaptedMean] using
-      Homogenization.HighContrast.Annealed.isSymmetricBlockMat_annealedBlock P
+      isSymmetricBlockMat_annealedBlock P
         (adaptedCell (explicitRoundedGrid jStar m) j)
   have hfull :=
     Homogenization.HighContrast.Annealed.adaptedMean_posDef d hd P γ E Ψ K S hstat hdag

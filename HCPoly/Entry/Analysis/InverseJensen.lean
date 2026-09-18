@@ -1,5 +1,8 @@
-import HCPoly.Entry.Annealed.LogDetOrder
+import HCPoly.Entry.Annealed.AnnealedBlockOrder
 import Homogenization.CoarseGraining.AdjointSymmetry.BasicAdjoint
+import HCPoly.Annealed.Contrast
+import HCPoly.Geometry.BlockBridge
+import HCPoly.Provider.Recurrence.DetTransport
 /-!
 # Inverse Jensen and the annealed primal–adjoint order
 
@@ -136,7 +139,7 @@ private theorem symmetric_inv_congr_le_iff {ι : Type*} [Fintype ι] [DecidableE
         Function.comp_def, Sum.elim_inl, Sum.elim_inr, mulVec_neg, dotProduct_add, dotProduct_neg,
         neg_dotProduct, neg_neg] at hx
       simp only [star_trivial, sub_mulVec, dotProduct_sub]
-      linarith
+      linarith only [hx]
     · apply Matrix.le_iff.mpr
       refine Matrix.PosSemidef.of_dotProduct_mulVec_nonneg (hF.1.sub hB.neg) ?_
       intro x
@@ -144,7 +147,7 @@ private theorem symmetric_inv_congr_le_iff {ι : Type*} [Fintype ι] [DecidableE
       simp only [star_trivial, Matrix.fromBlocks_mulVec, sumElim_dotProduct_sumElim,
         Function.comp_def, Sum.elim_inl, Sum.elim_inr, dotProduct_add] at hx
       simp only [star_trivial, sub_mulVec, neg_mulVec, dotProduct_sub, dotProduct_neg]
-      linarith
+      linarith only [hx]
   · rintro ⟨hp, hn⟩
     refine Matrix.PosSemidef.of_dotProduct_mulVec_nonneg ?_ ?_
     · exact Matrix.IsHermitian.fromBlocks hF.1 hBF hF.1
@@ -162,7 +165,7 @@ private theorem symmetric_inv_congr_le_iff {ι : Type*} [Fintype ι] [DecidableE
       change 0 ≤ x ⬝ᵥ F.mulVec x + x ⬝ᵥ B.mulVec y +
         (y ⬝ᵥ B.mulVec x + y ⬝ᵥ F.mulVec y)
       rw [hcross]
-      linarith
+      linarith only [hplus, hminus, hcross y x]
 
 private theorem swap_hermitian (d : ℕ) : (toFullBlockMat (blockSwap d)).IsHermitian := by
   apply (toFullBlockMat_isHermitian_iff _).2
@@ -222,7 +225,7 @@ private theorem negative_swap_le_of_response {d : ℕ} {U : Set (Vec d)}
       matVecMul, vecDot, Matrix.one_apply, mul_comm]
     ring
   rw [he]
-  simpa only [Prod.mk.eta] using (by linarith :
+  simpa only [Prod.mk.eta] using (by linarith only [h] :
     (1 / 2 : ℝ) * -(2 * vecDot X.1 X.2) ≤
       (1 / 2 : ℝ) * blockVecDot (X.1, X.2) (blockMatVecMul F (X.1, X.2)))
 
@@ -264,7 +267,7 @@ private theorem abs_entry_le_half_diag {ι : Type*} [Fintype ι] [DecidableEq ι
     simpa only [Matrix.conjTranspose_apply, star_trivial] using congrArg (fun N => N i j) hM.1
   simp only [star_trivial, mulVec_add, mulVec_sub, dotProduct_add, dotProduct_sub,
     add_dotProduct, sub_dotProduct, single_dotProduct, mulVec_single_one, Matrix.col_apply, one_mul, hsym] at hp hn
-  exact abs_le.mpr ⟨by linarith, by linarith⟩
+  exact abs_le.mpr ⟨by linarith only [hp], by linarith only [hn]⟩
 
 private theorem diagonal_mono {ι : Type*} [Fintype ι] [DecidableEq ι]
     {M N : Matrix ι ι ℝ} (h : M ≤ N) (i : ι) : M i i ≤ N i i := by
@@ -301,7 +304,7 @@ private theorem integrable_inverse_of_bound {ι Ω : Type*}
   filter_upwards [hpos, hbound] with a hp hb
   rw [Real.norm_eq_abs]
   exact (abs_entry_le_half_diag hp.inv.posSemidef i j).trans
-    (by dsimp only [Pi.add_apply]; linarith [diagonal_mono hb i, diagonal_mono hb j])
+    (by dsimp only [Pi.add_apply]; linarith only [diagonal_mono hb i, diagonal_mono hb j])
 
 /-- Pathwise primal–adjoint order on the actual qualitative coefficient carrier. -/
 theorem blockMatLoewnerLE_swapConj_coarseBlock {d : ℕ} [NeZero d]
@@ -312,7 +315,7 @@ theorem blockMatLoewnerLE_swapConj_coarseBlock {d : ℕ} [NeZero d]
         toFullBlockMat (blockSwap d)))
       (coarseBlock (HighContrast.adaptedCellTranslate q j y) a) := by
   have hs := isSymmetricBlockMat_coarseBlockMatrix (HighContrast.adaptedCellTranslate q j y) (⇑a.1)
-  have hp := Annealed.fullBlock_posDef_of_pos hs
+  have hp := posDef_toFullBlockMat hs
     (Annealed.blockPosDef_coarseBlock_adapted q hq j y a)
   exact (blockMatLoewnerLE_swapConj_inv_iff hs hp).2 (both_signs_coarseBlock q hq j y a)
 
@@ -333,7 +336,7 @@ theorem integrable_inv_coarseBlock_adapted {d : ℕ} [NeZero d]
   have hR : R.IsHermitian := swap_hermitian d
   have hRR : R * R = 1 := swap_square d
   have hp (a : CoeffSpace d) : (A a).PosDef :=
-    Annealed.fullBlock_posDef_of_pos
+    posDef_toFullBlockMat
       (isSymmetricBlockMat_coarseBlockMatrix _ (⇑a.1))
       (Annealed.blockPosDef_coarseBlock_adapted q hq j y a)
   have hi : ∀ α β, Integrable (fun a => A a α β) P := by
@@ -387,9 +390,9 @@ theorem adaptedMean_swapConj_le_of_integrable {d : ℕ} [NeZero d]
     simpa [U, HighContrast.adaptedCellTranslate] using
       Annealed.blockPosDef_coarseBlock_adapted q hq j 0 a
   have hAp (a : CoeffSpace d) : (A a).PosDef :=
-    Annealed.fullBlock_posDef_of_pos (isSymmetricBlockMat_coarseBlockMatrix U (⇑a.1)) (hp a)
+    posDef_toFullBlockMat (isSymmetricBlockMat_coarseBlockMatrix U (⇑a.1)) (hp a)
   have hbar : (toFullBlockMat (adaptedMean P q j)).PosDef :=
-    Annealed.fullBlock_posDef_of_pos (Annealed.isSymmetricBlockMat_annealedBlock P U)
+    posDef_toFullBlockMat (isSymmetricBlockMat_annealedBlock P U)
       (blockPosDef_annealedBlock hint hp)
   have hA : ∀ α β, Integrable (fun a => A a α β) P := by
     simpa only [A, toFullBlockMat_eq_blockMatEntry] using! hint
@@ -456,10 +459,10 @@ private theorem determinant_mono {ι : Type*} [Fintype ι] [DecidableEq ι]
   have hT : T.PosDef := Multiscale.matSqrt_inv_posDef_full hG
   have hN : (T * F * T).IsHermitian := by
     simpa only [hT.1.eq] using Matrix.isHermitian_conjTranspose_mul_mul T hF.1
-  have hi : (1 : Matrix ι ι ℝ) ≤ T * F * T := Multiscale.one_le_normalized hG hGF
+  have hi : (1 : Matrix ι ι ℝ) ≤ T * F * T := Recurrence.one_le_normalize hG hGF
   have ht := (Matrix.le_iff.mp hi).trace_nonneg
-  have hd := Multiscale.trace_sub_one_le_det_sub_one hN hi
-  have hone : 1 ≤ (T * F * T).det := by linarith
+  have hd := Recurrence.trace_sub_one_le_det_sub_one hN hi
+  have hone : 1 ≤ (T * F * T).det := by linarith only [hd, ht]
   rw [show (T * F * T).det = F.det / G.det from
     Multiscale.det_normalized_eq_div F G hG] at hone
   exact (one_le_div hG.det_pos).mp hone
@@ -496,7 +499,7 @@ private theorem one_le_det_of_swapConj {d : ℕ} {F : BlockMat d}
   have hpos : 0 < A.det := hF.det_pos
   have hm := mul_le_mul_of_nonneg_left hd hpos.le
   rw [mul_inv_cancel₀ hpos.ne'] at hm
-  nlinarith
+  nlinarith only [hm, hpos]
 
 /-- The annealed primal–adjoint order under the standing stationary dagger law. -/
 theorem adaptedMean_swapConj_le {d : ℕ} (hd : 2 ≤ d)

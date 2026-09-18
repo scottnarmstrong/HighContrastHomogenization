@@ -3,19 +3,19 @@ import HCPoly.Entry.Multiscale.Global.RunAssembly
 /-!
 # `p.global.selection`
 
-`Homogenization.HighContrast.Provider.global_selection` is the type of
+`Homogenization.HighContrast.Entry.global_selection` is the type of
 `HCPoly/Entry/Statements/GlobalSelection.lean` byte for byte, discharged from `Multiscale.global_run`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory
 open scoped Matrix.Norms.L2Operator
 
 noncomputable section
 
-/-- Provider for `p.global.selection`: the type of `HCPoly/Entry/Statements/GlobalSelection.lean`
+/-- Proof of `p.global.selection`: the type of `HCPoly/Entry/Statements/GlobalSelection.lean`
 byte for byte. Discharged from `Multiscale.global_run` by unfolding `SelectedOutput`. -/
 theorem global_selection
     (d : ℕ) (hd : 2 ≤ d)
@@ -55,7 +55,7 @@ theorem global_selection
                                 (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s)
                               (blockScale (1 + Real.sqrt ε * σ) F) ∧
                             (d : ℝ)⁻¹ *
-                                logDetLoss P
+                                detIncrement P
                                   (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ ∧
                             max
                                   (max
@@ -79,4 +79,4 @@ theorem global_selection
 
 end
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

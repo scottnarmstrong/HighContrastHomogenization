@@ -3,7 +3,9 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Response.ProfileRowBlock
+import HCPoly.Provider.Response.ProfileRowAlignedSum
+import HCPoly.Provider.Response.ProfileRecentPointwise
+import HCPoly.Provider.Bridge.ComparisonMatrixRows
 import HCPoly.Provider.Response.ProfileDefectCarriers
 import HCPoly.Provider.Response.ConstantSkewBlock
 

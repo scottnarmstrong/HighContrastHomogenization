@@ -6,7 +6,6 @@ Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 import HCPoly.Provider.Regularity.CorrectorInvariantEvent
 import HCPoly.Provider.Regularity.CorrectorLocalLimit
 import HCPoly.Provider.Regularity.LocalGradientTranslation
-import HCPoly.Provider.Regularity.CorrectorTranslatedNormalizedL2
 import HCPoly.Provider.Regularity.CorrectorRealRadiusGrowth
 import HCPoly.Provider.Regularity.CorrectorAffineCubeGrowth
 import HCPoly.Provider.Regularity.CorrectorGlobalAffineH1sLoc

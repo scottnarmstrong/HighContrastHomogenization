@@ -4,7 +4,8 @@ import HCPoly.Entry.Multiscale.Global.PartialChangeMetric
 # The partial-change and failed-test potential decreases
 
 The remaining two of the four potential decreases of the printed proof — the partial geometry
-change and the failed comparison test — together with the initial value of the potential.
+change and the failed comparison test — together with the initial value of the potential.  They
+serve `e.global.selection.partial.change` and `e.global.selection.failed.test`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean)
@@ -27,7 +28,7 @@ theorem partial_change_decrease {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ
     (hmet : projectiveDistance mP
         (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar mP) (n + L))) -
       projectiveDistance m (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar m) k)) ≤
-      -ε + 1 / 2 * logDetLoss P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) +
+      -ε + 1 / 2 * detIncrement P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) +
         1 / 2 * Real.log ((1 + δ) / (1 - δ)))
     (hx0 : 0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n)
@@ -37,18 +38,18 @@ theorem partial_change_decrease {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) ≤ 1)
     (hx'0 : 0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) (n + L + h) +
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L + h))
-    (hΔ : 0 ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)))
-    (hΔ' : 0 ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + h))
+    (hΔ : 0 ≤ detIncrement P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)))
+    (hΔ' : 0 ≤ detIncrement P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + h))
     (hspan : profile P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) (n + L + h) +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L + h) ≤
       C * h *
         (profile P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) (n + L) +
             determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) +
-          (Real.exp (Q * logDetLoss P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + h)) - 1))) :
+          (Real.exp (Q * detIncrement P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + h)) - 1))) :
     potential P γ jStar η a mP (n + L) (n + L + h) - potential P γ jStar η a m k n ≤
       -c - 2 * a * C * ((h : ℝ) + 2) * Real.log (1 + δ) +
-        a * C / d * (logDetLoss P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) +
-          logDetLoss P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + h)) := by
+        a * C / d * (detIncrement P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) +
+          detIncrement P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + h)) := by
   unfold potential
   have hC0 : 0 ≤ C := le_trans zero_le_one hC
   have ha0 : 0 ≤ a := le_trans zero_le_one ha1
@@ -59,8 +60,8 @@ theorem partial_change_decrease {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) with hx0def
   set x' := profile P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) (n + L + h) +
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L + h) with hx'def
-  set Δ := logDetLoss P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) with hΔdef
-  set Δ' := logDetLoss P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + h) with hΔ'def
+  set Δ := detIncrement P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) with hΔdef
+  set Δ' := detIncrement P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + h) with hΔ'def
   set oldDist := projectiveDistance m
       (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar m) k)) with holdDistdef
   set newDist := projectiveDistance mP
@@ -235,16 +236,16 @@ theorem failed_test_decrease {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) ≤ 1)
     (hx'0 : 0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) (n + L + H) +
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L + H))
-    (hΔ' : (d : ℝ) * σ ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + H))
+    (hΔ' : (d : ℝ) * σ ≤ detIncrement P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + H))
     (hspan : profile P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) (n + L + H) +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L + H) ≤
       C * H *
         (profile P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) (n + L) +
             determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) +
-          (Real.exp (Q * logDetLoss P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + H)) - 1))) :
+          (Real.exp (Q * detIncrement P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + H)) - 1))) :
     potential P γ jStar η a mP (n + L) (n + L + H) - potential P γ jStar η a m k n ≤
       -c - 2 * a * C * ((h : ℝ) + 2) * Real.log (1 + δ) +
-        a * C / d * logDetLoss P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + H) := by
+        a * C / d * detIncrement P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + H) := by
   unfold potential
   have _hcδUsed := And.intro hc hδ
   have hC0 : 0 ≤ C := le_trans zero_le_one hC
@@ -257,7 +258,7 @@ theorem failed_test_decrease {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) with hx0def
   set x' := profile P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L) (n + L + H) +
       determinantDrift P γ (Geometry.explicitRoundedGrid jStar mP) jStar (n + L + H) with hx'def
-  set Δ := logDetLoss P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + H) with hΔdef
+  set Δ := detIncrement P (Geometry.explicitRoundedGrid jStar mP) (n + L) (n + L + H) with hΔdef
   set oldDist := projectiveDistance m
       (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar m) k)) with holdDistdef
   set newDist := projectiveDistance mP

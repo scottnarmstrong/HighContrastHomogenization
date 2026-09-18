@@ -6,10 +6,13 @@ import Mathlib.LinearAlgebra.Matrix.AbsoluteValue
 /-!
 # Relative distortion of two adapted grids
 
-The `gridRatio` controls both relative matrices `q⁻¹*q'` and `q'⁻¹*q`.
-These bounds give two-sided determinant and cell-volume comparison, relative inverse
-control for flat-face strips, and exact cancellation of the affine Jacobian in ratios.
-No absolute norm bound on either grid is required.
+For two invertible adapted grids with `gridRatio q q' ≤ K₀`, the relative matrices `q⁻¹*q'`
+and `q'⁻¹*q` have operator norm at most `K₀`; this yields two-sided determinant and adapted-cell
+volume comparison, a relative inverse-norm bound used for the flat-face strips, and exact
+cancellation of the affine Jacobian in ratios, with no absolute norm bound on either grid.
+These are the relative cell-volume and inverse-norm estimates behind `l.two.grid.whitney` and
+the relative operator-norm control in the fixed old-coordinate enlargement of
+`p.two.grid.transport`.
 -/
 
 open Homogenization.HighContrast (gridRatio)
@@ -27,12 +30,12 @@ theorem norm_inv_mul_le_gridRatio_of_le {q q' : Mat d} {K₀ : ℝ} (hd : 2 ≤ 
   let base : ℝ := 1 + ‖q⁻¹ * q'‖ + ‖q'⁻¹ * q‖
   have hbase : 1 ≤ base := by
     dsimp [base]
-    nlinarith [norm_nonneg (q⁻¹ * q'), norm_nonneg (q'⁻¹ * q)]
+    linarith only [norm_nonneg (q⁻¹ * q'), norm_nonneg (q'⁻¹ * q)]
   have hexp : (2 * d) ≠ 0 := by omega
   have hpow : base ≤ base ^ (2 * d) := le_self_pow₀ hbase hexp
   have hnorm : ‖q⁻¹ * q'‖ ≤ base := by
     dsimp [base]
-    nlinarith [norm_nonneg (q⁻¹ * q'), norm_nonneg (q'⁻¹ * q)]
+    linarith only [norm_nonneg (q'⁻¹ * q)]
   exact hnorm.trans (hpow.trans (by simpa [gridRatio, base] using hK))
 
 theorem norm_inv_mul_comm_le_gridRatio_of_le {q q' : Mat d} {K₀ : ℝ} (hd : 2 ≤ d)
@@ -41,12 +44,12 @@ theorem norm_inv_mul_comm_le_gridRatio_of_le {q q' : Mat d} {K₀ : ℝ} (hd : 2
   let base : ℝ := 1 + ‖q⁻¹ * q'‖ + ‖q'⁻¹ * q‖
   have hbase : 1 ≤ base := by
     dsimp [base]
-    nlinarith [norm_nonneg (q⁻¹ * q'), norm_nonneg (q'⁻¹ * q)]
+    linarith only [norm_nonneg (q⁻¹ * q'), norm_nonneg (q'⁻¹ * q)]
   have hexp : (2 * d) ≠ 0 := by omega
   have hpow : base ≤ base ^ (2 * d) := le_self_pow₀ hbase hexp
   have hnorm : ‖q'⁻¹ * q‖ ≤ base := by
     dsimp [base]
-    nlinarith [norm_nonneg (q⁻¹ * q'), norm_nonneg (q'⁻¹ * q)]
+    linarith only [norm_nonneg (q⁻¹ * q')]
   exact hnorm.trans (hpow.trans (by simpa [gridRatio, base] using hK))
 
 theorem vecNormSq_relative_comm_le_gridRatio {q q' : Mat d} {K₀ : ℝ} (hd : 2 ≤ d)
@@ -149,7 +152,7 @@ theorem volume_adaptedCell (q : Mat d) (r : ℤ) :
         (fun v : Vec d => (0 : Vec d) + matVecMul q v) '' centeredCube d r := by
     ext x
     simp
-  rw [h, volume_image_affine, volume_centeredCube]
+  rw [h, Transport.volume_image_affine, volume_centeredCube]
 
 theorem volume_adaptedCell_toReal (q : Mat d) (r : ℤ) :
     (volume (adaptedCell q r)).toReal =
@@ -232,7 +235,7 @@ theorem adaptedCell_volume_ratio_two_sided_of_gridRatio [NeZero d]
     rw [inv_le_iff_one_le_mul₀ hCpos]
     rw [div_eq_mul_inv]
     field_simp [ne_of_gt hqdetpos, ne_of_gt hq'detpos] at hleft ⊢
-    nlinarith [hleft]
+    linarith only [hleft]
   constructor
   · rw [hratio]
     exact mul_le_mul_of_nonneg_right hdetLower hscalepos.le

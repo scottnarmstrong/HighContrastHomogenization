@@ -47,7 +47,7 @@ theorem exists_entry_generation_eta0 (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   intro η₀ hη₀
   obtain ⟨C1, hC1pos, hDecrEta⟩ := hDecr η₀ hη₀
   obtain ⟨C3, hC3pos, hStartEta⟩ := hStart η₀ hη₀
-  have hQpos : (0:ℝ) < (bigQ d γ : ℝ) := bigQ_real_pos d hd γ hγ
+  have hQpos : (0:ℝ) < (bigQ d γ : ℝ) := bigQ_real_pos d γ hγ
   have ha : (0:ℝ) < Real.log (16 / 9) := Real.log_pos (by norm_num)
   set a : ℝ := Real.log (16 / 9) with ha_def
   have hBpos : 0 < C3 + C1 * C2 := add_pos hC3pos (mul_pos hC1pos hC2pos)
@@ -131,7 +131,7 @@ theorem exists_entry_generation_eta0 (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
             determinantDrift P γ (1 : Mat d) jStar
               (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))))) -
         a +
-        C1 * synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+        C1 * synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
           (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))) := by
     intro ℓ _hℓ hbad
     exact hDecrEta P E Ψ K Src hProb hStat hUnit hdag jStar hjStar hCsrc1' R hR ℓ hbad
@@ -147,7 +147,7 @@ theorem exists_entry_generation_eta0 (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       linarith only [hR, hQZnn]
     exact hStartEta P E Ψ K Src hProb hStat hUnit hdag jStar hjStar hCsrc3' _ hm0
   have hSumle : (∑ ℓ ∈ Finset.range Ksteps,
-      synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+      synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
         (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) ≤
       C2 * Real.logb 3 (2 + aspectRatio E) :=
     hBudget P E Ψ K Src hProb hStat hUnit hdag jStar hjStar hCsrc2' R hR Ksteps hKsteps1
@@ -158,11 +158,11 @@ theorem exists_entry_generation_eta0 (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
           determinantDrift P γ (1 : Mat d) jStar
             (R + 2 * (bigQ d γ : ℤ) + ((0:ℕ) : ℤ) * (2 * (bigQ d γ : ℤ))))) +
         C1 * (∑ ℓ ∈ Finset.range Ksteps,
-          synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+          synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) <
       (Ksteps : ℝ) * a := by
     have h1 : C1 * (∑ ℓ ∈ Finset.range Ksteps,
-          synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+          synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ)))) ≤
         C1 * (C2 * Real.logb 3 (2 + aspectRatio E)) :=
       mul_le_mul_of_nonneg_left hSumle (le_of_lt hC1pos)
@@ -176,7 +176,7 @@ theorem exists_entry_generation_eta0 (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))) +
           determinantDrift P γ (1 : Mat d) jStar
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))))))
-      (fun ℓ => synchronizedLogDetLoss P (1 : Mat d) (2 * (bigQ d γ : ℤ))
+      (fun ℓ => synchCharge P (1 : Mat d) (2 * (bigQ d γ : ℤ))
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))))
       (fun ℓ => η₀ < profile P γ (1 : Mat d) jStar (jStar : ℤ)
             (R + 2 * (bigQ d γ : ℤ) + (ℓ : ℤ) * (2 * (bigQ d γ : ℤ))) +

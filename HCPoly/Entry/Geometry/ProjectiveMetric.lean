@@ -1,12 +1,19 @@
-import HCPoly.Entry.Geometry.LoewnerCongruence
+import HCPoly.Entry.Geometry.PositiveSqrtCongruence
 
 /-!
 # Metric support for the projective distance
 
-This module begins the O6/projective-metric support layer.  The spectral
-threshold definitions are the `specMin` and `specBound`; this file only
-packages the already-proved finite attainment information in the form consumed
-by the metric lemmas.
+For positive definite matrices `m₀ m₁ : Mat d`, the projective distance
+`projectiveDistance m₀ m₁` is half the logarithm of the optimal relative Loewner spread.
+The spectral thresholds `specMin` and `specBound` of the normalized relative matrix
+`normalizedMat m₀ m₁` are attained at its eigenvalues, and they are exactly the sharp
+lower and upper thresholds of the relative comparisons `t • m₀` against `m₁`, so the
+distance is `1 / 2 * Real.log (U / L)` for those two thresholds.  The distance is
+nonnegative, vanishes exactly on the positive-scalar equivalence classes, is invariant
+under positive scaling of its right endpoint, and satisfies the triangle inequality;
+from the identity it equals half the logarithm of the eccentricity `‖m‖ * ‖m⁻¹‖`.
+These are the metric facts used by `l.projective.step`, and the triangle inequality is
+used in the finite run of `p.global.selection`.
 -/
 
 open Homogenization.HighContrast (matLoewnerLE_smul_one_of_le matLoewnerLE_specBound_smul_one
@@ -79,7 +86,7 @@ private theorem matrixOrder_of_matLoewnerLE_of_isHermitian {A B : Mat d}
       (1 / 2 : ℝ) * dotProduct x (Matrix.mulVec A x) ≤
         (1 / 2 : ℝ) * dotProduct x (Matrix.mulVec B x) := by
     simpa [vecDot, matVecMul] using! hAB x
-  nlinarith
+  linarith only [hAB']
 
 private theorem matLoewnerLE_of_matrixOrder {A B : Mat d} (hAB : A ≤ B) :
     MatLoewnerLE A B := by
@@ -90,7 +97,7 @@ private theorem matLoewnerLE_of_matrixOrder {A B : Mat d} (hAB : A ≤ B) :
   have hnonneg : 0 ≤ dotProduct x (Matrix.mulVec (B - A) x) :=
     hBA.dotProduct_mulVec_nonneg x
   rw [Matrix.sub_mulVec, dotProduct_sub] at hnonneg
-  nlinarith
+  linarith only [hnonneg]
 
 private theorem matLoewnerLE_refl (A : Mat d) : MatLoewnerLE A A := by
   intro x
@@ -125,11 +132,11 @@ private theorem matLoewnerLE_smul_iff_of_pos {A B : Mat d} {c : ℝ} (hc : 0 < c
   · intro h x
     have hx := h x
     rw [vecDot_matVecMul_smul, vecDot_matVecMul_smul] at hx
-    nlinarith
+    nlinarith only [hx, hc]
   · intro h x
     have hx := h x
     rw [vecDot_matVecMul_smul, vecDot_matVecMul_smul]
-    nlinarith
+    nlinarith only [hx, hc]
 
 private theorem eigenvalue_mem_real_spectrum {M : Mat d} (hM : M.IsHermitian) (i : Fin d) :
     hM.eigenvalues i ∈ spectrum ℝ M := by
@@ -346,7 +353,7 @@ theorem projectiveDistance_eq_zero_iff {m₀ m₁ : Mat d} [NeZero d]
     obtain ⟨L, U, hL, hLU, hlow, hup, _hLdef, _hUdef, hdist⟩ :=
       projectiveDistance_eq_log_relative_spread h₀ h₁
     have hlog : Real.log (U / L) = 0 := by
-      nlinarith [hzero, hdist]
+      linarith only [hzero, hdist]
     have hUpos : 0 < U := lt_of_lt_of_le hL hLU
     have hratio_pos : 0 < U / L := div_pos hUpos hL
     have hratio : U / L = 1 := Real.eq_one_of_pos_of_log_eq_zero hratio_pos hlog
@@ -393,7 +400,12 @@ theorem projectiveDistance_triangle {m₀ m₁ m₂ : Mat d} [NeZero d]
   have hspread_le :
       U₀₂ / L₀₂ ≤ (U₀₁ * U₁₂) / (L₀₁ * L₁₂) := by
     rw [div_le_div_iff₀ hL₀₂ hLprod_pos]
-    nlinarith [hU_le_prod, hLprod_le, hL₀₂, hLprod_pos]
+    have hUp_nonneg : 0 ≤ U₀₁ * U₁₂ := le_trans (le_of_lt hU₀₂pos) hU_le_prod
+    calc
+      U₀₂ * (L₀₁ * L₁₂) ≤ (U₀₁ * U₁₂) * (L₀₁ * L₁₂) :=
+        mul_le_mul_of_nonneg_right hU_le_prod (le_of_lt hLprod_pos)
+      _ ≤ (U₀₁ * U₁₂) * L₀₂ :=
+        mul_le_mul_of_nonneg_left hLprod_le hUp_nonneg
   have hlog_le :
       Real.log (U₀₂ / L₀₂) ≤ Real.log ((U₀₁ * U₁₂) / (L₀₁ * L₁₂)) :=
     Real.log_le_log (div_pos hU₀₂pos hL₀₂) hspread_le

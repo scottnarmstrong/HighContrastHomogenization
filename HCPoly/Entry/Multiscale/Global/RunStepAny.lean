@@ -5,21 +5,15 @@ import HCPoly.Entry.SuccessfulShortBridge
 /-!
 # The `Selects` projections the run needs and the per-step case analysis
 
-`global_run` quantifies over an arbitrary `S : SelectionData` with `S.Selects d γ`. Three
-facts the run needs are carried by `Selects` as inequalities (never a selection):
-
-* `selects_two_bigQ_le_h` — `2 * bigQ d γ ≤ S.h` is conjunct **C1**, needed by the only
-  supplier of the Alt-3 propagation and span clauses,
-  `Provider.fixed_geometry_one_grid_propagation_full`;
-* `selects_one_le_L` — `1 ≤ S.L ε σ` is conjunct **C2a**, needed by `long_step_decrease.hL`;
-* the bridge sandwich at `δ = √ε σ`, `L = S.L ε σ` is conjunct **C3**, inside the same
-  `∃ C_src` group as the body, so the run applies it under its own `hsrcS`. The Skolemized
-  predicate `SelectsBridgeThresholds` this file used to carry is gone with it.
-
-`run_step_any` is the five-way case analysis of `Selects` at a run state: it produces
-the `hcont` and `hstep` binders of `run_exists_stop` from C1, C2a and C3. It is **proved
-completely** (standard axioms only); the assembly is in
-`HCPoly.Entry.Multiscale.Global.RunAssembly`.
+This module serves the scale-selection proposition `p.scale.selection`. The run quantifies
+over a selection datum `S : SelectionData` with `S.Selects d γ`, and the module extracts from
+`Selects` the three inequalities the run needs: `selects_two_bigQ_le_h` (`2 * bigQ d γ ≤ S.h`,
+the generation gap consumed by `Entry.fixed_geometry_one_grid_propagation_full`),
+`selects_one_le_L` (`1 ≤ S.L ε σ`, the scale gap needed by `long_step_decrease.hL`), and the
+bridge sandwich at `δ = √ε σ`, `L = S.L ε σ` under the run's source threshold. It then proves
+`run_step_any`, the five-way case analysis of `Selects` at a run state, which derives the
+containment `hcont` and step `hstep` binders of `run_exists_stop`; the remaining assembly is
+in `HCPoly.Entry.Multiscale.Global.RunAssembly`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio matPow matSqrt)
@@ -34,7 +28,7 @@ noncomputable section
 /-! ## §1 The three facts the run needs, carried by `Selects` -/
 
 /-- **C1 of `SelectionData.Selects`** (near `p.scale.selection`, `s.polynomial.entry.proof`): the generation gap is at
-least `2Q`, so `Provider.fixed_geometry_one_grid_propagation_full` applies at the step length. -/
+least `2Q`, so `Entry.fixed_geometry_one_grid_propagation_full` applies at the step length. -/
 theorem selects_two_bigQ_le_h (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ) (_hγ : γ ∈ Set.Ico (0 : ℝ) 1)
     (S : SelectionData) (hS : S.Selects d γ) :
     2 * bigQ d γ ≤ S.h := hS.2.1
@@ -69,8 +63,8 @@ private theorem geometryUpdate_eq_of_le {d : ℕ} [NeZero d] {m mStar : Mat d}
     have hθ : min (ε / projectiveDistance m mStar) 1 = 1 :=
       min_eq_right ((one_le_div hδ).mpr hle)
     have hN : (normalizedMat m mStar).PosDef := Geometry.normalizedMat_posDef hm hStar
-    have h1 : matSqrt m * matSqrt m⁻¹ = 1 := Annealed.matSqrt_mul_matSqrt_inv_full hm
-    have h2 : matSqrt m⁻¹ * matSqrt m = 1 := Annealed.matSqrt_inv_mul_matSqrt_full hm
+    have h1 : matSqrt m * matSqrt m⁻¹ = 1 := Homogenization.HighContrast.matSqrt_mul_matSqrt_inv hm
+    have h2 : matSqrt m⁻¹ * matSqrt m = 1 := Homogenization.HighContrast.matSqrt_inv_mul_matSqrt hm
     rw [geometryUpdate, if_neg hEq, hθ, matPow_one_of_posDef hN, normalizedMat]
     calc matSqrt m * (matSqrt m⁻¹ * mStar * matSqrt m⁻¹) * matSqrt m
         = matSqrt m * matSqrt m⁻¹ * mStar * (matSqrt m⁻¹ * matSqrt m) := by noncomm_ring
@@ -94,7 +88,7 @@ Route. Fix a state `st` with `st.i ≤ J`.
   determinant test fails and the RIGHT disjunct (the stop) when it succeeds, Alt-3
   synchronized is `run_step_sync` and Alt-3 long is `run_step_long`. The propagation clauses
   `hprop1`/`hspan` of `run_step_sync`/`run_step_failed_test`/`run_step_long` come from
-  `Provider.fixed_geometry_one_grid_propagation_full` under `hh`, and the bridge sandwiches
+  `Entry.fixed_geometry_one_grid_propagation_full` under `hh`, and the bridge sandwiches
   `hbr₁`/`hbr₂` of `run_step_change`/`run_step_failed_test` from `Selects`' conjunct C3; both source
   thresholds are discharged by `hsrc`.
 
@@ -163,7 +157,7 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
   have : NeZero d := ⟨by omega⟩
   obtain ⟨⟨Csel, hCsel, Cssrc, hCssrc, hsel, hbrC3⟩, -, -, -⟩ := hS
   obtain ⟨Cps, hCps, Cprop, hCprop, hprovider⟩ :=
-    Provider.fixed_geometry_one_grid_propagation_full d hd γ hγ
+    Entry.fixed_geometry_one_grid_propagation_full d hd γ hγ
   refine ⟨max Cssrc Cps, lt_max_of_lt_left hCssrc,
     max Csel Cprop, lt_max_of_lt_left hCsel, ?_⟩
   intro P E Ψ K Src hP hstat hunit hce ε σ B hε hσ hB H jStar hH hjStar hsrcAll
@@ -178,8 +172,8 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
   have hL1 : 1 ≤ S.L ε σ := hL ε σ hε hσ
   have hLR : (0 : ℝ) < (S.L ε σ : ℝ) := by
     have h1 : (1 : ℝ) ≤ (S.L ε σ : ℝ) := by exact_mod_cast hL1
-    linarith
-  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d hd γ hγ
+    linarith only [h1]
+  have hQ2 : 2 ≤ bigQ d γ := bigQ_two_le d γ hγ
   have hh1 : 1 ≤ S.h := by omega
   have hH4 : 4 ≤ H := le_trans (le_max_left 4 S.h) hH
   have hCselC : Csel ≤ C := le_trans (le_max_left _ _) hCbase
@@ -190,7 +184,7 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
     hsrcAll Cps hCps (le_max_right _ _)
   have hlog3 : (1 : ℝ) < Real.log 3 := by
     have h9 := Real.exp_one_lt_d9
-    have h3 : Real.exp 1 < 3 := by linarith
+    have h3 : Real.exp 1 < 3 := by linarith only [h9]
     have h4 := Real.log_lt_log (Real.exp_pos 1) h3
     rwa [Real.log_exp] at h4
   -- the conjunct-8 span propagation, at the run's own constant `C`
@@ -204,37 +198,38 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
           (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
             determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
             (Real.exp ((bigQ d γ : ℝ) *
-              logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) - 1)) := by
+              detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) - 1)) := by
     intro Lz hLz metric hmetric n m hn hnm hguard hone
     have hraw := (hprovider P E Ψ K Src hP hstat hunit hce S.h hh Lz hLz jStar hjStar hsrcP
       metric hmetric n m hn hnm).2.2.2.2.2.2.2 hguard hone
     have hx0 : 0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m :=
-      profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hstat hce jStar hjStar
+      profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hstat hce jStar hjStar
         metric hmetric n m hn hnm
-    have hD0 : 0 ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz) :=
+    have hD0 : 0 ≤ detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz) :=
       Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hstat hce jStar hjStar metric hmetric
         m (m + Lz) (le_trans hn hnm) (by omega)
     have hexp : (1 : ℝ) ≤ Real.exp ((bigQ d γ : ℝ) *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) :=
+        detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) :=
       Real.one_le_exp (mul_nonneg (Nat.cast_nonneg _) hD0)
     have hLzR : (0 : ℝ) ≤ (Lz : ℝ) := by exact_mod_cast (by omega : (0 : ℤ) ≤ Lz)
     have hB0 : 0 ≤ profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
         Real.exp ((bigQ d γ : ℝ) *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) - 1 := by linarith
+          detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) - 1 := by
+      linarith only [hx0, hexp]
     have hmono : Cprop * (Lz : ℝ) *
         (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
           Real.exp ((bigQ d γ : ℝ) *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) - 1) ≤
+            detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) - 1) ≤
         C * (Lz : ℝ) *
         (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
           Real.exp ((bigQ d γ : ℝ) *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) - 1) :=
+            detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + Lz)) - 1) :=
       mul_le_mul_of_nonneg_right (mul_le_mul_of_nonneg_right hCpropC hLzR) hB0
-    linarith
+    linarith only [hraw, hmono]
   -- (1) the containment clause
   have hcontFull : ∀ st : RunState P γ S ε σ B E H jStar n₀, st.i ≤ J →
       HighContrast.adaptedCell (Geometry.explicitRoundedGrid jStar st.m)
@@ -251,7 +246,7 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
     have hprm := st.hpr
     rw [Geometry.projectiveDistance_one_eq_log_eccentricity st.hm] at hprm
     have hiR : ((st.i : ℝ)) ≤ (J : ℝ) := by exact_mod_cast hiJ
-    have hslack : 0 ≤ ε * ((J : ℝ) - (st.i : ℝ)) := mul_nonneg hεpos.le (by linarith)
+    have hslack : 0 ≤ ε * ((J : ℝ) - (st.i : ℝ)) := mul_nonneg hεpos.le (by linarith only [hiR])
     have htri := Geometry.projectiveDistance_triangle
       (Matrix.PosDef.one : (1 : Mat d).PosDef) st.hm hmPlusPD
     rw [Geometry.projectiveDistance_one_eq_log_eccentricity st.hm,
@@ -261,7 +256,7 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
     have hgrow := mul_le_mul_of_nonneg_left hiZ hDnn
     have hgen1 : st.n ≤ n₀ + (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * ((J : ℤ) + 1) := by
       have h := st.hgen
-      linarith
+      linarith only [h, hgrow]
     have hexp2 : (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * ((J : ℤ) + 2)
         = (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * ((J : ℤ) + 1) +
           (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) := by ring
@@ -276,16 +271,18 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
       have h := hcontA (j + 1) hj
       have hc1 : (((j + 1 : ℤ)) : ℝ) = (j : ℝ) + 1 := by push_cast; ring
       rw [hc1] at h
-      have hlog3pos : (0 : ℝ) < Real.log 3 := by linarith
-      have he1 : ε / Real.log 3 ≤ 1 := by rw [div_le_one hlog3pos]; linarith
+      have hlog3pos : (0 : ℝ) < Real.log 3 := by linarith only [hlog3]
+      have he1 : ε / Real.log 3 ≤ 1 := by rw [div_le_one hlog3pos]; linarith only [hε1, hlog3]
       have he2 : ε * ((J : ℝ) + 2) / Real.log 3
           = ε * ((J : ℝ) + 1) / Real.log 3 + ε / Real.log 3 := by
         field_simp; ring
-      linarith
+      linarith only [h, he1, he2]
     exact run_entry_containment hd jStar hjStar st.m _ st.hm hmPlusPD
       (st.n + 2 * (S.L ε σ : ℤ)) (st.n + (S.L ε σ : ℤ)) (ε * ((J : ℝ) + 2))
-      (by positivity) (by linarith) (by linarith)
-      (hbudget _ (by linarith)) (hbudget _ (by linarith))
+      (by positivity) (by linarith only [hprm, hslack, hεpos])
+        (by linarith only [htri, hprm, hstepd, hslack, hεpos])
+      (hbudget _ (by linarith only [hgen1, hexp2, hHz, hhz]))
+        (hbudget _ (by linarith only [hgen1, hexp2, hHz, hhz, hLzz]))
   refine ⟨hcontFull, ?_⟩
   -- (2) the five-way step analysis
   intro st hiJ
@@ -303,12 +300,12 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
   · exact absurd h1.1.1 (ne_of_lt st.hlt)
   · -- Alternative 1, service
     obtain ⟨⟨hlt2, hbig2, hobst2, hprop2⟩, _hecc2, hone2, hgap2⟩ := h2
-    have hDh0 : 0 ≤ synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar st.m) (S.h : ℤ) st.n :=
+    have hDh0 : 0 ≤ synchCharge P (Geometry.explicitRoundedGrid jStar st.m) (S.h : ℤ) st.n :=
       synchronizedLogDetLoss_nonneg d hd P γ E Ψ K Src hstat hce jStar hjStar st.m st.hm
         (S.h : ℤ) st.n (Nat.cast_nonneg _) (by have h1 := st.hk; omega)
     obtain ⟨st', -, -, -, hi', hg'⟩ := run_step_service hd γ hγ P E Ψ K Src hP hstat hunit hce
       S ε σ B hε hσ H jStar hjStar n₀ a c C w hC ha hw hcc st st.hlt hbig2
-      (by linarith [hprop2, mul_le_mul_of_nonneg_right hCselC hDh0]) hone2 hgap2
+      (by linarith only [hprop2, mul_le_mul_of_nonneg_right hCselC hDh0]) hone2 hgap2
     exact Or.inl ⟨st', hi', hg'⟩
   · -- Alternative 2, change of geometry
     obtain ⟨⟨hlt3, hsmall3, hlong3, houtP3⟩, heccP3, honeP3, hgapP3⟩ := h3
@@ -323,9 +320,9 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
     -- the smallness premise of C3 in its printed `(c+d)εσ` form (`p.scale.selection`)
     have hsmallBr : profile P γ (Geometry.explicitRoundedGrid jStar st.m) jStar st.k st.n +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar st.m) jStar st.n +
-          logDetLoss P (Geometry.explicitRoundedGrid jStar st.m) st.n
+          detIncrement P (Geometry.explicitRoundedGrid jStar st.m) st.n
             (st.n + 2 * (S.L ε σ : ℤ)) ≤ (S.c + (d : ℝ)) * ε * σ := by
-      have hD : logDetLoss P (Geometry.explicitRoundedGrid jStar st.m) st.n
+      have hD : detIncrement P (Geometry.explicitRoundedGrid jStar st.m) st.n
           (st.n + 2 * (S.L ε σ : ℤ)) ≤ (d : ℝ) * (ε * σ) := (inv_mul_le_iff₀ hdR).mp hlong3
       have h3' : profile P γ (Geometry.explicitRoundedGrid jStar st.m) jStar st.k st.n +
           determinantDrift P γ (Geometry.explicitRoundedGrid jStar st.m) jStar st.n ≤
@@ -342,7 +339,7 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
         explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
           (st.n + 2 * (S.L ε σ : ℤ)))
     · by_cases htest : (d : ℝ)⁻¹ *
-          logDetLoss P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
+          detIncrement P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
             (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
               (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ))
             (st.n + (S.L ε σ : ℤ) + (H : ℤ)) < σ
@@ -393,7 +390,7 @@ theorem run_step_any {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico (
     obtain ⟨⟨hlt5, hsmall5, hobst5⟩, _hecc5, hone5, hgap5⟩ := h5
     have hone1 : profile P γ (Geometry.explicitRoundedGrid jStar st.m) jStar st.k st.n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar st.m) jStar st.n ≤ 1 :=
-      le_trans hsmall5 (SelectionData_eta_le_one S ε σ hε hσ)
+      le_trans hsmall5 (selectionData_eta_le_one S ε σ hε hσ)
     have hLz1 : (1 : ℤ) ≤ 2 * (S.L ε σ : ℤ) := by
       have h1 : (1 : ℤ) ≤ (S.L ε σ : ℤ) := by exact_mod_cast hL1
       omega

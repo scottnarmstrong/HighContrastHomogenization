@@ -3,7 +3,7 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Response.CenteredResponseBounds
+import HCPoly.Provider.Response.CenteredResponseTrace
 
 /-!
 # The absolute centered-response bound
@@ -180,71 +180,6 @@ theorem bddAbove_absolute_centeredResponses
   rw [hminus, hplus, hpr, hadj]
   exact add_le_add (abs_quadratic_le_norm Apr he)
     (abs_quadratic_le_norm Aadj he)
-
-/-- The corrected absolute centered-response estimate. -/
-theorem centeredResponse_absolute_bound
-    {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P] (hd : 2 ≤ d)
-    (U : Domain d) (hint : HasIntegrableCoarseBlock P (U : Set (Vec d)))
-    {S SStar K : Mat d} (hS : S.PosDef) (hStar : SStar.PosDef)
-    (hE : toFullBlockMat (annealedBlock P (U : Set (Vec d))) =
-      schurBlock S SStar K) :
-    ‖matSqrt SStar⁻¹ * centeredResponseBlock S SStar K *
-          matSqrt SStar⁻¹ - 1‖ ≤
-      2 * (d : ℝ) *
-        sSup
-          ((fun e : Vec d =>
-              |centeredResponse P U (centeredResponseLoadP S SStar K e)
-                (centeredResponseLoadQ S SStar K e -
-                  responseSkew K *ᵥ centeredResponseLoadP S SStar K e)| +
-              |centeredAdjointResponse P U (centeredResponseLoadP S SStar K e)
-                (centeredResponseLoadQ S SStar K e +
-                  responseSkew K *ᵥ centeredResponseLoadP S SStar K e)|) ''
-            {e : Vec d | e ⬝ᵥ e = 1}) := by
-  let R : ℝ := sSup
-    ((fun e : Vec d => centeredResponseTraceValue P U S SStar K e) ''
-      {e : Vec d | e ⬝ᵥ e = 1})
-  let Rabs : ℝ := sSup
-    ((fun e : Vec d =>
-        |centeredResponse P U (centeredResponseLoadP S SStar K e)
-          (centeredResponseLoadQ S SStar K e -
-            responseSkew K *ᵥ centeredResponseLoadP S SStar K e)| +
-        |centeredAdjointResponse P U (centeredResponseLoadP S SStar K e)
-          (centeredResponseLoadQ S SStar K e +
-            responseSkew K *ᵥ centeredResponseLoadP S SStar K e)|) ''
-      {e : Vec d | e ⬝ᵥ e = 1})
-  have habsBdd := bddAbove_absolute_centeredResponses U hint hStar hE
-  have hd0 : 0 < d := lt_of_lt_of_le (by norm_num) hd
-  let i0 : Fin d := ⟨0, hd0⟩
-  let e0 : Vec d := Pi.single i0 (1 : ℝ)
-  have he0 : e0 ⬝ᵥ e0 = 1 := by
-    simp [e0, dotProduct, Pi.single_apply, mul_ite, Finset.sum_ite_eq']
-  have hnonempty :
-      ((fun e : Vec d => centeredResponseTraceValue P U S SStar K e) ''
-        {e : Vec d | e ⬝ᵥ e = 1}).Nonempty :=
-    ⟨centeredResponseTraceValue P U S SStar K e0, ⟨e0, he0, rfl⟩⟩
-  have hsup : R ≤ Rabs := by
-    apply csSup_le hnonempty
-    intro x hx
-    rcases hx with ⟨e, he, rfl⟩
-    change e ⬝ᵥ e = 1 at he
-    have habsLe : centeredResponseTraceValue P U S SStar K e ≤
-        |centeredResponse P U (centeredResponseLoadP S SStar K e)
-          (centeredResponseLoadQ S SStar K e -
-            responseSkew K *ᵥ centeredResponseLoadP S SStar K e)| +
-        |centeredAdjointResponse P U (centeredResponseLoadP S SStar K e)
-          (centeredResponseLoadQ S SStar K e +
-            responseSkew K *ᵥ centeredResponseLoadP S SStar K e)| := by
-      rw [centeredResponseTraceValue]
-      exact add_le_add (le_abs_self _) (le_abs_self _)
-    refine habsLe.trans (le_csSup habsBdd ?_)
-    exact ⟨e, he, rfl⟩
-  have htrace := centeredResponse_trace_bound U hint hS hStar hE
-  change ‖matSqrt SStar⁻¹ * centeredResponseBlock S SStar K *
-      matSqrt SStar⁻¹ - 1‖ ≤ 2 * (d : ℝ) * R at htrace
-  change ‖matSqrt SStar⁻¹ * centeredResponseBlock S SStar K *
-      matSqrt SStar⁻¹ - 1‖ ≤ 2 * (d : ℝ) * Rabs
-  exact htrace.trans
-    (mul_le_mul_of_nonneg_left hsup (by positivity : 0 ≤ 2 * (d : ℝ)))
 
 end
 

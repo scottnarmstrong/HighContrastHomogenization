@@ -6,7 +6,7 @@ import HCPoly.Entry.ProjectiveStep
 import HCPoly.Entry.Geometry.BridgeEccentricity
 import HCPoly.Entry.Geometry.CanonicalMetricBounds
 import HCPoly.Entry.Geometry.ProjectiveStep
-import HCPoly.Entry.Annealed.LogDetOrder
+import HCPoly.Entry.Annealed.AnnealedBlockOrder
 import HCPoly.Entry.Annealed.ShortBridge
 import HCPoly.Entry.Annealed.BridgeBoundarySum
 import HCPoly.Entry.Multiscale.SelectionExponentBounds
@@ -48,7 +48,7 @@ noncomputable section
 
 /-! ### The consumed statement bodies, after their constants -/
 
-/-- The body of `Provider.fixed_geometry_one_grid_propagation_full` (`HCPoly/Entry/Statements/OneGridPropagation.lean`)
+/-- The body of `Entry.fixed_geometry_one_grid_propagation_full` (`HCPoly/Entry/Statements/OneGridPropagation.lean`)
 after `∃ Csrc, 0 < Csrc ∧ ∃ C, 0 < C ∧`, verbatim. -/
 def OneGridBody (d : ℕ) (γ Csrc C : ℝ) : Prop :=
   ∀ (P : Measure (CoeffSpace d)) (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ)
@@ -69,12 +69,12 @@ def OneGridBody (d : ℕ) (γ Csrc C : ℝ) : Prop :=
                   profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n (m + (h : ℤ)) ≤
                     1 / 8 *
                         Real.exp ((bigQ d γ : ℝ) *
-                          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                          synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                             (h : ℤ) m) *
                         profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                       C *
                         (Real.exp ((bigQ d γ : ℝ) *
-                            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                            synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                               (h : ℤ) m) - 1)) ∧
                 (n + (h : ℤ) ≤ m →
                   profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m ≤ 1 →
@@ -82,14 +82,14 @@ def OneGridBody (d : ℕ) (γ Csrc C : ℝ) : Prop :=
                       C * (L : ℝ) *
                         (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                           Real.exp ((bigQ d γ : ℝ) *
-                            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1)) ∧
+                            detIncrement P (Geometry.explicitRoundedGrid jStar metric) m (m + L)) - 1)) ∧
                 (m = n →
                   history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n ≤ 1 →
                     profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n (n + L) ≤
                       C * (L : ℝ) *
                         (history P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
                           Real.exp ((bigQ d γ : ℝ) *
-                            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1)) ∧
+                            detIncrement P (Geometry.explicitRoundedGrid jStar metric) n (n + L)) - 1)) ∧
                 fluctuationHistory P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
                       meanHistory P γ (Geometry.explicitRoundedGrid jStar metric) (jStar : ℤ) m +
                       determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m ≤
@@ -101,21 +101,21 @@ def OneGridBody (d : ℕ) (γ Csrc C : ℝ) : Prop :=
                         (m + (h : ℤ)) ≤
                     1 / 8 *
                         Real.exp ((bigQ d γ : ℝ) *
-                          synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                          synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                             (h : ℤ) m) *
                         (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                           determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m) +
                       C *
                         (Real.exp ((bigQ d γ : ℝ) *
-                            synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                            synchCharge P (Geometry.explicitRoundedGrid jStar metric)
                               (h : ℤ) m) - 1)) ∧
                 (∀ m₀ : ℤ, (jStar : ℤ) + (h : ℤ) ≤ m₀ →
                   ∀ Ksteps : ℕ, 1 ≤ Ksteps →
                     ∑ k ∈ Finset.range Ksteps,
-                        synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ)
+                        synchCharge P (Geometry.explicitRoundedGrid jStar metric) (h : ℤ)
                           (m₀ + (k : ℤ) * (h : ℤ)) ≤
                       (h : ℝ) *
-                        logDetLoss P (Geometry.explicitRoundedGrid jStar metric)
+                        detIncrement P (Geometry.explicitRoundedGrid jStar metric)
                           (m₀ + 1 - (h : ℤ)) (m₀ + (Ksteps : ℤ) * (h : ℤ))) ∧
                 ((m = n ∨ n + (h : ℤ) ≤ m) →
                   profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
@@ -126,10 +126,10 @@ def OneGridBody (d : ℕ) (γ Csrc C : ℝ) : Prop :=
                         (profile P γ (Geometry.explicitRoundedGrid jStar metric) jStar n m +
                           determinantDrift P γ (Geometry.explicitRoundedGrid jStar metric) jStar m +
                           Real.exp ((bigQ d γ : ℝ) *
-                            logDetLoss P (Geometry.explicitRoundedGrid jStar metric) m
+                            detIncrement P (Geometry.explicitRoundedGrid jStar metric) m
                               (m + L)) - 1))
 
-/-- The body of `Provider.two_grid_transport` (`HCPoly/Entry/Statements/TwoGridTransport.lean`) after
+/-- The body of `Entry.two_grid_transport` (`HCPoly/Entry/Statements/TwoGridTransport.lean`) after
 `∃ C, 1 ≤ C ∧ ∃ Csrc, 0 < Csrc ∧`, verbatim. -/
 def TransportBody (d : ℕ) (γ C Csrc : ℝ) : Prop :=
   ∀ ρ : ℝ, ρ ∈ Set.Ioc (0 : ℝ) 1 →
@@ -171,7 +171,7 @@ def TransportBody (d : ℕ) (γ C Csrc : ℝ) : Prop :=
                     (n + (L : ℤ)) ≤
                 C * (δ + ρ)
 
-/-- The body of `Provider.successful_short_bridge` (`HCPoly/Entry/Statements/SuccessfulShortBridge.lean`) after
+/-- The body of `Entry.successful_short_bridge` (`HCPoly/Entry/Statements/SuccessfulShortBridge.lean`) after
 `∃ L₀ c₀, c₀ ∈ Ioo 0 1 ∧ ∃ Csrc, 0 < Csrc ∧`, with the inner `∃ B₀` Skolemized into the
 function `B₀ : ℝ → ℕ → ℝ` of `(σ, L)`; otherwise verbatim. -/
 def BridgeBody (d : ℕ) (γ : ℝ) (L₀ : ℕ) (c₀ Csrc : ℝ) (B₀ : ℝ → ℕ → ℝ) : Prop :=
@@ -200,7 +200,7 @@ def BridgeBody (d : ℕ) (γ : ℝ) (L₀ : ℕ) (c₀ Csrc : ℝ) (B₀ : ℝ �
               projectiveDistance m mPlus ≤ 1 →
               profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
                     determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
-                  logDetLoss P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤
+                  detIncrement P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤
                 c₀ * σ →
               BlockMatLoewnerLE
                   (blockScale (1 - σ)

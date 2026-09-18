@@ -43,12 +43,12 @@ theorem fluctuationHistory_decompose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
             fluctuationHistory P γ (Geometry.explicitRoundedGrid jStar metric) jStar m ≤
               (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (n : ℝ))) *
                   (1 + meanPenalty (bigQ d γ)
-                    (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n m)) *
+                    (relMean P (Geometry.explicitRoundedGrid jStar metric) n m)) *
                   fluctuationHistory P γ (Geometry.explicitRoundedGrid jStar metric) jStar n +
                 ∑ j ∈ Finset.Icc (n + 1) m,
                   (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
                       Real.exp ((bigQ d γ : ℝ) *
-                        logDetLoss P (Geometry.explicitRoundedGrid jStar metric) j m) *
+                        detIncrement P (Geometry.explicitRoundedGrid jStar metric) j m) *
                     ∫ a, absSchattenNorm (bigQ d γ : ℝ)
                         (normalizedFluctuationSelf P
                           (Geometry.explicitRoundedGrid jStar metric) j a) ^ bigQ d γ ∂P := by
@@ -65,9 +65,9 @@ theorem fluctuationHistory_decompose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let H (k : ℤ) (a : CoeffSpace d) :=
     ⨆ j ∈ Set.Icc (jStar : ℤ) k, w j k * ⨆ z ∈ Z j k, v j k z a
   let M (j : ℤ) := ∫ a, absSchattenNorm (Q : ℝ) (normalizedFluctuationSelf P q j a) ^ Q ∂P
-  let B := 1 + meanPenalty Q (normalizedMean P q n m)
+  let B := 1 + meanPenalty Q (relMean P q n m)
   have hQ : (1 : ℝ) ≤ (Q : ℝ) := by
-    exact_mod_cast (show 1 ≤ Q from le_trans (by norm_num) (bigQ_two_le d hd γ hγ))
+    exact_mod_cast (show 1 ≤ Q from le_trans (by norm_num) (bigQ_two_le d γ hγ))
   have hq : IsUnit q := Geometry.isUnit_roundedGrid hjStar hmetric
   have hw (j k : ℤ) : 0 < w j k := Real.rpow_pos_of_pos (by norm_num) _
   have hv (j k : ℤ) (z : Vec d) (a : CoeffSpace d) : 0 ≤ v j k z a :=
@@ -81,7 +81,7 @@ theorem fluctuationHistory_decompose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     oneGrid_integrable_opNorm_pow P Q hQ _ (hmem j k z)
   have hfin (j k : ℤ) (hjk : j ≤ k) : (Z j k).Finite :=
     (oneGrid_centers_finite_card q hq j k hjk).1
-  have houter (k : ℤ) := oneGrid_fluctuation_integrable_dominate d hd γ hγ P E Ψ K S
+  have houter (k : ℤ) := oneGrid_fluctuation_integrable_dominate d hd γ P E Ψ K S
     hstat hdag jStar hjStar metric hmetric k
   have hB : 0 ≤ B := by
     have hp := (Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
@@ -116,7 +116,7 @@ theorem fluctuationHistory_decompose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       n m hn hnm C (hfin n m hnm).coe_toFinset τ hτ a j hj hjn z hz
   have hupperMoment (j : ℤ) (hj : (jStar : ℤ) ≤ j) (hjm : j ≤ m)
       (z : Vec d) (hz : z ∈ Z j m) :
-      (∫ a, v j m z a ∂P) ≤ Real.exp ((Q : ℝ) * logDetLoss P q j m) * M j :=
+      (∫ a, v j m z a ∂P) ≤ Real.exp ((Q : ℝ) * detIncrement P q j m) * M j :=
     oneGrid_lattice_moment_le d hd γ hγ P E Ψ K S hstat hdag
       jStar hjStar metric hmetric j m hj hjm z hz.1
   have htotal : (∫ a, H m a ∂P) ≤ (∫ a, L a ∂P) +
@@ -158,24 +158,24 @@ theorem fluctuationHistory_decompose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hUbound (j : ℤ) (hj : j ∈ Finset.Icc (n + 1) m) :
       (∫ a, U j a ∂P) ≤
         (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-          Real.exp ((Q : ℝ) * logDetLoss P q j m) * M j := by
+          Real.exp ((Q : ℝ) * detIncrement P q j m) * M j := by
     have hjm := (Finset.mem_Icc.mp hj).2
     have hj' : (jStar : ℤ) ≤ j := by have := (Finset.mem_Icc.mp hj).1; omega
     have hM : 0 ≤ M j := integral_nonneg fun _ => (bigQ_even d γ).pow_nonneg _
     have hs : (∫ a, U j a ∂P) ≤
         (w j m * ((hfin j m hjm).toFinset.card : ℝ)) *
-          (Real.exp ((Q : ℝ) * logDetLoss P q j m) * M j) := by
+          (Real.exp ((Q : ℝ) * detIncrement P q j m) * M j) := by
       dsimp only [U]
       rw [dif_pos hjm, integral_const_mul, integral_finsetSum _ (fun z _ => hint j m z)]
       calc
         _ ≤ w j m * ∑ _z ∈ (hfin j m hjm).toFinset,
-            (Real.exp ((Q : ℝ) * logDetLoss P q j m) * M j) :=
+            (Real.exp ((Q : ℝ) * detIncrement P q j m) * M j) :=
           mul_le_mul_of_nonneg_left (Finset.sum_le_sum (fun z hz =>
             hupperMoment j hj' hjm z ((hfin j m hjm).mem_toFinset.mp hz))) (hw j m).le
         _ = _ := by rw [Finset.sum_const, nsmul_eq_mul]; ring
     calc
       _ ≤ _ := hs
-      _ ≤ _ * (Real.exp ((Q : ℝ) * logDetLoss P q j m) * M j) :=
+      _ ≤ _ * (Real.exp ((Q : ℝ) * detIncrement P q j m) * M j) :=
         mul_le_mul_of_nonneg_right (hcount j hjm) (mul_nonneg (Real.exp_nonneg _) hM)
       _ = _ := by ring
   exact htotal.trans (add_le_add hLbound (Finset.sum_le_sum hUbound))
@@ -207,7 +207,7 @@ theorem fluctuationHistory_le_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hpen := (Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
     jStar hjStar metric hmetric n m hn hnm).2.2.2.2.2
   have hc : 0 ≤ (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (n : ℝ))) *
-      (1 + meanPenalty (bigQ d γ) (normalizedMean P q n m)) :=
+      (1 + meanPenalty (bigQ d γ) (relMean P q n m)) :=
     mul_nonneg (Real.rpow_nonneg (by norm_num) _) (by linarith only [hpen])
   have hextra := mul_nonneg hc hm0
   unfold profile history
@@ -229,20 +229,20 @@ theorem meanHistory_lower_part_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
             ∑ j ∈ Finset.Ico (jStar : ℤ) n,
                 (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - 1 - (j : ℝ))) *
                   meanPenalty (bigQ d γ)
-                    (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) j m) ≤
+                    (relMean P (Geometry.explicitRoundedGrid jStar metric) j m) ≤
               (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (n : ℝ))) *
                   (1 + meanPenalty (bigQ d γ)
-                    (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n m)) *
+                    (relMean P (Geometry.explicitRoundedGrid jStar metric) n m)) *
                   meanHistory P γ (Geometry.explicitRoundedGrid jStar metric) (jStar : ℤ) n +
                 (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (n : ℝ))) *
                   meanPenalty (bigQ d γ)
-                    (normalizedMean P (Geometry.explicitRoundedGrid jStar metric) n m) *
+                    (relMean P (Geometry.explicitRoundedGrid jStar metric) n m) *
                   ∑ j ∈ Finset.Ico (jStar : ℤ) n,
                     (3 : ℝ) ^ (-((1 - γ) / 4) * ((n : ℝ) - 1 - (j : ℝ))) := by
   intro P E Ψ K S hP hstat hunit hdag jStar hjStar metric hmetric n m hn hnm
   set q := Geometry.explicitRoundedGrid jStar metric
   let w : ℝ → ℝ := fun x => (3 : ℝ) ^ (-((1 - γ) / 4) * x)
-  let p : ℤ → ℤ → ℝ := fun j k => meanPenalty (bigQ d γ) (normalizedMean P q j k)
+  let p : ℤ → ℤ → ℝ := fun j k => meanPenalty (bigQ d γ) (relMean P q j k)
   have hsplit (j : ℤ) : w ((m : ℝ) - 1 - (j : ℝ)) =
       w ((m : ℝ) - (n : ℝ)) * w ((n : ℝ) - 1 - (j : ℝ)) := by
     dsimp only [w]
@@ -297,7 +297,7 @@ theorem meanHistory_le_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let := hP
   set q := Geometry.explicitRoundedGrid jStar metric
   let W := (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (n : ℝ)))
-  let T := meanPenalty (bigQ d γ) (normalizedMean P q n m)
+  let T := meanPenalty (bigQ d γ) (relMean P q n m)
   let R := meanHistory P γ q n m
   let A := W * (1 + T) * history P γ q jStar n
   have hW : 0 ≤ W := Real.rpow_nonneg (by norm_num) _
@@ -324,7 +324,7 @@ theorem meanHistory_le_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hA : 0 ≤ A := mul_nonneg (mul_nonneg hW (by linarith only [hT])) hhistory
   have hsum : 0 ≤ ∑ j ∈ Finset.Icc (n + 1) m,
       (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) *
-      Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j m) *
+      Real.exp ((bigQ d γ : ℝ) * detIncrement P q j m) *
       ∫ a, absSchattenNorm (bigQ d γ : ℝ) (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P :=
     Finset.sum_nonneg fun j _ => mul_nonneg
       (mul_nonneg (Real.rpow_nonneg (by norm_num) _) (Real.exp_nonneg _))
@@ -346,7 +346,7 @@ theorem meanHistory_le_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     · have hlt : n < m := lt_of_le_of_ne hnm heq
       have hterm (j : ℤ) (hj : j ∈ Finset.Ico n m) : 0 ≤
           (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - 1 - (j : ℝ))) *
-            meanPenalty (bigQ d γ) (normalizedMean P q j m) := by
+            meanPenalty (bigQ d γ) (relMean P q j m) := by
         apply mul_nonneg (Real.rpow_nonneg (by norm_num) _)
         exact (Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
           jStar hjStar metric hmetric j m (hn.trans (Finset.mem_Ico.mp hj).1)
@@ -381,7 +381,7 @@ theorem meanHistory_le_profile (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hsplit : meanHistory P γ q (jStar : ℤ) m =
       (∑ j ∈ Finset.Ico (jStar : ℤ) n,
         (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - 1 - (j : ℝ))) *
-          meanPenalty (bigQ d γ) (normalizedMean P q j m)) + R := by
+          meanPenalty (bigQ d γ) (relMean P q j m)) + R := by
     unfold meanHistory
     rw [hset, Finset.sum_union hdisj]
     rfl
@@ -456,7 +456,7 @@ theorem carried_history_majorization (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     intro _hz
     exact (bigQ_even d γ).pow_nonneg _
   have hp : 0 ≤ profile P γ q jStar n m := hf0.trans hf
-  have hD := determinantDrift_nonneg d hd γ hγ P E Ψ K S hP hstat hunit hdag
+  have hD := determinantDrift_nonneg d hd γ P E Ψ K S hP hstat hunit hdag
     jStar hjStar metric hmetric m
   have hCD := mul_nonneg hC.le hD
   unfold history at hh

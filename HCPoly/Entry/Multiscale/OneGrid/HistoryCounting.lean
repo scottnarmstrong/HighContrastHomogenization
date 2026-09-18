@@ -114,17 +114,17 @@ theorem oneGrid_centers_finite_card {d : ℕ} (q : Mat d) (hq : IsUnit q)
     constructor
     · rintro ⟨⟨w, rfl⟩, hw⟩
       refine ⟨w, ?_, rfl⟩
-      rw [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter] at hw
+      rw [Recurrence.adaptedCellCenter_eq] at hw
       obtain ⟨x, hx, he⟩ := hw
       change HighContrast.standardCellCenter j w ∈ HighContrast.centeredCube d m
       exact hqinj he ▸ hx
     · rintro ⟨w, hw, rfl⟩
       refine ⟨⟨w, rfl⟩, ?_⟩
-      rw [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter]
+      rw [Recurrence.adaptedCellCenter_eq]
       exact ⟨_, hw, rfl⟩
   have hinj : Function.Injective (adaptedCellCenter q j) := by
     intro v w hvw
-    simp only [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter] at hvw
+    simp only [Recurrence.adaptedCellCenter_eq] at hvw
     have hh := hqinj hvw
     funext i
     have hi := congrFun hh i
@@ -144,7 +144,7 @@ theorem oneGrid_centers_decompose {d : ℕ} (q : Mat d) (hq : IsUnit q)
   have hqinj : Function.Injective (matVecMul q) := Matrix.mulVec_injective_iff_isUnit.mpr hq
   obtain ⟨⟨w, rfl⟩, hw⟩ := hz
   have hw' : HighContrast.standardCellCenter j w ∈ HighContrast.centeredCube d m := by
-    rw [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter] at hw
+    rw [Recurrence.adaptedCellCenter_eq] at hw
     obtain ⟨x, hx, he⟩ := hw
     exact hqinj he ▸ hx
   have hancestor (h : ℕ) : ∃ v : Fin d → ℤ,
@@ -153,21 +153,21 @@ theorem oneGrid_centers_decompose {d : ℕ} (q : Mat d) (hq : IsUnit q)
     | zero => exact ⟨w, by simp⟩
     | succ h ih =>
       obtain ⟨v, hv⟩ := ih
-      refine ⟨Geometry.parentIndex v, ?_⟩
+      refine ⟨Transport.gridParent v, ?_⟩
       simpa only [Nat.cast_add, Nat.cast_one, ← add_assoc] using
-        hv.trans (Geometry.standardCell_subset_parent (j + h) v)
+        hv.trans (Transport.standardCell_subset_parent (j + h) v)
   obtain ⟨v, hv⟩ := hancestor (n - j).toNat
   have hnj : j + ((n - j).toNat : ℤ) = n := by omega
   rw [hnj] at hv
-  have hwv := hv (Geometry.standardCellCenter_mem j w)
+  have hwv := hv (Recurrence.standardCellCenter_mem_standardCell j w)
   have hvsub : HighContrast.standardCell d n v ⊆ HighContrast.centeredCube d m := by
     rw [Geometry.centeredCube_eq_standardCell] at hw' ⊢
     exact Geometry.standardCell_subset_of_mem hnm hwv hw'
   refine ⟨adaptedCellCenter q n v, ⟨⟨v, rfl⟩, ?_⟩, ?_, ?_⟩
-  · rw [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter]
-    exact ⟨_, hvsub (Geometry.standardCellCenter_mem n v), rfl⟩
+  · rw [Recurrence.adaptedCellCenter_eq]
+    exact ⟨_, hvsub (Recurrence.standardCellCenter_mem_standardCell n v), rfl⟩
   · refine ⟨fun i => w i - (3 : ℤ) ^ (n - j).toNat * v i, ?_⟩
-    simp only [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter,
+    simp only [Recurrence.adaptedCellCenter_eq,
       Geometry.matVecMul_eq_mulVec]
     rw [← Matrix.mulVec_sub]
     congr 1
@@ -179,13 +179,13 @@ theorem oneGrid_centers_decompose {d : ℕ} (q : Mat d) (hq : IsUnit q)
     rw [hpow]
     ring
   · refine ⟨HighContrast.standardCellCenter j w - HighContrast.standardCellCenter n v, ?_, ?_⟩
-    · rw [Geometry.mem_centeredCube_iff]
-      rw [Geometry.mem_standardCell_iff] at hwv
+    · rw [Recurrence.mem_centeredCube_iff]
+      rw [Recurrence.mem_standardCell_iff] at hwv
       intro i
       have hi := hwv i
       simp only [Pi.sub_apply, HighContrast.standardCellCenter] at hi ⊢
       constructor <;> linarith only [hi.1, hi.2]
-    · simp only [Geometry.adaptedCellCenter_eq_matVecMul_standardCellCenter,
+    · simp only [Recurrence.adaptedCellCenter_eq,
         Geometry.matVecMul_eq_mulVec, Matrix.mulVec_sub]
 
 /-- Stationarity transports an entire scalar integrand, including its joint supremum.
@@ -201,12 +201,12 @@ theorem oneGrid_integral_translate {d : ℕ} (P : Measure (CoeffSpace d))
 
 /-- The scale-cell count is absorbed with coefficient one in the decay of carried history,
 `p.fixed.geometry.one.grid.propagation`. -/
-theorem oneGrid_count_absorption (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
+theorem oneGrid_count_absorption (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
     (hγ : γ ∈ Set.Ico (0 : ℝ) 1) (j m : ℤ) (hjm : j ≤ m) :
     (3 : ℝ) ^ (-(bigQ d γ : ℝ) * rhoMax d γ * ((m : ℝ) - (j : ℝ))) *
         (3 ^ (d * (m - j).toNat) : ℕ) ≤
       (3 : ℝ) ^ (-((1 - γ) / 4) * ((m : ℝ) - (j : ℝ))) := by
-  have hQ := bigQ_real_pos d hd γ hγ
+  have hQ := bigQ_real_pos d γ hγ
   have hexp : (d : ℝ) + (1 - γ) / 4 ≤ (bigQ d γ : ℝ) * rhoMax d γ := by
     unfold rhoMax
     rw [mul_add, ← mul_assoc, mul_inv_cancel₀ hQ.ne', one_mul]
@@ -234,7 +234,7 @@ theorem oneGrid_normalizedBlock_opNorm_le {d : ℕ} (A F G : BlockMat d)
   have hS : S.PosDef := matSqrt_inv_posDef_full hG
   have hRT : R * T = 1 := Matrix.nonsing_inv_mul T ((Matrix.isUnit_iff_isUnit_det T).mp hT.isUnit)
   have hTR : T * R = 1 := Matrix.mul_nonsing_inv T ((Matrix.isUnit_iff_isUnit_det T).mp hT.isUnit)
-  have hTFT : T * toFullBlockMat F * T = 1 := matSqrt_inv_mul_self_mul_matSqrt_inv_full hF
+  have hTFT : T * toFullBlockMat F * T = 1 := matSqrt_inv_conj hF
   have hRR : R * R = toFullBlockMat F := by
     calc
       R * R = R * (T * toFullBlockMat F * T) * R := by rw [hTFT, mul_one]
@@ -274,7 +274,7 @@ theorem oneGrid_normalizedBlock_opNorm_le {d : ℕ} (A F G : BlockMat d)
 justifies the finite maxima of carried history, `p.fixed.geometry.one.grid.propagation`. -/
 theorem oneGrid_integrable_opNorm_pow {d : ℕ} (P : Measure (CoeffSpace d))
     (N : ℕ) (hN : (1 : ℝ) ≤ (N : ℝ)) (H : CoeffSpace d → BlockMat d)
-    (hmem : MemLqSchatten P (N : ℝ) H) :
+    (hmem : SchattenMemLp P (N : ℝ) H) :
     Integrable (fun a => blockOpNorm (H a) ^ N) P := by
   open scoped Matrix.Norms.L2Operator in
   have hm : AEMeasurable (fun a => toFullBlockMat (H a)) P :=
@@ -291,7 +291,7 @@ theorem oneGrid_integrable_opNorm_pow {d : ℕ} (P : Measure (CoeffSpace d))
 /-- Integrability and pointwise domination for the actual weighted history integrand,
 as used in the carried-history step, `p.fixed.geometry.one.grid.propagation`. -/
 theorem oneGrid_fluctuation_integrable_dominate (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
-    (hγ : γ ∈ Set.Ico (0 : ℝ) 1) (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P]
+    (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P]
     (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ) (S : CoeffSpace d → ℝ)
     (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hjStar : 2 * d ≤ 3 ^ jStar) (metric : Mat d) (hmetric : metric.PosDef)
@@ -306,9 +306,10 @@ theorem oneGrid_fluctuation_integrable_dominate (d : ℕ) (hd : 2 ≤ d) (γ : �
         (3 : ℝ) ^ (-(bigQ d γ : ℝ) * rhoMax d γ * ((k : ℝ) - (j : ℝ))) *
           blockOpNorm (normalizedFluctuation P q j k z a) ^ bigQ d γ ≤ f a := by
   intro q f
+  have hγ := hdag.g_mem
   open scoped Matrix.Norms.L2Operator in
   have hQ : (1 : ℝ) ≤ (bigQ d γ : ℝ) := by
-    exact_mod_cast (show 1 ≤ bigQ d γ from le_trans (by norm_num) (bigQ_two_le d hd γ hγ))
+    exact_mod_cast (show 1 ≤ bigQ d γ from le_trans (by norm_num) (bigQ_two_le d γ hγ))
   have hq : IsUnit q := Geometry.isUnit_roundedGrid hjStar hmetric
   let w (j : ℤ) := (3 : ℝ) ^ (-(bigQ d γ : ℝ) * rhoMax d γ * ((k : ℝ) - (j : ℝ)))
   have hw (j : ℤ) : 0 ≤ w j := Real.rpow_nonneg (by norm_num) _
@@ -338,7 +339,7 @@ theorem oneGrid_fluctuation_pow_transport {d : ℕ} (P : Measure (CoeffSpace d))
     (hk : (toFullBlockMat (adaptedMean P q k)).PosDef)
     (hl : (toFullBlockMat (adaptedMean P q l)).PosDef) :
     blockOpNorm (normalizedFluctuation P q j l z a) ^ Q ≤
-      blockOpNorm (normalizedMean P q k l) ^ Q *
+      blockOpNorm (relMean P q k l) ^ Q *
         blockOpNorm (normalizedFluctuation P q j k z a) ^ Q := by
   open scoped Matrix.Norms.L2Operator in
   have ht := oneGrid_normalizedBlock_opNorm_le
@@ -358,7 +359,7 @@ theorem oneGrid_lattice_moment_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (hz : z ∈ adaptedLatticeAtScale (Geometry.explicitRoundedGrid jStar metric) j) :
     let q := Geometry.explicitRoundedGrid jStar metric
     (∫ a, blockOpNorm (normalizedFluctuation P q j m z a) ^ bigQ d γ ∂P) ≤
-      Real.exp ((bigQ d γ : ℝ) * logDetLoss P q j m) *
+      Real.exp ((bigQ d γ : ℝ) * detIncrement P q j m) *
         ∫ a, absSchattenNorm (bigQ d γ : ℝ) (normalizedFluctuationSelf P q j a) ^ bigQ d γ ∂P := by
   intro q
   open scoped Matrix.Norms.L2Operator in
@@ -366,21 +367,21 @@ theorem oneGrid_lattice_moment_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let v (k : ℤ) (z : Vec d) (a : CoeffSpace d) :=
     blockOpNorm (normalizedFluctuation P q j k z a) ^ Q
   have hQ : (1 : ℝ) ≤ (Q : ℝ) := by
-    exact_mod_cast (show 1 ≤ Q from le_trans (by norm_num) (bigQ_two_le d hd γ hγ))
+    exact_mod_cast (show 1 ≤ Q from le_trans (by norm_num) (bigQ_two_le d γ hγ))
   have hmem (k : ℤ) (z : Vec d) := Annealed.memLqSchatten_normalizedFluctuation
     d hd P γ E Ψ K S hstat hdag jStar hjStar metric hmetric j k z (Q : ℝ) hQ
   have hint (k : ℤ) (z : Vec d) : Integrable (v k z) P :=
     oneGrid_integrable_opNorm_pow P Q hQ _ (hmem k z)
   have hpos (k : ℤ) := Annealed.adaptedMean_posDef d hd P γ E Ψ K S hstat hdag
     jStar hjStar metric hmetric k
-  have hc : blockOpNorm (normalizedMean P q j m) ^ Q ≤
-      Real.exp ((Q : ℝ) * logDetLoss P q j m) := by
+  have hc : blockOpNorm (relMean P q j m) ^ Q ≤
+      Real.exp ((Q : ℝ) * detIncrement P q j m) := by
     have hp := pow_le_pow_left₀ (norm_nonneg _)
       (Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
         jStar hjStar metric hmetric j m hj hjm).2.2.2.1 Q
     simpa only [Real.exp_nat_mul] using! hp
   have hi : (∫ a, v m z a ∂P) ≤
-      Real.exp ((Q : ℝ) * logDetLoss P q j m) * ∫ a, v j z a ∂P := by
+      Real.exp ((Q : ℝ) * detIncrement P q j m) * ∫ a, v j z a ∂P := by
     rw [← integral_const_mul]
     apply integral_mono (hint m z) ((hint j z).const_mul _)
     intro a
@@ -470,18 +471,18 @@ theorem oneGrid_fluctuation_pow_le_penalty (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (j n m : ℤ) (hn : (jStar : ℤ) ≤ n) (hnm : n ≤ m) (z : Vec d) (a : CoeffSpace d) :
     let q := Geometry.explicitRoundedGrid jStar metric
     blockOpNorm (normalizedFluctuation P q j m z a) ^ bigQ d γ ≤
-      (1 + meanPenalty (bigQ d γ) (normalizedMean P q n m)) *
+      (1 + meanPenalty (bigQ d γ) (relMean P q n m)) *
         blockOpNorm (normalizedFluctuation P q j n z a) ^ bigQ d γ := by
   intro q
   open scoped Matrix.Norms.L2Operator in
   have hpos (k : ℤ) := Annealed.adaptedMean_posDef d hd P γ E Ψ K S hstat hdag
     jStar hjStar metric hmetric k
-  have ht := Annealed.blockOpNorm_le_one_add_trace (normalizedMean P q n m)
+  have ht := Annealed.blockOpNorm_le_one_add_trace (relMean P q n m)
     (Annealed.normalizedBlock_posDef _ _ (hpos n) (hpos m)).isHermitian
     (Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
       jStar hjStar metric hmetric n m hn hnm).1
-  have hb : blockOpNorm (normalizedMean P q n m) ^ bigQ d γ ≤
-      1 + meanPenalty (bigQ d γ) (normalizedMean P q n m) := by
+  have hb : blockOpNorm (relMean P q n m) ^ bigQ d γ ≤
+      1 + meanPenalty (bigQ d γ) (relMean P q n m) := by
     have hp := pow_le_pow_left₀ (norm_nonneg _) ht (bigQ d γ)
     simpa only [meanPenalty, add_sub_cancel] using! hp
   exact (oneGrid_fluctuation_pow_transport P q (bigQ d γ) j n m z a (hpos n) (hpos m)).trans
@@ -490,7 +491,7 @@ theorem oneGrid_fluctuation_pow_le_penalty (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
 /-- The old-generation bound uses one translated joint supremum per parent cell. This is
 the compatible partition argument of carried history, `p.fixed.geometry.one.grid.propagation`. -/
 theorem oneGrid_lower_pointwise (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
-    (hγ : γ ∈ Set.Ico (0 : ℝ) 1) (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P]
+    (_hγ : γ ∈ Set.Ico (0 : ℝ) 1) (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P]
     (E : BlockMat d) (Ψ : ℝ → ℝ) (K : ℝ) (S : CoeffSpace d → ℝ)
     (hstat : IsStationaryLaw P) (hdag : CoarseEllipticityDagger P γ E Ψ K S)
     (jStar : ℕ) (hjStar : 2 * d ≤ 3 ^ jStar) (metric : Mat d) (hmetric : metric.PosDef)
@@ -510,7 +511,7 @@ theorem oneGrid_lower_pointwise (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
         (3 : ℝ) ^ (-(bigQ d γ : ℝ) * rhoMax d γ * ((m : ℝ) - (j : ℝ))) *
           blockOpNorm (normalizedFluctuation P q j m z a) ^ bigQ d γ ≤
         (3 : ℝ) ^ (-(bigQ d γ : ℝ) * rhoMax d γ * ((m : ℝ) - (n : ℝ))) *
-          (1 + meanPenalty (bigQ d γ) (normalizedMean P q n m)) *
+          (1 + meanPenalty (bigQ d γ) (relMean P q n m)) *
             ∑ y ∈ C, H (translateCoeff (τ y) a) := by
   classical
   intro q H
@@ -520,7 +521,7 @@ theorem oneGrid_lower_pointwise (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   let w (j k : ℤ) := (3 : ℝ) ^ (-(Q : ℝ) * rhoMax d γ * ((k : ℝ) - (j : ℝ)))
   let v (j k : ℤ) (z : Vec d) (a : CoeffSpace d) :=
     blockOpNorm (normalizedFluctuation P q j k z a) ^ Q
-  let B := 1 + meanPenalty Q (normalizedMean P q n m)
+  let B := 1 + meanPenalty Q (relMean P q n m)
   have hq : IsUnit q := Geometry.isUnit_roundedGrid hjStar hmetric
   have hw (j k : ℤ) : 0 < w j k := Real.rpow_pos_of_pos (by norm_num) _
   have hv (j k : ℤ) (z : Vec d) (a : CoeffSpace d) : 0 ≤ v j k z a :=
@@ -528,7 +529,7 @@ theorem oneGrid_lower_pointwise (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
   have hH (a : CoeffSpace d) : 0 ≤ H a :=
     Real.iSup_nonneg fun j => Real.iSup_nonneg fun _ =>
       mul_nonneg (hw j n).le (Real.iSup_nonneg fun z => Real.iSup_nonneg fun _ => hv j n z a)
-  have houter := oneGrid_fluctuation_integrable_dominate d hd γ hγ P E Ψ K S
+  have houter := oneGrid_fluctuation_integrable_dominate d hd γ P E Ψ K S
     hstat hdag jStar hjStar metric hmetric n
   have hdom (a : CoeffSpace d) (j : ℤ) (hj : j ∈ Set.Icc (jStar : ℤ) n)
       (z : Vec d) (hz : z ∈ Z j n) : w j n * v j n z a ≤ H a :=

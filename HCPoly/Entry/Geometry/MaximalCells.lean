@@ -1,6 +1,7 @@
 import HCPoly.Entry.Geometry.AdaptedCell
 import HCPoly.Entry.Geometry.MaximalCellsDef
 import HCPoly.Setup.Geometry
+import HCPoly.Provider.Transport.WhitneyCells
 
 /-!
 # Maximal standard aligned cubes in a set
@@ -31,9 +32,9 @@ theorem IsMaximalCellIn.subset {W : Set (Vec d)} {j k : ℤ} {w : Fin d → ℤ}
 /-- The parent of a maximal cube of generation `k < j` is not contained in `W`. -/
 theorem IsMaximalCellIn.parent_not_subset [NeZero d] {W : Set (Vec d)} {j k : ℤ}
     {w : Fin d → ℤ} (h : IsMaximalCellIn W j k w) (hkj : k < j) :
-    ¬ standardCell d (k + 1) (parentIndex w) ⊆ W := by
+    ¬ standardCell d (k + 1) (Transport.gridParent w) ⊆ W := by
   intro hsub
-  have heq := h.2 (k + 1) (parentIndex w) ⟨by omega, hsub⟩ (standardCell_subset_parent k w)
+  have heq := h.2 (k + 1) (Transport.gridParent w) ⟨by omega, hsub⟩ (Transport.standardCell_subset_parent k w)
   have := (eq_of_standardCell_eq heq).1
   omega
 

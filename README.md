@@ -50,8 +50,10 @@ of Theorem D for uniformly elliptic laws; its Dirichlet clause is exported
 in the negative-Sobolev form of Theorem D rather than the paper's `L²`
 form with a forcing term, as explained below.
 
-- **1,973 Lean source files, 406,339 lines** (including the comparator
-  audit surface; the library itself is 1,956 files and 399,057 lines).
+- **1,578 Lean source files, 380,338 lines** (including the comparator
+  audit surface; the library itself is 1,561 files and 373,056 lines),
+  counted with
+  `git ls-files -- HCPoly HCPoly.lean HCPolyAudit | grep '\.lean$' | xargs wc -l`.
 - **No `sorry`** anywhere in the library.  (Each Mathlib-only comparator
   challenge in `HCPolyAudit/` contains its single intentional statement-level
   `sorry`, filled by the corresponding solution file.)
@@ -79,6 +81,21 @@ been removed.  Theorems B, C and D, their proofs and their comparator pairs are
 unchanged, and so are the toolchain (Lean `v4.33.0`, `mathlib` `v4.33.0`) and
 the dependency pins.  The comparator pair for Theorem A was restated in the new
 printed form and re-proved.
+
+The route has since been consolidated.  Results it shares with the proofs of
+Theorems B, C and D are used from there instead of being proved a second time;
+the response-transfer layer, once 335 modules whose names said nothing about
+what they prove, is 108 modules under `HCPoly/Entry/Response/` grouped by the
+mathematics they carry; every module, namespace and declaration of the
+route is named after what it states, and every arithmetic closer names the
+facts it uses.  The route's fourteen propositions are proved in the namespace
+`Homogenization.HighContrast.Entry`, and the printed statements under
+`HCPoly/Entry/Statements/` restate them character for character.  The
+infrastructure of the earlier proof routes — 129 modules that no exported
+theorem reaches, and the declarations of surviving modules that only they
+used — has been removed.  The seventeen printed statements are unchanged
+beyond their imports and three renames, and Theorems B, C and D, their proofs
+and their comparator pairs are once again untouched.
 
 ## Main results
 
@@ -164,9 +181,37 @@ theorems themselves and inventoried in
   `a.CFS`, `e.grok`, `e.Euc.by.tilt`, `e.tilt.by.Euc`, `e.self.dual`,
   `l.bfE.bounds`, `l.weaknorms.moreproto` and `e.euclidean.contrast.bridge`.
 
+## Consistency checks of the definitions
+
+The statements of the paper are written with encodings, and an encoding can be
+satisfied for reasons that have nothing to do with the object it denotes: a
+supremum over an empty family of tests is `0` whatever it is meant to measure, a
+coefficient class with no member makes every hypothesis about its members
+vacuous, a Bochner average carrying a junk branch is not an infimum, and an
+infimum of Loewner scalings is not visibly the minimum of spectral norms the
+paper prints.  The modules under `HCPoly/Consistency/` check exactly that, one
+definition at a time.  None of them is a result of the paper and no exported
+theorem depends on one; each says in its own docstring which definition it
+checks and what would go wrong were the check to fail.
+
+| file | definition checked |
+| --- | --- |
+| [`AdmissibleTests.lean`](HCPoly/Consistency/AdmissibleTests.lean) | the admissible-test families of the two normalized dual norms are not empty |
+| [`AspectRatioSharpness.lean`](HCPoly/Consistency/AspectRatioSharpness.lean) | the lower bound `1 ≤ Π` on the reference aspect ratio needs the Schur ordering |
+| [`ClosureH1aNecessity.lean`](HCPoly/Consistency/ClosureH1aNecessity.lean) | boundedness of the domain cannot be dropped from the `H¹_a(V)` closure family |
+| [`ClosureH1aPairing.lean`](HCPoly/Consistency/ClosureH1aPairing.lean) | the weak-gradient relation on the `H¹_a` classes is an identity between convergent integrals |
+| [`ConvexDilation.lean`](HCPoly/Consistency/ConvexDilation.lean) | the membership classes are reached from smoothness on the domain by dilation |
+| [`Dissolution.lean`](HCPoly/Consistency/Dissolution.lean) | the junk branch of the coarse block response is never attained |
+| [`DomainCompleteness.lean`](HCPoly/Consistency/DomainCompleteness.lean) | the domains of the Dirichlet estimate are exactly the nonempty bounded open convex ones |
+| [`Necessity.lean`](HCPoly/Consistency/Necessity.lean) | what the measurability conjunct of the local Sobolev class excludes |
+| [`PrintedForm.lean`](HCPoly/Consistency/PrintedForm.lean) | the intrinsic contrast and `Λ_0` are the printed minima over skew matrices |
+| [`QualitativeClass.lean`](HCPoly/Consistency/QualitativeClass.lean) | the coefficient class used here lies inside the paper's qualitative class |
+| [`WitnessField.lean`](HCPoly/Consistency/WitnessField.lean) | the coefficient space has its reference point, fixed by every integer translation |
+| [`WitnessSigmaField.lean`](HCPoly/Consistency/WitnessSigmaField.lean) | the local σ-fields of the coefficient space separate points |
+
 ## Verified against a Mathlib-only statement
 
-The development is large — about 406k lines in this repository, on top of
+The development is large — about 380k lines in this repository, on top of
 the 600k+-line `CoarseGraining` library it imports.  So that the central
 claims can be checked without trusting either development, the main
 theorems are restated using **only Mathlib** — no project definitions from
@@ -199,7 +244,7 @@ lake build           # compile the CoarseGraining dependency and the project
 `lake exe cache get` requires the committed
 [`lake-manifest.json`](lake-manifest.json), which pins the exact dependency
 revisions.  The `CoarseGraining` dependency is built from source on the first
-build; the project itself is about 1,956 modules.
+build; the project itself is about 1,561 modules.
 
 To use the library, `import HCPoly` pulls in the whole development; the
 main results are in `import HCPoly.MainResults`.
@@ -215,13 +260,17 @@ HCPoly/
   Analytic/           the analytic carriers behind Theorem D: normalized
                       norms, weighted Sobolev classes, weak solutions
   Annealed/           a law satisfying every standing assumption
-  Frozen/             the statement surface Theorems B, C and D are proved
-                      from, and the bridge from Theorem A's printed form
-  Entry/              the polynomial-entry route to Theorem A
+  Consistency/        the consistency checks of the definitions above
+  Frozen/             the standing assumptions, the form of Theorem A that
+                      Theorems B, C and D consume, and the bridge to it from
+                      Theorem A's printed form
+  Entry/              the polynomial-entry route to Theorem A; the fourteen
+                      modules here prove its propositions, in the namespace
+                      Homogenization.HighContrast.Entry
     Statements/       Theorem A and the thirteen propositions of Sections 2–5
                       it is assembled from, one theorem each
     CG/               three further propositions of the route, stated in the
-                      CoarseGraining library's own vocabulary (`CG/Anchors/`)
+                      CoarseGraining library's own vocabulary, and their proofs
     Setup/            the route's own vocabulary: standing assumptions, the
                       coarse response, the geometry update
     Source/           the random source scale, its Whitney decomposition and
@@ -230,12 +279,19 @@ HCPoly/
     Analysis/         Schatten norms and the matrix analysis of the route
     Annealed/         the annealed blocks, drifts and locality of the route
     Multiscale/       the renormalization scheme of Sections 2–5
+    Response/         the response transfer, in eight units: Core, Kernel,
+                      Cutoff, Rows, Direct, Pairing, Limit, Transfer
   Provider/           the proofs of Theorems B, C and D, organized by the
                       paper's sections
   Meta/               AxiomsAudit.lean
 HCPoly.lean           the root module (imports the whole library)
 HCPolyAudit/          Mathlib-only comparator challenges and solutions
 ```
+
+The modules under `Consistency/` are listed in
+[Consistency checks of the definitions](#consistency-checks-of-the-definitions)
+above; they check the definitions the statements are written with, and are not
+results of the paper.
 
 ## How this was built
 
@@ -270,6 +326,7 @@ If you use this formalization, please cite it using the metadata in
 Scott Armstrong and Tuomo Kuusi were supported by the European Research Council
 (ERC) under the European Union's Horizon Europe research and innovation
 programme, grant agreement No. 101200828.
+Amélie Loher acknowledges support from the Fondation Sciences Mathématiques de Paris.
 
 ## License
 

@@ -29,16 +29,6 @@ noncomputable def commonQuantitativeAffineScale
   fun a ↦ roundedAffineEffectiveScale Caff overlinePi kappaCube
     (targetedQuantitativeEffectiveScale amplitude target kappaRate X a)
 
-/-- Measurability is preserved by the two deterministic enlargements. -/
-theorem Measurable.commonQuantitativeAffineScale
-    {amplitude target kappaRate Caff overlinePi kappaCube : ℝ}
-    {X : CoeffSpace d → ℝ} (hX : Measurable X) :
-    Measurable (commonQuantitativeAffineScale amplitude target kappaRate Caff
-      overlinePi kappaCube X) := by
-  exact Measurable.roundedAffineEffectiveScale Caff overlinePi kappaCube
-    (Measurable.powerLossRandomScale hX
-      (amplitudeReductionFactor amplitude target) kappaRate)
-
 /-- Under a positive rate exponent, the common scale does not
 decrease a nonnegative raw scale. -/
 theorem le_commonQuantitativeAffineScale

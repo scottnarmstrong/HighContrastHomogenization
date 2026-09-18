@@ -4,7 +4,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.PolynomialHomogenization.RuledTriadicWhitneyCarrier
-import HCPoly.Provider.PolynomialHomogenization.ConvexHardyEndpoint
+import HCPoly.Provider.PolynomialHomogenization.ConvexHardyCellInitialAggregation
+import HCPoly.Provider.PolynomialHomogenization.ConvexHardyWhitneySystem
 import HCPoly.Provider.Regularity.LiouvilleCubeRestriction
 import HCPoly.Provider.Regularity.AffineTransfer
 import Homogenization.Book.Ch03.Definitions

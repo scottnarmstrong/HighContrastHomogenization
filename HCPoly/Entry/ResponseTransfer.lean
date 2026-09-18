@@ -3,7 +3,7 @@ import HCPoly.Entry.Multiscale.ResponseTransferSkeleton
 /-!
 # `p.response.transfer`
 
-`Homogenization.HighContrast.Provider.response_transfer` is the statement of
+`Homogenization.HighContrast.Entry.response_transfer` is the statement of
 `Homogenization.HighContrast.response_transfer` (`HCPoly/Entry/Statements/ResponseTransfer.lean`).  Its statement is
 the one, character for character; the statement file's body is one `by exact` application
 of this theorem to that statement's binders.
@@ -13,7 +13,7 @@ bookkeeping lemmas of `HCPoly/Entry/Multiscale/ResponseTransferSkeleton.lean`, w
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean annealedContrast aspectRatio blockScale)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory
 open scoped Matrix.Norms.L2Operator
@@ -77,7 +77,7 @@ theorem response_transfer
                                     (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s)
                                   (blockScale (1 + Real.sqrt ε * σ) F) →
                                 (d : ℝ)⁻¹ *
-                                    logDetLoss P
+                                    detIncrement P
                                       (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ →
                                 max
                                       (max
@@ -132,25 +132,25 @@ theorem response_transfer
     K2c P E Ψ K Src B jStar F s t (raw.mono (le_max_right _ _) (le_max_right _ _)) himb
   refine ⟨t + (ℓ : ℤ), by omega, ?_, ?_⟩
   · have hceil := Multiscale.nat_le_ceil_of_le ℓ (Cresp * Real.logb 3 (2 + aspectRatio E)) hℓle
-    linarith [hceil]
-  · have hpos1 : (0 : ℝ) < 1 - ηiso := by linarith [hηiso.2]
+    linarith only [hceil]
+  · have hpos1 : (0 : ℝ) < 1 - ηiso := by linarith only [hηiso.2]
     have hloM := Multiscale.loewner_trans
       (Multiscale.blockScale_loewner_mono _ hApos hlow) hlo'
     have hhiM := Multiscale.loewner_trans hhi'
       (Multiscale.blockScale_loewner_mono _ hApos
-        (show (1 : ℝ) + ηp ≤ 1 + ηiso by linarith [hpi]))
+        (show (1 : ℝ) + ηp ≤ 1 + ηiso by linarith only [hpi]))
     have hMpos := Multiscale.blockPosDef_of_blockScale_le hpos1 hApos hloM
     have hcomp := Multiscale.canonical_comparison_kernel hd _ _ hAs hApos hMs hηiso hδad
       hloM hhiM himb
     have hx0 : (0 : ℝ) ≤ (1 + ηiso) ^ 3 / (1 - ηiso) * (1 + δad) - 1 := by
       have h1 : (1 : ℝ) ≤ (1 + ηiso) ^ 3 / (1 - ηiso) := by
         rw [le_div_iff₀ hpos1]
-        nlinarith [hηiso.1, sq_nonneg ηiso, pow_nonneg hηiso.1.le 3]
+        nlinarith only [hηiso.1, sq_nonneg ηiso, pow_nonneg hηiso.1.le 3]
       have hd0 : (0 : ℝ) ≤ δad := hδad.1.le
-      nlinarith [h1, hd0]
+      nlinarith only [h1, hd0]
     have hbridge := Multiscale.euclidean_contrast_bridge_kernel hd _ hMs hMpos hx0
-      (by linarith [hcomp])
+      (by linarith only [hcomp])
     rw [Multiscale.annealedContrast_eq d P (t + (ℓ : ℤ))]
-    linarith [hbridge, hthird]
+    linarith only [hbridge, hthird]
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

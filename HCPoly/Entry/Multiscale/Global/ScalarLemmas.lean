@@ -3,9 +3,12 @@ import HCPoly.Entry.Multiscale.Global.GeoMeanBlocks
 /-!
 # Scalar lemmas of the selection run
 
-The real-arithmetic layer of the printed proof: the scaled-logarithm growth, contraction and
-span bounds, the comparison tolerance `ε`, the weight choice, and the eccentricity, scale and
-containment arithmetic that fixes the outer constants in the required order.
+The real-arithmetic layer of the global selection argument `p.global.selection`: the
+scaled-logarithm growth, contraction and span bounds (`e.global.selection.scalar.span`), the
+comparison tolerance `ε` and comparison choice (`e.global.selection.comparison.choice`), the
+weight choice, the eccentricity arithmetic (`e.global.selection.eccentricity`), and the scale
+and containment arithmetic (`e.global.selection.lower.scale`) that fixes the outer constants
+in the required order.
 -/
 
 open Homogenization.HighContrast (aspectRatio aspectRatio_nonneg bigLambdaRef lambdaRef specBound)

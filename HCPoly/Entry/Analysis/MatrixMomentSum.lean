@@ -1,8 +1,7 @@
-import HCPoly.Entry.Analysis.SchattenTraceHolder
-import HCPoly.Entry.Analysis.SchattenHolder
+import HCPoly.Entry.Analysis.SchattenHolderInequalities
 import HCPoly.Entry.Source.BoundedWindowFiniteness
 import Homogenization.Book.Ch04.Internal.CoarseObservableMeasurability.Basic
-import HCPoly.Entry.Analysis.SchattenIntegrability
+import HCPoly.Entry.Analysis.SchattenNormIntegrability
 import Mathlib.Data.Fin.Tuple.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Data.List.OfFn
@@ -25,7 +24,7 @@ import Mathlib.MeasureTheory.SpecificCodomains.Pi
   is not used anywhere in the proof, which is a bare induction on `N` through `Fin.consEquiv`.
 * The same identity after `Matrix.trace`, in the shape the printed display uses: the trace of the
   power expands as the sum of the traces of the ordered words.
-The operator-norm entry bound in `SchattenIntegrability` is public and is used in the
+The operator-norm entry bound in `SchattenNormIntegrability` is public and is used in the
 product-integrability bridge.
 The proof uses grouped independence to cancel singleton words, exact trace Hölder from K1,
 Hölder in probability, and at most `N^N` singleton-free equality patterns.
@@ -44,7 +43,7 @@ noncomputable section
 theorem abs_blockMatEntry_le_absSchattenNorm {d : ℕ} (H : BlockMat d)
     (hH : (toFullBlockMat H).IsHermitian) {N : ℝ} (hN : 1 ≤ N)
     (α β : BlockCoord d) : |blockMatEntry H α β| ≤ absSchattenNorm N H :=
-  (MemLqSchatten.abs_blockMatEntry_le_blockOpNorm H α β).trans
+  (SchattenMemLp.abs_blockMatEntry_le_blockOpNorm H α β).trans
     (blockOpNorm_le_absSchattenNorm hH hN)
 
 /-! ## The ordered expansion of a power of a finite sum -/
@@ -101,7 +100,7 @@ theorem memLp_list_prod {Ω E ι : Type*} [MeasurableSpace Ω] [NormedRing E]
 
 /-- A Schatten moment controls the full matrix operator-norm moment. -/
 theorem memLp_toFullBlockMat {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ} {H : CoeffSpace d → BlockMat d}
-    (hH : MemLqSchatten P N H) (hN : 1 ≤ N) :
+    (hH : SchattenMemLp P N H) (hN : 1 ≤ N) :
     MemLp (fun a => toFullBlockMat (H a)) (ENNReal.ofReal N) P := by
   change MemLp (fun a α β => toFullBlockMat (H a) α β) (ENNReal.ofReal N) P
   refine memLp_pi_iff.mpr fun α => memLp_pi_iff.mpr fun β => ?_
@@ -115,7 +114,7 @@ theorem memLp_toFullBlockMat {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ} {H
 theorem memLp_prod_entry {d : ℕ} {ι : Type*} {P : Measure (CoeffSpace d)}
     [IsFiniteMeasure P] {N : ℝ} (hN : 1 ≤ N) (l : List ι)
     (Y : ι → CoeffSpace d → BlockMat d)
-    (hY : ∀ i ∈ l, MemLqSchatten P N (Y i)) (α β : BlockCoord d) :
+    (hY : ∀ i ∈ l, SchattenMemLp P N (Y i)) (α β : BlockCoord d) :
     MemLp (fun a => (l.map (fun i => toFullBlockMat (Y i a))).prod α β)
       ((l.length : ℝ≥0∞) * (ENNReal.ofReal N)⁻¹)⁻¹ P := by
   have hp := memLp_list_prod l (fun i a => toFullBlockMat (Y i a))
@@ -135,14 +134,14 @@ theorem memLp_prod_entry {d : ℕ} {ι : Type*} {P : Measure (CoeffSpace d)}
   refine hp.norm.mono' hm.aestronglyMeasurable (Filter.Eventually.of_forall fun a => ?_)
   simpa only [toFullBlockMat_ofFullBlockMat, blockMatEntry_ofFullBlockMat,
     blockOpNorm, Real.norm_eq_abs] using
-    MemLqSchatten.abs_blockMatEntry_le_blockOpNorm
+    SchattenMemLp.abs_blockMatEntry_le_blockOpNorm
       (ofFullBlockMat (l.map (fun i => toFullBlockMat (Y i a))).prod) α β
 
 /-- Products of at most N factors in L^N have integrable entries on a finite measure space. -/
 theorem integrable_prod_entry {d : ℕ} {ι : Type*} {P : Measure (CoeffSpace d)}
     [IsFiniteMeasure P] {N : ℕ} (hN : 1 ≤ N) (l : List ι) (hlen : l.length ≤ N)
     (Y : ι → CoeffSpace d → BlockMat d)
-    (hY : ∀ i ∈ l, MemLqSchatten P (N : ℝ) (Y i)) (α β : BlockCoord d) :
+    (hY : ∀ i ∈ l, SchattenMemLp P (N : ℝ) (Y i)) (α β : BlockCoord d) :
     Integrable (fun a => (l.map (fun i => toFullBlockMat (Y i a))).prod α β) P := by
   apply (memLp_prod_entry (by exact_mod_cast hN) l Y hY α β).integrable
   apply ENNReal.one_le_inv.mpr
@@ -191,7 +190,7 @@ theorem indepFun_list_prod_of_notMem {Ω ι M : Type*} [MeasurableSpace Ω] [Mon
 /-- Centering annihilates the expected trace after a singleton factor is moved to the front. -/
 theorem integral_trace_mul_prod_eq_zero {d : ℕ} {ι : Type*}
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] {N : ℕ} (hN : 1 ≤ N)
-    (Y : ι → CoeffSpace d → BlockMat d) (hY : ∀ i, MemLqSchatten P (N : ℝ) (Y i))
+    (Y : ι → CoeffSpace d → BlockMat d) (hY : ∀ i, SchattenMemLp P (N : ℝ) (Y i))
     (hindep : iIndepFun (fun i a => toFullBlockMat (Y i a)) P)
     (i : ι) (l : List ι) (hlen : l.length ≤ N) (hi : i ∉ l)
     (hcent : ∀ α β, ∫ a, blockMatEntry (Y i a) α β ∂P = 0) :
@@ -224,7 +223,7 @@ theorem integral_trace_mul_prod_eq_zero {d : ℕ} {ι : Type*}
 /-- A word with an index occurring exactly once has zero expected trace, by grouped independence and cyclicity. -/
 theorem integral_trace_prod_eq_zero_of_count_eq_one {d : ℕ} {ι : Type*} [DecidableEq ι]
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] {N : ℕ} (hN : 1 ≤ N)
-    (Y : ι → CoeffSpace d → BlockMat d) (hY : ∀ i, MemLqSchatten P (N : ℝ) (Y i))
+    (Y : ι → CoeffSpace d → BlockMat d) (hY : ∀ i, SchattenMemLp P (N : ℝ) (Y i))
     (hindep : iIndepFun (fun i a => toFullBlockMat (Y i a)) P)
     (l : List ι) (hlen : l.length ≤ N) (i : ι) (hi : l.count i = 1)
     (hcent : ∀ α β, ∫ a, blockMatEntry (Y i a) α β ∂P = 0) :
@@ -342,7 +341,7 @@ theorem sum_prod_eqPattern_le {κ β ι : Type*} [Fintype κ] [Fintype β] [Fint
     simpa only [hx] using sum_rpow_le_rpow_sum Finset.univ (fun i => u i ^ 2)
       (fun i _ => sq_nonneg _) (show (1 : ℝ) ≤ (m b : ℝ) / 2 by
         have hmb : (2 : ℝ) ≤ (m b : ℝ) := by exact_mod_cast hb b
-        linarith)
+        linarith only [hmb])
   have htotal : ∑ b, m b = Fintype.card κ := by
     simpa only [Finset.sum_const, Finset.card_univ, nsmul_eq_mul, mul_one, m] using!
       (Fintype.sum_fiberwise q (fun _ => (1 : ℕ)))
@@ -442,7 +441,7 @@ theorem sum_prod_noSingleton_le {N : ℕ} {ι : Type*} [Fintype ι] [DecidableEq
 /-- The trace of an N-fold ordered product is integrable. -/
 theorem integrable_trace_prod {d N : ℕ} {P : Measure (CoeffSpace d)}
     [IsFiniteMeasure P] (hN : 1 ≤ N) (Y : Fin N → CoeffSpace d → BlockMat d)
-    (hY : ∀ k, MemLqSchatten P (N : ℝ) (Y k)) :
+    (hY : ∀ k, SchattenMemLp P (N : ℝ) (Y k)) :
     Integrable (fun a => Matrix.trace (List.ofFn (fun k => toFullBlockMat (Y k a))).prod) P := by
   simp only [Matrix.trace, Matrix.diag]
   apply integrable_finsetSum
@@ -455,7 +454,7 @@ theorem integrable_trace_prod {d N : ℕ} {P : Measure (CoeffSpace d)}
 theorem abs_integral_trace_prod_le_prod_lqSchattenNorm {d N : ℕ}
     {P : Measure (CoeffSpace d)} [IsFiniteMeasure P] (hN : 2 ≤ N)
     (Y : Fin N → CoeffSpace d → BlockMat d)
-    (hY : ∀ k, MemLqSchatten P (N : ℝ) (Y k)) :
+    (hY : ∀ k, SchattenMemLp P (N : ℝ) (Y k)) :
     |∫ a, Matrix.trace (List.ofFn (fun k => toFullBlockMat (Y k a))).prod ∂P| ≤
       ∏ k, lqSchattenNorm P (N : ℝ) (Y k) := by
   have hN1 : 1 ≤ N := by omega
@@ -493,7 +492,7 @@ theorem abs_integral_trace_prod_le_prod_lqSchattenNorm {d N : ℕ}
 /-- The even mixed moment is the expected trace power; membership rules out junk integrals. -/
 theorem lqSchattenNorm_pow_eq_integral_trace {d N : ℕ} {P : Measure (CoeffSpace d)}
     (hN : 2 ≤ N) (hNeven : Even N) {H : CoeffSpace d → BlockMat d}
-    (hH : MemLqSchatten P (N : ℝ) H) :
+    (hH : SchattenMemLp P (N : ℝ) H) :
     lqSchattenNorm P (N : ℝ) H ^ N =
       ∫ a, Matrix.trace ((toFullBlockMat (H a)) ^ N) ∂P := by
   have hNR : (1 : ℝ) ≤ N := by exact_mod_cast (show 1 ≤ N by omega)
@@ -515,7 +514,7 @@ theorem lqSchattenNorm_finset_sum_le_of_iIndepFun {d : ℕ} {ι : Type*} [Decida
     (P : Measure (CoeffSpace d)) (hP : IsProbabilityMeasure P)
     {N : ℕ} (hN : 2 ≤ N) (hNeven : Even N)
     (s : Finset ι) (Y : ι → CoeffSpace d → BlockMat d)
-    (hmem : ∀ i ∈ s, MemLqSchatten P (N : ℝ) (Y i))
+    (hmem : ∀ i ∈ s, SchattenMemLp P (N : ℝ) (Y i))
     (hcent : ∀ i ∈ s,
       ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (Y i a) α β ∂P)
         = ofFullBlockMat (0 : FullBlockMat d))
@@ -531,7 +530,7 @@ theorem lqSchattenNorm_finset_sum_le_of_iIndepFun {d : ℕ} {ι : Type*} [Decida
   have hNR : (1 : ℝ) ≤ N := by exact_mod_cast hN1
   let X : s → CoeffSpace d → BlockMat d := fun i => Y i
   let u : s → ℝ := fun i => lqSchattenNorm P (N : ℝ) (X i)
-  have hX : ∀ i, MemLqSchatten P (N : ℝ) (X i) := fun i => hmem i i.property
+  have hX : ∀ i, SchattenMemLp P (N : ℝ) (X i) := fun i => hmem i i.property
   have hu : ∀ i, 0 ≤ u i := fun i => ((hX i).lqSchattenNorm_eq_eLpNorm_toReal hNR).2.1
   have hc : ∀ i α β, ∫ a, blockMatEntry (X i a) α β ∂P = 0 := by
     intro i α β
@@ -553,7 +552,7 @@ theorem lqSchattenNorm_finset_sum_le_of_iIndepFun {d : ℕ} {ι : Type*} [Decida
     have h := integral_trace_prod_eq_zero_of_count_eq_one hN1 X hX hindep
       (List.ofFn f) (by simp) i hi' (hc i)
     simpa only [List.map_ofFn] using! h
-  have hsum : MemLqSchatten P (N : ℝ)
+  have hsum : SchattenMemLp P (N : ℝ)
       (fun a => ofFullBlockMat (∑ i ∈ s, toFullBlockMat (Y i a))) := by
     simpa using Source.memLqSchatten_finset_sum hNR s (fun _ => (1 : ℝ)) Y hmem
   have hexp : lqSchattenNorm P (N : ℝ)

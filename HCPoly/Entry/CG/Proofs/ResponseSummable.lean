@@ -8,15 +8,19 @@ import Mathlib.Topology.Algebra.InfiniteSum.Real
 /-!
 # Summability of weighted CG responses
 
-This file is self-contained over CG/Mathlib imports. In particular it does not import
-`HCPoly.Entry.CG.Proofs.ResponseVolumeWeights`, so that each CG module stands alone.
+For a countable family of pairwise disjoint open pieces inside a locally elliptic container,
+the relative-volume-weighted scalar coarse responses `ResponseJ` are summable. Each response
+is nonnegative and bounded by the container's plain ellipticity bound `λ⁻¹ (Λ² |p|² + |q|²)`,
+so the weighted series is dominated by the relative volumes of the pieces, which sum to at
+most one. This is the summability input to the countable response subadditivity used by
+`p.successful.short.bridge`.
 -/
 
 namespace Homogenization.HighContrast.CG
 
 open MeasureTheory BigOperators
 
-private theorem volume_piece_ne_top_of_subset' {d : ℕ} {W V : Set (Vec d)}
+private theorem volume_piece_ne_top_of_subset_local {d : ℕ} {W V : Set (Vec d)}
     [IsFiniteMeasure (volumeMeasureOn W)] (hsub : V ⊆ W) :
     volume V ≠ ⊤ := by
   have hW : volume W ≠ ⊤ := by
@@ -24,13 +28,13 @@ private theorem volume_piece_ne_top_of_subset' {d : ℕ} {W V : Set (Vec d)}
       (MeasureTheory.measure_ne_top (volumeMeasureOn W) Set.univ)
   exact MeasureTheory.measure_ne_top_of_subset hsub hW
 
-private theorem pairwiseDisjoint_subtype_finset' {d : ℕ} {ι : Type*} {s : Set ι}
+private theorem pairwiseDisjoint_subtype_finset_local {d : ℕ} {ι : Type*} {s : Set ι}
     {U : ι → Set (Vec d)} (hdisj : s.PairwiseDisjoint U) (F : Finset s) :
     (F : Set s).PairwiseDisjoint fun i : s => U i.1 := by
   intro i _hi j _hj hij
   exact hdisj i.2 j.2 (fun h => hij (Subtype.ext h))
 
-private theorem sum_volumeRatio_le_one' {d : ℕ} {ι : Type*} {s : Set ι}
+private theorem sum_volumeRatio_le_one_local {d : ℕ} {ι : Type*} {s : Set ι}
     {W : Set (Vec d)} {U : ι → Set (Vec d)}
     [IsFiniteMeasure (volumeMeasureOn W)]
     (hmeas : ∀ i ∈ s, MeasurableSet (U i)) (hsub : ∀ i ∈ s, U i ⊆ W)
@@ -57,7 +61,7 @@ private theorem sum_volumeRatio_le_one' {d : ℕ} {ι : Type*} {s : Set ι}
     have hfinite :
         ∀ i ∈ F, volume (U i.1) ≠ ⊤ := by
       intro i _hi
-      exact volume_piece_ne_top_of_subset' (W := W) (V := U i.1) (hsub i.1 i.2)
+      exact volume_piece_ne_top_of_subset_local (W := W) (V := U i.1) (hsub i.1 i.2)
     have hmeasF :
         ∀ i ∈ F, MeasurableSet (U i.1) := by
       intro i _hi
@@ -66,7 +70,7 @@ private theorem sum_volumeRatio_le_one' {d : ℕ} {ι : Type*} {s : Set ι}
         volume.real (⋃ i ∈ F, U i.1) =
           ∑ i ∈ F, volume.real (U i.1) :=
       MeasureTheory.measureReal_biUnion_finset
-        (pairwiseDisjoint_subtype_finset' hdisj F) hmeasF hfinite
+        (pairwiseDisjoint_subtype_finset_local hdisj F) hmeasF hfinite
     have hUnionSub : (⋃ i ∈ F, U i.1) ⊆ W := by
       intro x hx
       rcases Set.mem_iUnion.mp hx with ⟨i, hx⟩
@@ -107,7 +111,7 @@ theorem responseJ_piece_bounds {d : ℕ} {ι : Type*} {s : Set ι}
     0 ≤ ResponseJ (U i) p q a ∧
       ResponseJ (U i) p q a ≤ lam⁻¹ * (Lam ^ 2 * vecNormSq p + vecNormSq q) := by
   have hfinite : volume (U i) ≠ ⊤ :=
-    volume_piece_ne_top_of_subset' (W := W) (V := U i) (hsub i hi)
+    volume_piece_ne_top_of_subset_local (W := W) (V := U i) (hsub i hi)
   let : IsFiniteMeasure (volumeMeasureOn (U i)) :=
     ⟨by simpa [volumeMeasureOn] using (lt_top_iff_ne_top.mpr hfinite)⟩
   have hEllPiece : IsEllipticFieldOn lam Lam (U i) a :=
@@ -116,7 +120,7 @@ theorem responseJ_piece_bounds {d : ℕ} {ι : Type*} {s : Set ι}
     ⟨responseJ_nonneg (U i) p q a,
       responseJ_le_plainUpperBound_of_isEllipticFieldOn_local hEllPiece hvol p q⟩
 
-private theorem summable_volumeRatio_mul_responseJ_of_isEllipticFieldOn_aux' {d : ℕ}
+private theorem summable_volumeRatio_mul_responseJ_of_isEllipticFieldOn_aux {d : ℕ}
     {ι : Type*} {s : Set ι} {W : Set (Vec d)} {U : ι → Set (Vec d)}
     [IsFiniteMeasure (volumeMeasureOn W)]
     (hopen : ∀ i ∈ s, IsOpen (U i)) (hsub : ∀ i ∈ s, U i ⊆ W)
@@ -133,7 +137,7 @@ private theorem summable_volumeRatio_mul_responseJ_of_isEllipticFieldOn_aux' {d 
       (responseJ_nonneg (U i.1) p q a)
   · intro F
     have hmeas : ∀ i ∈ s, MeasurableSet (U i) := fun i hi => (hopen i hi).measurableSet
-    have hweights := sum_volumeRatio_le_one' hmeas hsub hdisj F
+    have hweights := sum_volumeRatio_le_one_local hmeas hsub hdisj F
     have hCmax_nonneg : 0 ≤ max C 0 := le_max_right C 0
     have hterm_le :
         ∀ i ∈ F,
@@ -165,7 +169,7 @@ theorem summable_volumeRatio_mul_responseJ_of_isEllipticFieldOn_provider {d : �
     (hdisj : s.PairwiseDisjoint U)
     {a : CoeffField d} {lam Lam : ℝ} (hEll : IsEllipticFieldOn lam Lam W a) (p q : Vec d) :
     Summable (fun i : s => (volume (U i)).toReal / (volume W).toReal * ResponseJ (U i) p q a) := by
-  exact summable_volumeRatio_mul_responseJ_of_isEllipticFieldOn_aux'
+  exact summable_volumeRatio_mul_responseJ_of_isEllipticFieldOn_aux
     hopen hsub hdisj hEll p q
 
 end Homogenization.HighContrast.CG

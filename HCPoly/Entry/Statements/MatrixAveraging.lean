@@ -1,9 +1,17 @@
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
+import HCPoly.Frozen.CoarseEllipticityDagger
+import HCPoly.Setup.BlockAlgebra
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
+import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
 import HCPoly.Entry.Setup.NormalizedFluctuation
 import HCPoly.Entry.Setup.SchattenNorm
-import HCPoly.Entry.Setup.Stationarity
-import HCPoly.Entry.Setup.UnitRange
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Frozen.Stationarity
+import HCPoly.Setup.LocalSigmaFields
+import HCPoly.Frozen.UnitRange
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.MatrixAveraging
 
 /-!
@@ -38,7 +46,7 @@ Reading of the display, stated here so that no divergence is silent:
 * "a deterministic positive definite `2d`-by-`2d` matrix `R`" is a `BlockMat d` that is symmetric
   and `Book.Ch02.BlockPosDef` — the block analogue of Mathlib's `Matrix.PosDef`, whose symmetry
   the manuscript's positive matrices always have. `R^{-1/2} · R^{-1/2}` is `normalizedBlock · R`
-  of `HCPoly/Entry/Setup/BlockCalculus.lean`.
+  of `HCPoly/Entry/Setup/ProjectiveDistance.lean`.
 * The average `⨍_{z∈Z}` is `(#Z)⁻¹ • ∑_{z∈Z}` of the conjugated centered blocks, taken in the
   `2d`-by-`2d` matrix algebra through `toFullBlockMat`/`ofFullBlockMat`: the definition layer
   names the difference and the conjugation but no block addition, and the printed average needs
@@ -47,10 +55,10 @@ Reading of the display, stated here so that no divergence is silent:
 * **Not carried**: the integrability of either side. The display asserts none, and the proof
   derives it from the standing assumptions ("the bounded-window estimate gives the required
   `L^N(S_N)`-integrability", `p.fixed.geometry.parent.child.recurrence`); under the real-valued reading a
-  non-integrable moment makes the corresponding norm Mathlib's junk `0`. No `MemLqSchatten`
+  non-integrable moment makes the corresponding norm Mathlib's junk `0`. No `SchattenMemLp`
   premise is added here, since the manuscript prints one only in `l.fixed.geometry.positive.gap`.
 
-The proof applies `Homogenization.HighContrast.Provider.fixed_geometry_matrix_averaging` (`HCPoly/Entry/MatrixAveraging.lean`).
+The proof applies `Homogenization.HighContrast.Entry.fixed_geometry_matrix_averaging` (`HCPoly/Entry/MatrixAveraging.lean`).
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean blockSub coarseBlock normalizedBlock)
@@ -97,6 +105,6 @@ theorem fixed_geometry_matrix_averaging
                 normalizedBlock
                   (blockSub (coarseBlock (HighContrast.adaptedCell (Geometry.explicitRoundedGrid jStar m) j) a)
                     (adaptedMean P (Geometry.explicitRoundedGrid jStar m) j))
-                  R) := by exact Homogenization.HighContrast.Provider.fixed_geometry_matrix_averaging d hd γ hγ
+                  R) := by exact Homogenization.HighContrast.Entry.fixed_geometry_matrix_averaging d hd γ hγ
 
 end Homogenization.HighContrast

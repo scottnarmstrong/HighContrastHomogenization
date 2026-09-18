@@ -1,7 +1,121 @@
-import HCPoly.Entry.Setup.AdaptedGrid
+import HCPoly.Setup.Geometry
+import HCPoly.Setup.Moments
+import Mathlib.Algebra.Order.Archimedean.Real.Basic
 
 /-!
-# The adapted-grid Whitney families of the two-grid lemma
+# Adapted Grid Cells
+
+The adapted grid, the exponents the scale selection is stated with, and the cells of the adapted grid the printed statements name.  The aligned cells and the scaled lattice are the adapted-grid part fixed near `e.rounded.grid.bounds`; the fixed even moment and its exponent are those of `e.scale.selection.Q.choice`; and the maximal aligned families are the centred families of the two-grid Whitney lemma `l.two.grid.whitney`.
+-/
+
+section
+/-!
+## The aligned cells of an adapted grid
+
+Near `e.rounded.grid.bounds` the paper fixes the rounded geometry `q = 𝒬(𝔪)` and the
+adapted cell `⋄_j^q = q □_j`, and then indexes everything by the aligned centers
+`z ∈ 3^j q ℤ^d`: the fluctuation `V^q_{j,k}(z)` is read on `z + ⋄_j^q` (near `e.scale.selection.normalized.mean.fluctuation`), the
+fluctuation history maximizes over `z ∈ 3^j q ℤ^d ∩ ⋄_m^q` (near `e.scale.selection.fluctuation.history`), and the Whitney
+families of `l.two.grid.whitney` are families of cells `z + ⋄_r^q` with `z ∈ 3^r q ℤ^d`.
+
+`HCPoly/Setup/Geometry.lean` has `adaptedCell q j` and the translate
+`adaptedCellTranslate q j y` by an arbitrary vector.  This file adds the aligned part: the
+center `3^j q w` of the cell at the integer index `w`, the lattice `3^j q ℤ^d` of such
+centers, and the cell at an index.  Nothing here depends on `q` being a rounded grid; the
+printed hypothesis `q = 𝒬(𝔪)` stays with the consumer, exactly as it does in
+`HCPoly/Entry/Geometry/AdaptedCell.lean`.
+
+The aligned notions rest on `adaptedCell` and `adaptedCellTranslate` from
+`HCPoly/Setup/Geometry.lean` and `adaptedCellCenter` from `HCPoly/Setup/Moments.lean`.
+
+`adaptedCellCenter` is the center `3^j q w` of the cell at the integer index `w`, and
+`adaptedCellAtCenter` is the translate of that cell, defined through `adaptedCellTranslate`.
+`adaptedLatticeAtScale` is the scaled lattice `3^j q ℤ^d`, not `q ℤ^d`: the generation `j` is a
+parameter here, and every printed use is of the scaled lattice.
+-/
+
+open Homogenization.HighContrast (adaptedCellCenter)
+open Homogenization.HighContrast (adaptedCellTranslate)
+namespace Homogenization.HighContrast
+
+noncomputable section
+
+variable {d : ℕ}
+
+/-- The aligned lattice `3^j q ℤ^d` of cell centres at scale `j`.
+
+This is not the `adaptedLattice` of the published `HCPoly` library
+(`HCPoly/Setup/Geometry.lean`), which takes no scale argument and is the unscaled lattice
+`q ℤ^d`.  `adaptedLatticeAtScale q j` is the image of that lattice under `x ↦ 3^j x`, so the
+two agree only at `j = 0`. -/
+def adaptedLatticeAtScale (q : Mat d) (j : ℤ) : Set (Vec d) :=
+  Set.range (adaptedCellCenter q j)
+
+/-- The aligned adapted cell `z + ⋄_j^q` at the integer index `w`, i.e. at the centre
+`z = 3^j q w ∈ 3^j q ℤ^d`, written as the translate of `⋄_j^q` by that centre.
+
+The `adaptedCellAt` of the published `HCPoly` library (`HCPoly/Setup/Geometry.lean`) is the
+same set of points, written directly as the image of `adaptedCell q j` under `x ↦ 3^j q w + x`.
+The two are equal by unfolding `adaptedCellTranslate` and `adaptedCellCenter`, but neither is
+the other's normal form, so a `simp` or `rw` lemma about one does not fire on the other. -/
+def adaptedCellAtCenter (q : Mat d) (j : ℤ) (w : Fin d → ℤ) : Set (Vec d) :=
+  adaptedCellTranslate q j (adaptedCellCenter q j w)
+
+end
+
+end Homogenization.HighContrast
+end
+
+section
+/-!
+## The fixed moment `Q` and the exponent `ρ_max`
+
+`e.scale.selection.Q.choice`:
+
+> Fix the even moment and set
+> `Q := 2⌈2(d+1)/(1-γ)⌉` and `ρ_max := γ + (1/Q)(d + ¼(1-γ)) < 1`.
+
+Both are formulas in the dimension `d` and the coarse-ellipticity exponent `γ`, and both
+match the printed display symbol for symbol.  Two things the display asserts are **not**
+part of either definition and are not asserted here: that `ρ_max < 1`, and that `Q` is even
+(it is `2` times a natural number by construction).  Each is a statement about these values
+and is proved separately.
+
+`⌈·⌉` is the ceiling into `ℕ`, so `Q : ℕ`: the print uses `Q` as a moment order and compares
+it with integers (`h ≥ 2Q`).  For `γ ∈ [0,1)` — the standing range of the coarse-ellipticity
+exponent — the argument `2(d+1)/(1-γ)` is positive and the ceiling into `ℕ` agrees with the
+ceiling into `ℤ`.  Outside that range, `1 - γ ≤ 0` makes the quotient nonpositive or
+undefined, but `Q` need not vanish; the printed hypothesis `γ ∈ [0,1)` stays with the
+consumer.  The resulting totalized values have no printed interpretation outside that range.
+
+The `¼(1-γ)` and `⅛(1-γ)` that appear in the histories, the drift and the profile are
+written out at their use sites, exactly as the print does; the print gives them no name and
+none is introduced here.
+
+Equivalently, `ρ_max = γ + (d + a)/Q` with `a = ¼(1-γ)`; no symbol for this additive
+exponent, and no separate exponent for the drift, occurs in the paper.
+-/
+
+namespace Homogenization.HighContrast
+
+noncomputable section
+
+/-- The fixed even moment `Q = 2⌈2(d+1)/(1-γ)⌉` of `e.scale.selection.Q.choice`. -/
+def bigQ (d : ℕ) (γ : ℝ) : ℕ :=
+  2 * ⌈2 * ((d : ℝ) + 1) / (1 - γ)⌉₊
+
+/-- The exponent `ρ_max = γ + (1/Q)(d + ¼(1-γ))` of `e.scale.selection.Q.choice`. -/
+def rhoMax (d : ℕ) (γ : ℝ) : ℝ :=
+  γ + (bigQ d γ : ℝ)⁻¹ * ((d : ℝ) + (1 - γ) / 4)
+
+end
+
+end Homogenization.HighContrast
+end
+
+section
+/-!
+## The adapted-grid Whitney families of the two-grid lemma
 
 `l.two.grid.whitney`, the two constructions:
 
@@ -77,3 +191,4 @@ def adaptedUncoveredPart (W : Set (Vec d)) (q : Mat d) (j : ℤ) : Set (Vec d) :
 end
 
 end Homogenization.HighContrast
+end

@@ -1,6 +1,5 @@
-import HCPoly.Entry.Analysis.SchattenSpectral
-import HCPoly.Entry.Analysis.SingularValueApproximation
-import HCPoly.Entry.Analysis.SingularValueMoments
+import HCPoly.Entry.Analysis.SchattenNormFoundations
+import HCPoly.Entry.Analysis.SingularValueTheory
 import HCPoly.Entry.Source.BoundedWindowFiniteness
 import Mathlib.Analysis.Matrix.Order
 import Mathlib.Analysis.CStarAlgebra.Matrix
@@ -149,11 +148,11 @@ theorem absSchattenNorm_congr_le {d : ℕ} (X : BlockMat d) (B : FullBlockMat d)
 
 /-- Integrating the sharp pointwise estimate preserves its dimension-free coefficient. -/
 theorem lqSchattenNorm_congr_le {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ} (hN : 1 ≤ N)
-    {H : CoeffSpace d → BlockMat d} (hH : MemLqSchatten P N H) (B : FullBlockMat d) :
+    {H : CoeffSpace d → BlockMat d} (hH : SchattenMemLp P N H) (B : FullBlockMat d) :
     lqSchattenNorm P N (fun a => ofFullBlockMat (Bᵀ * toFullBlockMat (H a) * B)) ≤
       ‖B‖ ^ 2 * lqSchattenNorm P N H := by
   have hNpos : 0 < N := lt_of_lt_of_le zero_lt_one hN
-  have hc : MemLqSchatten P N
+  have hc : SchattenMemLp P N
       (fun a => ofFullBlockMat (Bᵀ * toFullBlockMat (H a) * B)) := by
     simpa only [Matrix.conjTranspose_eq_transpose_of_trivial] using
       Source.memLqSchatten_congruence hH hN B

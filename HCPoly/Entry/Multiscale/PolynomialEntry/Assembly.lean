@@ -1,4 +1,4 @@
-import HCPoly.Entry.Annealed.ContrastAntitone
+import HCPoly.Entry.Annealed.AnnealedBlockOrder
 import HCPoly.Entry.Annealed.ReferenceNormalization
 import HCPoly.Entry.Multiscale.PolynomialEntry.Arithmetic
 import HCPoly.Entry.GlobalSelection
@@ -37,7 +37,7 @@ private theorem one_le_aspectRatio_of_dagger {d : ℕ} (hd : 2 ≤ d)
     {Ψ : ℝ → ℝ} {K : ℝ} {Src : CoeffSpace d → ℝ}
     (h : CoarseEllipticityDagger P γ E Ψ K Src) : 1 ≤ aspectRatio E := by
   have : NeZero d := ⟨by omega⟩
-  exact Annealed.one_le_aspectRatio h
+  exact Homogenization.HighContrast.one_le_aspectRatio_of_coarseEllipticityDagger h
 
 /-- The conclusion of `p.global.selection` after its constants `ε, Csrc, H, Cprof, σ, C`: for
 every coefficient law satisfying the standing assumptions, every `B ≥ B₀(ε,σ)`, and every
@@ -74,7 +74,7 @@ private def GlobalSelectionBody (d : ℕ) (γ : ℝ) (S : SelectionData) (ε Csr
                   (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s)
                 (blockScale (1 + Real.sqrt ε * σ) F) ∧
               (d : ℝ)⁻¹ *
-                  logDetLoss P
+                  detIncrement P
                     (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ ∧
               max
                     (max
@@ -133,7 +133,7 @@ private def ResponseTransferBody (d : ℕ) (γ : ℝ) (S : SelectionData) (ε Cs
                 (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s)
               (blockScale (1 + Real.sqrt ε * σ) F) →
             (d : ℝ)⁻¹ *
-                logDetLoss P
+                detIncrement P
                   (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ →
             max
                   (max
@@ -181,11 +181,11 @@ private theorem entry_of_law
   have := hP
   have hK : (1 : ℝ) ≤ K := one_le_growth_of_dagger hdag
   have hPi : (1 : ℝ) ≤ aspectRatio E := one_le_aspectRatio_of_dagger hd hdag
-  have ha : (0 : ℝ) ≤ Real.logb 3 (2 + aspectRatio E) := logb_two_add_nonneg _ (by linarith)
+  have ha : (0 : ℝ) ≤ Real.logb 3 (2 + aspectRatio E) := logb_two_add_nonneg _ (by linarith only [hPi])
   have hb : (0 : ℝ) ≤ Real.logb 3 (2 * K) := logb_two_mul_nonneg_of_one_le K hK
   have hBm : (1 : ℝ) ≤ max (S.B0 ε τ) Bresp := hBresp.trans (le_max_right _ _)
   have hCs : (0 : ℝ) ≤ max CsrcG CsrcR := le_trans hCsrcG.le (le_max_left _ _)
-  have hA : (0 : ℝ) ≤ Cg * (max (S.B0 ε τ) Bresp + 1) := mul_nonneg hCg.le (by linarith)
+  have hA : (0 : ℝ) ≤ Cg * (max (S.B0 ε τ) Bresp + 1) := mul_nonneg hCg.le (by linarith only [hBm])
   have hj1 : 2 * d ≤ 3 ^ entryScale (Cg * (max (S.B0 ε τ) Bresp + 1)) (max CsrcG CsrcR)
       (Real.logb 3 (2 + aspectRatio E)) (Real.logb 3 (2 * K)) d :=
     two_mul_le_three_pow_of_le d _ (le_entryScale _ _ _ _ _)
@@ -201,7 +201,7 @@ private theorem entry_of_law
   intro m hm
   -- the entry generation is above `j_*`, so the contrast at `m` is at most the contrast there
   have hjm := scale_le_terminal _ s t mEnt (max (S.B0 ε τ) Bresp)
-    (Real.logb 3 (2 + aspectRatio E)) (by linarith) ha h5 h3 hm1
+    (Real.logb 3 (2 + aspectRatio E)) (by linarith only [hBm]) ha h5 h3 hm1
   have hjle := entryScale_le (Cg * (max (S.B0 ε τ) Bresp + 1)) (max CsrcG CsrcR)
     (Real.logb 3 (2 + aspectRatio E)) (Real.logb 3 (2 * K)) d
     (add_nonneg (mul_nonneg hA ha) (mul_nonneg hCs hb))
@@ -212,13 +212,13 @@ private theorem entry_of_law
     (entry_bound_real (Cg * (max (S.B0 ε τ) Bresp + 1)) (max (S.B0 ε τ) Bresp) Cg Cresp
       (max CsrcG CsrcR) (Real.logb 3 (2 + aspectRatio E)) (Real.logb 3 (2 * K))
       (Real.logb 3 (2 + aspectRatio E * K)) d ha hb
-      (logb_two_add_le_logb_two_add_mul _ K (by linarith) hK)
+      (logb_two_add_le_logb_two_add_mul _ K (by linarith only [hPi]) hK)
       (logb_two_mul_le_two_mul_logb _ K hPi hK)
-      (logb_two_le_logb_two_add _ (mul_nonneg (by linarith) (by linarith)))
-      hA (by linarith) hCg.le hCresp.le hCs (mEnt : ℝ) (by linarith))
+      (logb_two_le_logb_two_add _ (mul_nonneg (by linarith only [hPi]) (by linarith only [hK])))
+      hA (by linarith only [hBm]) hCg.le hCresp.le hCs (mEnt : ℝ) (by linarith only [hmr, hjle]))
   have hstep := Annealed.annealedContrast_antitone d hd P γ E Ψ K Src hst hdag _ hj1 mEnt m
     hjm (le_trans hmb hm)
-  linarith
+  linarith only [hstep, hm3]
 
 /-- **`t.polynomial.entry` from `p.response.transfer`.**  For every `d ≥ 2`, every
 `γ ∈ [0,1)` and every tolerance `σ ∈ (0,1]`, the conclusion of `p.response.transfer` — its
@@ -271,7 +271,7 @@ theorem polynomial_entry_of_response_transfer
                                       (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s)
                                     (blockScale (1 + Real.sqrt ε * σ) F) →
                                   (d : ℝ)⁻¹ *
-                                      logDetLoss P
+                                      detIncrement P
                                         (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ →
                                   max
                                         (max
@@ -307,8 +307,8 @@ theorem polynomial_entry_of_response_transfer
         CoarseEllipticityDagger P γ E Ψ K S →
         ∀ m : ℤ, ⌈C * Real.logb 3 (2 + aspectRatio E * K)⌉ ≤ m →
           annealedContrast P m ≤ 1 + σ := by
-  obtain ⟨S, hS⟩ := Provider.scale_selection d hd γ hγ
-  obtain ⟨ε, hε, CsrcG, hCsrcG, hGS⟩ := Provider.global_selection d hd γ hγ S hS
+  obtain ⟨S, hS⟩ := Entry.scale_selection d hd γ hγ
+  obtain ⟨ε, hε, CsrcG, hCsrcG, hGS⟩ := Entry.global_selection d hd γ hγ S hS
   obtain ⟨CsrcR, -, hRT⟩ := hRT S hS
   obtain ⟨H, hH, hRT⟩ := hRT ε hε σ hσ
   obtain ⟨Cprof, hCprof, hGS⟩ := hGS H hH
@@ -318,7 +318,7 @@ theorem polynomial_entry_of_response_transfer
   have hBm : (1 : ℝ) ≤ max (S.B0 ε σ₀) Bresp := hBresp.trans (le_max_right _ _)
   refine ⟨entryConst (Cg * (max (S.B0 ε σ₀) Bresp + 1)) (max (S.B0 ε σ₀) Bresp) Cg Cresp
       (max CsrcG CsrcR) d,
-    entryConst_pos _ _ _ _ _ _ (mul_nonneg hCg.le (by linarith)) (by linarith) hCg hCresp.le
+    entryConst_pos _ _ _ _ _ _ (mul_nonneg hCg.le (by linarith only [hBm])) (by linarith only [hBm]) hCg hCresp.le
       (le_trans hCsrcG.le (le_max_left _ _)), ?_⟩
   intro P E Ψ K Src hP hst hur hdag
   exact entry_of_law d hd γ σ S ε CsrcG hCsrcG H Cprof σ₀ Cg hCg hGS CsrcR Bresp hBresp

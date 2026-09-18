@@ -12,15 +12,15 @@ Reading of the display, stated here so that no divergence is silent:
 * `N ≥ 2` is a **real** exponent: unlike `l.fixed.geometry.matrix.averaging` and
   `p.fixed.geometry.parent.child.recurrence`, this display does not say "even", and the printed
   right-hand side uses `(2d)^{1/N}` and `d^{1-1/N}` only.
-* "`F` and `G` … random `2d`-by-`2d` matrices in `L^N(S_N)`" is `MemLqSchatten P N F` and
-  `MemLqSchatten P N G` — the carrier of `HCPoly/Entry/Setup/SchattenNorm.lean`:
+* "`F` and `G` … random `2d`-by-`2d` matrices in `L^N(S_N)`" is `SchattenMemLp P N F` and
+  `SchattenMemLp P N G` — the carrier of `HCPoly/Entry/Setup/SchattenNorm.lean`:
   measurable for the law, almost surely symmetric, `N`-th Schatten moment `P`-integrable. This is
   the one place the manuscript prints the membership, and it is carried here and nowhere else.
 * "positive semidefinite" is the Loewner order against the zero block, and "`F ≤ G`" is the
   Loewner order of the display; both are read **almost surely**, as statements about random
   matrices in a probability space.
 * `𝔼[F]` and `𝔼[G]` are the entrywise Bochner expectations, written inline: this is exactly the
-  reading the pinned `annealedBlock` (`HCPoly/Entry/Setup/Response.lean`) gives the same symbol for the
+  reading the pinned `annealedBlock` (`HCPoly/Setup/Response.lean`) gives the same symbol for the
   coarse response, and the definition layer names the expectation only there. Nothing else is
   needed to state the display, so no new definition is introduced.
 * `|𝔼[G]|` is `blockOpNorm` (Mathlib's L2 operator norm, the print's `|·|` near `e.scale.selection.Q.choice`),
@@ -28,7 +28,7 @@ Reading of the display, stated here so that no divergence is silent:
 * The law is an arbitrary probability measure on the coefficient space: the display assumes
   nothing about it, so none of the standing assumptions of the manuscript is carried here.
 
-The proof applies `Homogenization.HighContrast.Provider.fixed_geometry_positive_gap` (`HCPoly/Entry/PositiveGap.lean`).
+The proof applies `Homogenization.HighContrast.Entry.fixed_geometry_positive_gap` (`HCPoly/Entry/PositiveGap.lean`).
 -/
 
 open Homogenization.HighContrast (CoeffSpace blockSub blockTrace)
@@ -45,7 +45,7 @@ theorem fixed_geometry_positive_gap
     (N : ℝ) (hN : 2 ≤ N)
     (P : Measure (CoeffSpace d)) (hP : IsProbabilityMeasure P)
     (F G : CoeffSpace d → BlockMat d)
-    (hF : MemLqSchatten P N F) (hG : MemLqSchatten P N G)
+    (hF : SchattenMemLp P N F) (hG : SchattenMemLp P N G)
     (hFpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a))
     (hGpos : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (G a))
     (hFG : ∀ᵐ a ∂P, BlockMatLoewnerLE (F a) (G a)) :
@@ -63,6 +63,6 @@ theorem fixed_geometry_positive_gap
             blockTrace
                 (blockSub (ofFullBlockMat (Matrix.of fun α β => ∫ b, blockMatEntry (G b) α β ∂P))
                   (ofFullBlockMat (Matrix.of fun α β => ∫ b, blockMatEntry (F b) α β ∂P))) ^
-              N⁻¹ := by exact Homogenization.HighContrast.Provider.fixed_geometry_positive_gap d hd N hN P hP F G hF hG hFpos hGpos hFG
+              N⁻¹ := by exact Homogenization.HighContrast.Entry.fixed_geometry_positive_gap d hd N hN P hP F G hF hG hFpos hGpos hFG
 
 end Homogenization.HighContrast

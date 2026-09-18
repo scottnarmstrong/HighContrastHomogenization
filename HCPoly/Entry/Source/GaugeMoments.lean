@@ -1,11 +1,19 @@
-import HCPoly.Entry.Setup.CoarseEllipticityDagger
-import HCPoly.Entry.Multiscale.SelectionExponentBounds
+import HCPoly.Frozen.CoarseEllipticityDagger
+import HCPoly.Setup.BlockAlgebra
+import HCPoly.Setup.LocalSigmaFields
+import Homogenization.CoarseGraining.BlockMatrixProperties
+import Homogenization.CoarseGraining.CoarseBounds
+import HCPoly.Setup.Response
+import HCPoly.Entry.Geometry.StandardCell
 import Homogenization.Probability.IndependentSums.PsiCalculus
+import HCPoly.Setup.CoefficientSpace
+import HCPoly.Entry.Multiscale.SelectionExponentBounds
 import Homogenization.Probability.IndependentSums.WeakOrlicz
 import Mathlib.MeasureTheory.Measure.ProbabilityMeasure
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
 import Mathlib.Analysis.SpecialFunctions.Pow.Integral
 import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
+import HCPoly.Setup.SourceObjects
 
 /-!
 # Source moments from the gauge tail
@@ -40,34 +48,30 @@ theorem source_lintegral_layercake (μ : Measure Ω) (S : Ω → ℝ)
   exact lintegral_rpow_eq_lintegral_meas_lt_mul μ
     (Filter.Eventually.of_forall hS0) hS.aemeasurable hp
 
-/-- The enlarged growth witness used when a downstream lemma requires `K ≥ 2`. -/
-def twoGrowthWitness (K : ℝ) : ℝ :=
-  max 2 K
-
-theorem two_le_twoGrowthWitness (K : ℝ) : 2 ≤ twoGrowthWitness K := by
+theorem two_le_twoGrowthWitness (K : ℝ) : 2 ≤ growthBar K := by
   exact le_max_left 2 K
 
-theorem one_lt_twoGrowthWitness (K : ℝ) : 1 < twoGrowthWitness K := by
+theorem one_lt_twoGrowthWitness (K : ℝ) : 1 < growthBar K := by
   exact lt_of_lt_of_le one_lt_two (two_le_twoGrowthWitness K)
 
 theorem le_twoGrowthWitness_of_one_lt {K : ℝ} (_hK : 1 < K) :
-    K ≤ twoGrowthWitness K := by
+    K ≤ growthBar K := by
   exact le_max_right 2 K
 
 theorem hasPsiGrowth_twoGrowthWitness_of_growth
     {Ψ : ℝ → ℝ} {K : ℝ}
     (hAdmissible : IndependentSums.AdmissiblePsi Ψ) (hK : 1 < K)
     (hGrowth : IndependentSums.HasPsiGrowth Ψ K) :
-    IndependentSums.HasPsiGrowth Ψ (twoGrowthWitness K) := by
+    IndependentSums.HasPsiGrowth Ψ (growthBar K) := by
   intro t ht
   have ht_nonneg : 0 ≤ t := le_trans zero_le_one ht
   have hK_nonneg : 0 ≤ K := le_trans zero_le_one hK.le
-  have htwoK_nonneg : 0 ≤ twoGrowthWitness K := by
+  have htwoK_nonneg : 0 ≤ growthBar K := by
     exact le_trans (by norm_num : (0 : ℝ) ≤ 2) (two_le_twoGrowthWitness K)
-  have harg_le : K * t ≤ twoGrowthWitness K * t := by
+  have harg_le : K * t ≤ growthBar K * t := by
     exact mul_le_mul_of_nonneg_right (le_twoGrowthWitness_of_one_lt hK) ht_nonneg
   have hmono :
-      Ψ (K * t) ≤ Ψ (twoGrowthWitness K * t) :=
+      Ψ (K * t) ≤ Ψ (growthBar K * t) :=
     hAdmissible.1 (mul_nonneg hK_nonneg ht_nonneg)
       (mul_nonneg htwoK_nonneg ht_nonneg) harg_le
   exact (hGrowth ht).trans hmono
@@ -76,14 +80,14 @@ theorem hasPsiGrowth_twoGrowthWitness_of_growth
 theorem gauge_inverse_rpow_bound {Ψ : ℝ → ℝ} {K q t : ℝ}
     (hΨ : IndependentSums.AdmissiblePsi Ψ) (hK : 1 < K)
     (hg : IndependentSums.HasPsiGrowth Ψ K) (hq : 2 ≤ q) (ht : 1 ≤ t) :
-    (Ψ t)⁻¹ ≤ twoGrowthWitness K ^ (3 * q ^ (2 : ℕ)) * t ^ (-q) := by
+    (Ψ t)⁻¹ ≤ growthBar K ^ (3 * q ^ (2 : ℕ)) * t ^ (-q) := by
   have ht0 : 0 < t := zero_lt_one.trans_le ht
   have hΨ0 : 0 < Ψ t := zero_lt_one.trans_le (hΨ.2 ht0.le)
   have hdouble := IndependentSums.admissiblePsi_doubling
     (two_le_twoGrowthWitness K) (hasPsiGrowth_twoGrowthWitness_of_growth hΨ hK hg)
     hΨ hq (le_refl (1 : ℝ)) ht
   simp only [one_mul] at hdouble
-  have hpoly : t ^ q ≤ twoGrowthWitness K ^ (3 * q ^ (2 : ℕ)) * Ψ t :=
+  have hpoly : t ^ q ≤ growthBar K ^ (3 * q ^ (2 : ℕ)) * Ψ t :=
     hdouble.trans (mul_le_mul_of_nonneg_left
       (div_le_self hΨ0.le (hΨ.2 zero_le_one)) (Real.rpow_nonneg (zero_lt_one.trans (one_lt_twoGrowthWitness K)).le _))
   rw [Real.rpow_neg ht0.le, ← div_eq_mul_inv]
@@ -167,13 +171,13 @@ theorem source_moment_bound_of_gauge_tail (μ : Measure Ω) [IsProbabilityMeasur
       μ.real (IndependentSums.upperTailEvent S t) ≤ (Ψ t)⁻¹) :
     MemLp S (ENNReal.ofReal p) μ ∧ Integrable (fun ω => S ω ^ p) μ ∧
       (∫ ω, S ω ^ p ∂μ) ≤
-        p * (1 + twoGrowthWitness K ^ (3 * (p + 1) ^ (2 : ℕ))) := by
+        p * (1 + growthBar K ^ (3 * (p + 1) ^ (2 : ℕ))) := by
   have hp0 : 0 < p := zero_lt_one.trans_le hp
   have hbound := source_lintegral_moment_le_of_power_tail μ S hS hS0 hp
     (Real.rpow_nonneg (zero_lt_one.trans (one_lt_twoGrowthWitness K)).le
       (3 * (p + 1) ^ (2 : ℕ))) (fun t ht =>
         (htail t (zero_lt_one.trans_le ht)).trans
-          (gauge_inverse_rpow_bound hΨ hK hg (by linarith : 2 ≤ p + 1) ht))
+          (gauge_inverse_rpow_bound hΨ hK hg (by linarith only [hp] : 2 ≤ p + 1) ht))
   have hn : 0 ≤ᵐ[μ] (fun ω => S ω ^ p) :=
     Eventually.of_forall (fun ω => Real.rpow_nonneg (hS0 ω) p)
   have hi : Integrable (fun ω => S ω ^ p) μ :=
@@ -220,20 +224,28 @@ theorem source_moment_bound (p : ℝ) (hp : 1 ≤ p) :
     source_moment_bound_of_gauge_tail μ Ψ K S hp hΨ hK hg hS hS0 htail
   refine ⟨hlp, hi, hbound.trans ?_⟩
   have hK0 : 0 < K := zero_lt_one.trans hK
-  have htwo : twoGrowthWitness K ≤ 2 * K := by
-    apply max_le <;> linarith
-  have hpow : twoGrowthWitness K ^ a ≤ (2 : ℝ) ^ a * K ^ a := by
+  have htwo : growthBar K ≤ 2 * K := by
+    apply max_le <;> linarith only [hK, hK0]
+  have hpow : growthBar K ^ a ≤ (2 : ℝ) ^ a * K ^ a := by
     rw [← Real.mul_rpow (by norm_num : (0 : ℝ) ≤ 2) hK0.le]
     exact Real.rpow_le_rpow (zero_lt_one.trans (one_lt_twoGrowthWitness K)).le htwo ha
   have hKa : 1 ≤ K ^ a := Real.one_le_rpow hK.le ha
   have hCa : a ≤ C := by
     dsimp [C]
-    linarith [mul_pos hp0 (show 0 < 1 + (2 : ℝ) ^ a by positivity)]
-  have hcoeff : p * (1 + (2 : ℝ) ^ a) ≤ C := by dsimp [C]; linarith
+    have hprod : 0 < p * (1 + (2 : ℝ) ^ a) := mul_pos hp0 (by positivity)
+    linarith only [hprod]
+  have hcoeff : p * (1 + (2 : ℝ) ^ a) ≤ C := by
+    dsimp [C]
+    linarith only [ha]
   calc
-    p * (1 + twoGrowthWitness K ^ a) ≤ p * (1 + (2 : ℝ) ^ a * K ^ a) :=
+    p * (1 + growthBar K ^ a) ≤ p * (1 + (2 : ℝ) ^ a * K ^ a) :=
       mul_le_mul_of_nonneg_left (add_le_add le_rfl hpow) hp0.le
-    _ ≤ (p * (1 + (2 : ℝ) ^ a)) * K ^ a := by nlinarith
+    _ ≤ (p * (1 + (2 : ℝ) ^ a)) * K ^ a := by
+      calc
+        p * (1 + (2 : ℝ) ^ a * K ^ a)
+            ≤ p * (K ^ a + (2 : ℝ) ^ a * K ^ a) :=
+          mul_le_mul_of_nonneg_left (add_le_add hKa le_rfl) hp0.le
+        _ = (p * (1 + (2 : ℝ) ^ a)) * K ^ a := by ring
     _ ≤ C * K ^ a := mul_le_mul_of_nonneg_right hcoeff (by positivity)
     _ ≤ C * K ^ C := mul_le_mul_of_nonneg_left
       (Real.rpow_le_rpow_of_exponent_le hK.le hCa) hC.le

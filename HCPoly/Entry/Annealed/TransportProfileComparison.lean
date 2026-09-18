@@ -1,6 +1,21 @@
 import HCPoly.Entry.Annealed.TransportDrift
 
-/-! Two-grid transport support, kept in dependency order within the owned file boundary. -/
+/-!
+# Profile comparison for the two-grid transport
+
+This module proves the profile comparison behind `p.two.grid.transport`. It bounds the
+joint maximum of a common source envelope and two fluctuation envelopes by three scalar
+moments, with no factor for the number of targets or generations; pays the actual lattice
+count on the target range through the mean-decay gap; records the weighted mean-history
+convention with its fixed factor `3^{(1−γ)/4}`; accumulates the bulk and boundary means,
+the comparison error and both source powers while keeping the early target range separate;
+and shows that a source bound on an actual target controls both its centered matrix and
+its deterministic mean penalty at the same geometric amplitude. The resulting printed
+estimate compares the profiles of two geometries within projective distance and
+Loewner-close annealed blocks, at the growth `3^{(1−γ)L/2}`, the comparison error and the
+determinant drift of the transported geometry, with the two source amplitudes kept
+separate.
+-/
 open Homogenization.HighContrast (CoeffSpace adaptedCellCenter adaptedMean aspectRatio
   aspectRatio_nonneg blockScale blockSub blockTrace coarseBlock gridRatio normalizedBlock)
 open Homogenization.HighContrast (adaptedCell aspectRatio_nonneg centeredCube standardCellCenter)
@@ -95,7 +110,7 @@ theorem transport_pair_mean_bound (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ 
     exact mul_nonneg (three_rpow_nonneg _) (hB j hj)
 /-- The mean-history convention uses t−1−j; its extra fixed factor is 3^a. -/
 theorem transport_meanHistory_weighted_bound {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (q : Mat d) (J t : ℤ) (B : ℤ → ℝ) (hB : ∀ j ∈ Finset.Icc J t, 0 ≤ B j)
-    (hM : ∀ j ∈ Finset.Ico J t, meanPenalty (bigQ d γ) (normalizedMean P q j t) ≤ B j) :
+    (hM : ∀ j ∈ Finset.Ico J t, meanPenalty (bigQ d γ) (relMean P q j t) ≤ B j) :
     meanHistory P γ q J t ≤ (3 : ℝ) ^ ((1 - γ) / 4) *
       ∑ j ∈ Finset.Icc J t, (3 : ℝ) ^ (-((1 - γ) / 4) * ((t : ℝ) - j)) * B j := by
   have he (j : ℤ) : (3 : ℝ) ^ (-((1 - γ) / 4) * ((t : ℝ) - 1 - j)) =
@@ -126,7 +141,7 @@ theorem transport_weighted_mean_accumulation (d : ℕ) (hd : 2 ≤ d)
     let G₁ := 1 / (1 - (3 : ℝ) ^ (-a))
     let G₃ := 1 / (1 - (3 : ℝ) ^ (-(3 * (1 - γ) / 4)))
     let ell := fun j : ℤ => if j ≤ k + (L : ℤ) then 1 else L
-    let p := fun r => meanPenalty Q (normalizedMean P q r (n + 2 * (L : ℤ)))
+    let p := fun r => meanPenalty Q (relMean P q r (n + 2 * (L : ℤ)))
     let decay := fun j : ℤ => (3 : ℝ) ^ (-(1 - γ) * ((j : ℝ) - jStar))
     let M := fun j : ℤ => if j < (jStar : ℤ) + L then Ce * B ^ Q else Cm *
       (p (j - (ell j : ℤ)) +
@@ -156,7 +171,7 @@ theorem transport_weighted_mean_accumulation (d : ℕ) (hd : 2 ≤ d)
   have ha : 0 < a := by dsimp only [a]; linarith only [hγ.2]
   have hG₁ : 0 ≤ G₁ := (one_div_pos.mpr (transport_geometric_Icc a ha 0 0).1).le
   have hG₃ : 0 ≤ G₃ := (one_div_pos.mpr (transport_geometric_Icc (3 * (1 - γ) / 4) (by linarith only [hγ.2]) 0 0).1).le
-  have hH : 0 ≤ H := bridge_profile_nonneg d hd P γ hγ E Ψ K S hstat hdag jStar hj m hm k _ hk (by omega)
+  have hH : 0 ≤ H := bridge_profile_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm k _ hk (by omega)
   have hell (j : ℤ) : 1 ≤ ell j ∧ ell j ≤ L := by dsimp only [ell]; split_ifs <;> omega
   have hcap (j) (hju : j ∈ U) : (jStar : ℤ) ≤ j - (ell j : ℤ) ∧ j - (ell j : ℤ) ≤ n + 2 * (L : ℤ) := by
     have hh := Finset.mem_Icc.mp hju
@@ -179,7 +194,10 @@ theorem transport_weighted_mean_accumulation (d : ℕ) (hd : 2 ≤ d)
       have hdecay : 0 ≤ decay j := by dsimp only [decay]; exact three_rpow_nonneg _
       exact mul_nonneg hCm (add_nonneg (add_nonneg (add_nonneg hb0 hbd0) hδ)
         (mul_nonneg (pow_nonneg hB Q) (add_nonneg hdecay (pow_nonneg hdecay Q))))
-  have hweight (j) : w j ≤ wb j := Real.rpow_le_rpow_of_exponent_le (by norm_num) (by linarith)
+  have hweight (j) : w j ≤ wb j := by
+    dsimp only [w, wb]
+    apply Real.rpow_le_rpow_of_exponent_le (by norm_num)
+    nlinarith only [ha]
   have hwb : (∑ j ∈ U, w j * bulk j) ≤ 2 * (2 + G₁) * D * H := by
     calc
       _ ≤ ∑ j ∈ U, wb j * bulk j := Finset.sum_le_sum fun j hjj =>
@@ -203,7 +221,7 @@ theorem transport_weighted_mean_accumulation (d : ℕ) (hd : 2 ≤ d)
       dsimp only [decay]; rw [← Real.rpow_natCast, ← Real.rpow_mul (by norm_num : (0 : ℝ) ≤ 3)]
       congr 1; ring
     simp_rw [he]
-    have hh := transport_fine_weight_sum γ hγ.2 Q (bigQ_pos d hd γ hγ) J n L
+    have hh := transport_fine_weight_sum γ hγ.2 Q (bigQ_pos d γ hγ) J n L
     apply hh.trans
     have hR : (3 : ℝ) ^ (-a * ((n : ℝ) + L - jStar)) ≤ R := Real.rpow_le_rpow_of_exponent_le (by norm_num) (by nlinarith only [mul_nonneg ha.le (Nat.cast_nonneg L)])
     have hc : 2 / (1 - (3 : ℝ) ^ (-(3 * (1 - γ) / 4))) = 2 * G₃ := by dsimp only [G₃]; ring
@@ -246,7 +264,7 @@ theorem transport_weighted_mean_accumulation (d : ℕ) (hd : 2 ≤ d)
     _ = _ := by ring
 /-- The source bound on an actual target controls both its centered matrix
 and its deterministic mean penalty with the same geometric amplitude. -/
-theorem transport_target_source_moments {d Q : ℕ} {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P] (hQ : 1 ≤ Q) (F : CoeffSpace d → BlockMat d) (hF : MemLqSchatten P (Q : ℝ) F)
+theorem transport_target_source_moments {d Q : ℕ} {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P] (hQ : 1 ≤ Q) (F : CoeffSpace d → BlockMat d) (hF : SchattenMemLp P (Q : ℝ) F)
     (hF0 : ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F a)) (X : CoeffSpace d → ℝ) (hX : Integrable X P) (hEX : ∫ a, X a ∂P ≤ 2) (C B : ℝ) (hC : 0 ≤ C) (hB : 1 ≤ B)
     (hbound : ∀ᵐ a ∂P, BlockMatLoewnerLE (F a)
       (blockScale (C * B * X a) (Book.Ch02.blockIdentity d))) :
@@ -262,7 +280,7 @@ theorem transport_target_source_moments {d Q : ℕ} {P : Measure (CoeffSpace d)}
   have ht0 := blockTrace_identity_sub_nonneg MF (isSymmetricBlockMat_integral hF.symmetric) hIF
   have htr : blockTrace (blockSub MF (Book.Ch02.blockIdentity d)) ≤ 4 * (d : ℝ) * C * B := by
     have he : blockTrace (blockSub MF (Book.Ch02.blockIdentity d)) = blockTrace MF - 2 * (d : ℝ) := by
-      rw [blockTrace, transport_fullBlock_sub, Matrix.trace_sub, transport_full_identity, Matrix.trace_one]; simp only [BlockCoord, Fintype.card_sum, Fintype.card_fin, Nat.cast_add, two_mul]; rfl
+      rw [blockTrace, toFullBlockMat_blockSub_annealed, Matrix.trace_sub, toFullBlockMat_blockIdentity, Matrix.trace_one]; simp only [BlockCoord, Fintype.card_sum, Fintype.card_fin, Nat.cast_add, two_mul]; rfl
     rw [he]; nlinarith only [ht.1, (show (0 : ℝ) ≤ d from Nat.cast_nonneg d)]
   have hs : 1 + blockTrace (blockSub MF (Book.Ch02.blockIdentity d)) ≤ (1 + 4 * (d : ℝ) * C) * B := by
     nlinarith only [htr, hB]
@@ -317,9 +335,9 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
   let Ag := (2 : ℝ) ^ ((Q : ℝ) - 1) * (1 + (2 * (d : ℝ)) ^ (Q : ℝ)⁻¹) ^ (Q : ℝ)
   let Bg := (2 : ℝ) ^ (2 * (Q : ℝ) - 1) * (1 + (d : ℝ) ^ (1 - (Q : ℝ)⁻¹)) ^ (Q : ℝ)
   let C := Ag * (Fb + Fs) + (Bg + (3 : ℝ) ^ a) * (Mb + Md + Ms) + 1
-  have hQ : 0 < Q := bigQ_pos d hd γ hγ
+  have hQ : 0 < Q := bigQ_pos d γ hγ
   have hQ1 : 1 ≤ (Q : ℝ) := by exact_mod_cast hQ
-  have hQ2 : 2 ≤ Q := bigQ_two_le d hd γ hγ
+  have hQ2 : 2 ≤ Q := bigQ_two_le d γ hγ
   have ha : 0 < a := by dsimp only [a]; linarith only [hγ.2]
   have hG₁ : 0 ≤ G₁ := (one_div_pos.mpr (transport_geometric_Icc a ha 0 0).1).le
   have hG₃ : 0 ≤ G₃ := (one_div_pos.mpr (transport_geometric_Icc (3 * (1 - γ) / 4) (by linarith only [hγ.2]) 0 0).1).le
@@ -338,7 +356,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
   refine ⟨Csrc, C, hCr.trans_le (le_max_left _ _), hC, ?_⟩
   intro P hP E Ψ K S hstat hunit hdag jStar hj hsrc m mPlus hm hmPlus hratio k n hk hkn L hL hwindow δ hδ hlow hup
   have hlog : 0 ≤ Real.logb 3 (2 * K) := (Real.logb_pos (by norm_num)
-    (by have := hdag.one_lt_growthWitness; linarith : (1 : ℝ) < 2 * K)).le
+    (by linarith only [hdag.one_lt_growthWitness] : (1 : ℝ) < 2 * K)).le
   have hs (c : ℝ) (hc : c ≤ Csrc) : ⌈c * Real.logb 3 (2 * K)⌉ ≤ (jStar : ℤ) := (Int.ceil_mono (mul_le_mul_of_nonneg_right hc hlog)).trans hsrc
   obtain ⟨X, hX0, hX, hXN, hXi, hEX, hred⟩ := hred P E Ψ K S hstat hdag jStar hj (hs Cr (le_max_left _ _))
   obtain ⟨Y, hY0, hY, hYN, hYi, hEY, hearly⟩ := hearly P E Ψ K S hstat hdag jStar hj (hs Cs ((le_max_left _ _).trans (le_max_right _ _)))
@@ -363,7 +381,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
   obtain ⟨I, hI, hIeq, hhist⟩ := transport_fluctuation_history_reindex P γ qPlus hqPlus jStar t ht
   let U := I.filter (fun p => (jStar : ℤ) + L ≤ p.1)
   have hzero (j : ℤ) : standardCellCenter j (0 : Fin d → ℤ) ∈ centeredCube d t := by
-    rw [mem_centeredCube_iff]; intro i; simp only [HighContrast.standardCellCenter, Pi.zero_apply, Int.cast_zero, mul_zero]
+    rw [Recurrence.mem_centeredCube_iff]; intro i; simp only [HighContrast.standardCellCenter, Pi.zero_apply, Int.cast_zero, mul_zero]
     have hpt : (0 : ℝ) < 3 ^ t := by positivity
     constructor <;> nlinarith only [hpt]
   have hU : U.Nonempty := ⟨(t, 0), Finset.mem_filter.mpr ⟨(hIeq _).mpr ⟨⟨ht, le_rfl⟩, hzero t⟩, by dsimp only [t]; omega⟩⟩
@@ -387,13 +405,13 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
   let R := (3 : ℝ) ^ (-a * ((n : ℝ) - jStar))
   let root := (3 : ℝ) ^ (-(a / (Q : ℝ)) * ((n : ℝ) - jStar))
   let grow := (3 : ℝ) ^ ((1 - γ) / 2 * (L : ℝ))
-  have hH : 0 ≤ H := bridge_profile_nonneg d hd P γ hγ E Ψ K S hstat hdag jStar hj m hm k s hk (by dsimp only [s]; omega)
+  have hH : 0 ≤ H := bridge_profile_nonneg d hd P γ E Ψ K S hstat hdag jStar hj m hm k s hk (by dsimp only [s]; omega)
   have hgrow : 0 ≤ grow := by dsimp only [grow]; exact three_rpow_nonneg _
   have hR : 0 ≤ R := by dsimp only [R]; exact three_rpow_nonneg _
   have hroot : 0 ≤ root := by dsimp only [root]; exact three_rpow_nonneg _
   have hB0 := zero_le_one.trans hB
   have hBpow : 0 ≤ B ^ Q := pow_nonneg hB0 Q
-  have hVmem (p) (r) : MemLqSchatten P (Q : ℝ) (V p r) := memLqSchatten_normalizedCentered_sum d hd P γ E Ψ K S hstat hdag jStar hj m hm r
+  have hVmem (p) (r) : SchattenMemLp P (Q : ℝ) (V p r) := memLqSchatten_normalizedCentered_sum d hd P γ E Ψ K S hstat hdag jStar hj m hm r
       (adaptedMean P q s) Q hQ1 (Z p r) (fun _ => v p r) id
   have hV0 (p r) : ∀ᵐ a ∂P, 0 ≤ absSchattenNorm (Q : ℝ) (V p r a) :=
     (hVmem p r).symmetric.mono fun _ ha => absSchattenNorm_nonneg ((toFullBlockMat_isHermitian_iff _).2 ha) hQ1
@@ -435,11 +453,11 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
   have hOrd (p) (hp : p ∈ I) := hordered P E Ψ K S hstat hdag jStar hj hsO m mPlus hm hmPlus hratio
     p.1 t ((hIeq p).mp hp).1.1 ((hIeq p).mp hp).1.2 (ell p.1) (hell p.1).1
     (adaptedCellCenter qPlus p.1 p.2) ⟨p.2, rfl⟩ Q hQ1
-  have hFmem (p) (hp : p ∈ I) : MemLqSchatten P (Q : ℝ) (F p) := (hFdata p hp).1
-  have hFmean (p) (hp : p ∈ I) : MF p = normalizedMean P qPlus p.1 t := (hFdata p hp).2.2.1
+  have hFmem (p) (hp : p ∈ I) : SchattenMemLp P (Q : ℝ) (F p) := (hFdata p hp).1
+  have hFmean (p) (hp : p ∈ I) : MF p = relMean P qPlus p.1 t := (hFdata p hp).2.2.1
   have hIF (p) (hp : p ∈ I) : BlockMatLoewnerLE (Book.Ch02.blockIdentity d) (MF p) := by
     rw [hFmean p hp]; exact (hFdata p hp).2.2.2
-  have hGmem (p) (hp : p ∈ I) : MemLqSchatten P (Q : ℝ) (G p) := by
+  have hGmem (p) (hp : p ∈ I) : SchattenMemLp P (Q : ℝ) (G p) := by
     by_cases he : p.1 < (jStar : ℤ) + L
     · simpa only [G, if_pos he] using hFmem p hp
     · simpa only [G, if_neg he] using! (hOrd p hp).2.1
@@ -461,7 +479,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
         have := mul_le_mul_of_nonneg_left hBnew hCe.le
         have := mul_le_mul_of_nonneg_right this (hY0 aa)
         simpa only [mul_assoc] using this))) (hIF p hp)
-  let pen := fun r => meanPenalty Q (normalizedMean P q r s)
+  let pen := fun r => meanPenalty Q (relMean P q r s)
   let decay := fun j : ℤ => (3 : ℝ) ^ (-(1 - γ) * ((j : ℝ) - jStar))
   let M := fun j : ℤ => if j < (jStar : ℤ) + L then Em * B ^ Q else Cm *
     (pen (cap j) + (∑ r ∈ Finset.Icc (jStar : ℤ) (cap j - 1),
@@ -502,11 +520,11 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
   have hDe : 2 * (d : ℝ) * Ce ≤ D := le_add_of_nonneg_left (mul_nonneg (mul_nonneg (Real.rpow_nonneg (mul_nonneg (by norm_num) (Nat.cast_nonneg d)) _) (mul_nonneg (by norm_num) (Nat.cast_nonneg d))) hCf.le)
   have hfbMax (p) (hp : p ∈ U) : ∀ᵐ aa ∂P, fb p aa ≤ Xb aa := by
     filter_upwards [(Filter.eventually_all_finset U).mpr (fun p _ => hfb0 p)] with aa haa
-    dsimp only [Xb]; rw [iSup_mem_finset_eq_sup' U hU _ haa]
+    dsimp only [Xb]; rw [iSup_mem_finset_eq_finset_sup U hU _ haa]
     exact Finset.le_sup' (fun p => fb p aa) hp
   have hfdMax (p) (hp : p ∈ U) : ∀ᵐ aa ∂P, fd p aa ≤ Xd aa := by
     filter_upwards [(Filter.eventually_all_finset U).mpr (fun p _ => hfd0 p)] with aa haa
-    dsimp only [Xd]; rw [iSup_mem_finset_eq_sup' U hU _ haa]
+    dsimp only [Xd]; rw [iSup_mem_finset_eq_finset_sup U hU _ haa]
     exact Finset.le_sup' (fun p => fd p aa) hp
   have hfbound (p) (hp : p ∈ I) : ∀ᵐ aa ∂P,
       f p aa ≤ A * (Xb aa + Xd aa) + (D * B * root) * Xs aa := by
@@ -569,7 +587,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
     simpa only [t, Int.cast_add, Int.cast_natCast] using transport_pair_mean_bound d hd γ hγ I (jStar : ℤ) t
       (fun p hp => ((hIeq p).mp hp).1) (fun p hp => ((hIeq p).mp hp).2) (fun p => meanPenalty Q (MG p)) M hM0 hMbound
   have hMH : meanHistory P γ qPlus (jStar : ℤ) t ≤ (3 : ℝ) ^ a * Sm := by
-    have hjmean (j) (hjj : j ∈ Finset.Ico (jStar : ℤ) t) : meanPenalty Q (normalizedMean P qPlus j t) ≤ M j := by
+    have hjmean (j) (hjj : j ∈ Finset.Ico (jStar : ℤ) t) : meanPenalty Q (relMean P qPlus j t) ≤ M j := by
       have hp : (j, 0) ∈ I := (hIeq _).mpr ⟨⟨(Finset.mem_Ico.mp hjj).1, (Finset.mem_Ico.mp hjj).2.le⟩, hzero j⟩
       have ho : BlockMatLoewnerLE (MF (j, 0)) (MG (j, 0)) := blockMatLoewnerLE_integral ((hFmem _ hp).integrable_entry hQ1) ((hGmem _ hp).integrable_entry hQ1) (hFG _ hp)
       have hm := (meanPenalty_mono_and_dominates Q (by omega)
@@ -580,7 +598,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
     simpa only [t, Int.cast_add, Int.cast_natCast] using transport_meanHistory_weighted_bound P γ qPlus (jStar : ℤ) t M hM0 hjmean
   have hcenterF (p) (hp : p ∈ I) (aa) : normalizedFluctuation P qPlus p.1 t (adaptedCellCenter qPlus p.1 p.2) aa =
       blockSub (F p aa) (MF p) := by
-    rw [hFmean p hp]; exact transport_normalized_sub _ _ _
+    rw [hFmean p hp]; exact normalizedBlock_blockSub _ _ _
   have hSup (aa) : (⨆ p ∈ (I : Set (ℤ × (Fin d → ℤ))), weight p *
       blockOpNorm (normalizedFluctuation P qPlus p.1 t (adaptedCellCenter qPlus p.1 p.2) aa)) =
       ⨆ p ∈ (I : Set (ℤ × (Fin d → ℤ))), weight p * blockOpNorm (blockSub (F p aa) (MF p)) := by

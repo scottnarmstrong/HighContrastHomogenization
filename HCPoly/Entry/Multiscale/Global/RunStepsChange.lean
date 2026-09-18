@@ -1,12 +1,15 @@
 import HCPoly.Entry.Multiscale.Global.RunSteps
+import HCPoly.Provider.Recurrence.AdaptedCellMeasurability
 
 /-!
 # The change-of-geometry steps of the run
 
 `R3b` (Alternative 2, `𝔪₊ ≠ 𝔪⋆`) and `R3c` (Alternative 2, `𝔪₊ = 𝔪⋆` with a failed
-determinant test): the two clauses of `SelectionData.Selects` that move the metric, share the
-reserve bookkeeping `run_gauge_step`, and are landed with complete proofs. Each carries the
-extra binders its verbatim skeleton statement was missing; see the docstrings.
+determinant test) are the two clauses of `SelectionData.Selects` that move the metric. Each
+produces a successor run state on the updated metric and a strict decrease of the run gauge by
+`c`, the charge and the `2aC(h+2)log(1+δ)` jump of the metric being paid out of the
+determinant reserve by the shared bookkeeping `run_gauge_step`. These are the
+change-of-geometry alternatives of `p.global.selection`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockLogDet blockScale)
@@ -40,10 +43,11 @@ private theorem run_gauge_step {d : ℕ} (hd : 2 ≤ d)
       (blockScale (1 + δ) (adaptedMean P (Geometry.explicitRoundedGrid jStar m) u)))
     (hstep : potential P γ jStar η a mP s t - potential P γ jStar η a m k n ≤
       -c - 2 * a * C * ((h : ℝ) + 2) * Real.log (1 + δ) + a * C / d * charge)
-    (hcharge : charge ≤ logDetLoss P (Geometry.explicitRoundedGrid jStar m) k u +
-      logDetLoss P (Geometry.explicitRoundedGrid jStar mP) s t) :
+    (hcharge : charge ≤ detIncrement P (Geometry.explicitRoundedGrid jStar m) k u +
+      detIncrement P (Geometry.explicitRoundedGrid jStar mP) s t) :
     runGauge P γ jStar η a w h mP s t - runGauge P γ jStar η a w h m k n ≤ -c := by
   let := hP
+  have _hur := hur
   have hd0 : 0 < d := by omega
   have hdR : (0 : ℝ) < d := by exact_mod_cast hd0
   have hdne : (d : ℝ) ≠ 0 := ne_of_gt hdR
@@ -53,23 +57,23 @@ private theorem run_gauge_step {d : ℕ} (hd : 2 ≤ d)
     intro r r' hr hrr'
     have hnn := Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hstat hce jStar hjStar m hm
       r r' (hk.trans hr) hrr'
-    unfold logDetLoss at hnn
-    linarith
+    unfold detIncrement at hnn
+    linarith only [hnn]
   have hmonoD' : ∀ r r' : ℤ, k ≤ r → r ≤ r' →
       blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar mP) r') ≤
         blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar mP) r) := by
     intro r r' hr hrr'
     have hnn := Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hstat hce jStar hjStar mP hmP
       r r' (hk.trans hr) hrr'
-    unfold logDetLoss at hnn
-    linarith
+    unfold detIncrement at hnn
+    linarith only [hnn]
   have hjump' : blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar mP) s) ≤
       blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar m) u) +
         2 * (d : ℝ) * Real.log (1 + δ) :=
-    blockLogDet_le_of_sandwich _ _ δ hδ (adaptedMean_isSymmetric _ _ _)
-      (run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hstat hur hce jStar hjStar m hm u)
-      (adaptedMean_isSymmetric _ _ _)
-      (run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hstat hur hce jStar hjStar mP hmP s)
+    blockLogDet_le_of_sandwich _ _ δ hδ (Recurrence.isSymmetricBlockMat_adaptedMean _ _ _)
+      (run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hstat hce jStar hjStar m hm u)
+      (Recurrence.isSymmetricBlockMat_adaptedMean _ _ _)
+      (run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hstat hce jStar hjStar mP hmP s)
       hjump
   have hres := run_reserve_change
     (fun r => blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar m) r))
@@ -90,7 +94,7 @@ private theorem run_gauge_step {d : ℕ} (hd : 2 ≤ d)
     (run_reserve (fun r => blockLogDet (adaptedMean P (Geometry.explicitRoundedGrid jStar mP) r)) h s t)
     c w charge (2 * (d : ℝ) * ((h : ℝ) + 2) * Real.log (1 + δ)) hw0
     (by rw [hwJ, hwc]; exact hstep)
-    (by unfold logDetLoss at hcharge; linarith)
+    (by unfold detIncrement at hcharge; linarith only [hcharge, hres])
   unfold runGauge
   exact hfinal
 
@@ -101,9 +105,9 @@ length-`h` start-up step, so the target is `partial_change_decrease`
 `comparison_choice`'s `min (ε/2) (Cσ/4)` at `δ = √ε σ` (supplied by the `ε` chosen in
 `global_run_of_gap`, passed here as `hcomp`); `hw` is `weight_choice_ge_d`; `hmet` is
 `partial_change_metric` (`PartialChangeMetric.lean`), whose `hsym`/`hpos`/`hsymP`/
-`hposP` are `adaptedMean_isSymmetric` + `run_adaptedMean_blockPosDef`, whose `hmono` is the
+`hposP` are `Recurrence.isSymmetricBlockMat_adaptedMean` + `run_adaptedMean_blockPosDef`, whose `hmono` is the
 annealed order, whose `hbr₁`/`hbr₂` are the bridge sandwich at `δ = √ε σ`
-(`Provider.successful_short_bridge`; passed here as `hbr₁`/`hbr₂`), and whose `hfar` is the
+(`Entry.successful_short_bridge`; passed here as `hbr₁`/`hbr₂`), and whose `hfar` is the
 case hypothesis `hne`; `hxP1` is the tail clause `honeP`; `hspan` is the Alt-1 start-up
 clause of `Selects` applied at the new state `(𝔪₊, n+L, n+L)`, weakened from
 `C(x + e^{QΔ} − 1)` to `C·h·(x + e^{QΔ} − 1)` using `1 ≤ S.h`; the nonnegativities are tree
@@ -183,7 +187,7 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
             (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
               (st.n + 2 * (S.L ε σ : ℤ)))))) jStar (st.n + (S.L ε σ : ℤ)) +
           (Real.exp ((bigQ d γ : ℝ) *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
+            detIncrement P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
               (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
                 (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ))
               (st.n + (S.L ε σ : ℤ) + (S.h : ℤ))) - 1)))
@@ -199,6 +203,7 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
   classical
   let := hP
   have : NeZero d := ⟨by omega⟩
+  have _hγ := hγ
   have _ := ha
   have _ := hc
   have _ := hsmall
@@ -216,11 +221,14 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
     have h := Real.sqrt_lt_sqrt hε0.le hε1
     rwa [Real.sqrt_one] at h
   have hδ0 : 0 ≤ Real.sqrt ε * σ := mul_nonneg hsq0 hσ0.le
-  have hδ1 : Real.sqrt ε * σ < 1 := by nlinarith
+  have hδ1 : Real.sqrt ε * σ < 1 := by
+    calc Real.sqrt ε * σ < 1 * σ := mul_lt_mul_of_pos_right hsq1 hσ0
+      _ = σ := one_mul σ
+      _ < 1 := hσ1
   have hη0 : 0 < S.eta ε σ := by
     unfold SelectionData.eta
     exact mul_pos (mul_pos hcpos hε0) hσ0
-  have hη1 : S.eta ε σ ≤ 1 := SelectionData_eta_le_one S ε σ ⟨hε0, hεle⟩ ⟨hσ0, hσle⟩
+  have hη1 : S.eta ε σ ≤ 1 := selectionData_eta_le_one S ε σ ⟨hε0, hεle⟩ ⟨hσ0, hσle⟩
   have hstk := st.hk
   have hstkn := st.hkn
   have hstgap := st.hgap hlt
@@ -228,8 +236,8 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
   have hstgen := st.hgen
   have hFsym : IsSymmetricBlockMat
       (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) (st.n + 2 * (S.L ε σ : ℤ))) :=
-    adaptedMean_isSymmetric _ _ _
-  have hFpos := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce jStar hjStar
+    Recurrence.isSymmetricBlockMat_adaptedMean _ _ _
+  have hFpos := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce jStar hjStar
     st.m st.hm (st.n + 2 * (S.L ε σ : ℤ))
   have hmStar : (explicitCanonicalMetric
       (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) (st.n + 2 * (S.L ε σ : ℤ)))).PosDef :=
@@ -240,17 +248,17 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
     Geometry.geometryUpdate_posDef st.hm hmStar ε
   have hmet := partial_change_metric P jStar ε (Real.sqrt ε * σ) st.m st.k st.n (S.L ε σ)
     st.hm hε0 ⟨hδ0, hδ1⟩
-    (fun j => adaptedMean_isSymmetric _ _ _)
-    (fun j => run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce jStar hjStar
+    (fun j => Recurrence.isSymmetricBlockMat_adaptedMean _ _ _)
+    (fun j => run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce jStar hjStar
       st.m st.hm j)
-    (adaptedMean_isSymmetric _ _ _)
-    (run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce jStar hjStar _ hmP _)
+    (Recurrence.isSymmetricBlockMat_adaptedMean _ _ _)
+    (run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce jStar hjStar _ hmP _)
     hmono hfar hbr₁ hbr₂
-  have hx0 := profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hjStar
+  have hx0 := profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
     st.m st.hm st.k st.n st.hk st.hkn
-  have hxP0 := profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hjStar
+  have hxP0 := profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
     _ hmP (st.n + (S.L ε σ : ℤ)) (st.n + (S.L ε σ : ℤ)) (by omega) le_rfl
-  have hx'0 := profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hjStar
+  have hx'0 := profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
     _ hmP (st.n + (S.L ε σ : ℤ)) (st.n + (S.L ε σ : ℤ) + (S.h : ℤ)) (by omega) (by omega)
   have hΔ := Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar st.m st.hm
     st.k (st.n + 2 * (S.L ε σ : ℤ)) st.hk (by omega)
@@ -266,7 +274,7 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
       by omega, by omega, ?_, ?_, ?_, ?_, ?_, ?_⟩, rfl, rfl, rfl, rfl, ?_⟩
   · have h := heccP
     push_cast at h ⊢
-    linarith
+    linarith only [h]
   · intro hcon
     exact absurd hcon (by omega)
   · intro _
@@ -277,18 +285,18 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
       Matrix.PosDef.one st.hm hmP
     have hmv := Geometry.projectiveDistance_geometryUpdate_le st.hm hmStar hε0
     push_cast at hstpr ⊢
-    linarith
+    linarith only [htri, hmv, hstpr]
   · have key : (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * (((st.i + 1 : ℕ) : ℤ) + 1)
         = (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * ((st.i : ℤ) + 1)
           + (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) := by push_cast; ring
     have hLnn : (0 : ℤ) ≤ (S.L ε σ : ℤ) := by omega
     have hHnn : (0 : ℤ) ≤ (H : ℤ) := by omega
-    linarith [hstgen, key, hLnn, hHnn]
+    linarith only [hstgen, key, hLnn, hHnn]
   · omega
   · exact run_gauge_step hd P γ E Ψ K Src hP hst hur hce jStar hjStar st.m _ st.hm hmP
       (S.eta ε σ) a w (Real.sqrt ε * σ) C c
-      (logDetLoss P (Geometry.explicitRoundedGrid jStar st.m) st.k (st.n + 2 * (S.L ε σ : ℤ)) +
-        logDetLoss P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
+      (detIncrement P (Geometry.explicitRoundedGrid jStar st.m) st.k (st.n + 2 * (S.L ε σ : ℤ)) +
+        detIncrement P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
           (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
             (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ))
           (st.n + (S.L ε σ : ℤ) + (S.h : ℤ)))
@@ -296,7 +304,7 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
       (st.n + (S.L ε σ : ℤ) + (S.h : ℤ))
       hw
       (by rw [hw]
-          exact div_nonneg (mul_nonneg (by linarith : (0 : ℝ) ≤ a) (by linarith : (0 : ℝ) ≤ C))
+          exact div_nonneg (mul_nonneg (by linarith only [ha1] : (0 : ℝ) ≤ a) (by linarith only [hC] : (0 : ℝ) ≤ C))
             (Nat.cast_nonneg d))
       hδ0 hstk hstkn (by omega) (by omega) (by omega) le_rfl hbr₂ hpd le_rfl
 
@@ -304,7 +312,7 @@ theorem run_step_change {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ic
 target is `failed_test_decrease` (`PotentialDecreases.lean`). `hcomp` is the second
 branch of `comparison_choice` (`≤ Cσ/4`); `hmet` is the bridge half of
 `partial_change_metric` at the reached target (`d_pr(𝔪₊, m(𝐀_{n+L,q₊})) ≤ ½log((1+δ)/(1−δ))`
-from `explicitCanonicalMetric_projectiveDistance_le_of_sandwich'` and `hbr₁`/`hbr₂`); `hΔ'` is the
+from `explicitCanonicalMetric_projectiveDistance_le_of_deltaSandwich` and `hbr₁`/`hbr₂`); `hΔ'` is the
 negated stop test through `det_bridge_not_lt`; `hspan` is conjunct 8 of
 `fixed_geometry_one_grid_propagation_full` at `h := 2 * bigQ d γ` (premise by `rfl`),
 `L := (H : ℤ)`, guard branch `m = n` (here `k' = n'`), with `1 ≤ (H : ℤ)` from `4 ≤ H` —
@@ -366,7 +374,7 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
         (((st.n : ℝ) + (S.L ε σ : ℝ)) - (jStar : ℝ) -
           (⌈B * Real.logb 3 (2 + aspectRatio E)⌉ : ℤ)))
     (htest : ¬ ((d : ℝ)⁻¹ *
-      logDetLoss P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
+      detIncrement P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
         (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
           (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ))
         (st.n + (S.L ε σ : ℤ) + (H : ℤ)) < σ))
@@ -387,7 +395,7 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
             (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
               (st.n + 2 * (S.L ε σ : ℤ)))))) jStar (st.n + (S.L ε σ : ℤ)) +
           (Real.exp ((bigQ d γ : ℝ) *
-            logDetLoss P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
+            detIncrement P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
               (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
                 (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ))
               (st.n + (S.L ε σ : ℤ) + (H : ℤ))) - 1))) :
@@ -402,6 +410,7 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
   classical
   let := hP
   have : NeZero d := ⟨by omega⟩
+  have _hγ := hγ
   have _ := hsrc
   have _ := ha
   have _ := hsmall
@@ -425,7 +434,7 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
   have hη0 : 0 < S.eta ε σ := by
     unfold SelectionData.eta
     exact mul_pos (mul_pos hcpos hε0) hσ0
-  have hη1 : S.eta ε σ ≤ 1 := SelectionData_eta_le_one S ε σ ⟨hε0, hεle⟩ ⟨hσ0, hσle⟩
+  have hη1 : S.eta ε σ ≤ 1 := selectionData_eta_le_one S ε σ ⟨hε0, hεle⟩ ⟨hσ0, hσle⟩
   have hH4 : 4 ≤ H := le_trans (le_max_left 4 S.h) hH
   have hHh : S.h ≤ H := le_trans (le_max_right 4 S.h) hH
   have hstk := st.hk
@@ -443,8 +452,8 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
     exact Real.log_nonneg (le_add_of_nonneg_right hprod)
   have hFsym : IsSymmetricBlockMat
       (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) (st.n + 2 * (S.L ε σ : ℤ))) :=
-    adaptedMean_isSymmetric _ _ _
-  have hFpos := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce jStar hjStar
+    Recurrence.isSymmetricBlockMat_adaptedMean _ _ _
+  have hFpos := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce jStar hjStar
     st.m st.hm (st.n + 2 * (S.L ε σ : ℤ))
   have hmStar : (explicitCanonicalMetric
       (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) (st.n + 2 * (S.L ε σ : ℤ)))).PosDef :=
@@ -453,26 +462,26 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
       (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
         (st.n + 2 * (S.L ε σ : ℤ))))).PosDef :=
     Geometry.geometryUpdate_posDef st.hm hmStar ε
-  have hGpos := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce jStar hjStar
+  have hGpos := run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce jStar hjStar
     _ hmP (st.n + (S.L ε σ : ℤ))
-  have hsand := explicitCanonicalMetric_projectiveDistance_le_of_sandwich'
+  have hsand := explicitCanonicalMetric_projectiveDistance_le_of_deltaSandwich
     (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) (st.n + 2 * (S.L ε σ : ℤ)))
     (adaptedMean P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
       (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
         (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ)))
-    (Real.sqrt ε * σ) ⟨hδ0, hδ1⟩ hFsym hFpos (adaptedMean_isSymmetric _ _ _) hGpos hbr₁ hbr₂
+    (Real.sqrt ε * σ) ⟨hδ0, hδ1⟩ hFsym hFpos (Recurrence.isSymmetricBlockMat_adaptedMean _ _ _) hGpos hbr₁ hbr₂
   have hmet := pd_rw _ _ _ _ heq hsand
   have hold : 0 ≤ projectiveDistance st.m
       (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m) st.k)) :=
     Geometry.projectiveDistance_nonneg st.hm
-      (explicitCanonicalMetric_posDef _ (adaptedMean_isSymmetric _ _ _)
-        (run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hur hce jStar hjStar
+      (explicitCanonicalMetric_posDef _ (Recurrence.isSymmetricBlockMat_adaptedMean _ _ _)
+        (run_adaptedMean_blockPosDef hd P γ E Ψ K Src hP hst hce jStar hjStar
           st.m st.hm st.k))
-  have hx0 := profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hjStar
+  have hx0 := profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
     st.m st.hm st.k st.n st.hk st.hkn
-  have hxP0 := profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hjStar
+  have hxP0 := profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
     _ hmP (st.n + (S.L ε σ : ℤ)) (st.n + (S.L ε σ : ℤ)) (by omega) le_rfl
-  have hx'0 := profile_add_determinantDrift_nonneg d hd P γ hγ E Ψ K Src hst hce jStar hjStar
+  have hx'0 := profile_add_determinantDrift_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar
     _ hmP (st.n + (S.L ε σ : ℤ)) (st.n + (S.L ε σ : ℤ) + (H : ℤ)) (by omega) (by omega)
   have hΔ := Annealed.logDetLoss_nonneg d hd P γ E Ψ K Src hst hce jStar hjStar st.m st.hm
     st.k (st.n + 2 * (S.L ε σ : ℤ)) st.hk (by omega)
@@ -487,7 +496,7 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
       by omega, by omega, ?_, ?_, ?_, ?_, ?_, ?_⟩, rfl, rfl, rfl, rfl, ?_⟩
   · have h := heccP
     push_cast at h ⊢
-    linarith
+    linarith only [h]
   · intro hcon
     exact absurd hcon (by omega)
   · intro _
@@ -498,17 +507,17 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
       Matrix.PosDef.one st.hm hmP
     have hmv := Geometry.projectiveDistance_geometryUpdate_le st.hm hmStar hε0
     push_cast at hstpr ⊢
-    linarith
+    linarith only [htri, hmv, hstpr]
   · have key : (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * (((st.i + 1 : ℕ) : ℤ) + 1)
         = (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) * ((st.i : ℤ) + 1)
           + (2 * (S.L ε σ : ℤ) + (H : ℤ) + (S.h : ℤ)) := by push_cast; ring
     have hLnn : (0 : ℤ) ≤ (S.L ε σ : ℤ) := by omega
     have hhnn : (0 : ℤ) ≤ (S.h : ℤ) := by omega
-    linarith [hstgen, key, hLnn, hhnn]
+    linarith only [hstgen, key, hLnn, hhnn]
   · omega
   · exact run_gauge_step hd P γ E Ψ K Src hP hst hur hce jStar hjStar st.m _ st.hm hmP
       (S.eta ε σ) a w (Real.sqrt ε * σ) C c
-      (logDetLoss P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
+      (detIncrement P (Geometry.explicitRoundedGrid jStar (geometryUpdate ε st.m
         (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar st.m)
           (st.n + 2 * (S.L ε σ : ℤ)))))) (st.n + (S.L ε σ : ℤ))
         (st.n + (S.L ε σ : ℤ) + (H : ℤ)))
@@ -516,9 +525,9 @@ theorem run_step_failed_test {d : ℕ} (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ S
       (st.n + (S.L ε σ : ℤ) + (H : ℤ))
       hw
       (by rw [hw]
-          exact div_nonneg (mul_nonneg (by linarith : (0 : ℝ) ≤ a) (by linarith : (0 : ℝ) ≤ C))
+          exact div_nonneg (mul_nonneg (by linarith only [ha1] : (0 : ℝ) ≤ a) (by linarith only [hC] : (0 : ℝ) ≤ C))
             (Nat.cast_nonneg d))
-      hδ0 hstk hstkn (by omega) (by omega) (by omega) (by omega) hbr₂ hft (by linarith)
+      hδ0 hstk hstkn (by omega) (by omega) (by omega) (by omega) hbr₂ hft (by linarith only [hΔ])
 end
 
 end Homogenization.HighContrast.Multiscale

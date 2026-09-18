@@ -1,4 +1,9 @@
-import HCPoly.Entry.Setup.Attainment
+import HCPoly.Setup.Contrast
+import Mathlib.Topology.Instances.Matrix
+import Mathlib.Topology.Order.Compact
+import HCPoly.Setup.Attainment
+import HCPoly.Setup.BlockAlgebra
+import HCPoly.Setup.SpectralBound
 import HCPoly.Geometry.AspectRatioMonotone
 
 /-!
@@ -65,57 +70,6 @@ private theorem lowerRight_mul_schurSkew {H : BlockMat d} (hdet : IsUnit H.lower
     Matrix.one_mul]
 
 /-! ## The skew-corrected form as a doubled quadratic form -/
-
-/-- **The skew-corrected form is a doubled quadratic form.**  For a symmetric doubled block
-matrix with invertible lower-right block, the quadratic form of
-`σ + (k - h)ᵗ σ_*⁻¹ (k - h)` at `e` is the doubled quadratic form at the block vector
-`(e, h e)`. -/
-theorem vecDot_skewCorrectedForm_eq_blockVecDot {H : BlockMat d}
-    (hsymm : IsSymmetricBlockMat H) (hdet : IsUnit H.lowerRight.det) (h : Mat d) (e : Vec d) :
-    vecDot e (matVecMul (skewCorrectedForm H h) e) =
-      blockVecDot (e, matVecMul h e) (blockMatVecMul H (e, matVecMul h e)) := by
-  obtain ⟨a, ha⟩ : ∃ a : Vec d, a = matVecMul (schurSkew H) e := ⟨_, rfl⟩
-  obtain ⟨b, hb⟩ : ∃ b : Vec d, b = matVecMul h e := ⟨_, rfl⟩
-  obtain ⟨c, hc⟩ : ∃ c : Vec d, c = matVecMul H.lowerLeft e := ⟨_, rfl⟩
-  have hLa : matVecMul H.lowerRight a = -c := by
-    rw [ha, hc, matVecMul_mul, lowerRight_mul_schurSkew hdet, neg_matVecMul]
-  have hLsymm : ∀ x y : Vec d,
-      vecDot x (matVecMul H.lowerRight y) = vecDot (matVecMul H.lowerRight x) y := by
-    intro x y
-    have := vecDot_matVecMul_transpose x y H.lowerRight
-    rwa [matTranspose_lowerRight hsymm] at this
-  have hR : ∀ x y : Vec d,
-      vecDot x (matVecMul H.upperRight y) = vecDot (matVecMul H.lowerLeft x) y := by
-    intro x y
-    have := vecDot_matVecMul_transpose x y H.lowerLeft
-    rwa [matTranspose_lowerLeft hsymm] at this
-  have hk : vecDot e (matVecMul (matTranspose (schurSkew H) * H.lowerRight * schurSkew H) e) =
-      vecDot a (matVecMul H.lowerRight a) := by
-    rw [Matrix.mul_assoc, ← matVecMul_mul, vecDot_matVecMul_transpose, ← matVecMul_mul, ha]
-  have hm : vecDot e (matVecMul (matTranspose (schurSkew H - h) * H.lowerRight *
-      (schurSkew H - h)) e) = vecDot (a - b) (matVecMul H.lowerRight (a - b)) := by
-    rw [Matrix.mul_assoc, ← matVecMul_mul, vecDot_matVecMul_transpose, ← matVecMul_mul,
-      sub_matVecMul, ha, hb]
-  have hL : vecDot e (matVecMul (skewCorrectedForm H h) e) =
-      vecDot e (matVecMul H.upperLeft e) - vecDot a (matVecMul H.lowerRight a) +
-        vecDot (a - b) (matVecMul H.lowerRight (a - b)) := by
-    rw [skewCorrectedForm, add_matVecMul, vecDot_add_right, schurSigma, sub_matVecMul,
-      vecDot_sub_right, hk, hm]
-  have hab : vecDot (a - b) (matVecMul H.lowerRight (a - b)) =
-      vecDot a (matVecMul H.lowerRight a) + 2 * vecDot c b +
-        vecDot b (matVecMul H.lowerRight b) := by
-    rw [matVecMul_sub, vecDot_sub_left, vecDot_sub_right, vecDot_sub_right, hLsymm a b, hLa]
-    simp only [vecDot_neg_left, vecDot_neg_right]
-    rw [vecDot_comm b c]
-    ring
-  have hRHS : blockVecDot (e, b) (blockMatVecMul H (e, b)) =
-      vecDot e (matVecMul H.upperLeft e) + vecDot c b + (vecDot c b +
-        vecDot b (matVecMul H.lowerRight b)) := by
-    change vecDot e (matVecMul H.upperLeft e + matVecMul H.upperRight b) +
-      vecDot b (matVecMul H.lowerLeft e + matVecMul H.lowerRight b) = _
-    rw [vecDot_add_right, vecDot_add_right, hR e b, ← hc, vecDot_comm b c]
-  rw [hL, hab, ← hb, hRHS]
-  ring
 
 /-! ## Order consequences of a Loewner comparison -/
 
@@ -198,8 +152,8 @@ theorem blockContrast_le_of_blockMatLoewnerLE {A B : BlockMat d}
   refine blockContrast_le (blockContrast_nonneg B) hskew fun e => ?_
   change (1 / 2 : ℝ) * vecDot e (matVecMul (skewCorrectedForm A h) e) ≤
     (1 / 2 : ℝ) * vecDot e (matVecMul (blockContrast B • schurSigmaStar A) e)
-  have hA := vecDot_skewCorrectedForm_eq_blockVecDot hAsymm (isUnit_det_lowerRight hApos) h e
-  have hB := vecDot_skewCorrectedForm_eq_blockVecDot hBsymm (isUnit_det_lowerRight hBpos) h e
+  have hA := vecDot_matVecMul_skewCorrectedForm hAsymm (isUnit_det_lowerRight hApos) h e
+  have hB := vecDot_matVecMul_skewCorrectedForm hBsymm (isUnit_det_lowerRight hBpos) h e
   have h1 := hAB (e, matVecMul h e)
   have h2 := hle e
   have h3 := hstar e

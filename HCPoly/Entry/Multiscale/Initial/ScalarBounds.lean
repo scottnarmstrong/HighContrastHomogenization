@@ -1,22 +1,20 @@
-import HCPoly.Entry.Analysis.MeanPenaltyBounds
+import HCPoly.Entry.Analysis.PositiveGapSupport
 import HCPoly.Entry.Analysis.ReferenceComparison
-import HCPoly.Entry.Analysis.ScalarMomentInequalities
-import HCPoly.Entry.Analysis.SchattenSpectral
-import HCPoly.Entry.Annealed.AdaptedDomainRecovery
-import HCPoly.Entry.Annealed.AdaptedIntegrability
-import HCPoly.Entry.Annealed.LogDetOrder
-import HCPoly.Entry.Annealed.MeanOrder
+import HCPoly.Entry.Analysis.SchattenNormFoundations
+import HCPoly.Entry.Annealed.AdaptedDomainLocality
+import HCPoly.Entry.Annealed.AdaptedCellFoundations
+import HCPoly.Entry.Annealed.AnnealedBlockOrder
 import HCPoly.Entry.Annealed.Normalization
 import HCPoly.Entry.Annealed.ReferenceNormalization
 import HCPoly.Entry.Geometry.CanonicalMetricBounds
-import HCPoly.Entry.Geometry.EuclideanGrid
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.Geometry.ProjectiveMetric
 import HCPoly.Entry.Geometry.RoundedGridComparison
 import HCPoly.Entry.Multiscale.DriftAdvance
-import HCPoly.Entry.Multiscale.ProfileIdentities
 import HCPoly.Entry.Multiscale.SelectionExponentBounds
 import HCPoly.Entry.Setup.SelectionData
 import HCPoly.Entry.Source.AdaptedBound
+import HCPoly.Provider.Recurrence.PositiveGapClosure
 import Mathlib.Analysis.SpecialFunctions.ContinuousFunctionalCalculus.Rpow.Order
 
 /-!
@@ -47,24 +45,24 @@ theorem ceil_source_threshold_le_of_le (K : ℝ) (hK : 1 < K) (a b : ℝ) (hab :
     (hb : ⌈b * Real.logb 3 (2 * K)⌉ ≤ j) :
     ⌈a * Real.logb 3 (2 * K)⌉ ≤ j := by
   have h : 0 ≤ Real.logb 3 (2 * K) :=
-    Real.logb_nonneg (by norm_num) (by linarith)
+    Real.logb_nonneg (by norm_num) (by linarith only [hK])
   exact le_trans (Int.ceil_le_ceil (mul_le_mul_of_nonneg_right hab h)) hb
 
 /-- A2. `log₃(2+Π) ≥ 1` whenever `2+Π ≥ 3` (`p.initial.fixed.grid.scale`). -/
 theorem one_le_logb_three_of_three_le (x : ℝ) (hx : 3 ≤ x) : 1 ≤ Real.logb 3 x := by
-  rw [Real.le_logb_iff_rpow_le (by norm_num : (1:ℝ) < 3) (by linarith : (0:ℝ) < x)]
+  rw [Real.le_logb_iff_rpow_le (by norm_num : (1:ℝ) < 3) (by linarith only [hx] : (0:ℝ) < x)]
   simp only [Real.rpow_one]
   exact hx
 
 /-- A3. `log(24Π) ≤ C log₃(2+Π)` with the printed-size constant. -/
 theorem log_aspect_le_logb (Pi : ℝ) (hPi : 1 ≤ Pi) :
     Real.log (24 * Pi) ≤ (Real.log 24 + Real.log 3) * Real.logb 3 (2 + Pi) := by
-  have hPi_pos : 0 < Pi := by linarith
+  have hPi_pos : 0 < Pi := by linarith only [hPi]
   have log_3_pos : 0 < Real.log 3 := Real.log_pos (by norm_num)
   have log_24_pos : 0 < Real.log 24 := Real.log_pos (by norm_num)
-  have h3_le : Real.log 3 ≤ Real.log (2 + Pi) := Real.log_le_log (by norm_num) (by linarith)
-  have hPi_le : Real.log Pi ≤ Real.log (2 + Pi) := Real.log_le_log hPi_pos (by linarith)
-  rw [Real.log_mul (by norm_num : (24 : ℝ) ≠ 0) (by linarith : Pi ≠ 0)]
+  have h3_le : Real.log 3 ≤ Real.log (2 + Pi) := Real.log_le_log (by norm_num) (by linarith only [hPi])
+  have hPi_le : Real.log Pi ≤ Real.log (2 + Pi) := Real.log_le_log hPi_pos (by linarith only [])
+  rw [Real.log_mul (by norm_num : (24 : ℝ) ≠ 0) (by linarith only [hPi] : Pi ≠ 0)]
   unfold Real.logb
   rw [← mul_div_assoc, le_div_iff₀ log_3_pos]
   have t1 : Real.log 24 * Real.log 3 ≤ Real.log 24 * Real.log (2 + Pi) :=
@@ -79,21 +77,21 @@ theorem log_aspect_le_logb (Pi : ℝ) (hPi : 1 ≤ Pi) :
 /-- A4. `½ log(24Π) ≤ log(2+4Π)` (the `24Π` normalization enters the entry radius). -/
 theorem half_log_aspect_le (Pi : ℝ) (hPi : 1 ≤ Pi) :
     1 / 2 * Real.log (24 * Pi) ≤ Real.log (2 + 4 * Pi) := by
-  have h1 : 0 < 24 * Pi := by nlinarith [hPi]
-  have h2 : 6 ≤ 2 + 4 * Pi := by linarith [hPi]
-  have h3 : 24 * Pi ≤ 6 * (2 + 4 * Pi) := by nlinarith [hPi]
+  have h1 : 0 < 24 * Pi := by nlinarith only [hPi]
+  have h2 : 6 ≤ 2 + 4 * Pi := by linarith only [hPi]
+  have h3 : 24 * Pi ≤ 6 * (2 + 4 * Pi) := by nlinarith only [hPi]
   have h4 : 0 < (6 : ℝ) := by norm_num
   have h5 : Real.log (24 * Pi) ≤ Real.log (6 * (2 + 4 * Pi)) :=
     Real.log_le_log h1 h3
   have h6 : (6 : ℝ) ≠ 0 := by norm_num
-  have h7 : 2 + 4 * Pi ≠ 0 := by linarith [hPi]
+  have h7 : 2 + 4 * Pi ≠ 0 := by linarith only [hPi]
   rw [Real.log_mul h6 h7] at h5
   have h8 : Real.log 6 ≤ Real.log (2 + 4 * Pi) := Real.log_le_log h4 h2
   calc 1 / 2 * Real.log (24 * Pi)
     ≤ 1 / 2 * (Real.log 6 + Real.log (2 + 4 * Pi)) :=
       mul_le_mul_of_nonneg_left h5 (by norm_num)
     _ = 1 / 2 * Real.log 6 + 1 / 2 * Real.log (2 + 4 * Pi) := by ring
-    _ ≤ 1 / 2 * Real.log (2 + 4 * Pi) + 1 / 2 * Real.log (2 + 4 * Pi) := by linarith [h8]
+    _ ≤ 1 / 2 * Real.log (2 + 4 * Pi) + 1 / 2 * Real.log (2 + 4 * Pi) := by linarith only [h8]
     _ = Real.log (2 + 4 * Pi) := by ring
 
 /-- A5. Polynomial bookkeeping in `Π`: `(cΠ)^k ≤ c^k (2+Π)^k`. -/
@@ -101,7 +99,7 @@ theorem aspect_pow_le_two_add_pow (Pi : ℝ) (hPi : 1 ≤ Pi) (c : ℝ) (hc : 1 
     (c * Pi) ^ k ≤ c ^ k * (2 + Pi) ^ k := by
   rw [mul_pow]
   apply mul_le_mul_of_nonneg_left
-  · exact pow_le_pow_left₀ (by linarith) (by linarith) k
+  · exact pow_le_pow_left₀ (by linarith only [hPi]) (by linarith only []) k
   · positivity
 
 /-- A6. The elementary scalar calculation of `p.initial.fixed.grid.scale`. -/
@@ -112,10 +110,10 @@ theorem scalar_log_decrement (Q C₀ x x' y : ℝ) (hQ : 0 ≤ Q) (hC₀ : 0 ≤
       Real.log (1 + x) - Real.log (16 / 9) + (Q + 8 / 9 * C₀ * Q) * y := by
   have hQy : (0:ℝ) ≤ Q*y := mul_nonneg hQ hy
   have h1 : (1:ℝ) ≤ Real.exp (Q*y) := Real.one_le_exp hQy
-  have h2 : (0:ℝ) ≤ Real.exp (Q*y) - 1 := by linarith
+  have h2 : (0:ℝ) ≤ Real.exp (Q*y) - 1 := by linarith only [h1]
   have h3 : (0:ℝ) ≤ C₀ * (Real.exp (Q*y) - 1) := mul_nonneg hC₀ h2
   have h4 : (0:ℝ) ≤ 1/8 * Real.exp (Q*y) * x := by positivity
-  have h_x'_pos : 0 < 1 + x' := by linarith
+  have h_x'_pos : 0 < 1 + x' := by linarith only [hx']
   have h_exp_bound : Real.exp (Q*y) - 1 ≤ Q*y * Real.exp (Q*y) := by
     have hA := Real.add_one_le_exp (-(Q*y))
     have hexp_pos := Real.exp_pos (Q*y)
@@ -123,32 +121,49 @@ theorem scalar_log_decrement (Q C₀ x x' y : ℝ) (hQ : 0 ≤ Q) (hC₀ : 0 ≤
       rw [← Real.exp_add]; simp
     have hC : (-(Q*y) + 1) * Real.exp (Q*y) ≤ Real.exp (-(Q*y)) * Real.exp (Q*y) :=
       mul_le_mul_of_nonneg_right hA hexp_pos.le
-    nlinarith [hC, hB]
+    have hC1 : (-(Q*y) + 1) * Real.exp (Q*y) ≤ 1 := hC.trans_eq hB
+    nlinarith only [hC1]
   have h_C0 : C₀ * (Real.exp (Q*y) - 1) ≤ C₀ * (Q*y*Real.exp (Q*y)) :=
     mul_le_mul_of_nonneg_left h_exp_bound hC₀
   have h_mid : 1 + x' ≤ Real.exp (Q*y) * (1 + x/8) + C₀ * (Q*y*Real.exp (Q*y)) := by
-    nlinarith [h, h1, h_C0]
-  have hfactor : (0:ℝ) ≤ (9/16)*(1+x) - (1+x/8) := by linarith
+    have h_one_add : 1 + 1/8 * Real.exp (Q*y) * x ≤ Real.exp (Q*y) * (1 + x/8) := by
+      calc 1 + 1/8 * Real.exp (Q*y) * x
+          ≤ Real.exp (Q*y) + 1/8 * Real.exp (Q*y) * x := add_le_add_left h1 _
+        _ = Real.exp (Q*y) * (1 + x/8) := by ring
+    calc 1 + x'
+        ≤ 1 + (1/8 * Real.exp (Q*y) * x + C₀ * (Real.exp (Q*y) - 1)) := add_le_add_right h 1
+      _ = (1 + 1/8 * Real.exp (Q*y) * x) + C₀ * (Real.exp (Q*y) - 1) := by ring
+      _ ≤ Real.exp (Q*y) * (1 + x/8) + C₀ * (Q*y*Real.exp (Q*y)) :=
+          add_le_add h_one_add h_C0
+  have hfactor : (0:ℝ) ≤ (9/16)*(1+x) - (1+x/8) := by linarith only [hx]
   have h_ratio : Real.exp (Q*y) * (1+x/8) ≤ (9/16)*(1+x)*Real.exp (Q*y) := by
-    nlinarith [mul_nonneg hfactor (Real.exp_pos (Q*y)).le]
+    have hle : 1 + x/8 ≤ (9/16)*(1+x) := by linarith only [hfactor]
+    calc Real.exp (Q*y) * (1+x/8) = (1+x/8) * Real.exp (Q*y) := by ring
+      _ ≤ (9/16)*(1+x) * Real.exp (Q*y) :=
+          mul_le_mul_of_nonneg_right hle (Real.exp_pos (Q*y)).le
   have hnn : (0:ℝ) ≤ C₀ * (Q*y*Real.exp (Q*y)) :=
     mul_nonneg hC₀ (mul_nonneg hQy (Real.exp_pos (Q*y)).le)
-  have hxx : (1:ℝ) ≤ (1+x)/2 := by linarith
+  have hxx : (1:ℝ) ≤ (1+x)/2 := by linarith only [hx]
   have h_C0term : C₀*(Q*y*Real.exp (Q*y)) ≤ (1+x)/2 * (C₀*(Q*y*Real.exp (Q*y))) :=
     le_mul_of_one_le_left hnn hxx
   have h_add_exp := Real.add_one_le_exp (8/9*C₀*Q*y)
-  have h1x : (0:ℝ) ≤ 1+x := by linarith
+  have h1x : (0:ℝ) ≤ 1+x := by linarith only [hx]
   have hpos3 : (0:ℝ) ≤ (9/16)*(1+x)*Real.exp (Q*y) :=
     mul_nonneg (mul_nonneg (by norm_num : (0:ℝ) ≤ 9/16) h1x) (Real.exp_pos (Q*y)).le
   have h_final_factor : (9/16)*(1+x)*Real.exp (Q*y) * (8/9*C₀*Q*y + 1) ≤
       (9/16)*(1+x)*Real.exp (Q*y) * Real.exp (8/9*C₀*Q*y) :=
     mul_le_mul_of_nonneg_left h_add_exp hpos3
   have h_key : 1 + x' ≤ (9/16 : ℝ) * (1 + x) * Real.exp (Q*y) * Real.exp (8/9*C₀*Q*y) := by
-    nlinarith [h_mid, h_ratio, h_C0term, h_final_factor]
+    have h_step1 : 1 + x' ≤
+        (9/16)*(1+x)*Real.exp (Q*y) + (1+x)/2 * (C₀*(Q*y*Real.exp (Q*y))) := by
+      linarith only [h_mid, h_ratio, h_C0term]
+    have h_split : (9/16)*(1+x)*Real.exp (Q*y) + (1+x)/2 * (C₀*(Q*y*Real.exp (Q*y))) =
+        (9/16)*(1+x)*Real.exp (Q*y) * (8/9*C₀*Q*y + 1) := by ring
+    exact (h_step1.trans_eq h_split).trans h_final_factor
   have h_log := Real.log_le_log h_x'_pos h_key
   have hA0 : (9/16:ℝ) ≠ 0 := by norm_num
   have hB0 : (1+x:ℝ) ≠ 0 := by
-    have : (0:ℝ) < 1+x := by linarith
+    have : (0:ℝ) < 1+x := by linarith only [hx]
     exact this.ne'
   have hCexp0 : Real.exp (Q*y) ≠ 0 := (Real.exp_pos (Q*y)).ne'
   have hDexp0 : Real.exp (8/9*C₀*Q*y) ≠ 0 := (Real.exp_pos (8/9*C₀*Q*y)).ne'
@@ -159,7 +174,7 @@ theorem scalar_log_decrement (Q C₀ x x' y : ℝ) (hQ : 0 ≤ Q) (hC₀ : 0 ≤
     rw [Real.log_mul hABC0 hDexp0, Real.log_mul hAB0 hCexp0, Real.log_mul hA0 hB0,
         Real.log_exp, Real.log_exp, show (9/16:ℝ) = (16/9)⁻¹ by norm_num, Real.log_inv]
     ring
-  linarith [h_log, h_log_eq]
+  linarith only [h_log, h_log_eq]
 
 /-- A7. The hitting-index argument of `p.initial.fixed.grid.scale`, abstractly. -/
 theorem exists_good_index_of_decrement (W δ : ℕ → ℝ) (bad : ℕ → Prop) (Ksteps : ℕ)
@@ -170,7 +185,7 @@ theorem exists_good_index_of_decrement (W δ : ℕ → ℝ) (bad : ℕ → Prop)
   by_contra h
   push Not at h
   suffices ∀ k ≤ Ksteps, W k ≤ W 0 - (k : ℝ) * a + c * ∑ ℓ ∈ Finset.range k, δ ℓ by
-    linarith [this Ksteps (le_refl _), hW Ksteps, hK]
+    linarith only [this Ksteps (le_refl _), hW Ksteps, hK]
   intro k hk
   revert hk
   induction k with
@@ -183,7 +198,7 @@ theorem exists_good_index_of_decrement (W δ : ℕ → ℝ) (bad : ℕ → Prop)
     have dec := hdec k hk_lt (h k hk_lt)
     rw [Finset.sum_range_succ]
     push_cast
-    linarith
+    linarith only [ih', dec]
 
 /-- A8. Integer telescoping over `Finset.Icc (a+1) b`. -/
 theorem sum_Icc_int_telescope (f : ℤ → ℝ) {a b : ℤ} (hab : a ≤ b) :
@@ -212,8 +227,8 @@ theorem geometric_weight_sum_Icc_le (θ : ℝ) (hθ : 0 < θ) (a b : ℤ) :
       (1 - (3 : ℝ) ^ (-θ))⁻¹ := by
   have hr0 : (0:ℝ) ≤ (3:ℝ) ^ (-θ) := Real.rpow_nonneg (by norm_num) _
   have hr1 : (3:ℝ) ^ (-θ) < 1 :=
-    Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith)
-  have hpos : (0:ℝ) < 1 - (3:ℝ) ^ (-θ) := by linarith
+    Real.rpow_lt_one_of_one_lt_of_neg (by norm_num) (by linarith only [hθ])
+  have hpos : (0:ℝ) < 1 - (3:ℝ) ^ (-θ) := by linarith only [hr1]
   have key : ∀ b : ℤ, a - 1 ≤ b →
       ∑ j ∈ Finset.Icc a b, (3:ℝ) ^ (-θ * ((b:ℝ) - (j:ℝ))) ≤ (1 - (3:ℝ) ^ (-θ))⁻¹ := by
     intro b hb
@@ -249,7 +264,7 @@ theorem geometric_weight_sum_Icc_le (θ : ℝ) (hθ : 0 < θ) (a b : ℤ) :
       have hmul : (3:ℝ) ^ (-θ) * (∑ j ∈ Finset.Icc a b, (3:ℝ) ^ (-θ * ((b:ℝ) - (j:ℝ)))) ≤
           (3:ℝ) ^ (-θ) * (1 - (3:ℝ) ^ (-θ))⁻¹ :=
         mul_le_mul_of_nonneg_left ih hr0
-      linarith
+      linarith only [hmul, heq]
   rcases le_or_gt a b with hab | hab
   · exact key b (by omega)
   · rw [Finset.Icc_eq_empty_of_lt hab, Finset.sum_empty]
@@ -274,10 +289,6 @@ theorem geometric_weight_sum_Ico_le (θ : ℝ) (hθ : 0 < θ) (a b : ℤ) :
     Finset.sum_congr rfl h_weight
   rw [this]
   exact geometric_weight_sum_Icc_le θ hθ a (b - 1)
-
-/-- A11. `toFullBlockMat` is additive on `blockSub` (public restatement). -/
-theorem toFullBlockMat_blockSub' {d : ℕ} (A B : BlockMat d) :
-    toFullBlockMat (blockSub A B) = toFullBlockMat A - toFullBlockMat B := by ext α β; cases α <;> cases β <;> rfl
 
 /-- A12. Positive definiteness of the full matrix gives `BlockPosDef` (public restatement). -/
 theorem blockPosDef_of_toFullBlockMat_posDef {d : ℕ} (A : BlockMat d)
@@ -327,7 +338,7 @@ theorem blockTrace_sub_identity_le_of_le_scale {d : ℕ} (M : BlockMat d) (c : �
       rw [blockMatEntry_blockScale]
       cases α <;> simp [Book.Ch02.blockIdentity, Book.Ch02.blockDiag, blockMatEntry]
     rw [hid] at h
-    linarith
+    linarith only [h]
   have hid1 : ∀ α : BlockCoord d, blockMatEntry (Book.Ch02.blockIdentity d) α α = 1 := by
     intro α
     cases α <;> simp [Book.Ch02.blockIdentity, Book.Ch02.blockDiag, blockMatEntry]
@@ -345,7 +356,7 @@ theorem blockTrace_sub_identity_le_of_le_scale {d : ℕ} (M : BlockMat d) (c : �
         refine Finset.sum_le_sum ?_
         intro α _
         rw [hid1 α]
-        linarith [key α]
+        linarith only [key α]
     _ = 2 * (d : ℝ) * (c - 1) := by
         rw [Finset.sum_const, Finset.card_univ, nsmul_eq_mul]
         have : (Fintype.card (BlockCoord d) : ℝ) = 2 * (d : ℝ) := by
@@ -367,7 +378,7 @@ theorem meanPenalty_le_of_le_scale {d : ℕ} (Q : ℕ) (M : BlockMat d)
   have hcnn : (0 : ℝ) ≤ c - 1 := sub_nonneg.mpr hc
   have h2 : (1 + blockTrace (blockSub M (Book.Ch02.blockIdentity d))) ^ Q
       ≤ (1 + 2 * (d : ℝ) * (c - 1)) ^ Q :=
-    pow_le_pow_left₀ (by linarith) (by linarith [hcnn, h1]) Q
+    pow_le_pow_left₀ (by linarith only [h0]) (by linarith only [h1]) Q
   simpa [meanPenalty] using h2
 
 /-- A15. The `Q`-th Schatten moment of a symmetric block sandwiched in `[−I, c·I]`. -/
@@ -485,7 +496,7 @@ theorem normalizedBlock_le_scale_and_logDet_le {d : ℕ} (F G : BlockMat d)
   have hupper : toFullBlockMat (normalizedBlock F G) ≤ c • (1 : FullBlockMat d) := by
     simpa only [normalizedBlock, toFullBlockMat_ofFullBlockMat,
       full_scale, Matrix.mul_smul, Matrix.smul_mul,
-      Homogenization.HighContrast.Multiscale.matSqrt_inv_mul_self_mul_matSqrt_inv_full hG] using hu
+      matSqrt_inv_conj hG] using hu
   have hI : toFullBlockMat (Book.Ch02.blockIdentity d) = 1 := by
     ext (i | i) (j | j) <;>
       simp [Book.Ch02.blockIdentity, Book.Ch02.blockDiag, toFullBlockMat, Matrix.one_apply]

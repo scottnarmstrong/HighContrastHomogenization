@@ -1,6 +1,6 @@
 import HCPoly.Entry.Setup.AdaptedGridCells
 import HCPoly.Setup.SourceObjects
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.TwoGridWhitney
 
 /-!
@@ -50,7 +50,7 @@ Reading of the display, stated here so that no divergence is silent:
   is a real power. The first estimate of `e.two.grid.whitney.counts` is carried at the selected
   generations `r ≤ j−ℓ`, the range in which the display uses it.
 
-The proof applies `Homogenization.HighContrast.Provider.two_grid_whitney` (`HCPoly/Entry/TwoGridWhitney.lean`).
+The proof applies `Homogenization.HighContrast.Entry.two_grid_whitney` (`HCPoly/Entry/TwoGridWhitney.lean`).
 -/
 
 open Homogenization.HighContrast (gridRatio)
@@ -170,6 +170,6 @@ theorem two_grid_whitney
                                 (Geometry.explicitRoundedGrid jStar m) r)).toReal /
                               (volume (HighContrast.adaptedCellTranslate
                                 (Geometry.explicitRoundedGrid jStar m) j y)).toReal ≤
-                          C * (3 : ℝ) ^ ((r : ℝ) - (j : ℝ)))) := by exact Homogenization.HighContrast.Provider.two_grid_whitney d hd
+                          C * (3 : ℝ) ^ ((r : ℝ) - (j : ℝ)))) := by exact Homogenization.HighContrast.Entry.two_grid_whitney d hd
 
 end Homogenization.HighContrast

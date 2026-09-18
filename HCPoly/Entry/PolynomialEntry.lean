@@ -4,7 +4,7 @@ import HCPoly.Entry.ResponseTransfer
 /-!
 # `t.polynomial.entry`
 
-`Homogenization.HighContrast.Provider.polynomial_entry` is the statement of
+`Homogenization.HighContrast.Entry.polynomial_entry` is the statement of
 `Homogenization.HighContrast.polynomial_entry` (`HCPoly/Entry/Statements/PolynomialEntry.lean`), the paper's
 Theorem A.  Its statement is the one, character for character; the statement file's body
 is one `by exact` application of this theorem to that statement's binders.
@@ -15,7 +15,7 @@ The proof is the assembly `Homogenization.HighContrast.Multiscale.polynomial_ent
 -/
 
 open Homogenization.HighContrast (CoeffSpace annealedContrast aspectRatio)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory
 
@@ -42,4 +42,4 @@ theorem polynomial_entry
   Multiscale.polynomial_entry_of_response_transfer d hd γ hγ
     (fun S hS => response_transfer d hd γ hγ S hS) σ hσ
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

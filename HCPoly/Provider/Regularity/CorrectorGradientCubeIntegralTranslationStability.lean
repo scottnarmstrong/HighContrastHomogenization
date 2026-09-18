@@ -3,7 +3,9 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Regularity.TranslationCubeIntegralStability
+import Homogenization.Multiscale.NormalizedNorms
+import Homogenization.Geometry.CubeMeasure
+import Homogenization.Geometry.Translation
 import HCPoly.Provider.Regularity.CorrectorGlobalRepresentative
 import HCPoly.Provider.Regularity.LocalGradientTranslation
 
@@ -51,31 +53,6 @@ theorem NormalizedLocalH1Carrier.memLp_globalGradientRepresentative_translate_no
       ENNReal.ofReal ((cubeVolume (originCube d (n : ℤ)))⁻¹) ≠ ⊤)
   simpa only [volumeMeasureOn, localGradientCube, normalizedCubeMeasure,
     cubeMeasure, volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hScaled
-
-/-- Under uniform normalized `L²` bounds for a glued corrector gradient and
-its fixed translate, their centered normalized cube integrals have vanishing
-difference. -/
-theorem NormalizedLocalH1Carrier.tendsto_norm_integral_globalGradient_translate_sub_zero
-    {d : ℕ} (Phi : NormalizedLocalH1Carrier d) (t : Vec d) (M : ℝ)
-    (hM : ∀ n : ℕ,
-      cubeLpNorm (originCube d (n : ℤ)) (2 : ENNReal)
-        Phi.globalGradientRepresentative ≤ M)
-    (hMt : ∀ n : ℕ,
-      cubeLpNorm (originCube d (n : ℤ)) (2 : ENNReal)
-        (fun x ↦ Phi.globalGradientRepresentative (x + t)) ≤ M) :
-    Tendsto
-      (fun n : ℕ ↦
-        ‖(∫ x, Phi.globalGradientRepresentative (x + t)
-            ∂normalizedCubeMeasure (originCube d (n : ℤ))) -
-          ∫ x, Phi.globalGradientRepresentative x
-            ∂normalizedCubeMeasure (originCube d (n : ℤ))‖)
-      atTop (nhds 0) := by
-  exact tendsto_norm_integral_translate_sub_integral_normalizedCubeMeasure_zero
-    t Phi.globalGradientRepresentative
-      (fun n ↦ Phi.memLp_globalGradientRepresentative_normalizedCubeMeasure n)
-      (fun n ↦
-        Phi.memLp_globalGradientRepresentative_translate_normalizedCubeMeasure t n)
-      M hM hMt
 
 end
 

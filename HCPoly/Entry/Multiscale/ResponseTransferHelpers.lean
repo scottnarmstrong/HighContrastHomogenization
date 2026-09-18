@@ -1,14 +1,15 @@
 import HCPoly.Entry.Setup.SelectionData
-import HCPoly.Entry.Setup.SpectralBound
-import HCPoly.Entry.Analysis.SchattenSpectral
+import HCPoly.Entry.Setup.SchattenNorm
+import HCPoly.Entry.Analysis.SchattenNormFoundations
 import HCPoly.Entry.Analysis.ReferenceComparison
+import HCPoly.Entry.Analysis.SchattenCongruence
 import Mathlib.Analysis.Matrix.Order
 
 /-!
 # Matrix-analysis helpers for the K3/K4 kernels of the `p.response.transfer` decomposition
 
 Generic matrix-order and Schur-complement lemmas, and the canonical-imbalance comparison
-`𝔡(X) ≤ c ↔ X ≤ c • 𝐑X⁻¹𝐑`, used by `AdaptedDefs` and `Support`.
+`𝔡(X) ≤ c ↔ X ≤ c • 𝐑X⁻¹𝐑`, used by `ResponseBlockObjects` and `EccentricityScaleDecay`.
 -/
 
 open Homogenization.HighContrast (IsSkewMat blockContrast blockContrast_le
@@ -22,7 +23,7 @@ open scoped Matrix MatrixOrder
 /-- The canonical imbalance `𝔡(A)` of a block (`e.response.canonical.imbalance`, near `e.response.canonical.imbalance`):
 `𝔡(A) := |(𝐑A⁻¹𝐑)^{-1/2}A(𝐑A⁻¹𝐑)^{-1/2}|`, where `𝐑` is the fixed swap block near `e.scale.selection.complete.profile`
 (`blockSwap`). It is rendered
-faithfully via `normalizedBlock`/`blockOpNorm`/`blockSwap` (`HCPoly/Entry/Setup/BlockCalculus.lean`), not
+faithfully via `normalizedBlock`/`blockOpNorm`/`blockSwap` (`HCPoly/Entry/Setup/ProjectiveDistance.lean`), not
 via `explicitCanonicalMetric` (an unrelated adapted-grid reference object). -/
 noncomputable def canonicalImbalance {d : ℕ} (A : BlockMat d) : ℝ :=
   blockOpNorm (normalizedBlock A
@@ -117,7 +118,10 @@ theorem opNorm_le_of_psd_dot_le {n : Type*} [Fintype n] [DecidableEq n]
     rw [sqrt_form hP v, Real.sq_sqrt hK]
     exact h v
   rw [sqrt_norm hP]
-  nlinarith [hb, norm_nonneg (matSqrt P), Real.sqrt_nonneg K, Real.mul_self_sqrt hK]
+  calc ‖matSqrt P‖ * ‖matSqrt P‖
+      ≤ ‖matSqrt P‖ * Real.sqrt K := mul_le_mul_of_nonneg_left hb (norm_nonneg _)
+    _ ≤ Real.sqrt K * Real.sqrt K := mul_le_mul_of_nonneg_right hb (Real.sqrt_nonneg K)
+    _ = K := Real.mul_self_sqrt hK
 
 /-- `P ≤ c • 1` implies the quadratic form bound `v. (P v) ≤ c (v. v)`. -/
 theorem dot_le_of_le_smul_one {n : Type*} [Fintype n] [DecidableEq n]
@@ -126,7 +130,7 @@ theorem dot_le_of_le_smul_one {n : Type*} [Fintype n] [DecidableEq n]
   have h2 := (Matrix.le_iff.mp h).dotProduct_mulVec_nonneg v
   simp only [star_trivial, Matrix.sub_mulVec, dotProduct_sub, Matrix.smul_mulVec,
     Matrix.one_mulVec, dotProduct_smul, smul_eq_mul] at h2
-  linarith
+  linarith only [h2]
 
 /-- Conversely, a uniform quadratic form bound `v. (P v) ≤ c (v. v)` for Hermitian `P`
 implies `P ≤ c • 1`. -/
@@ -138,7 +142,7 @@ theorem le_smul_one_of_dot_le {n : Type*} [Fintype n] [DecidableEq n]
   have hv := h v
   simp only [star_trivial, Matrix.sub_mulVec, dotProduct_sub, Matrix.smul_mulVec,
     Matrix.one_mulVec, dotProduct_smul, smul_eq_mul]
-  linarith
+  linarith only [hv]
 
 /-- A nonnegative scalar multiple of a positive semidefinite matrix is positive
 semidefinite. -/
@@ -174,83 +178,7 @@ theorem smul_le_smul_psd {n : Type*} [Fintype n] [DecidableEq n] {N : Matrix n n
     (hN : N.PosSemidef) {a b : ℝ} (hab : a ≤ b) : a • N ≤ b • N := by
   refine Matrix.le_iff.mpr ?_
   rw [← sub_smul]
-  exact psd_smul hN (by linarith)
-
-/-- Congruence by any matrix `S` preserves the Loewner order: `A ≤ B` implies
-`Sᵀ A S ≤ Sᵀ B S`. -/
-theorem congr_le {n : Type*} [Fintype n] [DecidableEq n]
-    {A B : Matrix n n ℝ} (hAB : A ≤ B) (S : Matrix n n ℝ) :
-    Sᵀ * A * S ≤ Sᵀ * B * S := by
-  have h := (Matrix.le_iff.mp hAB).conjTranspose_mul_mul_same S
-  simpa only [Matrix.le_iff, Matrix.conjTranspose_eq_transpose_of_trivial, mul_sub, sub_mul]
-    using h
-
-/-- Matrix inversion is order-reversing on positive definite matrices: `A ≤ B` implies
-`B⁻¹ ≤ A⁻¹`. -/
-theorem inv_antitone {n : Type*} [Fintype n] [DecidableEq n]
-    {A B : Matrix n n ℝ} (hA : A.PosDef) (hB : B.PosDef) (hle : A ≤ B) : B⁻¹ ≤ A⁻¹ := by
-  have hD : (A⁻¹ - B⁻¹).IsHermitian := hA.inv.isHermitian.sub hB.inv.isHermitian
-  have h₁ := hA.posSemidef.conjTranspose_mul_mul_same (A⁻¹ - B⁻¹)
-  have h₂ := (Matrix.le_iff.mp hle).conjTranspose_mul_mul_same B⁻¹
-  rw [hD.eq] at h₁
-  rw [hB.inv.isHermitian.eq] at h₂
-  refine Matrix.le_iff.mpr ?_
-  convert h₁.add h₂ using 1 <;> try rfl
-  have hAiA := Matrix.nonsing_inv_mul A ((Matrix.isUnit_iff_isUnit_det A).mp hA.isUnit)
-  have hAAi := Matrix.mul_nonsing_inv A ((Matrix.isUnit_iff_isUnit_det A).mp hA.isUnit)
-  have hBiB := Matrix.nonsing_inv_mul B ((Matrix.isUnit_iff_isUnit_det B).mp hB.isUnit)
-  simp only [mul_sub, sub_mul, hAiA, hBiB, one_mul]
-  rw [mul_assoc B⁻¹ A A⁻¹, hAAi, mul_one]
-  abel
-
-/-- `(c • X)⁻¹ = c⁻¹ • X⁻¹`, for `c ≠ 0` and `X` invertible. -/
-theorem inv_smul_eq {n : Type*} [Fintype n] [DecidableEq n] {c : ℝ} (hc : c ≠ 0)
-    {X : Matrix n n ℝ} (hX : IsUnit X.det) : (c • X)⁻¹ = c⁻¹ • X⁻¹ := by
-  refine Matrix.inv_eq_right_inv ?_
-  rw [Matrix.smul_mul, Matrix.mul_smul, smul_smul, Matrix.mul_nonsing_inv X hX,
-    mul_inv_cancel₀ hc, one_smul]
-
-/-- The flattened `2d`-by-`2d` matrix of a symmetric positive definite block is itself
-positive definite. -/
-theorem full_posDef {d : ℕ} {E : BlockMat d} (hs : IsSymmetricBlockMat E)
-    (hp : Book.Ch02.BlockPosDef E) : (toFullBlockMat E).PosDef := by
-  refine Matrix.PosDef.of_dotProduct_mulVec_pos
-    ((Analysis.toFullBlockMat_isHermitian_iff E).2 hs) ?_
-  intro x hx
-  have hn : ofFullBlockVec x ≠ 0 := by
-    intro h
-    apply hx
-    have hz := congrArg toFullBlockVec h
-    rw [toFullBlockVec_ofFullBlockVec] at hz
-    funext i
-    have hi := congrFun hz i
-    cases i <;> simpa [toFullBlockVec] using hi
-  simpa only [← dotProduct_toFullBlockVec, toFullBlockVec_blockMatVecMul,
-    toFullBlockVec_ofFullBlockVec, star_trivial] using hp (ofFullBlockVec x) hn
-
-/-- The block Loewner order lifts to the flattened Loewner order on Hermitian full
-matrices. -/
-theorem full_le_of_block {d : ℕ} {A B : BlockMat d}
-    (hA : (toFullBlockMat A).IsHermitian) (hB : (toFullBlockMat B).IsHermitian)
-    (hAB : BlockMatLoewnerLE A B) : toFullBlockMat A ≤ toFullBlockMat B := by
-  refine Matrix.le_iff.mpr (Matrix.PosSemidef.of_dotProduct_mulVec_nonneg (hB.sub hA) ?_)
-  intro x
-  have hx := hAB (ofFullBlockVec x)
-  simp only [← dotProduct_toFullBlockVec, toFullBlockVec_blockMatVecMul,
-    toFullBlockVec_ofFullBlockVec] at hx
-  simp only [star_trivial, Matrix.sub_mulVec, dotProduct_sub]
-  linarith only [hx]
-
-/-- Flattening commutes with scalar multiplication of a block. -/
-theorem full_blockScale {d : ℕ} (c : ℝ) (A : BlockMat d) :
-    toFullBlockMat (blockScale c A) = c • toFullBlockMat A := by
-  ext (i | i) (j | j) <;> rfl
-
-/-- A scalar multiple of a symmetric block is symmetric. -/
-theorem isSymm_blockScale {d : ℕ} (c : ℝ) {A : BlockMat d}
-    (h : IsSymmetricBlockMat A) : IsSymmetricBlockMat (blockScale c A) := by
-  intro α β
-  rw [blockMatEntry_blockScale, blockMatEntry_blockScale, h α β]
+  exact psd_smul hN (sub_nonneg.mpr hab)
 
 /-- A Hermitian matrix above a positive definite one, in the Loewner order, is itself
 positive definite. -/
@@ -261,7 +189,7 @@ theorem posDef_of_le {n : Type*} [Fintype n] [DecidableEq n] {X Y : Matrix n n �
   have h2 := (Matrix.le_iff.mp h).dotProduct_mulVec_nonneg x
   simp only [star_trivial, Matrix.sub_mulVec, dotProduct_sub] at h2 ⊢
   simp only [star_trivial] at h1
-  linarith
+  linarith only [h1, h2]
 
 /-- The flattened swap block `𝐑` is Hermitian. -/
 theorem swap_hermitian (d : ℕ) : (toFullBlockMat (blockSwap d)).IsHermitian :=
@@ -337,8 +265,10 @@ theorem le_of_imbalance_le {d : ℕ} {X : BlockMat d} (hX : (toFullBlockMat X).P
       exact Finset.sum_nonneg fun i _ => mul_self_nonneg (v i)
     have h1 := psd_dot_le_opNorm hPpsd v
     have h2 : ‖S * toFullBlockMat X * S‖ ≤ c := hnorm ▸ h
-    nlinarith [h1, h2, hvv]
-  have hcg := congr_le hP S⁻¹
+    calc v ⬝ᵥ ((S * toFullBlockMat X * S) *ᵥ v)
+        ≤ ‖S * toFullBlockMat X * S‖ * (v ⬝ᵥ v) := h1
+      _ ≤ c * (v ⬝ᵥ v) := mul_le_mul_of_nonneg_right h2 hvv
+  have hcg := Analysis.matrix_congr_le hP S⁻¹
   have hSit : (S⁻¹)ᵀ = S⁻¹ := by rw [Matrix.transpose_nonsing_inv, hSt]
   rw [hSit] at hcg
   have hl : S⁻¹ * (S * toFullBlockMat X * S) * S⁻¹ = toFullBlockMat X := by
@@ -362,7 +292,7 @@ theorem imbalance_le_of_le {d : ℕ} {X : BlockMat d} (hX : (toFullBlockMat X).P
     have hc' := hX.posSemidef.conjTranspose_mul_mul_same S
     rwa [Matrix.conjTranspose_eq_transpose_of_trivial, hSt] at hc'
   rw [← hSinv] at h
-  have hcg := congr_le h S
+  have hcg := Analysis.matrix_congr_le h S
   rw [hSt, Matrix.mul_smul, Matrix.smul_mul] at hcg
   have hid : S * (S⁻¹ * S⁻¹) * S = 1 := by
     have : S * (S⁻¹ * S⁻¹) * S = (S * S⁻¹) * (S⁻¹ * S) := by simp [Matrix.mul_assoc]
@@ -373,46 +303,6 @@ theorem imbalance_le_of_le {d : ℕ} {X : BlockMat d} (hX : (toFullBlockMat X).P
 
 open Matrix
 open scoped MatrixOrder
-
-/-- The flattened matrix of a block is exactly Mathlib's `fromBlocks` of its four entries. -/
-theorem full_eq {d : ℕ} (E : BlockMat d) :
-    toFullBlockMat E = Matrix.fromBlocks E.upperLeft E.upperRight E.lowerLeft E.lowerRight := by
-  ext (i | i) (j | j) <;> rfl
-
-/-- The flattened `2d`-by-`2d` matrix of a symmetric positive definite block is itself
-positive definite. -/
-theorem full_pos {d : ℕ} {E : BlockMat d} (hs : IsSymmetricBlockMat E)
-    (hp : Book.Ch02.BlockPosDef E) : (toFullBlockMat E).PosDef := by
-  refine Matrix.PosDef.of_dotProduct_mulVec_pos ((Analysis.toFullBlockMat_isHermitian_iff E).2 hs) ?_
-  intro x hx
-  have hn : ofFullBlockVec x ≠ 0 := by
-    intro h
-    apply hx
-    have hz := congrArg toFullBlockVec h
-    rw [toFullBlockVec_ofFullBlockVec] at hz
-    funext i
-    have hi := congrFun hz i
-    cases i <;> simpa [toFullBlockVec] using hi
-  simpa only [← dotProduct_toFullBlockVec, toFullBlockVec_blockMatVecMul,
-    toFullBlockVec_ofFullBlockVec, star_trivial] using hp (ofFullBlockVec x) hn
-
-/-- Matrix inversion is order-reversing on positive definite matrices: `A ≤ B` implies
-`B⁻¹ ≤ A⁻¹`. -/
-theorem matrix_inv_antitone {ι : Type*} [Fintype ι] [DecidableEq ι]
-    {A B : Matrix ι ι ℝ} (hA : A.PosDef) (hB : B.PosDef) (hle : A ≤ B) : B⁻¹ ≤ A⁻¹ := by
-  have hD : (A⁻¹ - B⁻¹).IsHermitian := hA.inv.isHermitian.sub hB.inv.isHermitian
-  have h₁ := hA.posSemidef.conjTranspose_mul_mul_same (A⁻¹ - B⁻¹)
-  have h₂ := (Matrix.le_iff.mp hle).conjTranspose_mul_mul_same B⁻¹
-  rw [hD.eq] at h₁
-  rw [hB.inv.isHermitian.eq] at h₂
-  apply Matrix.le_iff.mpr
-  convert h₁.add h₂ using 1 <;> try rfl
-  have hAiA := Matrix.nonsing_inv_mul A ((Matrix.isUnit_iff_isUnit_det A).mp hA.isUnit)
-  have hAAi := Matrix.mul_nonsing_inv A ((Matrix.isUnit_iff_isUnit_det A).mp hA.isUnit)
-  have hBiB := Matrix.nonsing_inv_mul B ((Matrix.isUnit_iff_isUnit_det B).mp hB.isUnit)
-  simp only [mul_sub, sub_mul, hAiA, hBiB, one_mul]
-  rw [mul_assoc B⁻¹ A A⁻¹, hAAi, mul_one]
-  abel
 
 /-- For a symmetric positive definite block `E`, the lower-right block cancels the skew Schur
 coefficient against the two off-diagonal blocks: `L k = -lowerLeft` and
@@ -432,18 +322,6 @@ theorem schur_cancel {d : ℕ} {E : BlockMat d} (hs : IsSymmetricBlockMat E)
     have hkt := congrArg Matrix.conjTranspose hk
     simpa only [Matrix.conjTranspose_mul, Matrix.conjTranspose_neg, hD, hC] using hkt
   exact ⟨hk, hk'⟩
-
-/-- A positive semidefinite matrix with operator norm at most `c` is Loewner-bounded by
-`c • 1`, via its spectrum. -/
-theorem matrix_norm_le_order {n : Type*} [Fintype n] [DecidableEq n]
-    {N : Matrix n n ℝ} (hN : N.PosSemidef) {c : ℝ}
-    (hn : ‖N‖ ≤ c) : N ≤ c • (1 : Matrix n n ℝ) := by
-  rcases isEmpty_or_nonempty n with hEmpty | hNonempty
-  · exact le_of_eq (Subsingleton.elim _ _)
-  · rw [← Algebra.algebraMap_eq_smul_one]
-    apply le_algebraMap_of_spectrum_le (ha := hN.isHermitian)
-    intro r hr
-    exact (Real.le_norm_self r).trans ((spectrum.norm_le_norm_of_mem hr).trans hn)
 
 /-- A norm bound on the `B`-normalized form `√(B⁻¹) A √(B⁻¹)` gives the Loewner bound
 `A ≤ c • B`, for `A`, `B` positive definite. -/
@@ -468,7 +346,7 @@ theorem normalized_le {n : Type*} [Fintype n] [DecidableEq n]
   have hTH : Tᴴ = T := hT.isHermitian.eq
   have hN : (T * A * T).PosSemidef := by
     simpa only [hTH] using hA.posSemidef.conjTranspose_mul_mul_same T
-  have hle : T * A * T ≤ c • (1 : Matrix n n ℝ) := matrix_norm_le_order hN hn
+  have hle : T * A * T ≤ c • (1 : Matrix n n ℝ) := le_smul_one_of_norm_le hN hn
   have hi := star_left_conjugate_le_conjugate hle T⁻¹
   have hTi : T⁻¹ᴴ = T⁻¹ := hT.inv.isHermitian.eq
   change T⁻¹ᴴ * (T * A * T) * T⁻¹ ≤ T⁻¹ᴴ * (c • 1) * T⁻¹ at hi
@@ -493,14 +371,14 @@ theorem canonical_dual_order {d : ℕ} {A : BlockMat d}
       c • (toFullBlockMat A)⁻¹ := by
   let R := toFullBlockMat (blockSwap d)
   let B := R * (toFullBlockMat A)⁻¹ * R
-  have hA := full_pos hs hp
+  have hA := posDef_toFullBlockMat hs hp
   have hB : B.PosDef := by
     simpa only [toFullBlockMat_ofFullBlockMat] using Analysis.swapConj_posDef hA
   have hle : toFullBlockMat A ≤ c • B := by
     apply normalized_le hA hB
     simpa only [canonicalImbalance, blockOpNorm, normalizedBlock,
       toFullBlockMat_ofFullBlockMat] using h
-  have hi := matrix_inv_antitone hA (hB.smul hc) hle
+  have hi := inv_le_inv_of_le hA (hB.smul hc) hle
   rw [inv_smul_real hB hc.ne'] at hi
   have hi' := smul_le_smul_of_nonneg_left hi hc.le
   rw [smul_smul, mul_inv_cancel₀ hc.ne', one_smul] at hi'
@@ -525,7 +403,7 @@ theorem coupled_schur_le {d : ℕ} {A : BlockMat d}
   let L := A.lowerRight
   let D : FullBlockMat d := Matrix.fromBlocks 0 0 0 L⁻¹
   let V := toFullBlockMat A * D
-  have hA := full_pos hs hp
+  have hA := posDef_toFullBlockMat hs hp
   have hL := posDef_lowerRight hs hp
   have hLiL : L⁻¹ * L = 1 := Matrix.nonsing_inv_mul _ (isUnit_det_lowerRight hp)
   have hLLi : L * L⁻¹ = 1 := Matrix.mul_nonsing_inv _ (isUnit_det_lowerRight hp)
@@ -538,7 +416,7 @@ theorem coupled_schur_le {d : ℕ} {A : BlockMat d}
   have hC : A.lowerLeft = -(L * k) := by rw [hk, neg_neg]
   have hV : V = Matrix.fromBlocks 0 (-kᴴ) 0 (1 : Mat d) := by
     dsimp [V, D]
-    rw [full_eq, Matrix.fromBlocks_multiply, hU]
+    rw [toFullBlockMat_eq_fromBlocks, Matrix.fromBlocks_multiply, hU]
     simp only [mul_zero, add_zero, zero_add, neg_mul, mul_assoc, hLLi, mul_one]
     change Matrix.fromBlocks 0 (-kᴴ) 0 (L * L⁻¹) = _
     rw [hLLi]
@@ -555,18 +433,18 @@ theorem coupled_schur_le {d : ℕ} {A : BlockMat d}
         exact (mul_assoc _ _ _).symm
       _ = D := by
         dsimp [D]
-        rw [full_eq, Matrix.fromBlocks_multiply, Matrix.fromBlocks_multiply]
+        rw [toFullBlockMat_eq_fromBlocks, Matrix.fromBlocks_multiply, Matrix.fromBlocks_multiply]
         simp only [mul_zero, zero_mul, add_zero, zero_add]
         change Matrix.fromBlocks 0 0 0 (L⁻¹ * L * L⁻¹) = _
         rw [hLiL, one_mul]
   have hR : toFullBlockMat (blockSwap d) =
       Matrix.fromBlocks (0 : Mat d) 1 1 0 := by
-    rw [full_eq]
+    rw [toFullBlockMat_eq_fromBlocks]
     rfl
   have hleft : Vᴴ * (toFullBlockMat (blockSwap d) * toFullBlockMat A *
       toFullBlockMat (blockSwap d)) * V = Matrix.fromBlocks 0 0 0
         (schurSigma A + (k + kᴴ)ᴴ * L * (k + kᴴ)) := by
-    rw [hV, hR, full_eq, Matrix.fromBlocks_conjTranspose]
+    rw [hV, hR, toFullBlockMat_eq_fromBlocks, Matrix.fromBlocks_conjTranspose]
     simp only [Matrix.fromBlocks_multiply, Matrix.conjTranspose_zero,
       Matrix.conjTranspose_one, Matrix.conjTranspose_neg, Matrix.conjTranspose_conjTranspose,
       zero_mul, mul_zero, one_mul, mul_one, zero_add, add_zero]
@@ -618,7 +496,7 @@ theorem quarter_correction_le {d : ℕ} {A : BlockMat d}
 
 /-- **K4.** If the canonical imbalance of a symmetric positive definite block `A` is at most
 `1 + x`, then its block contrast satisfies `blockContrast A - 1 ≤ 3 * x`. -/
-theorem k4_main {d : ℕ} {A : BlockMat d}
+theorem blockContrast_sub_one_le_of_canonicalImbalance_le {d : ℕ} {A : BlockMat d}
     (hs : IsSymmetricBlockMat A) (hp : Book.Ch02.BlockPosDef A)
     {x : ℝ} (hx : 0 ≤ x) (h : canonicalImbalance A ≤ 1 + x) :
     blockContrast A - 1 ≤ 3 * x := by

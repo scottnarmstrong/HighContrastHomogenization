@@ -1,25 +1,27 @@
 import HCPoly.Entry.Analysis.InverseJensen
 import HCPoly.Entry.Analysis.ReferenceComparison
-import HCPoly.Entry.Analysis.ScalarMomentInequalities
-import HCPoly.Entry.Geometry.EuclideanGrid
+import HCPoly.Entry.Analysis.PositiveGapSupport
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.Source.AdaptedBound
-import HCPoly.Entry.Annealed.LogDetOrder
+import HCPoly.Geometry.ReferenceAspectRatio
+import HCPoly.Entry.Annealed.AnnealedBlockOrder
 import Mathlib.MeasureTheory.Function.LpSeminorm.CompareExp
 
 /-!
 # Annealed reference normalization
 
-Ordinary support for the reference-normalization and initialization
-fragments.  This file lives with the annealed support package because every
-statement is about `adaptedMean` under the standing stationary dagger law.
+Under the standing stationary dagger law this module proves the annealed
+reference order, the two-grid reference normalization of `adaptedMean`, and the
+initialization sandwich on the source window. The reference order comes from the
+dagger at one sample and a sufficiently large standard cell through the two-sign
+characterization, so no standing-law conclusion needs a separate reference-order
+premise, and the normalization constants depend only on the dimension and the
+coarse exponent. These results serve `p.global.selection`,
+`e.two.grid.source.normalization` and `p.initial.fixed.grid.scale`.
 
-The reference order is proved from the dagger at one sample and a sufficiently
-large standard cell, using the two-sign characterization. Thus every
-standing-law conclusion is free of an additional reference-order premise.
-
-The initialization conclusions retain the window restriction
-`j ≤ 2 * jStar`; the printed unrestricted range would require repeating the
-source construction at the larger window.
+The initialization conclusions retain the window restriction `j ≤ 2 * jStar`;
+the unrestricted range would require repeating the source construction at the
+larger window.
 -/
 
 open Homogenization.HighContrast (CoeffSpace HasIntegrableCoarseBlock adaptedMean annealedBlock
@@ -48,7 +50,7 @@ theorem refBlock_reference_order {d : ℕ} [NeZero d] {P : Measure (CoeffSpace d
   have hbound := ha (n : ℤ) (by simpa using hn.le) (n : ℤ) le_rfl 0 (by
     change (fun i => (3 : ℝ) ^ (n : ℤ) * ((0 : Fin d → ℤ) i : ℝ)) ∈ _
     simp only [Pi.zero_apply, Int.cast_zero, mul_zero]
-    rw [mem_centeredCube_iff]
+    rw [Recurrence.mem_centeredCube_iff]
     intro i
     have hpow : (0 : ℝ) < 3 ^ (n : ℤ) := by positivity
     constructor <;> linarith only [hpow])
@@ -57,7 +59,7 @@ theorem refBlock_reference_order {d : ℕ} [NeZero d] {P : Measure (CoeffSpace d
   let U := HighContrast.adaptedCellTranslate (1 : Mat d) (n : ℤ) 0
   have hs : IsSymmetricBlockMat (coarseBlock U a) :=
     isSymmetricBlockMat_coarseBlockMatrix U (⇑a.1)
-  have hp := fullBlock_posDef_of_pos hs
+  have hp := posDef_toFullBlockMat hs
     (blockPosDef_coarseBlock_adapted (1 : Mat d) isUnit_one (n : ℤ) 0 a)
   have hpath := Analysis.blockMatLoewnerLE_swapConj_coarseBlock
     (1 : Mat d) isUnit_one (n : ℤ) 0 a
@@ -65,7 +67,7 @@ theorem refBlock_reference_order {d : ℕ} [NeZero d] {P : Measure (CoeffSpace d
   have hUE : BlockMatLoewnerLE (coarseBlock U a) E := by
     simpa only [U, adaptedCellTranslate_one_zero] using hbound
   exact (Analysis.blockMatLoewnerLE_swapConj_inv_iff hdag.refBlock_isSymm
-    (fullBlock_posDef_of_pos hdag.refBlock_isSymm hdag.refBlock_posDef)).mpr
+    (posDef_toFullBlockMat hdag.refBlock_isSymm hdag.refBlock_posDef)).mpr
     ⟨hsigns.1.trans hUE, hsigns.2.trans hUE⟩
 
 /-- Standing-dagger corollary of the deterministic reference comparison. -/
@@ -79,15 +81,6 @@ theorem refBlock_le_six_aspectRatio_smul_swapConj {d : ℕ} [NeZero d]
           toFullBlockMat (blockSwap d)))) :=
   Homogenization.HighContrast.Analysis.refBlock_le_six_aspectRatio_smul_swapConj
     hdag.refBlock_isSymm hdag.refBlock_posDef (refBlock_reference_order hdag)
-
-/-- Standing-dagger corollary of the deterministic reference comparison. -/
-theorem one_le_aspectRatio {d : ℕ} [NeZero d]
-    {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
-    {γ : ℝ} {E : BlockMat d} {Ψ : ℝ → ℝ} {K : ℝ} {S : CoeffSpace d → ℝ}
-    (hdag : CoarseEllipticityDagger P γ E Ψ K S) :
-    1 ≤ aspectRatio E :=
-  Homogenization.HighContrast.Analysis.one_le_aspectRatio hdag.refBlock_isSymm
-    hdag.refBlock_posDef (refBlock_reference_order hdag)
 
 /-- Standing-dagger corollary of the deterministic reference comparison. -/
 theorem aspectRatio_pos_and_three_le {d : ℕ} [NeZero d]
@@ -106,9 +99,10 @@ theorem source_envelope_integral_le_two (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     (hlp : MemLp X (ENNReal.ofReal (bigQ d γ : ℝ)) P)
     (hnorm : eLpNorm X (ENNReal.ofReal (bigQ d γ : ℝ)) P ≤ ENNReal.ofReal 2) :
     ∫ a, X a ∂P ≤ 2 := by
+  have _hd := hd
   have hQ : ENNReal.ofReal (1 : ℝ) ≤ ENNReal.ofReal (bigQ d γ : ℝ) := by
     apply ENNReal.ofReal_le_ofReal
-    exact_mod_cast (Homogenization.HighContrast.Multiscale.bigQ_two_le d hd γ hγ).trans' (by norm_num)
+    exact_mod_cast (Homogenization.HighContrast.Multiscale.bigQ_two_le d γ hγ).trans' (by norm_num)
   have hmono : eLpNorm X (ENNReal.ofReal (1 : ℝ)) P ≤
       eLpNorm X (ENNReal.ofReal (bigQ d γ : ℝ)) P :=
     eLpNorm_le_eLpNorm_of_exponent_le hQ hlp.aestronglyMeasurable
@@ -274,7 +268,7 @@ theorem adaptedMean_refBlock_normalization (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     hsource P E Ψ K S hstat hdag jStar hjStar hthreshold
   have hX0 : ∀ a, 0 ≤ X a := fun a => by rw [hform]; positivity
   have hXint := hlp.integrable (ENNReal.one_le_ofReal.mpr (by
-    exact_mod_cast (Multiscale.bigQ_two_le d hd γ hγ).trans' (by norm_num)))
+    exact_mod_cast (Multiscale.bigQ_two_le d γ hγ).trans' (by norm_num)))
   have hEX := source_envelope_integral_le_two d hd γ hγ P X hX0 hlp hnorm
   have hecc := Source.one_le_source_eccentricity hm
   have hc : 0 < 2 * C * Real.sqrt (‖m‖ * ‖m⁻¹‖) :=
@@ -298,7 +292,7 @@ theorem adaptedMean_refBlock_normalization (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
         mul_le_mul_of_nonneg_left hEX (mul_nonneg hC.le (Real.sqrt_nonneg _))
       _ = _ := by ring
   have hA := adaptedMean_posDef d hd P γ E Ψ K S hstat hdag jStar hjStar m hm s
-  have hE := fullBlock_posDef_of_pos hdag.refBlock_isSymm hdag.refBlock_posDef
+  have hE := posDef_toFullBlockMat hdag.refBlock_isSymm hdag.refBlock_posDef
   have hlower := lower_of_upper hA hE hc hupper
     (Analysis.adaptedMean_swapConj_le hd P γ E Ψ K S hstat hdag jStar hjStar m hm s)
   have hswap : BlockMatLoewnerLE
@@ -312,7 +306,7 @@ theorem adaptedMean_refBlock_normalization (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     apply Source.blockScale_le_blockScale_of_pos hdag.refBlock_posDef
     exact mul_le_mul_of_nonneg_right (by linarith only [hC] : 2 * C ≤ 12 * C)
       (Real.sqrt_nonneg _)
-  · have hPi := one_le_aspectRatio hdag
+  · have hPi := one_le_aspectRatio_of_coarseEllipticityDagger hdag
     have hcomp := (refBlock_le_six_aspectRatio_smul_swapConj hdag).trans
       (scale_mono hswap (mul_nonneg (by norm_num) (le_trans zero_le_one hPi)))
     simpa only [scale_scale, show 6 * aspectRatio E *
@@ -345,7 +339,7 @@ theorem initial_source_bounds (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     hsource P E Ψ K S hstat hdag jStar hjStar hthreshold
   have hX0 : ∀ a, 0 ≤ X a := fun a => by rw [hform]; positivity
   have hXint := hlp.integrable (ENNReal.one_le_ofReal.mpr (by
-    exact_mod_cast (Multiscale.bigQ_two_le d hd γ hγ).trans' (by norm_num)))
+    exact_mod_cast (Multiscale.bigQ_two_le d γ hγ).trans' (by norm_num)))
   have hEX := source_envelope_integral_le_two d hd γ hγ P X hX0 hlp hnorm
   have hexp : max ((jStar : ℝ) - (j : ℝ)) 0 = 0 :=
     max_eq_right (sub_nonpos.mpr (by exact_mod_cast hj))
@@ -364,7 +358,7 @@ theorem initial_source_bounds (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       hstat hdag jStar hjStar (1 : Mat d) (one_posDef d) j
   refine ⟨?_, hupper⟩
   simpa only [one_div] using lower_of_upper hA
-    (fullBlock_posDef_of_pos hdag.refBlock_isSymm hdag.refBlock_posDef)
+    (posDef_toFullBlockMat hdag.refBlock_isSymm hdag.refBlock_posDef)
     (by norm_num : (0 : ℝ) < 2) hupper
     (adaptedMean_swapConj_le_one d hd P γ E Ψ K S hstat hdag jStar hjStar j)
 

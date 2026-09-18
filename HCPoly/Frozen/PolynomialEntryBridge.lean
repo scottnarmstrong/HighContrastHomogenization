@@ -36,27 +36,15 @@ This module derives the second from the first.  Three steps are involved.
   3 (2 + Π K)^C`.
 
 The assumptions `e.stationarity`, `e.unit.range` and `e.coarse.ellipticity` are
-carried twice, once by each of the two developments of the proof, over the same
-coefficient space and the same triadic geometry.  The two readings of the first
-two are the same predicate unfolded; the two readings of the third are two
-structures with the same ten fields, identified below field by field.
+the ones the printed statement carries: `HCPoly.Frozen.IsStationaryLaw`,
+`HCPoly.Frozen.IsUnitRangeLaw` and `HCPoly.Frozen.CoarseEllipticityDagger`, read
+by the proofs of the propositions under their project-namespace names.  Nothing
+is converted here.
 -/
 
 namespace HCPoly.Frozen
 
 open Homogenization HighContrast MeasureTheory
-
-/-- The coarse ellipticity assumption `e.coarse.ellipticity` as the entry route
-states it.  The ten fields are the ten fields of `CoarseEllipticityDagger`, over
-the same coefficient space, the same reference block and the same standard
-aligned cubes, so the identification is field by field. -/
-theorem CoarseEllipticityDagger.toEntryRoute {d : ℕ} {P : Measure (CoeffSpace d)}
-    {g : ℝ} {E : BlockMat d} {Ψ : ℝ → ℝ} {K : ℝ} {S : CoeffSpace d → ℝ}
-    (h : CoarseEllipticityDagger P g E Ψ K S) :
-    Homogenization.HighContrast.CoarseEllipticityDagger P g E Ψ K S :=
-  ⟨h.g_mem, h.refBlock_isSymm, h.refBlock_posDef, h.gauge_admissible,
-    h.one_lt_growthWitness, h.gauge_growth, h.source_measurable, h.source_nonneg,
-    h.source_tail, h.coarse_bound⟩
 
 /-- The positivity of the printed entry scale: `2 + Π K > 1` whenever the
 reference aspect ratio is nonnegative and the growth witness exceeds one, so a
@@ -131,7 +119,7 @@ theorem polynomial_entry_random_source_of_printed
   obtain ⟨mEnt, hmEnt, hpow⟩ := exists_entry_generation hC hb
   refine ⟨mEnt, le_of_eq hmEnt, ?_, hpow⟩
   have hcontrast :=
-    hbody P E Ψ K S hP hstat hrange hdagger.toEntryRoute (mEnt : ℤ) (le_of_eq hmEnt.symm)
+    hbody P E Ψ K S hP hstat hrange hdagger (mEnt : ℤ) (le_of_eq hmEnt.symm)
   linarith only [hcontrast]
 
 end HCPoly.Frozen

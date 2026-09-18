@@ -1,6 +1,6 @@
 import HCPoly.Setup.Geometry
 import HCPoly.Entry.Geometry.MaximalCellsDef
-import HCPoly.Entry.Geometry.RoundedGridDef
+import HCPoly.Entry.Geometry.RoundedGridBasic
 import HCPoly.Entry.SourceWhitney
 
 /-!
@@ -59,6 +59,6 @@ theorem source_whitney
           ∑ w ∈ hfin.toFinset,
               (volume (HighContrast.standardCell d r w)).toReal /
                 (volume (HighContrast.adaptedCellTranslate (Geometry.explicitRoundedGrid jStar m) j y)).toReal ≤
-            12 * (d : ℝ) ^ ((3 : ℝ) / 2) * (3 : ℝ) ^ (r - j) := by exact Homogenization.HighContrast.Provider.source_whitney d hd jStar hj m hm j y
+            12 * (d : ℝ) ^ ((3 : ℝ) / 2) * (3 : ℝ) ^ (r - j) := by exact Homogenization.HighContrast.Entry.source_whitney d hd jStar hj m hm j y
 
 end Homogenization.HighContrast

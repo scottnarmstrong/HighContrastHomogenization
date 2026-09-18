@@ -1,7 +1,19 @@
 import HCPoly.Entry.Annealed.TwoGridTransport
 
+/-!
+# Two-grid transport
+
+The literal polynomial-entry-level form of the paper's Proposition `p.two.grid.transport`: for
+each dimension `d ≥ 2` and each `γ ∈ [0,1)` there are constants `C(d,γ) ≥ 1` and
+`C_src(d,γ) > 0` such that, whenever two rounded grids of positive-definite metrics are within
+projective distance one and their annealed blocks are Loewner-close up to `δ`, the terminal
+profile plus determinant drift of the transported geometry obeys the printed bound
+`C(δ + ρ)`.  The declaration `two_grid_transport` is the paper's Proposition
+`p.two.grid.transport`, matching the printed statement.
+-/
+
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory
 open scoped Matrix.Norms.L2Operator
@@ -56,4 +68,4 @@ theorem two_grid_transport
   let : IsProbabilityMeasure P := hP
   exact htransport ρ hρ δ hδ P E Ψ K S hstat hunit hdag
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

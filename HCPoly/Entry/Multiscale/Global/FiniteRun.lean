@@ -3,10 +3,13 @@ import HCPoly.Entry.Multiscale.Global.ScalarLemmas
 /-!
 # The generic finite run and the projective metric
 
-The generic stopping and telescoping facts for a potential with a per-step charge, the
-elementary identities of `logDetLoss` and `synchronizedLogDetLoss`, and the projective-metric
-layer: positive definiteness of the canonical metric, symmetry and the triangle inequality,
-and the two canonical-metric comparisons (log-determinant and Loewner sandwich).
+The generic stopping and telescoping facts for a potential with a per-step charge
+(`p.global.selection`, `e.global.selection.count`), the elementary identities of
+`detIncrement` and `synchCharge`, and the projective-metric layer
+(`e.scale.selection.canonical.metric`, `e.global.selection.metric.loss`,
+`e.global.selection.metric.comparison`): positive definiteness of the canonical metric,
+symmetry and the triangle inequality, and the two canonical-metric comparisons
+(log-determinant and Loewner sandwich).
 -/
 
 open Homogenization.HighContrast (blockLogDet blockScale specBound specBound_le specBound_nonneg)
@@ -47,7 +50,7 @@ theorem exists_stop_of_potential (Φ charge : ℕ → ℝ) (stop : ℕ → Prop)
         have hcast : c * ((n : ℝ) + 1) = c * (n : ℝ) + c := by ring
         rw [Finset.sum_range_succ]
         push_cast
-        linarith [ihn, hstepn, hcast]
+        linarith only [ihn, hstepn, hcast]
   have hkey' := key (M₀ + 1) (le_refl _)
   have hbudget : ∑ i ∈ Finset.range (M₀ + 1), charge i ≤ Bud := by
     apply hbud
@@ -61,7 +64,7 @@ theorem exists_stop_of_potential (Φ charge : ℕ → ℝ) (stop : ℕ → Prop)
   push_cast at hkey'
   have hcast2 : c * ((M₀ : ℝ) + 1) = c * (M₀ : ℝ) + c := by ring
   have hcomm : c * (M₀ : ℝ) = (M₀ : ℝ) * c := by ring
-  linarith [hkey', hbudget, hnonneg, hle, hcast2, hcomm]
+  linarith only [hkey', hbudget, hnonneg, hle, hcast2, hcomm, hc]
 
 /-! ## §C Matrix geometry (`p.global.selection`) -/
 
@@ -108,7 +111,7 @@ theorem projectiveDistance_triangle {d : ℕ} (m₀ m₁ m₂ : Mat d) (h₀ : m
       simp [Homogenization.HighContrast.projectiveDistance, Homogenization.HighContrast.specBound,
         Homogenization.HighContrast.specMin, Homogenization.HighContrast.normalizedMat, hconst, hgen,
         Real.log_zero]
-    linarith [hval.ge]
+    linarith only [hval]
   · have : NeZero d := ⟨hd.ne'⟩
     exact Homogenization.HighContrast.Geometry.projectiveDistance_triangle h₀ h₁ h₂
 
@@ -145,36 +148,36 @@ theorem explicitCanonicalMetric_projectiveDistance_le_logDet {d : ℕ} (F G : Bl
     norm_num
   · have : NeZero d := ⟨hdpos.ne'⟩
     obtain ⟨hhi, hloss⟩ :=
-      GeoMeanSupport.explicitCanonicalMetric_projectiveDistance_le_logDet_aux_upper F G hFs hF hGs hG hGF
+      BlockGeometricMean.explicitCanonicalMetric_projectiveDistance_le_logDet_aux_upper F G hFs hF hGs hG hGF
     have hκ1 : (1 : ℝ) ≤ Real.exp (blockLogDet F - blockLogDet G) := by
       rw [← Real.exp_zero]
       exact Real.exp_le_exp.mpr hloss
     have hlo : BlockMatLoewnerLE (blockScale (1 : ℝ) G) F :=
-      GeoMeanSupport.explicitCanonicalMetric_projectiveDistance_le_logDet_aux_scale_one_le G F hGs hG hFs hF hGF
+      BlockGeometricMean.explicitCanonicalMetric_projectiveDistance_le_logDet_aux_scale_one_le G F hGs hG hFs hF hGF
     have hhi' : BlockMatLoewnerLE F
         (blockScale (Real.exp (blockLogDet F - blockLogDet G) * 1) G) := by
       rw [mul_one]
       exact hhi
-    have hmain := GeoMeanSupport.sandwich F G
+    have hmain := BlockGeometricMean.sandwich F G
       hFs hF hGs hG 1 (Real.exp (blockLogDet F - blockLogDet G)) zero_lt_one hκ1 hlo hhi'
     rwa [Real.log_exp] at hmain
 
 /-- `e.global.selection.metric.comparison`: a `δ`-sandwich moves the canonical metric by
 at most `½ log((1+δ)/(1-δ))`; same statement as `explicitCanonicalMetric_projectiveDistance_le_of_sandwich`
-in `HCPoly/Entry/InitialFixedGridScale.lean`, proved here from `GeoMeanSupport.sandwich`. -/
-theorem explicitCanonicalMetric_projectiveDistance_le_of_sandwich' {d : ℕ} (F G : BlockMat d) (δ : ℝ)
+in `HCPoly/Entry/InitialFixedGridScale.lean`, proved here from `BlockGeometricMean.sandwich`. -/
+theorem explicitCanonicalMetric_projectiveDistance_le_of_deltaSandwich {d : ℕ} (F G : BlockMat d) (δ : ℝ)
     (hδ : δ ∈ Set.Ico (0 : ℝ) 1) (hFs : IsSymmetricBlockMat F) (hF : Book.Ch02.BlockPosDef F)
     (hGs : IsSymmetricBlockMat G) (hG : Book.Ch02.BlockPosDef G)
     (h₁ : BlockMatLoewnerLE (blockScale (1 - δ) F) G) (h₂ : BlockMatLoewnerLE G (blockScale (1 + δ) F)) :
     projectiveDistance (explicitCanonicalMetric F) (explicitCanonicalMetric G) ≤
       1 / 2 * Real.log ((1 + δ) / (1 - δ)) := by
   obtain ⟨hδ0, hδ1⟩ := hδ
-  have hcpos : (0:ℝ) < 1 - δ := by linarith
+  have hcpos : (0:ℝ) < 1 - δ := by linarith only [hδ0, hδ1]
   have hκ1 : (1:ℝ) ≤ (1 + δ) / (1 - δ) := by
-    rw [le_div_iff₀ hcpos]; linarith
+    rw [le_div_iff₀ hcpos]; linarith only [hδ0]
   have hlog : 0 ≤ 1 / 2 * Real.log ((1 + δ) / (1 - δ)) := by
     have h := Real.log_nonneg hκ1
-    linarith
+    linarith only [h]
   rcases Nat.eq_zero_or_pos d with hd0 | hdpos
   · subst hd0
     have htriv : ∀ A B : Mat 0, MatLoewnerLE A B := by
@@ -194,7 +197,7 @@ theorem explicitCanonicalMetric_projectiveDistance_le_of_sandwich' {d : ℕ} (F 
     exact hlog
   · have : NeZero d := ⟨hdpos.ne'⟩
     have hmul : (1 + δ) / (1 - δ) * (1 - δ) = 1 + δ := by field_simp
-    have h := GeoMeanSupport.sandwich G F hGs hG hFs hF
+    have h := BlockGeometricMean.sandwich G F hGs hG hFs hF
       (1 - δ) ((1 + δ) / (1 - δ)) hcpos hκ1 h₁ (by rw [hmul]; exact h₂)
     rwa [Geometry.projectiveDistance_symm (Geometry.explicitCanonicalMetric_posDef hGs hG)
       (Geometry.explicitCanonicalMetric_posDef hFs hF)] at h
@@ -205,11 +208,11 @@ theorem blockLogDet_le_of_sandwich {d : ℕ} (F G : BlockMat d) (δ : ℝ) (hδ 
     (hGs : IsSymmetricBlockMat G) (hG : Book.Ch02.BlockPosDef G)
     (h₂ : BlockMatLoewnerLE G (blockScale (1 + δ) F)) :
     blockLogDet G ≤ blockLogDet F + 2 * (d : ℝ) * Real.log (1 + δ) := by
-  have hc : (0 : ℝ) < 1 + δ := by linarith
-  have hFfull : (toFullBlockMat F).PosDef := Annealed.fullBlock_posDef_of_pos hFs hF
-  have hGfull : (toFullBlockMat G).PosDef := Annealed.fullBlock_posDef_of_pos hGs hG
+  have hc : (0 : ℝ) < 1 + δ := by linarith only [hδ]
+  have hFfull : (toFullBlockMat F).PosDef := posDef_toFullBlockMat hFs hF
+  have hGfull : (toFullBlockMat G).PosDef := posDef_toFullBlockMat hGs hG
   have hscale : toFullBlockMat (blockScale (1 + δ) F) = (1 + δ) • toFullBlockMat F :=
-    GeoMeanSupport.blockLogDet_le_of_sandwich_aux_scale _ _
+    Homogenization.HighContrast.toFullBlockMat_blockScale _ _
   have hSfull : (toFullBlockMat (blockScale (1 + δ) F)).PosDef := by
     rw [hscale]
     exact hFfull.smul hc
@@ -225,7 +228,7 @@ theorem blockLogDet_le_of_sandwich {d : ℕ} (F G : BlockMat d) (δ : ℝ) (hδ 
     push_cast
     ring
   rw [hkey] at hstep
-  linarith
+  linarith only [hstep]
 
 end
 

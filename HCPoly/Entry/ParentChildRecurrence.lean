@@ -4,17 +4,17 @@ import HCPoly.Entry.MatrixAveraging
 /-!
 # Exact parent–child recurrence
 
-The type repeats the statement of `HCPoly/Entry/Statements/ParentChildRecurrence.lean`.
-We return the same source constant as the matrix-averaging statement,
-and pass the standing threshold hypothesis directly to its averaging theorem.
-Unused ∀ proof-binder names carry a leading underscore. Only those names differ from the literal statement header;
-every binder type, kind, position and dependent occurrence is preserved.
-The recurrence assembly derives both mean positive-definiteness proofs and
-all finite-moment premises, using the two printed constants without slack.
+Under the standing ellipticity threshold, the localised quotient Schatten norm of the
+normalised fluctuation at the parent scale is bounded by its value at the child scale,
+multiplied by the exponential of the determinant increment and the two printed scale
+factors, with the source constant of the matrix-averaging statement. This is the exact
+parent–child recurrence of `p.fixed.geometry.parent.child.recurrence`, with the mean
+positive-definiteness and finite-moment premises discharged from the two printed constants
+without slack.
 -/
 
 open Homogenization.HighContrast (CoeffSpace)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 open MeasureTheory
 
 /-- The exact printed recurrence, near `p.fixed.geometry.parent.child.recurrence`. -/
@@ -34,14 +34,14 @@ theorem fixed_geometry_parent_child_recurrence
             (normalizedFluctuationSelf P (Geometry.explicitRoundedGrid jStar m) (j + h)) ≤
           (N : ℝ) * (3 : ℝ) ^ ((d : ℝ) / 2) * (1 + (2 * (d : ℝ)) ^ ((N : ℝ))⁻¹) *
                 (3 : ℝ) ^ (-((d : ℝ) / 2) * (h : ℝ)) *
-                Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
+                Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
               lqSchattenNorm P (N : ℝ)
                 (normalizedFluctuationSelf P (Geometry.explicitRoundedGrid jStar m) j) +
             2 * (1 + (d : ℝ) ^ (1 - ((N : ℝ))⁻¹)) *
                 Real.exp
                   ((1 - ((N : ℝ))⁻¹) *
-                    logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
-                (Real.exp (logDetLoss P (Geometry.explicitRoundedGrid jStar m) j (j + h)) - 1) ^
+                    detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) *
+                (Real.exp (detIncrement P (Geometry.explicitRoundedGrid jStar m) j (j + h)) - 1) ^
                   ((N : ℝ))⁻¹ := by
   obtain ⟨Csrc, hCsrc, havg⟩ := fixed_geometry_matrix_averaging d hd γ hγ
   refine ⟨Csrc, hCsrc, ?_⟩
@@ -55,4 +55,4 @@ theorem fixed_geometry_parent_child_recurrence
     (Annealed.alignedChildren_nonempty _ _ _) (Annealed.alignedChildren_subset_lattice _ _ _)
     R hRsymm hRpos
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

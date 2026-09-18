@@ -177,7 +177,7 @@ private theorem bridge_source_series {d : ℕ} {ι : Type*} [Countable ι]
     (ho : ∀ᵐ a ∂P, ∀ i,
       BlockMatLoewnerLE (A i a) (blockScale (c * X a * b i) E)) :
     let M := fun a => ofFullBlockMat (∑' i, w i • toFullBlockMat (A i a))
-    MemLqSchatten P N M ∧
+    SchattenMemLp P N M ∧
       (∀ᵐ a ∂P, Summable (fun i => w i • toFullBlockMat (A i a)) ∧
         BlockMatLoewnerLE (M a) (blockScale (c * X a * (∑' i, w i * b i)) E)) ∧
       BlockMatLoewnerLE
@@ -256,7 +256,7 @@ theorem bridge_fine_source_tail (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
                 let M := fun a => ofFullBlockMat (∑' i,
                   w i • toFullBlockMat (coarseBlock
                     (adaptedCellTranslate (explicitRoundedGrid jStar m) (r i) (y i)) a))
-                MemLqSchatten P (bigQ d γ : ℝ) M ∧
+                SchattenMemLp P (bigQ d γ : ℝ) M ∧
                   (∀ᵐ a ∂P, Summable (fun i => w i • toFullBlockMat (coarseBlock
                     (adaptedCellTranslate (explicitRoundedGrid jStar m) (r i) (y i)) a)) ∧
                     BlockMatLoewnerLE (M a)
@@ -276,7 +276,7 @@ theorem bridge_fine_source_tail (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     hsource P E Ψ K S hstat hdag jStar hjStar hthreshold
   have hX0 (a) : 0 ≤ X a := by rw [hform]; positivity
   have hQ : 1 ≤ (bigQ d γ : ℝ) := by
-    exact_mod_cast (Multiscale.bigQ_two_le d hd γ hγ).trans' (by norm_num)
+    exact_mod_cast (Multiscale.bigQ_two_le d γ hγ).trans' (by norm_num)
   have hEX := source_envelope_integral_le_two d hd γ hγ P X hX0 hX hnorm
   refine ⟨X, hX0, hX, hX.integrable (ENNReal.one_le_ofReal.mpr hQ), hEX, ?_⟩
   intro m hm W hW ι hι r y w hr hw0 hw hcell j Cw hCw hrow M

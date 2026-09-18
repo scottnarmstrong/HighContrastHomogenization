@@ -1,12 +1,107 @@
-import HCPoly.Entry.Multiscale.ProfileIdentities
+import HCPoly.Entry.Geometry.PositiveSqrtCongruence
+import HCPoly.Entry.Setup.Profile
+import HCPoly.Provider.Recurrence.DetTransport
 import Mathlib.Tactic
 
 /-!
-# Determinant drift algebra
+# Drift Advance
+
+The identities of the diagonal profile and the finite-sum algebra of the determinant drift
+they advance.  At equal generations the profile is the printed prefactor times the history,
+and it equals the history once the terminal mean is positive definite; the drift algebra
+splits the printed determinant drift at an intermediate generation, telescopes the
+log-determinant loss, and bounds one synchronized step of the drift by the terminal loss
+increment.  These deterministic finite-sum facts are the drift-advance input to
+`p.fixed.geometry.one.grid.propagation`.
+-/
+
+section
+/-!
+## Diagonal profile identities
+
+This file contains only the deterministic finite-sum and normalization algebra needed at
+the diagonal `m = n`.  The positivity assumption is kept exactly where the total
+normalization needs it.
+-/
+
+open Homogenization.HighContrast (CoeffSpace adaptedMean blockSub blockTrace matSqrt matSqrt_spec
+  normalizedBlock)
+namespace Homogenization.HighContrast.Multiscale
+
+open MeasureTheory
+open scoped Matrix.Norms.L2Operator MatrixOrder
+
+noncomputable section
+
+/-- The inverse square root is positive definite on every finite real matrix carrier. -/
+theorem matSqrt_inv_posDef_full {ι : Type*} [Fintype ι] [DecidableEq ι]
+    {m : Matrix ι ι ℝ} (hm : m.PosDef) : (matSqrt m⁻¹).PosDef := by
+  rw [matSqrt_eq_cfc_sqrt hm.inv.posSemidef]
+  exact Matrix.isStrictlyPositive_iff_posDef.mp
+    (IsStrictlyPositive.sqrt m⁻¹ hm.inv.isStrictlyPositive)
+
+private theorem ofFullBlockMat_one_eq_blockIdentity {d : ℕ} :
+    ofFullBlockMat (1 : FullBlockMat d) = Book.Ch02.blockIdentity d := by
+  rw [← ofFullBlockMat_toFullBlockMat (Book.Ch02.blockIdentity d)]
+  congr
+  funext α β
+  cases α <;> cases β <;>
+    simp [Book.Ch02.blockIdentity, Book.Ch02.blockDiag, toFullBlockMat, Matrix.one_apply]
+
+private theorem blockTrace_blockSub_identity_self {d : ℕ} :
+    blockTrace (blockSub (Book.Ch02.blockIdentity d) (Book.Ch02.blockIdentity d)) = 0 := by
+  unfold blockTrace
+  have hzero :
+      toFullBlockMat (blockSub (Book.Ch02.blockIdentity d) (Book.Ch02.blockIdentity d)) =
+        (0 : FullBlockMat d) := by
+    funext α β
+    cases α <;> cases β <;> simp [blockSub, toFullBlockMat]
+  rw [hzero, Matrix.trace_zero]
+
+/-- Normalizing a positive definite block by itself gives the doubled identity. -/
+theorem normalizedBlock_self_of_posDef
+    {d : ℕ} (F : BlockMat d) (hF : (toFullBlockMat F).PosDef) :
+    normalizedBlock F F = Book.Ch02.blockIdentity d := by
+  unfold normalizedBlock
+  rw [matSqrt_inv_conj hF]
+  exact ofFullBlockMat_one_eq_blockIdentity
+
+/-- The mean penalty of the identity is zero, for every natural moment including `0`. -/
+theorem meanPenalty_identity
+    {d : ℕ} (Q : ℕ) :
+    meanPenalty Q (Book.Ch02.blockIdentity d) = 0 := by
+  simp [meanPenalty, blockTrace_blockSub_identity_self]
+
+/-- At the diagonal, the profile is exactly the printed prefactor times the history. -/
+theorem profile_self_eq_factor_mul_history
+    {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (q : Mat d) (jStar : ℕ) (n : ℤ) :
+    profile P γ q jStar n n =
+    (1 + meanPenalty (bigQ d γ) (relMean P q n n)) * history P γ q jStar n := by
+  unfold profile meanHistory
+  simp
+
+/-- With a positive terminal mean, the diagonal normalized mean is the identity. -/
+theorem profile_self_of_posDef
+    {d : ℕ} (P : Measure (CoeffSpace d)) (γ : ℝ) (q : Mat d) (jStar : ℕ) (n : ℤ)
+    (hF : (toFullBlockMat (adaptedMean P q n)).PosDef) :
+    profile P γ q jStar n n = history P γ q jStar n := by
+  rw [profile_self_eq_factor_mul_history]
+  simp [relMean, normalizedBlock_self_of_posDef (adaptedMean P q n) hF,
+    meanPenalty_identity]
+
+end
+
+end Homogenization.HighContrast.Multiscale
+end
+
+section
+/-!
+## Determinant drift algebra
 
 Spectral trace/determinant bounds, positive matrix normalization, and the finite-sum
-algebra for the printed determinant drift. Matrix-family assumptions are deterministic
-support inputs; their annealed proofs belong to the separate mean-order task.
+algebra for the printed determinant drift.  The matrix-family hypotheses are deterministic
+support inputs; their annealed proofs are the mean order of
+`p.fixed.geometry.parent.child.recurrence`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean blockLogDet blockSub blockTrace matSqrt
@@ -25,16 +120,16 @@ theorem determinantDrift_split
     determinantDrift P γ q jStar (m + L) =
     (∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
       (3 : ℝ) ^ (-((1 - γ) / 8) * (((m + L : ℤ) : ℝ) - (j : ℝ))) *
-        blockTrace (blockSub (normalizedMean P q (j - 1) (m + L)) (normalizedMean P q j (m + L)))) +
+        blockTrace (blockSub (relMean P q (j - 1) (m + L)) (relMean P q j (m + L)))) +
     ∑ j ∈ Finset.Icc (m + 1) (m + L),
       (3 : ℝ) ^ (-((1 - γ) / 8) * (((m + L : ℤ) : ℝ) - (j : ℝ))) *
-        blockTrace (blockSub (normalizedMean P q (j - 1) (m + L)) (normalizedMean P q j (m + L))) := by
+        blockTrace (blockSub (relMean P q (j - 1) (m + L)) (relMean P q j (m + L))) := by
   classical
   let a : ℤ := (jStar : ℤ) + 1
   let f : ℤ → ℝ := fun j =>
     (3 : ℝ) ^ (-((1 - γ) / 8) * (((m + L : ℤ) : ℝ) - (j : ℝ))) *
-      blockTrace (blockSub (normalizedMean P q (j - 1) (m + L))
-        (normalizedMean P q j (m + L)))
+      blockTrace (blockSub (relMean P q (j - 1) (m + L))
+        (relMean P q j (m + L)))
   have hset : Finset.Icc a (m + L) = Finset.Icc a m ∪ Finset.Icc (m + 1) (m + L) := by
     ext j
     simp [a, Finset.mem_Icc]
@@ -67,23 +162,6 @@ private theorem one_add_sum_sub_one_le_prod {ι : Type*} (s : Finset ι)
           f a * (1 + ∑ i ∈ s, (f i - 1)) := by
         nlinarith only [mul_nonneg (sub_nonneg.mpr hfa) hs]
       _ ≤ f a * ∏ i ∈ s, f i := mul_le_mul_of_nonneg_left (ih hfs) (zero_le_one.trans hfa)
-
-/-- For a symmetric matrix above the identity, the trace increment is bounded by the
- determinant increment, with coefficient one in every finite dimension. -/
-theorem trace_sub_one_le_det_sub_one {ι : Type*} [Fintype ι] [DecidableEq ι]
-    {P : Matrix ι ι ℝ} (hP : P.IsHermitian) (hIP : 1 ≤ P) :
-    Matrix.trace (P - 1) ≤ P.det - 1 := by
-  have heig : ∀ i, 1 ≤ hP.eigenvalues i := by
-    intro i
-    apply (algebraMap_le_iff_le_spectrum (a := P) (r := (1 : ℝ)) (ha := hP)).mp
-      (by simpa only [map_one] using hIP)
-    rw [hP.spectrum_real_eq_range_eigenvalues]
-    exact Set.mem_range_self i
-  have h := one_add_sum_sub_one_le_prod Finset.univ hP.eigenvalues (fun i _ => heig i)
-  rw [Matrix.trace_sub, hP.trace_eq_sum_eigenvalues, hP.det_eq_prod_eigenvalues]
-  simp only [Finset.sum_sub_distrib, Finset.sum_const, Finset.card_univ,
-    nsmul_eq_mul, mul_one, Matrix.trace_one, RCLike.ofReal_real_eq_id, id_eq] at h ⊢
-  linarith only [h]
 
 /-- The determinant of the positive square root has the expected square. -/
 theorem det_matSqrt_sq {ι : Type*} [Fintype ι] [DecidableEq ι]
@@ -127,13 +205,6 @@ private theorem matrix_congr_le {ι : Type*} [Fintype ι] [DecidableEq ι]
   have h := (Matrix.le_iff.mp hAB).conjTranspose_mul_mul_same S
   simpa only [hS.eq, mul_sub, sub_mul] using h
 
-/-- Ordered positive matrices normalize above the identity without a commutation premise. -/
-theorem one_le_normalized {ι : Type*} [Fintype ι] [DecidableEq ι]
-    {F G : Matrix ι ι ℝ} (hG : G.PosDef) (hGF : G ≤ F) :
-    1 ≤ matSqrt G⁻¹ * F * matSqrt G⁻¹ := by
-  have h := matrix_congr_le hGF (matSqrt G⁻¹) (matSqrt_inv_posDef_full hG).isHermitian
-  rwa [matSqrt_inv_mul_self_mul_matSqrt_inv_full hG] at h
-
 /-- The conjugated trace/determinant bound on a positive definite pair. -/
 theorem normalized_trace_sub_one_le {ι : Type*} [Fintype ι] [DecidableEq ι]
     {F G : Matrix ι ι ℝ} (hF : F.PosDef) (hG : G.PosDef) (hGF : G ≤ F) :
@@ -141,7 +212,7 @@ theorem normalized_trace_sub_one_le {ι : Type*} [Fintype ι] [DecidableEq ι]
   have hnorm := hF.posSemidef.conjTranspose_mul_mul_same (matSqrt G⁻¹)
   rw [(matSqrt_inv_posDef_full hG).isHermitian.eq] at hnorm
   rw [← det_normalized_eq_div F G hG]
-  exact trace_sub_one_le_det_sub_one hnorm.isHermitian (one_le_normalized hG hGF)
+  exact Recurrence.trace_sub_one_le_det_sub_one hnorm.isHermitian (Recurrence.one_le_normalize hG hGF)
 
 private theorem toFullBlockMat_sub {d : ℕ} (A B : BlockMat d) :
     toFullBlockMat (blockSub A B) = toFullBlockMat A - toFullBlockMat B := by
@@ -187,7 +258,7 @@ theorem matrix_le_det_smul_one {ι : Type*} [Fintype ι] [DecidableEq ι]
   simp only [RCLike.ofReal_real_eq_id, id_eq]
   linarith only [hprod, hi]
 
-private theorem matrix_inv_antitone {ι : Type*} [Fintype ι] [DecidableEq ι]
+private theorem inv_le_inv_of_le {ι : Type*} [Fintype ι] [DecidableEq ι]
     {F G : Matrix ι ι ℝ} (hF : F.PosDef) (hG : G.PosDef) (hGF : G ≤ F) : F⁻¹ ≤ G⁻¹ := by
   have hD : (G⁻¹ - F⁻¹).IsHermitian := hG.inv.isHermitian.sub hF.inv.isHermitian
   have h₁ := hG.posSemidef.conjTranspose_mul_mul_same (G⁻¹ - F⁻¹)
@@ -221,11 +292,11 @@ private theorem inverse_le_det_ratio_smul {ι : Type*} [Fintype ι] [DecidableEq
     simpa only [Matrix.inv_inv_of_invertible] using matSqrt_inv_posDef_full hF.inv
   have hRR : R * R = F := (matSqrt_spec hF.posSemidef).2
   have hRnorm : R * F⁻¹ * R = 1 := by
-    simpa only [Matrix.inv_inv_of_invertible] using matSqrt_inv_mul_self_mul_matSqrt_inv_full hF.inv
+    simpa only [Matrix.inv_inv_of_invertible] using matSqrt_inv_conj hF.inv
   have hN := hG.inv.posSemidef.conjTranspose_mul_mul_same R
   rw [hR.isHermitian.eq] at hN
   have hIN : 1 ≤ R * G⁻¹ * R := by
-    simpa only [hRnorm] using matrix_congr_le (matrix_inv_antitone hF hG hGF) R hR.isHermitian
+    simpa only [hRnorm] using matrix_congr_le (inv_le_inv_of_le hF hG hGF) R hR.isHermitian
   have hdet : (R * G⁻¹ * R).det = F.det / G.det := by
     rw [Matrix.det_mul, Matrix.det_mul]
     calc
@@ -270,16 +341,16 @@ theorem normalized_increment_trace_le
 theorem blockLogDet_normalizedMean_eq_loss {d : ℕ} (P : MeasureTheory.Measure (CoeffSpace d))
     (q : Mat d) (j k : ℤ) (hj : (toFullBlockMat (adaptedMean P q j)).PosDef)
     (hk : (toFullBlockMat (adaptedMean P q k)).PosDef) :
-    blockLogDet (normalizedMean P q j k) = logDetLoss P q j k := by
-  unfold blockLogDet normalizedMean
+    blockLogDet (relMean P q j k) = detIncrement P q j k := by
+  unfold blockLogDet relMean
   rw [det_normalizedBlock_eq_exp _ _ hj hk, Real.log_exp]
   rfl
 
 /-- The full log-determinant loss telescopes without analytic premises. -/
 theorem logDetLoss_add {d : ℕ} (P : MeasureTheory.Measure (CoeffSpace d))
     (q : Mat d) (i j k : ℤ) :
-    logDetLoss P q i j + logDetLoss P q j k = logDetLoss P q i k := by
-  unfold logDetLoss
+    detIncrement P q i j + detIncrement P q j k = detIncrement P q i k := by
+  unfold detIncrement
   exact sub_add_sub_cancel _ _ _
 
 private theorem blockTrace_sub {d : ℕ} (A B : BlockMat d) :
@@ -352,8 +423,8 @@ theorem determinantDrift_advance_of_posDef_antitone
     (horder : ∀ j ∈ Set.Icc ((jStar : ℤ) + 1) (m + L),
       BlockMatLoewnerLE (adaptedMean P q j) (adaptedMean P q (j - 1))) :
     determinantDrift P γ q jStar (m + L) ≤
-    (3 : ℝ) ^ (-((1 - γ) / 8) * (L : ℝ)) * Real.exp (logDetLoss P q m (m + L)) *
-      determinantDrift P γ q jStar m + Real.exp (logDetLoss P q m (m + L)) - 1 := by
+    (3 : ℝ) ^ (-((1 - γ) / 8) * (L : ℝ)) * Real.exp (detIncrement P q m (m + L)) *
+      determinantDrift P γ q jStar m + Real.exp (detIncrement P q m (m + L)) - 1 := by
   have hFm := hpos m ⟨hm, by omega⟩
   have hFt := hpos (m + L) ⟨by omega, le_rfl⟩
   have htm := block_order_of_adjacent (adaptedMean P q) horder hm le_rfl (by omega : m ≤ m + L)
@@ -368,9 +439,9 @@ theorem determinantDrift_advance_of_posDef_antitone
   have hold :
       (∑ j ∈ Finset.Icc ((jStar : ℤ) + 1) m,
         (3 : ℝ) ^ (-((1 - γ) / 8) * (((m + L : ℤ) : ℝ) - (j : ℝ))) *
-          blockTrace (blockSub (normalizedMean P q (j - 1) (m + L))
-            (normalizedMean P q j (m + L)))) ≤
-      (3 : ℝ) ^ (-((1 - γ) / 8) * (L : ℝ)) * Real.exp (logDetLoss P q m (m + L)) *
+          blockTrace (blockSub (relMean P q (j - 1) (m + L))
+            (relMean P q j (m + L)))) ≤
+      (3 : ℝ) ^ (-((1 - γ) / 8) * (L : ℝ)) * Real.exp (detIncrement P q m (m + L)) *
         determinantDrift P γ q jStar m := by
     unfold determinantDrift
     rw [Finset.mul_sum]
@@ -380,40 +451,40 @@ theorem determinantDrift_advance_of_posDef_antitone
     have hcmp := normalized_increment_trace_le (adaptedMean P q m) (adaptedMean P q (m + L))
       (blockSub (adaptedMean P q (j - 1)) (adaptedMean P q j)) hFm hFt
       (hincrement j (Finset.mem_Icc.mpr ⟨hj'.1, by omega⟩)) htm
-    simp only [normalizedMean, normalized_sub_trace, drift_weight_split]
+    simp only [relMean, normalized_sub_trace, drift_weight_split]
     have hweight : 0 ≤ (3 : ℝ) ^ (-((1 - γ) / 8) * (L : ℝ)) *
         (3 : ℝ) ^ (-((1 - γ) / 8) * ((m : ℝ) - (j : ℝ))) :=
       mul_nonneg (Real.rpow_nonneg (by norm_num) _) (Real.rpow_nonneg (by norm_num) _)
     calc
       _ ≤ ((3 : ℝ) ^ (-((1 - γ) / 8) * (L : ℝ)) *
           (3 : ℝ) ^ (-((1 - γ) / 8) * ((m : ℝ) - (j : ℝ)))) *
-          (Real.exp (logDetLoss P q m (m + L)) *
+          (Real.exp (detIncrement P q m (m + L)) *
             blockTrace (normalizedBlock (blockSub (adaptedMean P q (j - 1)) (adaptedMean P q j))
               (adaptedMean P q m))) := mul_le_mul_of_nonneg_left hcmp hweight
       _ = _ := by ring
   have hnew :
       (∑ j ∈ Finset.Icc (m + 1) (m + L),
         (3 : ℝ) ^ (-((1 - γ) / 8) * (((m + L : ℤ) : ℝ) - (j : ℝ))) *
-          blockTrace (blockSub (normalizedMean P q (j - 1) (m + L))
-            (normalizedMean P q j (m + L)))) ≤ Real.exp (logDetLoss P q m (m + L)) - 1 := by
+          blockTrace (blockSub (relMean P q (j - 1) (m + L))
+            (relMean P q j (m + L)))) ≤ Real.exp (detIncrement P q m (m + L)) - 1 := by
     calc
       _ ≤ ∑ j ∈ Finset.Icc (m + 1) (m + L),
-          blockTrace (blockSub (normalizedMean P q (j - 1) (m + L))
-            (normalizedMean P q j (m + L))) := by
+          blockTrace (blockSub (relMean P q (j - 1) (m + L))
+            (relMean P q j (m + L))) := by
         apply Finset.sum_le_sum
         intro j hj
         have hj' := Finset.mem_Icc.mp hj
-        have hnonneg : 0 ≤ blockTrace (blockSub (normalizedMean P q (j - 1) (m + L))
-            (normalizedMean P q j (m + L))) := by
-          rw [normalizedMean, normalizedMean, normalized_sub_trace]
+        have hnonneg : 0 ≤ blockTrace (blockSub (relMean P q (j - 1) (m + L))
+            (relMean P q j (m + L))) := by
+          rw [relMean, relMean, normalized_sub_trace]
           exact normalized_trace_nonneg _ _
             (hincrement j (Finset.mem_Icc.mpr ⟨by omega, hj'.2⟩)) hFt
         exact mul_le_of_le_one_left hnonneg (drift_weight_le_one γ hγ hj'.2)
-      _ = blockTrace (blockSub (normalizedMean P q m (m + L)) (Book.Ch02.blockIdentity d)) := by
+      _ = blockTrace (blockSub (relMean P q m (m + L)) (Book.Ch02.blockIdentity d)) := by
         simp only [blockTrace_sub]
-        rw [sum_Icc_trace_telescope (fun j => blockTrace (normalizedMean P q j (m + L))) (by omega)]
-        simp only [normalizedMean, normalizedBlock_self_of_posDef _ hFt]
-      _ ≤ Real.exp (logDetLoss P q m (m + L)) - 1 :=
+        rw [sum_Icc_trace_telescope (fun j => blockTrace (relMean P q j (m + L))) (by omega)]
+        simp only [relMean, normalizedBlock_self_of_posDef _ hFt]
+      _ ≤ Real.exp (detIncrement P q m (m + L)) - 1 :=
         normalizedMean_trace_sub_identity_le _ _ hFm hFt htm
   rw [determinantDrift_split P γ q jStar m L hm (by omega)]
   exact (add_le_add hold hnew).trans_eq (by ring)
@@ -421,3 +492,4 @@ theorem determinantDrift_advance_of_posDef_antitone
 end
 
 end Homogenization.HighContrast.Multiscale
+end

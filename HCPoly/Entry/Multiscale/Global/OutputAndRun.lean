@@ -44,19 +44,19 @@ theorem output_profile_bound (Cout Cfs Cmaj Cexp Q ρ σ H d pss dss pts dt ptt 
   have hexp_le : Real.exp (Q * Δ) ≤ Real.exp (Q * d * σ) :=
     Real.exp_le_exp.mpr hQΔ_le
   have hexpΔ : Real.exp (Q * Δ) - 1 ≤ Cexp * ρ := by
-    linarith
+    linarith only [hexp_le, hexp]
   have hexpΔ_nonneg : 0 ≤ Real.exp (Q * Δ) - 1 := by
     have hone : (1 : ℝ) ≤ Real.exp (Q * Δ) := by
       simpa using
         (Real.exp_le_exp.mpr (mul_nonneg hQ hΔ0) :
           Real.exp 0 ≤ Real.exp (Q * Δ))
-    linarith
+    linarith only [hone]
   have hA : 0 ≤ Cfs * H := mul_nonneg hCfs hH
   have hbracket_nonneg : 0 ≤ pss + dss + (Real.exp (Q * Δ) - 1) := by
-    linarith
+    linarith only [hpss, hdss, hexpΔ_nonneg]
   have hsum :
       pss + dss + (Real.exp (Q * Δ) - 1) ≤ Cout * ρ + Cexp * ρ := by
-    linarith
+    linarith only [h1, hexpΔ]
   have hmul :
       Cfs * H * (pss + dss + (Real.exp (Q * Δ) - 1)) ≤
         Cfs * H * (Cout * ρ + Cexp * ρ) :=
@@ -64,19 +64,19 @@ theorem output_profile_bound (Cout Cfs Cmaj Cexp Q ρ σ H d pss dss pts dt ptt 
   have hptsdt : pts + dt ≤ Cfs * H * (Cout * ρ + Cexp * ρ) :=
     le_trans h2 hmul
   have bpts : pts ≤ Cfs * H * (Cout * ρ + Cexp * ρ) := by
-    linarith
+    linarith only [hptsdt, hdt]
   have bdt : dt ≤ Cfs * H * (Cout * ρ + Cexp * ρ) := by
-    linarith
+    linarith only [hptsdt, hpts]
   have bpss : pss ≤ Cout * ρ := by
-    linarith
+    linarith only [h1, hdss]
   have bdss : dss ≤ Cout * ρ := by
-    linarith
+    linarith only [h1, hpss]
   have bptt : ptt ≤ Cmaj * (Cfs * H * (Cout * ρ + Cexp * ρ)) :=
     le_trans h3 (mul_le_mul_of_nonneg_left bpts hCmaj)
   have hCoutρ : 0 ≤ Cout * ρ := mul_nonneg hCout hρ
   have hCexpρ : 0 ≤ Cexp * ρ := mul_nonneg hCexp hρ
   have hAterm : 0 ≤ Cfs * H * (Cout * ρ + Cexp * ρ) :=
-    mul_nonneg hA (by linarith)
+    mul_nonneg hA (by linarith only [hCoutρ, hCexpρ])
   have hCmajA : 0 ≤ Cmaj * (Cfs * H * (Cout * ρ + Cexp * ρ)) :=
     le_trans hptt bptt
   have hmax1 :
@@ -84,24 +84,31 @@ theorem output_profile_bound (Cout Cfs Cmaj Cexp Q ρ σ H d pss dss pts dt ptt 
         Cout * ρ + Cfs * H * (Cout * ρ + Cexp * ρ) +
           Cmaj * (Cfs * H * (Cout * ρ + Cexp * ρ)) := by
     apply max_le
-    · linarith
-    · linarith
+    · linarith only [bpss, hAterm, hCmajA]
+    · linarith only [bpts, hCoutρ, hCmajA]
   have bptt' :
       ptt ≤
         Cout * ρ + Cfs * H * (Cout * ρ + Cexp * ρ) +
           Cmaj * (Cfs * H * (Cout * ρ + Cexp * ρ)) := by
-    linarith
+    linarith only [bptt, hCoutρ, hAterm]
   have hmax2 :
       max (max pss pts) ptt ≤
         Cout * ρ + Cfs * H * (Cout * ρ + Cexp * ρ) +
           Cmaj * (Cfs * H * (Cout * ρ + Cexp * ρ)) :=
     max_le hmax1 bptt'
-  nlinarith [hmax2, bdss, bdt]
+  calc
+    max (max pss pts) ptt + dss + dt
+        ≤ (Cout * ρ + Cfs * H * (Cout * ρ + Cexp * ρ) +
+              Cmaj * (Cfs * H * (Cout * ρ + Cexp * ρ))) + Cout * ρ +
+            Cfs * H * (Cout * ρ + Cexp * ρ) := by
+          linarith only [hmax2, bdss, bdt]
+    _ = (2 * Cout + (2 + Cmaj) * Cfs * H * (Cout + Cexp)) * ρ := by
+          ring
 
-/-! ## §G Provider inputs and the run assembly -/
+/-! ## §G The proposition inputs and the run assembly -/
 
 /-- `p.initial.fixed.grid.scale`, exact type declared in `HCPoly/Entry/Statements/InitialFixedGridScale.lean`;
-applies `Provider.initial_fixed_grid_scale` directly. -/
+applies `Entry.initial_fixed_grid_scale` directly. -/
 theorem initial_provider_input
     (d : ℕ) (hd : 2 ≤ d) :
     ∃ Cgeom : ℝ, 0 < Cgeom ∧
@@ -136,7 +143,7 @@ theorem initial_provider_input
                           projectiveDistance (1 : Mat d)
                               (explicitCanonicalMetric (adaptedMean P (1 : Mat d) n₀)) ≤
                             Cgeom * Real.log (2 + 4 * aspectRatio E)  :=
-  Provider.initial_fixed_grid_scale d hd
+  Entry.initial_fixed_grid_scale d hd
 
 /-- The output tuple of the run (`p.global.selection`), as a predicate, so `global_run` and
 `global_selection` share one interface. -/
@@ -155,7 +162,7 @@ def SelectedOutput {d : ℕ} (P : Measure (CoeffSpace d)) (γ ε σ Cprof C : �
         (adaptedMean P (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s) ∧
       BlockMatLoewnerLE (adaptedMean P (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s)
         (blockScale (1 + Real.sqrt ε * σ) F) ∧
-      (d : ℝ)⁻¹ * logDetLoss P (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ ∧
+      (d : ℝ)⁻¹ * detIncrement P (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) s t < σ ∧
       max
           (max (profile P γ (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) jStar s s)
             (profile P γ (Geometry.explicitRoundedGrid jStar (explicitCanonicalMetric F)) jStar s t))

@@ -3,7 +3,16 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Regularity.RoundedOuterSpatialResponseMax
+import HCPoly.Provider.Entry.EuclideanAdapter
+import HCPoly.Provider.PolynomialHomogenization.NormalizedRootCoefficient
+import HCPoly.Provider.Regularity.RoundedAffineMap
+import HCPoly.Provider.Selection.EnclosureGeometry
+import HCPoly.Provider.Regularity.RoundedOuterScaleFubini
+import HCPoly.Provider.Regularity.RoundedNormalizedRootDoubledResponseSubadditivity
+import HCPoly.Provider.Entry.AdapterQuadratic
+import HCPoly.Provider.Regularity.RoundedNormalizedRootCellResponseMax
+import HCPoly.Provider.Response.AdaptedLinearOscillation
+import Homogenization.Book.Ch02.Theorems.HomogenizationError.EllipticityControl
 import HCPoly.Provider.Regularity.QuantitativeGoodTail
 import HCPoly.Provider.Initialization.Boundary
 

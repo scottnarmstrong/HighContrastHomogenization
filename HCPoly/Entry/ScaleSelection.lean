@@ -12,26 +12,26 @@ The five guarded alternatives are proved in `HCPoly/Entry/Multiscale/ScaleSelect
 step per file; this file only chooses the selection data and the two outermost constants
 `C(d,γ)` and `C_src(d,γ)` before the law, the geometry, `ε`, `σ` and `B`, as the statement
 requires, and dispatches the five cases of `alternatives_exhaustive`.  It consumes the
-two applications of `Provider.fixed_geometry_one_grid_propagation`
-(`HCPoly/Entry/OneGridPropagation.lean`) and `Provider.two_grid_transport`
+two applications of `Entry.fixed_geometry_one_grid_propagation`
+(`HCPoly/Entry/OneGridPropagation.lean`) and `Entry.two_grid_transport`
 (`HCPoly/Entry/TwoGridTransport.lean`), together with
-`Provider.successful_short_bridge`.
+`Entry.successful_short_bridge`.
 -/
 
 open Homogenization.HighContrast (adaptedMean aspectRatio)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 
 open MeasureTheory
 open scoped Matrix.Norms.L2Operator
 
 noncomputable section
 
-/-- **Provider for `p.scale.selection`**, repeating the type of
+/-- **Proof of `p.scale.selection`**, repeating the type of
 `Homogenization.HighContrast.scale_selection` (`HCPoly/Entry/Statements/ScaleSelection.lean`, `p.scale.selection`)
 byte for byte. Assembled from the five alternative lemmas with `h = 2Q`, `c = c₀`,
 `L(ε,σ) = selectionLength L₀ σ`, `B₀(ε,σ) = max 1 (max (B₀^bridge (√ε σ) L) (2 C_tr (L+1)))`,
 `C` above `2Q C₁` and `2 C_tr`, `Csrc := max Csrc₁ (max Csrc₂ Csrc₃)` of the three
-immediately consumed source constants, and `ε₀` from `eps0_choice`. -/
+immediately consumed source constants, and `ε₀` from `exists_eps0`. -/
 theorem scale_selection
     (d : ℕ) (hd : 2 ≤ d)
     (γ : ℝ) (hγ : γ ∈ Set.Ico (0 : ℝ) 1) :
@@ -42,8 +42,8 @@ theorem scale_selection
   obtain ⟨L₀b, c₀, hc₀, Csrc₃, hCsrc₃, B₀b, hbr₀⟩ := Multiscale.bridge_skolem d hd γ hγ
   have hQ0 : (0 : ℝ) ≤ (bigQ d γ : ℝ) := Nat.cast_nonneg _
   have hd0 : (0 : ℝ) ≤ (d : ℝ) := Nat.cast_nonneg _
-  have hCtr0 : (0 : ℝ) ≤ Ctr := by linarith
-  have hCtrpos : (0 : ℝ) < Ctr := by linarith
+  have hCtr0 : (0 : ℝ) ≤ Ctr := by linarith only [hCtr]
+  have hCtrpos : (0 : ℝ) < Ctr := by linarith only [hCtr]
   set Csrc : ℝ := max Csrc₁ (max Csrc₂ Csrc₃) with hCsrcdef
   have hCsrc : 0 < Csrc := lt_of_lt_of_le hCsrc₁ (le_max_left _ _)
   have hone : Multiscale.OneGridBody d γ Csrc C₁ :=
@@ -67,14 +67,16 @@ theorem scale_selection
   set C : ℝ := max (2 * (bigQ d γ : ℝ) * C₁) (2 * Ctr) with hCdef
   have hCone : 2 * (bigQ d γ : ℝ) * C₁ ≤ C := le_max_left _ _
   have hCtwo : 2 * Ctr ≤ C := le_max_right _ _
-  have hCpos : 0 < C := lt_of_lt_of_le (by linarith) hCtwo
+  have hCpos : 0 < C := lt_of_lt_of_le (by linarith only [hCtrpos]) hCtwo
   have hbrack : (0 : ℝ) < 1 + 2 * (bigQ d γ : ℝ) * (d : ℝ) := by
-    nlinarith [mul_nonneg hQ0 hd0]
+    have h2Qd : 0 ≤ 2 * (bigQ d γ : ℝ) * (d : ℝ) :=
+      mul_nonneg (mul_nonneg (by norm_num) hQ0) hd0
+    linarith only [h2Qd]
   obtain ⟨ε₁, hε₁pos, _hε₁le, hsmall⟩ :=
     Multiscale.old_grid_smallness_arith (2 * C₁ * (1 + 2 * (bigQ d γ : ℝ) * (d : ℝ)))
-      (mul_pos (by linarith) hbrack) L₀ γ hγ
+      (mul_pos (by linarith only [hC₁]) hbrack) L₀ γ hγ
   obtain ⟨ε₀, hε₀mem, hε₀q, hε₀c, hε₀Q, hε₀C, hε₀1, hε₀L⟩ :=
-    Multiscale.eps0_choice d hd γ hγ C Ctr c₀ ε₁ L₀ hCpos hCtrpos hc₀ hε₁pos hL₀
+    Multiscale.exists_eps0 d hd γ hγ C Ctr c₀ ε₁ L₀ hCpos hCtrpos hc₀ hε₁pos hL₀
   refine ⟨⟨2 * bigQ d γ, ε₀, c₀, fun _ s => Multiscale.selectionLength L₀ s,
       fun e s => max 1 (max (B₀b (Real.sqrt e * s) (Multiscale.selectionLength L₀ s))
         (2 * Ctr * ((Multiscale.selectionLength L₀ s : ℝ) + 1))),
@@ -94,9 +96,9 @@ theorem scale_selection
     le_trans (mul_le_mul_of_nonneg_left hεle (mul_nonneg hQ0 hd0)) hε₀Q
   have hCε : C * ε ^ ((1 - γ) / 8) ≤ 1 :=
     le_trans (mul_le_mul_of_nonneg_left
-      (Real.rpow_le_rpow hε0.le hεle (by linarith [hγ.2])) hCpos.le) hε₀C
+      (Real.rpow_le_rpow hε0.le hεle (by linarith only [hγ.2])) hCpos.le) hε₀C
   have hLε : 2 * Ctr * ε ≤ (L₀ : ℝ) * Real.log 3 :=
-    le_trans (mul_le_mul_of_nonneg_left hεle (by linarith)) hε₀L
+    le_trans (mul_le_mul_of_nonneg_left hεle (by linarith only [hCtrpos])) hε₀L
   have hBmax : max (1 : ℝ)
       (max (B₀b (Real.sqrt ε * σ) (Multiscale.selectionLength L₀ σ))
         (2 * Ctr * ((Multiscale.selectionLength L₀ σ : ℝ) + 1))) ≤ B := hB
@@ -126,10 +128,10 @@ theorem scale_selection
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n)
       (c₀ * ε * σ)
       ((d : ℝ)⁻¹ *
-        synchronizedLogDetLoss P (Geometry.explicitRoundedGrid jStar m) ((2 * bigQ d γ : ℕ) : ℤ) n)
+        synchCharge P (Geometry.explicitRoundedGrid jStar m) ((2 * bigQ d γ : ℕ) : ℤ) n)
       σ
       ((d : ℝ)⁻¹ *
-        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+        detIncrement P (Geometry.explicitRoundedGrid jStar m) n
           (n + 2 * (Multiscale.selectionLength L₀ σ : ℤ)))
       (ε * σ) with hk | ⟨hk, hη, hx⟩ | ⟨hk, hη, hy⟩ | ⟨hk, hη, hx⟩ | ⟨hk, hη, hy⟩
   · exact Or.inl (Multiscale.startup_alternative d hd γ hγ Csrc C₁ hC₁ hone C hCone L₀ ε σ B
@@ -169,10 +171,10 @@ theorem scale_selection
   have hLpos : (0 : ℝ) < (Multiscale.selectionLength L₀ σ : ℝ) := by
     have h1 : 1 ≤ Multiscale.selectionLength L₀ σ := Multiscale.one_le_selectionLength L₀ hL₀ σ
     have h2 : (1 : ℝ) ≤ (Multiscale.selectionLength L₀ σ : ℝ) := by exact_mod_cast h1
-    linarith
+    linarith only [h2]
   have hdR2 : (2 : ℝ) ≤ (d : ℝ) := by exact_mod_cast hd
   have h2ε : 2 * ε ≤ c₀ := by
-    have hden : (0 : ℝ) < (d : ℝ) + 1 := by linarith
+    have hden : (0 : ℝ) < (d : ℝ) + 1 := by linarith only [hdR2]
     have ht : c₀ / ((d : ℝ) + 1) * ((d : ℝ) + 1) = c₀ := div_mul_cancel₀ c₀ hden.ne'
     have ht0 : 0 ≤ c₀ / ((d : ℝ) + 1) := div_nonneg hc₀.1.le hden.le
     have h3t : 3 * (c₀ / ((d : ℝ) + 1)) ≤ c₀ := by nlinarith only [ht, ht0, hdR2]
@@ -192,7 +194,7 @@ theorem scale_selection
       (Multiscale.logb_two_add_aspectRatio_nonneg E) hBbr hecc
   have hsmallBr : profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
         determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
-        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n
+        detIncrement P (Geometry.explicitRoundedGrid jStar m) n
           (n + 2 * (Multiscale.selectionLength L₀ σ : ℤ)) ≤ c₀ * (Real.sqrt ε * σ) :=
     Multiscale.bridge_smallness_arith_combined d hd c₀ c₀ ε σ _ hc₀ hc₀ hε0 hεc2 hσ.1 hsmall
   exact hbody P E Ψ K Src hP hstat hunit hdag jStar hj hsrc m mPlus hm hmP k n hjk hkn hcont
@@ -200,4 +202,4 @@ theorem scale_selection
 
 end
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

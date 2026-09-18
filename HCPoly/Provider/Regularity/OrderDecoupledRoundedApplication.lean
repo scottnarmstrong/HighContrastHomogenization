@@ -84,37 +84,6 @@ theorem nonempty_privateRoundedPhysicalDirichletSpine
     exists_roundedPhysicalDirichletEuclideanHsConstant d
   exact ⟨⟨s, hs, C, hC, hresponse⟩⟩
 
-/-- The order-independent rounded data produced when a printed-order
-certificate is applied to one coefficient sample. -/
-structure PrintOrderRoundedCoefficientApplication
-    (d : ℕ) [NeZero d] (g : ℝ) (a : CoeffSpace d) (abar : Mat d)
-    (sourceAmplitude target kappa : ℝ) (X : CoeffSpace d → ℝ) where
-  hS : (symmPart abar).PosDef
-  commonCertificate :
-    PrintOrderQuantitativeNormalizedReferenceCertificate abar g target kappa
-      (printOrderCommonQuantitativeAffineScale
-        d g sourceAmplitude target kappa abar X a) a
-  goodMax :
-    ∀ m : ℤ,
-      (Quenched.triadicCeilingIndex
-        (printOrderCommonQuantitativeAffineScale
-          d g sourceAmplitude target kappa abar X a) : ℤ) ≤ m →
-      Transport.BaseRoundedSpatialGoodMaxOnInterval
-        a abar hS (printCertificateOrder g)
-        (target / (1 - (3 : ℝ) ^ (-kappa)))
-        (Quenched.triadicCeilingIndex
-          (printOrderCommonQuantitativeAffineScale
-            d g sourceAmplitude target kappa abar X a) : ℤ) m
-  aRounded : Book.Ch03.CoeffFamily d
-  aRounded_eq :
-    ∀ Q : TriadicCube d,
-      (aRounded.coeffOn Q).toCoeffField =
-        (⇑(roundedCenteredCoeffSpace abar hS a).1 : CoeffField d)
-  aRounded_ae :
-    ∀ Q : TriadicCube d,
-      (aRounded.coeffOn Q).toCoeffField =ᵐ[volume]
-        roundedCenteredCoefficient abar hS (⇑a.1)
-
 /-- A fixed choice of the deterministic response spine, made before any
 stochastic exponent or sample is introduced. -/
 noncomputable def privateRoundedPhysicalDirichletSpine

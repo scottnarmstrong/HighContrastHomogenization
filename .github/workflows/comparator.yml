@@ -132,11 +132,25 @@ jobs:
           # The toolchain-matched lean4export must also win on PATH: a
           # differently versioned binary found first rejects the oleans.
           export PATH="$HOME/tools/lean4export/.lake/build/bin:$HOME/tools/bin:$PATH"
+          # The comparator writes the exported environment of each pair, and
+          # the kernel configuration beside it, to temporary files it creates
+          # in $TMPDIR (Lean's `IO.FS.withTempFile`); for these challenges the
+          # export is large.  Give every pair its own temporary directory and
+          # delete it as soon as the pair is done, so that at most one pair's
+          # export sits on the runner's disk: a pair that fails or is killed
+          # leaves its files behind otherwise, and four of them together fill
+          # the disk.  The per-pair logs still go to /tmp/comparator-$X.log,
+          # which the upload step collects.
+          scratch="${RUNNER_TEMP:-/tmp}/comparator-scratch"
+          rm -rf "$scratch"
+          mkdir -p "$scratch"
+          trap 'rm -rf "$scratch"' EXIT
           fail=0
           for cfg in HCPolyAudit/*/comparator.json; do
             X=$(basename "$(dirname "$cfg")")
             echo "::group::$X"
-            if lake env ~/tools/comparator/.lake/build/bin/comparator "$cfg" \
+            mkdir -p "$scratch/$X"
+            if TMPDIR="$scratch/$X" lake env ~/tools/comparator/.lake/build/bin/comparator "$cfg" \
                  | tee "/tmp/comparator-$X.log" \
                && grep -q "Your solution is okay!" "/tmp/comparator-$X.log"; then
               echo "$X: OK"
@@ -144,6 +158,7 @@ jobs:
               echo "$X: FAILED"
               fail=1
             fi
+            rm -rf "$scratch/$X"
             echo "::endgroup::"
           done
           exit "$fail"

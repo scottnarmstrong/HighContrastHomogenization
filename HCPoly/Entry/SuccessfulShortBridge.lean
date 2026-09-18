@@ -11,7 +11,7 @@ mathematical proof does not use it.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean aspectRatio blockScale)
-namespace Homogenization.HighContrast.Provider
+namespace Homogenization.HighContrast.Entry
 open MeasureTheory
 open scoped Matrix.Norms.L2Operator
 
@@ -46,7 +46,7 @@ theorem successful_short_bridge
                     projectiveDistance m mPlus ≤ 1 →
                     profile P γ (Geometry.explicitRoundedGrid jStar m) jStar k n +
                           determinantDrift P γ (Geometry.explicitRoundedGrid jStar m) jStar n +
-                        logDetLoss P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤
+                        detIncrement P (Geometry.explicitRoundedGrid jStar m) n (n + 2 * (L : ℤ)) ≤
                       c₀ * σ →
                     BlockMatLoewnerLE
                         (blockScale (1 - σ)
@@ -67,4 +67,4 @@ theorem successful_short_bridge
   let := hP
   exact hbridge P E Ψ K S hstat _hunit hdag
 
-end Homogenization.HighContrast.Provider
+end Homogenization.HighContrast.Entry

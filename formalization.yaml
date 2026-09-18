@@ -137,7 +137,15 @@ automation:
         harnesses, with Claude Fable 5.1 orchestrating and Claude Opus 5 and
         GPT-5.6 Sol at low reasoning effort writing the proofs; its port to
         Lean v4.33.0 and its merge into this library were carried out by
-        DeepSeek V4.1 Flash workers with Claude Sonnet 5 on escalations.
+        DeepSeek V4.1 Flash workers with Claude Sonnet 5 on escalations; and
+        the consolidation of that route on 17-18 September 2026 - using the
+        published proofs for the results shared with them, regrouping the
+        response layer by its mathematics, renaming after what each
+        declaration states, narrowing the arithmetic closers to the facts
+        they use and removing the modules no exported theorem reaches - was
+        written by DeepSeek V4.1 Flash workers, with Claude Sonnet 5 on
+        escalations and review, Claude Opus 5 leading each phase and Claude
+        Fable 5.1 orchestrating.
       tool_setup: >-
         Lake builds under leanprover/lean4:v4.33.0 with Mathlib v4.33.0 and the
         public CoarseGraining library at a pinned revision.  A frozen-statement
@@ -159,7 +167,8 @@ automation:
           night (13-14 September) for the upgrade to Lean v4.33.0; and a
           further stretch from 6 to 17 September 2026 in which Theorem A was
           proved along the paper's own route in its printed form, and that
-          route was ported to Lean v4.33.0 and merged into this library
+          route was ported to Lean v4.33.0 and merged into this library; and
+          two days (17-18 September 2026) in which that route was consolidated
         spend_usd: "not separately tracked (subscription accounts)"
         hardware: "a 16-CPU / 124 GB RAM Ubuntu machine"
       prompting_notes: >-
@@ -198,7 +207,12 @@ fidelity:
     satisfies X >= 1 (the paper states X >= max(1, S)), the homogenized
     matrix is produced existentially rather than identified with Theorem B's
     limit block, norms are valued in the extended nonnegative reals, and
-    fluxes are written for the skew-centered field.
+    fluxes are written for the skew-centered field.  The consolidation of
+    17-18 September 2026 left the seventeen printed statements of the route
+    unchanged beyond their import lines and three declaration renames
+    (logDetLoss to detIncrement, synchronizedLogDetLoss to synchCharge,
+    MemLqSchatten to SchattenMemLp), and left every exported statement
+    byte-identical.
 
 review:
   status: "author-verified"

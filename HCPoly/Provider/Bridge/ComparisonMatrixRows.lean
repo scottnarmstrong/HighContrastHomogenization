@@ -3,7 +3,15 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.Bridge.ComparisonScalarRows
+import HCPoly.Provider.Transport.WindowMomentBound
+import HCPoly.Provider.Transport.WhitneyRows
+import HCPoly.Provider.Transport.DiscreteConvolution
+import HCPoly.Provider.Transport.TransportCoefficients
+import HCPoly.Provider.PortableHistory.CheckpointMoment
+import HCPoly.Provider.ShortHop.Eccentricity
+import HCPoly.Provider.Transport.TransportMeanDomination
+import HCPoly.Provider.PortableHistory.MajorizationSup
+import HCPoly.Provider.Transport.AnnealedRows
 import HCPoly.Provider.Recurrence.SchattenSpectral
 
 /-!
@@ -77,80 +85,6 @@ theorem matrix_le_terminal_trace_sub {A B : FullBlockMat d}
       Matrix.trace (B⁻¹ * (A - B)) • B - (A - B) := by abel
   rw [heq]
   exact hps
-
-/-- A weighted boundary row of decreasing positive means is controlled by the
-terminal mean, the geometric boundary mass, and the terminal weighted drift. -/
-theorem weighted_mean_row_le {rho D K mass : ℝ} {b T l : ℤ}
-    (hrho0 : 0 ≤ rho) (hrho1 : rho ≤ 1) (hl : 0 ≤ l)
-    (hbTl : b ≤ T - l) (hDK : 0 ≤ D * K)
-    (F : ℤ → FullBlockMat d) (theta : ℤ → ℝ)
-    (hpos : ∀ r ∈ Finset.Icc b T, (F r).PosDef)
-    (hmono : ∀ r ∈ Finset.Icc (b + 1) T, F r ≤ F (r - 1))
-    (hterminal : ∀ a ∈ Finset.Icc b (T - l), F T ≤ F a)
-    (htheta0 : ∀ a ∈ Finset.Icc b (T - l), 0 ≤ theta a)
-    (hmass : ∑ a ∈ Finset.Icc b (T - l), theta a ≤ mass)
-    (hrow : ∀ a ∈ Finset.Icc b (T - l),
-      theta a ≤ D * K * (3 : ℝ) ^ (a - T)) :
-    ∑ a ∈ Finset.Icc b (T - l), theta a • F a ≤
-      (mass + (1 / (1 - (3 : ℝ) ^ (-(1 : ℝ)))) * D * K *
-        (3 : ℝ) ^ (-(1 - rho) * (l : ℝ)) *
-          ∑ r ∈ Finset.Icc (b + 1) T,
-            (3 : ℝ) ^ (-rho * ((T : ℝ) - (r : ℝ))) *
-              Matrix.trace ((F T)⁻¹ * (F (r - 1) - F r))) • F T := by
-  classical
-  have hbT : b ≤ T := hbTl.trans (by omega)
-  have hTpos : (F T).PosDef := hpos T (Finset.mem_Icc.mpr ⟨hbT, le_rfl⟩)
-  let x : ℤ → ℝ := fun r => Matrix.trace ((F T)⁻¹ * (F (r - 1) - F r))
-  have hx : ∀ r ∈ Finset.Icc (b + 1) T, 0 ≤ x r := by
-    intro r hr
-    have hG : (F (r - 1) - F r).PosSemidef := Matrix.le_iff.mp (hmono r hr)
-    exact PortableHistory.trace_mul_nonneg hTpos.inv.posSemidef hG
-  have hmean : ∀ a ∈ Finset.Icc b (T - l),
-      F a ≤ (1 + ∑ r ∈ Finset.Icc (a + 1) T, x r) • F T := by
-    intro a ha
-    have haT : a ≤ T := (Finset.mem_Icc.mp ha).2.trans (by omega)
-    have htrace : Matrix.trace ((F T)⁻¹ * (F a - F T)) =
-        ∑ r ∈ Finset.Icc (a + 1) T, x r := by
-      dsimp only [x]
-      rw [← Matrix.trace_sum, ← Finset.mul_sum, sum_Icc_sub_pred F haT]
-    rw [← htrace]
-    exact matrix_le_terminal_trace_sub hTpos (hterminal a ha)
-  have hscaled : ∀ a ∈ Finset.Icc b (T - l),
-      theta a • F a ≤ theta a •
-        ((1 + ∑ r ∈ Finset.Icc (a + 1) T, x r) • F T) := fun a ha =>
-    smul_le_smul_of_le (htheta0 a ha) (hmean a ha)
-  have hmatrix := Finset.sum_le_sum hscaled
-  have htail := weighted_tail_sum_le hrho0 hrho1 hDK theta x hrow hx
-  have hcoef : ∑ a ∈ Finset.Icc b (T - l),
-      theta a * (1 + ∑ r ∈ Finset.Icc (a + 1) T, x r) ≤
-        mass + (1 / (1 - (3 : ℝ) ^ (-(1 : ℝ)))) * D * K *
-          (3 : ℝ) ^ (-(1 - rho) * (l : ℝ)) *
-            ∑ r ∈ Finset.Icc (b + 1) T,
-              (3 : ℝ) ^ (-rho * ((T : ℝ) - (r : ℝ))) * x r := by
-    have hsplit : ∑ a ∈ Finset.Icc b (T - l),
-        theta a * (1 + ∑ r ∈ Finset.Icc (a + 1) T, x r) =
-          (∑ a ∈ Finset.Icc b (T - l), theta a) +
-            ∑ a ∈ Finset.Icc b (T - l), theta a *
-              ∑ r ∈ Finset.Icc (a + 1) T, x r := by
-      rw [← Finset.sum_add_distrib]
-      exact Finset.sum_congr rfl fun a _ => by ring
-    rw [hsplit]
-    exact add_le_add hmass htail
-  calc
-    ∑ a ∈ Finset.Icc b (T - l), theta a • F a ≤
-        ∑ a ∈ Finset.Icc b (T - l), theta a •
-          ((1 + ∑ r ∈ Finset.Icc (a + 1) T, x r) • F T) := hmatrix
-    _ = (∑ a ∈ Finset.Icc b (T - l),
-        theta a * (1 + ∑ r ∈ Finset.Icc (a + 1) T, x r)) • F T := by
-      simp_rw [smul_smul]
-      rw [Finset.sum_smul]
-    _ ≤ (mass + (1 / (1 - (3 : ℝ) ^ (-(1 : ℝ)))) * D * K *
-        (3 : ℝ) ^ (-(1 - rho) * (l : ℝ)) *
-          ∑ r ∈ Finset.Icc (b + 1) T,
-            (3 : ℝ) ^ (-rho * ((T : ℝ) - (r : ℝ))) * x r) • F T := by
-      refine Matrix.le_iff.mpr ?_
-      rw [← sub_smul]
-      exact hTpos.posSemidef.smul (sub_nonneg.mpr hcoef)
 
 end
 

@@ -3,9 +3,9 @@ import HCPoly.Entry.Multiscale.Global.Containment
 /-!
 # The metric part of a partial geometry change
 
-The projective-metric bookkeeping of a partial geometry change: the geometry update moves the
-current metric a distance exactly `ε` towards the target when the target is not reached, and
-the residual distance to the target drops by `ε`.
+The projective-metric bookkeeping of a partial geometry change, serving `p.global.selection`:
+the geometry update moves the current metric a distance exactly `ε` towards the target when the
+target is not reached, and the residual distance to the target drops by `ε`.
 -/
 
 open Homogenization.HighContrast (CoeffSpace adaptedMean blockLogDet blockScale matPow matSqrt
@@ -21,7 +21,7 @@ noncomputable section
 `m⋆ = m(𝐀_{n+2L,q})` not reached (`d_pr([m],[m⋆]) > ε`, so `d_pr([m₊],[m⋆]) = d_pr([m],[m⋆]) - ε`
 by `Geometry.projectiveDistance_geometryUpdate_eq_min`), `𝐀_{n+2L,q} ≤ 𝐀_{k,q}`
 (`explicitCanonicalMetric_projectiveDistance_le_logDet`), and the bridge sandwich
-`e.global.selection.geometry.comparison` (`explicitCanonicalMetric_projectiveDistance_le_of_sandwich'`),
+`e.global.selection.geometry.comparison` (`explicitCanonicalMetric_projectiveDistance_le_of_deltaSandwich`),
 glued by `projectiveDistance_triangle` and the symmetry of `projectiveDistance`. -/
 theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : ℕ) (ε δ : ℝ)
     (m : Mat d) (k n : ℤ) (L : ℕ) (hm : m.PosDef) (hε : 0 < ε) (hδ : δ ∈ Set.Ico (0 : ℝ) 1)
@@ -62,7 +62,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
               (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar m) (n + 2 * (L : ℤ))))))
             (n + L))) -
       projectiveDistance m (explicitCanonicalMetric (adaptedMean P (Geometry.explicitRoundedGrid jStar m) k)) ≤
-      -ε + 1 / 2 * logDetLoss P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) +
+      -ε + 1 / 2 * detIncrement P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) +
         1 / 2 * Real.log ((1 + δ) / (1 - δ))  := by
   classical
   open scoped MatrixOrder in
@@ -88,7 +88,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
         norm_num
       exfalso
       rw [hMS0] at hfar
-      linarith
+      linarith only [hfar, hε]
     · have : NeZero d := ⟨hdpos.ne'⟩
       have hF2Lsym : IsSymmetricBlockMat F2L := hsym (n + 2 * (L : ℤ))
       have hF2Lpos : Book.Ch02.BlockPosDef F2L := hpos (n + 2 * (L : ℤ))
@@ -100,7 +100,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
       have hne : ¬ ProjectiveEq m mStar := by
         intro hEq
         have hz := (Geometry.projectiveDistance_eq_zero_iff hm hStarPD).2 hEq
-        linarith [hfar, hz]
+        linarith only [hfar, hz, hε]
       have hmPlusPD : mPlus.PosDef := by
         rw [hmPlus_def]; exact Geometry.geometryUpdate_posDef hm hStarPD ε
       have hdMSpos : 0 < projectiveDistance m mStar := lt_trans hε hfar
@@ -116,7 +116,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
       have hθ_pos : 0 < θ := hθ_mem.1
       have hθ_lt1 : θ < 1 := by
         rw [hθ_eq, div_lt_one hdMSpos]; exact hfar
-      have hθ1_nonneg : (0 : ℝ) ≤ 1 - θ := by linarith
+      have hθ1_nonneg : (0 : ℝ) ≤ 1 - θ := by linarith only [hθ_lt1]
       -- basic square-root algebra for `m`
       have hSmPD : (matSqrt m).PosDef := by
         rw [matSqrt_eq_cfc_sqrt hm.posSemidef]; exact Geometry.posDef_sqrt hm
@@ -185,7 +185,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
             (continuousOn_const.mul (hcont_rpow θ)) continuousOn_id (ha := hNPD.isHermitian)
           rw [hcfc_id, ← hcmul] at hraw
           exact hraw
-        rw [← GeoMeanSupport.matLE_iff' (hHermSmul t) hNPD.isHermitian, hmatrixOrder]
+        rw [← BlockGeometricMean.matLE_iff (hHermSmul t) hNPD.isHermitian, hmatrixOrder]
         constructor
         · intro hall
           obtain ⟨i0, hi0⟩ := Finset.exists_mem_eq_inf' Finset.univ_nonempty
@@ -200,7 +200,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
             rw [Real.rpow_sub hxpos, Real.rpow_one]
           have hstep : t ≤ hNPD.isHermitian.eigenvalues i0 ^ (1 - θ) := by
             rw [h1, le_div_iff₀ (Real.rpow_pos_of_pos hxpos θ)]
-            linarith [hb]
+            linarith only [hb]
           rw [Geometry.specMin_eq_finset_inf_eigenvalues hNPD, hi0.2]
           exact hstep
         · intro ht x hx
@@ -217,7 +217,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
               hNPD.isHermitian.eigenvalues i / hNPD.isHermitian.eigenvalues i ^ θ := by
             rw [Real.rpow_sub hxpos, Real.rpow_one]
           rw [h1, le_div_iff₀ (Real.rpow_pos_of_pos hxpos θ)] at ht'
-          linarith [ht']
+          linarith only [ht']
       have hkeyUp : ∀ t : ℝ, MatLoewnerLE N (t • matPow θ N) ↔ specBound N ^ (1 - θ) ≤ t := by
         intro t
         have hcmul : t • matPow θ N = cfc (fun x : ℝ => t * x ^ θ) N := by
@@ -228,7 +228,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
             continuousOn_id (continuousOn_const.mul (hcont_rpow θ)) (ha := hNPD.isHermitian)
           rw [hcfc_id, ← hcmul] at hraw
           exact hraw
-        rw [← GeoMeanSupport.matLE_iff' hNPD.isHermitian (hHermSmul t), hmatrixOrder]
+        rw [← BlockGeometricMean.matLE_iff hNPD.isHermitian (hHermSmul t), hmatrixOrder]
         constructor
         · intro hall
           obtain ⟨j0, hj0⟩ := Finset.exists_mem_eq_sup' Finset.univ_nonempty
@@ -243,7 +243,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
             rw [Real.rpow_sub hxpos, Real.rpow_one]
           have hstep : hNPD.isHermitian.eigenvalues j0 ^ (1 - θ) ≤ t := by
             rw [h1, div_le_iff₀ (Real.rpow_pos_of_pos hxpos θ)]
-            linarith [hb]
+            linarith only [hb]
           rw [Geometry.specBound_eq_finset_sup_eigenvalues hNPD, hj0.2]
           exact hstep
         · intro ht x hx
@@ -260,7 +260,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
               hNPD.isHermitian.eigenvalues i / hNPD.isHermitian.eigenvalues i ^ θ := by
             rw [Real.rpow_sub hxpos, Real.rpow_one]
           rw [h1, div_le_iff₀ (Real.rpow_pos_of_pos hxpos θ)] at ht'
-          linarith [ht']
+          linarith only [ht']
       have hfullLow : ∀ t : ℝ, MatLoewnerLE (t • mPlus) mStar ↔ t ≤ specMin N ^ (1 - θ) :=
         fun t => (hcongrLow t).trans (hkeyLow t)
       have hfullUp : ∀ t : ℝ, MatLoewnerLE mStar (t • mPlus) ↔ specBound N ^ (1 - θ) ≤ t :=
@@ -303,22 +303,22 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
         Geometry.projectiveDistance_triangle hmPlusPD hStarPD hFhostPD
       have hsand : projectiveDistance mStar (explicitCanonicalMetric Fhost) ≤
           1 / 2 * Real.log ((1 + δ) / (1 - δ)) :=
-        explicitCanonicalMetric_projectiveDistance_le_of_sandwich' F2L Fhost δ hδ hF2Lsym hF2Lpos
+        explicitCanonicalMetric_projectiveDistance_le_of_deltaSandwich F2L Fhost δ hδ hF2Lsym hF2Lpos
           hsymP hposP hbr₁ hbr₂
       have htri2 : projectiveDistance m mStar ≤
           projectiveDistance m (explicitCanonicalMetric Fk) + projectiveDistance (explicitCanonicalMetric Fk) mStar :=
         Geometry.projectiveDistance_triangle hm hFkPD hStarPD
       have hlog : projectiveDistance (explicitCanonicalMetric Fk) mStar ≤
-          1 / 2 * logDetLoss P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) := by
+          1 / 2 * detIncrement P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ)) := by
         have hraw := explicitCanonicalMetric_projectiveDistance_le_logDet Fk F2L hFksym hFkpos
           hF2Lsym hF2Lpos hmono
         rw [← hmStar_def] at hraw
-        have heq : logDetLoss P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ))
+        have heq : detIncrement P (Geometry.explicitRoundedGrid jStar m) k (n + 2 * (L : ℤ))
             = blockLogDet Fk - blockLogDet F2L := by
-          simp only [logDetLoss, ← hFk_def, ← hF2L_def]
+          simp only [detIncrement, ← hFk_def, ← hF2L_def]
         rw [heq]
         exact hraw
-      linarith [htri1, hcollinear, hsand, htri2, hlog]
+      linarith only [htri1, hcollinear, hsand, htri2, hlog]
 
 end
 

@@ -1,6 +1,6 @@
 import HCPoly.Entry.Analysis.PositiveGap
 import HCPoly.Entry.Analysis.SchattenCongruence
-import HCPoly.Entry.Annealed.LogDetOrder
+import HCPoly.Entry.Annealed.AnnealedBlockOrder
 import Mathlib.MeasureTheory.Function.LpOrder
 import Mathlib.Order.ConditionallyCompleteLattice.Finset
 
@@ -24,7 +24,7 @@ is false: take a proper singleton subset of `Bool` and `g` identically `-1`; the
 excluded index contributes the empty real supremum `0`, while the finite supremum
 is `-1`. This added premise is a correct strengthening: every consumer here
 supplies nonnegative (Schatten/operator-norm) families. -/
-theorem iSup_mem_finset_eq_sup' {ι : Type*} (I : Finset ι) (hI : I.Nonempty)
+theorem iSup_mem_finset_eq_finset_sup {ι : Type*} (I : Finset ι) (hI : I.Nonempty)
     (g : ι → ℝ) (hg : ∀ i ∈ I, 0 ≤ g i) :
     (⨆ i ∈ (I : Set ι), g i) = I.sup' hI g := by
   classical
@@ -35,7 +35,7 @@ theorem iSup_mem_finset_eq_sup' {ι : Type*} (I : Finset ι) (hI : I.Nonempty)
     ← Finset.coe_image]
   exact (Finset.Nonempty.csSup_eq_max' (Finset.image_nonempty.mpr hI)).symm
 
-private theorem memLp_finset_sup' {α ι : Type*} [MeasurableSpace α]
+private theorem memLp_finset_sup {α ι : Type*} [MeasurableSpace α]
     {μ : Measure α} {p : ENNReal} (I : Finset ι) (hI : I.Nonempty)
     (f : ι → α → ℝ) (hf : ∀ i ∈ I, MemLp (f i) p μ) :
     MemLp (fun a => I.sup' hI (fun i => f i a)) p μ := by
@@ -59,15 +59,15 @@ theorem weightedMax_memLp {α ι : Type*} [MeasurableSpace α] {μ : Measure α}
   have heq : (fun a => I.sup' hI (fun i => f i a)) =ᵐ[μ]
       (fun a => ⨆ i ∈ (I : Set ι), f i a) := by
     filter_upwards [(Filter.eventually_all_finset I).mpr hf0] with a ha
-    exact (iSup_mem_finset_eq_sup' I hI (fun i => f i a) ha).symm
-  exact (memLp_congr_ae heq).mp (memLp_finset_sup' I hI f hf)
+    exact (iSup_mem_finset_eq_finset_sup I hI (fun i => f i a) ha).symm
+  exact (memLp_congr_ae heq).mp (memLp_finset_sup I hI f hf)
 
 /-- A nonempty joint maximum of nonnegative terms is nonnegative. -/
 theorem weightedMax_nonneg {α ι : Type*} [MeasurableSpace α] {μ : Measure α} (I : Finset ι) (hI : I.Nonempty) (f : ι → α → ℝ)
     (hf0 : ∀ i ∈ I, ∀ᵐ a ∂μ, 0 ≤ f i a) :
     ∀ᵐ a ∂μ, 0 ≤ ⨆ i ∈ (I : Set ι), f i a := by
   filter_upwards [(Filter.eventually_all_finset I).mpr hf0] with a ha
-  rw [iSup_mem_finset_eq_sup' I hI _ ha]
+  rw [iSup_mem_finset_eq_finset_sup I hI _ ha]
   obtain ⟨i, hi⟩ := hI
   exact (ha i hi).trans (Finset.le_sup' (fun i => f i a) hi)
 
@@ -197,14 +197,14 @@ private theorem scalar_joint_gap {α ι : Type*} [MeasurableSpace α] {μ : Meas
       (Real.rpow_nonneg hTa _) (mul_nonneg hcoef
         (Real.rpow_nonneg (mul_nonneg (Real.rpow_nonneg hSa _) hZa) _))),
       mixed_root_eq hN0 hSa hZa]
-    conv_lhs => rw [iSup_mem_finset_eq_sup' I hI _ hza]
+    conv_lhs => rw [iSup_mem_finset_eq_finset_sup I hI _ hza]
     apply Finset.sup'_le hI _
     intro i hi
     have hzi : z i a ≤ Z a := by
-      rw [show Z a = I.sup' hI (fun i => z i a) from iSup_mem_finset_eq_sup' I hI _ hza]
+      rw [show Z a = I.sup' hI (fun i => z i a) from iSup_mem_finset_eq_finset_sup I hI _ hza]
       exact Finset.le_sup' (fun i => z i a) hi
     have hsi : s i a ≤ S a := by
-      rw [show S a = I.sup' hI (fun i => s i a) from iSup_mem_finset_eq_sup' I hI _ hsa]
+      rw [show S a = I.sup' hI (fun i => s i a) from iSup_mem_finset_eq_finset_sup I hI _ hsa]
       exact Finset.le_sup' (fun i => s i a) hi
     have hti : t i a ≤ T a := Finset.single_le_sum (fun j hj => hta j hj) hi
     apply (hpa i hi).trans
@@ -291,7 +291,7 @@ private theorem weighted_pointwise_gap {d : ℕ} {N : ℝ} (hN : 1 < N) {D G M :
 /-- Young absorption of the joint maximum; deterministic mean terms alone carry a sum. -/
 theorem positiveGap_weighted_joint_absorbed {d : ℕ} {P : Measure (CoeffSpace d)}
     [IsProbabilityMeasure P] {N : ℝ} (hN : 1 < N) {ι : Type*}
-    (I : Finset ι) (hI : I.Nonempty) (w : ι → ℝ) (hw : ∀ i, 0 ≤ w i) (F G : ι → CoeffSpace d → BlockMat d) (hF : ∀ i ∈ I, MemLqSchatten P N (F i)) (hG : ∀ i ∈ I, MemLqSchatten P N (G i))
+    (I : Finset ι) (hI : I.Nonempty) (w : ι → ℝ) (hw : ∀ i, 0 ≤ w i) (F G : ι → CoeffSpace d → BlockMat d) (hF : ∀ i ∈ I, SchattenMemLp P N (F i)) (hG : ∀ i ∈ I, SchattenMemLp P N (G i))
     (hFpos : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F i a))
     (hFG : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (F i a) (G i a)) :
     let MF := fun i => ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F i a) α β ∂P)
@@ -341,7 +341,7 @@ theorem positiveGap_weighted_joint_absorbed {d : ℕ} {P : Measure (CoeffSpace d
   rw [he] at h; exact h
 
 private theorem weighted_schatten_data {d : ℕ} {P : Measure (CoeffSpace d)} {N w : ℝ}
-    (hN : 1 ≤ N) (hw : 0 ≤ w) {H : CoeffSpace d → BlockMat d} (hH : MemLqSchatten P N H) :
+    (hN : 1 ≤ N) (hw : 0 ≤ w) {H : CoeffSpace d → BlockMat d} (hH : SchattenMemLp P N H) :
     (∀ᵐ a ∂P, 0 ≤ w * absSchattenNorm N (H a)) ∧
       MemLp (fun a => w * absSchattenNorm N (H a)) (ENNReal.ofReal N) P := by
   exact ⟨hH.symmetric.mono fun _ ha => mul_nonneg hw
@@ -370,7 +370,7 @@ private theorem root_le_add_const {α : Type*} [MeasurableSpace α] {μ : Measur
 theorem positiveGap_weighted_joint_max (d : ℕ)
     {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P] {N : ℝ} (hN : 2 ≤ N)
     {ι : Type*} (I : Finset ι) (hI : I.Nonempty) (w : ι → ℝ) (hw : ∀ i, 0 ≤ w i)
-    (F G : ι → CoeffSpace d → BlockMat d) (hF : ∀ i ∈ I, MemLqSchatten P N (F i)) (hG : ∀ i ∈ I, MemLqSchatten P N (G i)) (hFpos : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F i a))
+    (F G : ι → CoeffSpace d → BlockMat d) (hF : ∀ i ∈ I, SchattenMemLp P N (F i)) (hG : ∀ i ∈ I, SchattenMemLp P N (G i)) (hFpos : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F i a))
     (hFG : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (F i a) (G i a)) :
     let MF := fun i => ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F i a) α β ∂P)
     let MG := fun i => ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (G i a) α β ∂P)
@@ -423,8 +423,8 @@ theorem positiveGap_weighted_joint_max (d : ℕ)
       (Filter.eventually_all_finset I).mpr (fun i hi => (hgd i hi).1),
       (Filter.eventually_all_finset I).mpr (fun i hi => (hzd i hi).1),
       (Filter.eventually_all_finset I).mpr hpoint] with a hfa hga hza ha
-    rw [iSup_mem_finset_eq_sup' I hI _ hfa, iSup_mem_finset_eq_sup' I hI _ hga,
-      iSup_mem_finset_eq_sup' I hI _ hza]
+    rw [iSup_mem_finset_eq_finset_sup I hI _ hfa, iSup_mem_finset_eq_finset_sup I hI _ hga,
+      iSup_mem_finset_eq_finset_sup I hI _ hza]
     exact Finset.sup'_le hI _ fun i hi => (ha i hi).trans (add_le_add
       (add_le_add (Finset.le_sup' (fun i => g i a) hi) (Finset.le_sup' (fun i => z i a) hi)) le_rfl)
   have hroot := root_le_add_const hN1 hc
@@ -451,7 +451,7 @@ theorem positiveGap_weighted_joint_max (d : ℕ)
 private theorem weightedMax_opNorm_moment_le {d : ℕ} {P : Measure (CoeffSpace d)}
     {N : ℝ} (hN : 1 ≤ N) {ι : Type*} (I : Finset ι) (hI : I.Nonempty)
     (w : ι → ℝ) (hw : ∀ i, 0 ≤ w i) (H : ι → CoeffSpace d → BlockMat d)
-    (hH : ∀ i ∈ I, MemLqSchatten P N (H i)) :
+    (hH : ∀ i ∈ I, SchattenMemLp P N (H i)) :
     Integrable (fun a => (⨆ i ∈ (I : Set ι), w i * blockOpNorm (H i a)) ^ N) P ∧
       (∫ a, (⨆ i ∈ (I : Set ι), w i * blockOpNorm (H i a)) ^ N ∂P) ≤
         ∫ a, (⨆ i ∈ (I : Set ι), w i * absSchattenNorm N (H i a)) ^ N ∂P := by
@@ -483,7 +483,7 @@ private theorem weightedMax_opNorm_moment_le {d : ℕ} {P : Measure (CoeffSpace 
     (Filter.eventually_all_finset I).mpr (fun i hi => (hs i hi).1),
     (Filter.eventually_all_finset I).mpr hfg, hF0] with a hfa hga ha hFa
   apply Real.rpow_le_rpow hFa _ hN0.le
-  rw [iSup_mem_finset_eq_sup' I hI _ hfa, iSup_mem_finset_eq_sup' I hI _ hga]
+  rw [iSup_mem_finset_eq_finset_sup I hI _ hfa, iSup_mem_finset_eq_finset_sup I hI _ hga]
   exact Finset.sup'_le hI _ fun i hi => (ha i hi).trans (Finset.le_sup' (fun i => g i a) hi)
 
 private theorem power_two_terms {N x y a b : ℝ} (hN : 1 ≤ N) (hx : 0 ≤ x) (hy : 0 ≤ y)
@@ -503,7 +503,7 @@ with the operator norm on the left. -/
 theorem positiveGap_weighted_joint_max_pow (d : ℕ)
     {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P] {N : ℝ} (hN : 2 ≤ N)
     {ι : Type*} (I : Finset ι) (hI : I.Nonempty) (w : ι → ℝ) (hw : ∀ i, 0 ≤ w i)
-    (F G : ι → CoeffSpace d → BlockMat d) (hF : ∀ i ∈ I, MemLqSchatten P N (F i)) (hG : ∀ i ∈ I, MemLqSchatten P N (G i)) (hFpos : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F i a))
+    (F G : ι → CoeffSpace d → BlockMat d) (hF : ∀ i ∈ I, SchattenMemLp P N (F i)) (hG : ∀ i ∈ I, SchattenMemLp P N (G i)) (hFpos : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (ofFullBlockMat 0) (F i a))
     (hFG : ∀ i ∈ I, ∀ᵐ a ∂P, BlockMatLoewnerLE (F i a) (G i a)) :
     let MF := fun i => ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (F i a) α β ∂P)
     let MG := fun i => ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (G i a) α β ∂P)
@@ -560,7 +560,7 @@ theorem transport_target_max_moment {α ι : Type*} [MeasurableSpace α]
   have hmax := weightedMax_memLp Z hZ f hf0 hf
   have hmax0 : ∀ᵐ a ∂P, 0 ≤ ⨆ z ∈ (Z : Set ι), f z a := by
     filter_upwards [(Filter.eventually_all_finset Z).mpr hf0] with a ha
-    rw [iSup_mem_finset_eq_sup' Z hZ _ ha]
+    rw [iSup_mem_finset_eq_finset_sup Z hZ _ ha]
     obtain ⟨z, hz⟩ := hZ
     exact (ha z hz).trans (Finset.le_sup' (fun z => f z a) hz)
   refine ⟨hint hmax hmax0, ?_⟩
@@ -568,7 +568,7 @@ theorem transport_target_max_moment {α ι : Type*} [MeasurableSpace α]
   apply integral_mono_ae (hint hmax hmax0)
     (integrable_finsetSum _ (fun z hz => hint (hf z hz) (hf0 z hz)))
   filter_upwards [(Filter.eventually_all_finset Z).mpr hf0] with a ha
-  rw [iSup_mem_finset_eq_sup' Z hZ _ ha]
+  rw [iSup_mem_finset_eq_finset_sup Z hZ _ ha]
   obtain ⟨z, hz, he⟩ := Finset.exists_mem_eq_sup' hZ (fun z => f z a)
   rw [he]
   exact Finset.single_le_sum (fun i hi => Real.rpow_nonneg (ha i hi) N) hz
@@ -592,7 +592,7 @@ theorem transport_joint_envelope_moment {α ι : Type*} [MeasurableSpace α]
   apply integral_mono_ae hmax (hXM.const_mul (B ^ N))
   filter_upwards [(Filter.eventually_all_finset Z).mpr hf0,
     (Filter.eventually_all_finset Z).mpr hbound, hX0] with a ha hb hxa
-  rw [iSup_mem_finset_eq_sup' Z hZ _ ha, ← Real.mul_rpow hB hxa]
+  rw [iSup_mem_finset_eq_finset_sup Z hZ _ ha, ← Real.mul_rpow hB hxa]
   obtain ⟨z, hz⟩ := hZ
   have hZ : Z.Nonempty := ⟨z, hz⟩
   have hmax0 : 0 ≤ Z.sup' hZ (fun z => f z a) := (ha z hz).trans (Finset.le_sup' (fun z : ι => f z a) hz)

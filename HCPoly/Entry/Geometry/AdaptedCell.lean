@@ -2,6 +2,9 @@ import HCPoly.Setup.Geometry
 import HCPoly.Entry.Geometry.StandardCell
 import Mathlib.MeasureTheory.Measure.Lebesgue.EqHaar
 import Mathlib.Topology.Instances.Matrix
+import HCPoly.Analytic.EuclideanAmbient
+import HCPoly.Provider.Recurrence.AdaptedCell
+import HCPoly.Provider.Transport.WhitneyLayer
 
 /-!
 # Adapted cells
@@ -32,39 +35,17 @@ def InverseNormLE (q : Mat d) (K : ℝ) : Prop :=
 
 theorem matVecMul_eq_mulVec (q : Mat d) (v : Vec d) : matVecMul q v = q *ᵥ v := rfl
 
-theorem vecNormSq_eq_sum_sq (v : Vec d) : vecNormSq v = ∑ i, v i ^ 2 := by
-  simp [vecNormSq, vecDot, pow_two]
-
-theorem adaptedCellTranslate_eq_image (q : Mat d) (j : ℤ) (y : Vec d) :
-    adaptedCellTranslate q j y = (fun v => y + matVecMul q v) '' centeredCube d j := by
-  unfold adaptedCellTranslate adaptedCell
-  rw [Set.image_image]
-
 theorem mem_adaptedCellTranslate_iff {q : Mat d} {j : ℤ} {y x : Vec d} :
     x ∈ adaptedCellTranslate q j y ↔ ∃ v ∈ centeredCube d j, y + matVecMul q v = x := by
-  rw [adaptedCellTranslate_eq_image]
+  rw [Transport.adaptedCellTranslate_eq_image]
   rfl
 
 /-! ## Volume under the change of variables -/
 
-/-- The volume of an affine image `y + q S` is `|det q| |S|`. -/
-theorem volume_image_affine (q : Mat d) (y : Vec d) (S : Set (Vec d)) :
-    volume ((fun v => y + matVecMul q v) '' S) = ENNReal.ofReal |q.det| * volume S := by
-  have h : (fun v => y + matVecMul q v) '' S = (fun x => y + x) '' (Matrix.toLin' q '' S) := by
-    rw [Set.image_image]
-    rfl
-  rw [h, Set.image_add_left, measure_preimage_add, Measure.addHaar_image_linearMap,
-    LinearMap.det_toLin']
-
 theorem volume_adaptedCellTranslate (q : Mat d) (j : ℤ) (y : Vec d) :
     volume (adaptedCellTranslate q j y)
       = ENNReal.ofReal |q.det| * ENNReal.ofReal ((3 : ℝ) ^ j) ^ d := by
-  rw [adaptedCellTranslate_eq_image, volume_image_affine, volume_centeredCube]
-
-theorem volume_adaptedCellTranslate_ne_top (q : Mat d) (j : ℤ) (y : Vec d) :
-    volume (adaptedCellTranslate q j y) ≠ ⊤ := by
-  rw [volume_adaptedCellTranslate]
-  exact ENNReal.mul_ne_top ENNReal.ofReal_ne_top (ENNReal.pow_ne_top ENNReal.ofReal_ne_top)
+  rw [Transport.adaptedCellTranslate_eq_image, Transport.volume_image_affine, volume_centeredCube]
 
 /-! ## Invertibility from the inverse bound -/
 
@@ -140,7 +121,7 @@ private theorem boundaryStrips_subset_iUnion (j : ℤ) (t : ℝ) :
     boundaryStrips d j t ⊆ ⋃ i, coordStrip d j t i := by
   classical
   rintro v ⟨hv, i, hi⟩
-  rw [mem_centeredCube_iff] at hv
+  rw [Recurrence.mem_centeredCube_iff] at hv
   refine Set.mem_iUnion.mpr ⟨i, ?_⟩
   intro i' _
   by_cases hi' : i' = i
@@ -151,7 +132,7 @@ private theorem boundaryStrips_subset_iUnion (j : ℤ) (t : ℝ) :
     · rw [abs_of_nonneg h0] at hi
       exact Or.inr ⟨hi, hhi.le⟩
     · rw [abs_of_neg h0] at hi
-      exact Or.inl ⟨hlo.le, by linarith⟩
+      exact Or.inl ⟨hlo.le, by linarith only [hi]⟩
   · rw [Function.update_of_ne hi']
     exact Set.mem_Ioo.mpr (hv i')
 
@@ -176,8 +157,8 @@ private theorem volume_coordStrip_le [NeZero d] (j : ℤ) {t : ℝ} (ht : 0 ≤ 
   rw [hrest]
   refine mul_le_mul_left ?_ _
   refine (measure_union_le _ _).trans ?_
-  rw [Real.volume_Icc, Real.volume_Icc, ← ENNReal.ofReal_add (by linarith) (by linarith)]
-  exact ENNReal.ofReal_le_ofReal (by linarith)
+  rw [Real.volume_Icc, Real.volume_Icc, ← ENNReal.ofReal_add (by linarith only [ht]) (by linarith only [ht])]
+  exact ENNReal.ofReal_le_ofReal (by linarith only [ht])
 
 theorem volume_boundaryStrips_le [NeZero d] (j : ℤ) {t : ℝ} (ht : 0 ≤ t) :
     volume (boundaryStrips d j t)
@@ -225,7 +206,7 @@ theorem mem_image_boundaryStrips {q : Mat d} {K : ℝ} (hK : 0 ≤ K) (hq : Inve
       _ ≤ K ^ 2 * s ^ 2 := by gcongr
       _ = (K * s) ^ 2 := by ring
   -- some coordinate of `v'` is outside `(-3^j/2, 3^j/2)`
-  rw [mem_centeredCube_iff] at hv'not
+  rw [Recurrence.mem_centeredCube_iff] at hv'not
   push Not at hv'not
   obtain ⟨i, hi⟩ := hv'not
   refine ⟨i, ?_⟩
@@ -236,10 +217,10 @@ theorem mem_image_boundaryStrips {q : Mat d} {K : ℝ} (hK : 0 ≤ K) (hq : Inve
     by_contra hcon
     push Not at hcon
     rw [abs_lt] at hcon
-    exact absurd hcon.2 (not_lt.mpr (hi (by linarith)))
+    exact absurd hcon.2 (not_lt.mpr (hi (by linarith only [hcon.1])))
   have := abs_sub_abs_le_abs_sub (v' i) (v i)
   rw [abs_sub_comm] at this
-  linarith
+  linarith only [hv'i, habs, this]
 
 /-- **The strip estimate.**  If every point of `A ⊆ W` is within Euclidean distance `s` of a
 point outside `W`, then `|A| ≤ 2 d K s 3^{-j} |W|`, where `|q⁻¹| ≤ K`. -/
@@ -254,7 +235,7 @@ theorem volume_le_of_near_complement [NeZero d] {q : Mat d} {K : ℝ} (hK : 0 �
     obtain ⟨x', hx', hdist⟩ := hA x hx
     exact mem_image_boundaryStrips hK hq hs (hAW hx) hx' hdist
   refine (measure_mono hsub).trans ?_
-  rw [volume_image_affine, volume_adaptedCellTranslate]
+  rw [Transport.volume_image_affine, volume_adaptedCellTranslate]
   have h3 : (0 : ℝ) < (3 : ℝ) ^ j := by positivity
   have hKs : 0 ≤ K * s := by positivity
   refine (mul_le_mul_right (volume_boundaryStrips_le j hKs) _).trans ?_
