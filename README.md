@@ -1,14 +1,11 @@
 # HighContrastHomogenization
 
-A machine-checked **Lean 4** formalization of the paper
+A machine-checked **Lean 4** formalization of the manuscript
 *Homogenization at a polynomial scale in high contrast*
-(Scott Armstrong, Tuomo Kuusi, and Amélie Loher; arXiv identifier to be
-added on posting).  It is built on
-[`mathlib`](https://github.com/leanprover-community/mathlib4) and imports
-the public
+(Scott Armstrong, Tuomo Kuusi, and Amélie Loher). It is built on
+[`mathlib`](https://github.com/leanprover-community/mathlib4) and the public
 [`CoarseGraining`](https://github.com/scottnarmstrong/CoarseGraining)
-homogenization library — a 600k+-line formalization by the first two authors —
-as its analytic base.
+homogenization library.
 
 [![CI](https://github.com/scottnarmstrong/HighContrastHomogenization/actions/workflows/build.yml/badge.svg)](https://github.com/scottnarmstrong/HighContrastHomogenization/actions/workflows/build.yml)
 [![Comparator audit](https://github.com/scottnarmstrong/HighContrastHomogenization/actions/workflows/comparator.yml/badge.svg)](https://github.com/scottnarmstrong/HighContrastHomogenization/actions/workflows/comparator.yml)
@@ -24,36 +21,26 @@ passed.  Under unit range of dependence, it proves that the coefficients
 enter the small-contrast regime at a length **polynomial** in the reference
 aspect ratio `Π` and the source-tail growth constant `K`, where the earlier
 high-contrast theory gave a quasipolynomial length.  Combining this with the
-high-contrast homogenization theory of Armstrong and Kuusi (*Renormalization
-Group and Elliptic Homogenization in High Contrast*, Invent. Math. 2025)
+high-contrast homogenization theory of Armstrong and Kuusi
+([*Renormalization Group and Elliptic Homogenization in High Contrast*](https://doi.org/10.1007/s00222-025-01370-9),
+Invent. Math. 2025)
 gives algebraic convergence of the annealed coarse-grained matrices,
 quantitative Dirichlet homogenization, corrector estimates, a first-order
 Liouville theorem, and large-scale regularity above a single random radius
 whose tail has a stretched-exponential term and a rescaled copy of the
 source-tail bound.
 
-This repository formalizes that paper.  The renormalization scheme of the
-paper's Sections 2–5 — the source Whitney decomposition and scale selection,
-matrix averaging and the positive gap, the parent–child recurrence and
-propagation on one adapted grid, the two-grid Whitney construction, the
-projective step, the successful short bridge and two-grid transport, the
-Euclidean initialization, global selection and response transfer — is
-formalized in full, each step carried by a named theorem stating the
-proposition of the paper it proves, and so are the deductions of Section 6
-that the theorems below state.
+This repository proves the paper's renormalization results from Sections 2–5,
+including scale selection, matrix averaging, propagation across adapted grids,
+and the polynomial entry theorem. It also formalizes the convergence and
+homogenization deductions of Section 6. The four introductory results,
+Theorems A–D, are available in [`HCPoly/MainResults.lean`](HCPoly/MainResults.lean).
+Each has a Mathlib-only restatement checked with
+[`leanprover/comparator`](https://github.com/leanprover/comparator). The
+differences between the formal statements and the printed results are described
+under [Scope and faithfulness](#scope-and-faithfulness).
 
-All four theorems of the paper's introduction — Theorems A, B, C and D — are
-formalized and proved, each exported in the paper's own form in
-`HCPoly/MainResults.lean` and each checked against a Mathlib-only
-restatement by the Lean comparator.  Theorem C is obtained as the instance
-of Theorem D for uniformly elliptic laws; its Dirichlet clause is exported
-in the negative-Sobolev form of Theorem D rather than the paper's `L²`
-form with a forcing term, as explained below.
-
-- **1,578 Lean source files, 380,338 lines** (including the comparator
-  audit surface; the library itself is 1,561 files and 373,056 lines),
-  counted with
-  `git ls-files -- HCPoly HCPoly.lean HCPolyAudit | grep '\.lean$' | xargs wc -l`.
+- **About 380,000 lines of Lean** across the library and its comparator checks.
 - **No `sorry`** anywhere in the library.  (Each Mathlib-only comparator
   challenge in `HCPolyAudit/` contains its single intentional statement-level
   `sorry`, filled by the corresponding solution file.)
@@ -64,45 +51,12 @@ form with a forcing term, as explained below.
 - Pinned to Lean `v4.33.0`, `mathlib` `v4.33.0`, and `CoarseGraining` at a
   fixed revision.
 
-## What changed in this release
-
-Theorem A is now proved along the paper's own route.  Each step of Sections 2–5
-— the source Whitney decomposition, scale selection, matrix averaging and the
-positive gap, the parent–child recurrence, propagation on one adapted grid, the
-two-grid Whitney construction, the projective step, the successful short bridge,
-two-grid transport, the Euclidean initialization, global selection and response
-transfer — is a named theorem under `HCPoly/Entry/Statements/`, and Theorem A is
-assembled from them.  The exported statement is the printed one: the annealed
-contrast is at most `1 + σ` at *every* generation beyond the entry scale, where
-the previous release asserted it at one generation only.
-
-The previous proof of Theorem A and the 212 modules that served it alone have
-been removed.  Theorems B, C and D, their proofs and their comparator pairs are
-unchanged, and so are the toolchain (Lean `v4.33.0`, `mathlib` `v4.33.0`) and
-the dependency pins.  The comparator pair for Theorem A was restated in the new
-printed form and re-proved.
-
-The route has since been consolidated.  Results it shares with the proofs of
-Theorems B, C and D are used from there instead of being proved a second time;
-the response-transfer layer, once 335 modules whose names said nothing about
-what they prove, is 108 modules under `HCPoly/Entry/Response/` grouped by the
-mathematics they carry; every module, namespace and declaration of the
-route is named after what it states, and every arithmetic closer names the
-facts it uses.  The route's fourteen propositions are proved in the namespace
-`Homogenization.HighContrast.Entry`, and the printed statements under
-`HCPoly/Entry/Statements/` restate them character for character.  The
-infrastructure of the earlier proof routes — 129 modules that no exported
-theorem reaches, and the declarations of surviving modules that only they
-used — has been removed.  The seventeen printed statements are unchanged
-beyond their imports and three renames, and Theorems B, C and D, their proofs
-and their comparator pairs are once again untouched.
-
 ## Main results
 
 The headline theorems are stated in full in
-[`HCPoly/MainResults.lean`](HCPoly/MainResults.lean), each proved by direct
-application to its certified counterpart, so the statements displayed there
-are faithful to the verified ones.
+[`HCPoly/MainResults.lean`](HCPoly/MainResults.lean). Their statements and proofs
+can be read alongside the paper-to-Lean map in
+[`CORRESPONDENCE.md`](CORRESPONDENCE.md).
 
 * **`HCPoly.polynomial_entry`** (Theorem A of the paper) — polynomial entry
   into small contrast: for every tolerance `σ ∈ (0,1]` there is a constant
@@ -142,9 +96,9 @@ are faithful to the verified ones.
 
 ## Scope and faithfulness
 
-Every theorem is rendered at the generality at which the paper proves it,
-with the following conventions, which are stated in the docstrings of the
-theorems themselves and inventoried in
+The formal statements have the following scope and rendering conventions.
+These differences from the printed statements are also recorded in the
+theorem docstrings and inventoried in
 [`CORRESPONDENCE.md`](CORRESPONDENCE.md):
 
 - **Coefficient class.**  The coefficient space consists of the measurable
@@ -183,16 +137,13 @@ theorems themselves and inventoried in
 
 ## Consistency checks of the definitions
 
-The statements of the paper are written with encodings, and an encoding can be
-satisfied for reasons that have nothing to do with the object it denotes: a
-supremum over an empty family of tests is `0` whatever it is meant to measure, a
-coefficient class with no member makes every hypothesis about its members
-vacuous, a Bochner average carrying a junk branch is not an infimum, and an
-infimum of Loewner scalings is not visibly the minimum of spectral norms the
-paper prints.  The modules under `HCPoly/Consistency/` check exactly that, one
-definition at a time.  None of them is a result of the paper and no exported
-theorem depends on one; each says in its own docstring which definition it
-checks and what would go wrong were the check to fail.
+Formal definitions need checks beyond their theorem proofs. For example, the
+families used to define the dual norms must contain tests, the coefficient
+class must contain fields satisfying the assumptions, and the formal contrast
+must equal the spectral minimum appearing in the paper. The modules under
+`HCPoly/Consistency/` establish these properties one definition at a time.
+They are checks on the interpretation of the statements, not results claimed
+by the paper.
 
 | file | definition checked |
 | --- | --- |
@@ -201,7 +152,7 @@ checks and what would go wrong were the check to fail.
 | [`ClosureH1aNecessity.lean`](HCPoly/Consistency/ClosureH1aNecessity.lean) | boundedness of the domain cannot be dropped from the `H¹_a(V)` closure family |
 | [`ClosureH1aPairing.lean`](HCPoly/Consistency/ClosureH1aPairing.lean) | the weak-gradient relation on the `H¹_a` classes is an identity between convergent integrals |
 | [`ConvexDilation.lean`](HCPoly/Consistency/ConvexDilation.lean) | the membership classes are reached from smoothness on the domain by dilation |
-| [`Dissolution.lean`](HCPoly/Consistency/Dissolution.lean) | the junk branch of the coarse block response is never attained |
+| [`Dissolution.lean`](HCPoly/Consistency/Dissolution.lean) | the fallback value in the coarse block response is never attained |
 | [`DomainCompleteness.lean`](HCPoly/Consistency/DomainCompleteness.lean) | the domains of the Dirichlet estimate are exactly the nonempty bounded open convex ones |
 | [`Necessity.lean`](HCPoly/Consistency/Necessity.lean) | what the measurability conjunct of the local Sobolev class excludes |
 | [`PrintedForm.lean`](HCPoly/Consistency/PrintedForm.lean) | the intrinsic contrast and `Λ_0` are the printed minima over skew matrices |
@@ -211,10 +162,8 @@ checks and what would go wrong were the check to fail.
 
 ## Verified against a Mathlib-only statement
 
-The development is large — about 380k lines in this repository, on top of
-the 600k+-line `CoarseGraining` library it imports.  So that the central
-claims can be checked without trusting either development, the main
-theorems are restated using **only Mathlib** — no project definitions from
+To make the central claims independently inspectable, the main theorems are
+restated using **only Mathlib** — no project definitions from
 either library — in `HCPolyAudit/*/Challenge.lean`; each challenge rebuilds the
 coefficient space, its local σ-fields, the coarse-graining block formalism,
 the annealed blocks and the analytic carriers from Mathlib primitives and
@@ -223,12 +172,15 @@ contains one intentional statement-level `sorry`, which the corresponding
 [`leanprover/comparator`](https://github.com/leanprover/comparator)
 (see [`HCPolyAudit/README.md`](HCPolyAudit/README.md)).
 
-| Pair | Theorem | Checked statement |
+| Comparator configuration | Theorem | Checked statement |
 | --- | --- | --- |
-| `HCPolyAudit/PolynomialEntry/` | A | `HCPoly.StatementAudit.PolynomialEntry.polynomial_entry` |
-| `HCPolyAudit/AlgebraicConvergence/` | B | `HCPoly.StatementAudit.AlgebraicConvergence.algebraic_convergence` |
-| `HCPolyAudit/UniformHomogenization/` | C | `HCPoly.StatementAudit.UniformHomogenization.uniform_homogenization` |
-| `HCPolyAudit/PolynomialHomogenization/` | D | `HCPoly.StatementAudit.PolynomialHomogenization.polynomial_homogenization` |
+| [`HCPolyAudit/PolynomialEntry/comparator.json`](HCPolyAudit/PolynomialEntry/comparator.json) | A | `HCPoly.StatementAudit.PolynomialEntry.polynomial_entry` |
+| [`HCPolyAudit/AlgebraicConvergence/comparator.json`](HCPolyAudit/AlgebraicConvergence/comparator.json) | B | `HCPoly.StatementAudit.AlgebraicConvergence.algebraic_convergence` |
+| [`HCPolyAudit/UniformHomogenization/comparator.json`](HCPolyAudit/UniformHomogenization/comparator.json) | C | `HCPoly.StatementAudit.UniformHomogenization.uniform_homogenization` |
+| [`HCPolyAudit/PolynomialHomogenization/comparator.json`](HCPolyAudit/PolynomialHomogenization/comparator.json) | D | `HCPoly.StatementAudit.PolynomialHomogenization.polynomial_homogenization` |
+
+For [Palomar](https://palomar-registry.org/how-to-submit), each configuration
+is a separate result submission at the same public commit.
 
 ## Building
 
@@ -251,59 +203,26 @@ main results are in `import HCPoly.MainResults`.
 
 ## Repository layout
 
-```
-HCPoly/
-  MainResults.lean    the headline theorems, stated in full
-  Setup/              the coefficient space, local σ-fields, block algebra,
-                      the coarse response and the annealed contrast, geometry
-  Geometry/           adapted grids, Whitney partitions, reference radii
-  Analytic/           the analytic carriers behind Theorem D: normalized
-                      norms, weighted Sobolev classes, weak solutions
-  Annealed/           a law satisfying every standing assumption
-  Consistency/        the consistency checks of the definitions above
-  Frozen/             the standing assumptions, the form of Theorem A that
-                      Theorems B, C and D consume, and the bridge to it from
-                      Theorem A's printed form
-  Entry/              the polynomial-entry route to Theorem A; the fourteen
-                      modules here prove its propositions, in the namespace
-                      Homogenization.HighContrast.Entry
-    Statements/       Theorem A and the thirteen propositions of Sections 2–5
-                      it is assembled from, one theorem each
-    CG/               three further propositions of the route, stated in the
-                      CoarseGraining library's own vocabulary, and their proofs
-    Setup/            the route's own vocabulary: standing assumptions, the
-                      coarse response, the geometry update
-    Source/           the random source scale, its Whitney decomposition and
-                      its moments
-    Geometry/         the route's grids, adapted cells and Whitney partitions
-    Analysis/         Schatten norms and the matrix analysis of the route
-    Annealed/         the annealed blocks, drifts and locality of the route
-    Multiscale/       the renormalization scheme of Sections 2–5
-    Response/         the response transfer, in eight units: Core, Kernel,
-                      Cutoff, Rows, Direct, Pairing, Limit, Transfer
-  Provider/           the proofs of Theorems B, C and D, organized by the
-                      paper's sections
-  Meta/               AxiomsAudit.lean
-HCPoly.lean           the root module (imports the whole library)
-HCPolyAudit/          Mathlib-only comparator challenges and solutions
-```
+| Location | Where to start |
+| --- | --- |
+| [`HCPoly/MainResults.lean`](HCPoly/MainResults.lean) | Full statements of Theorems A–D and the quenched convergence result |
+| [`HCPoly/Entry/Statements/`](HCPoly/Entry/Statements/) | The polynomial entry theorem and the propositions of Sections 2–5 used to prove it |
+| [`HCPoly/Provider/`](HCPoly/Provider/) | Proofs of the convergence and homogenization results |
+| [`HCPoly/Setup/`](HCPoly/Setup/) and [`HCPoly/Analytic/`](HCPoly/Analytic/) | Coefficient fields, block quantities, Sobolev spaces and weak solutions |
+| [`HCPoly/Consistency/`](HCPoly/Consistency/) | Checks that the formal definitions have the intended mathematical meaning |
+| [`HCPolyAudit/`](HCPolyAudit/) | Mathlib-only comparator challenges and their solutions |
+| [`CORRESPONDENCE.md`](CORRESPONDENCE.md) | The paper-to-Lean map, including the precise scope differences |
 
-The modules under `Consistency/` are listed in
-[Consistency checks of the definitions](#consistency-checks-of-the-definitions)
-above; they check the definitions the statements are written with, and are not
-results of the paper.
+[`HCPoly.lean`](HCPoly.lean) imports the whole library. The detailed
+organization of each proof can be followed from the theorem links in
+`CORRESPONDENCE.md`.
 
 ## How this was built
 
-The Lean code in this repository was written by AI agents under the close
-supervision of the authors.  Claude Fable 5.1 orchestrated the campaign —
-planning, statement design, dispatch and review — and the agents that wrote
-the proofs, ran the audits and did the rewriting were mostly Claude Opus 5
-and GPT-5.6 Sol (at low reasoning effort); the upgrade to Lean v4.33.0, the
-port of the polynomial-entry development to it and the merge of that
-development into this library were carried out by DeepSeek V4.1 Flash workers
-with Claude Sonnet 5 on the escalations.  The models, tooling, cost, and
-review status are disclosed in
+The Lean code was written with AI coding agents under the authors' supervision.
+The authors reviewed the mathematical statements, and Lean checks the proofs
+against those statements. The models, tools, cost information, and review
+status are recorded in
 [`formalization.yaml`](formalization.yaml), following the
 [mathlib-initiative](https://github.com/mathlib-initiative/formalization.yaml)
 standard.

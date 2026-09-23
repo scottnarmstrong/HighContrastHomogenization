@@ -180,12 +180,12 @@ theorem meanPenalty_normalizedMean_compose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     simpa only [ht j m hH, ht n m hH, ht j n hG] using hscalar
   have hnn : 0 ≤ 1 + blockTrace (blockSub (relMean P
       (Geometry.explicitRoundedGrid jStar metric) j m) (Book.Ch02.blockIdentity d)) := by
-    have hpacket := Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
+    have hmean := Annealed.adaptedMean_order_consequences d hd P γ E Ψ K S hstat hdag
       jStar hjStar metric hmetric j m hj (hjn.trans hnm)
     have hsym := Analysis.toFullBlockMat_isHermitian_iff
       (relMean P (Geometry.explicitRoundedGrid jStar metric) j m)
     have hp := Annealed.normalizedBlock_posDef _ _ hF hH
-    have hnonneg := Analysis.blockTrace_identity_sub_nonneg _ (hsym.mp hp.isHermitian) hpacket.1
+    have hnonneg := Analysis.blockTrace_identity_sub_nonneg _ (hsym.mp hp.isHermitian) hmean.1
     linarith only [hnonneg]
   have hpow := pow_le_pow_left₀ hnn hscalar' (bigQ d γ)
   rw [mul_pow] at hpow

@@ -745,7 +745,7 @@ theorem integral_cutoffWeighted_affineResponseJ_eq_zero_of_stationarity
   have hmean0 : cubeAverage Q0 phi0 = 1 := by
     dsimp only [phi0]
     rw [cubeAverage_dilatePullback, hQ, hmean]
-  have hsealed :
+  have hvanish :
       ∫ b, descendantsAverage Q0 j (fun R ↦
         (1 - cubeAverage R phi0) * rawJ R b) ∂P0 = 0 := by
     have hzero : Q0.scale - (j : ℤ) = 0 := by
@@ -784,7 +784,7 @@ theorem integral_cutoffWeighted_affineResponseJ_eq_zero_of_stationarity
         (1 - cubeAverage R phi0) * rawJ R b) ∂P0 := by
       dsimp only [P0, P1]
       rw [integral_map_equiv, integral_map_equiv]
-    _ = 0 := hsealed
+    _ = 0 := hvanish
 
 end
 

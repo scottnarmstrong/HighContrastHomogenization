@@ -3,13 +3,13 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
-import HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.RootSealedOnBallTriangle
+import HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.RootOfBallTriangle
 import HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.BallTriangle
 
 /-!
 # The root at the frozen signature, with no hypothesis
 
-`HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.RootSealedOnBallTriangle`
+`HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.RootOfBallTriangle`
 inhabits the frozen statement on one named analytic hypothesis,
 `ExactRootBallTriangle`, and
 `HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.BallTriangle`
@@ -20,7 +20,7 @@ at the frozen signature `(d : ℕ) (hd : 2 ≤ d)` with **no** hypothesis and no
 frozen declaration's own signature requires.
 
 The type below is the frozen statement's type, taken from
-`HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.RootSealedOnBallTriangle`; nothing here restates it.
+`HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.RootOfBallTriangle`; nothing here restates it.
 -/
 
 open Homogenization Homogenization.HighContrast

@@ -37,7 +37,7 @@ sources:
       - "Tuomo Kuusi"
       - "Amélie Loher"
     type: "paper"
-    location: "arXiv identifier to be added on posting"
+    note: "Manuscript by the project authors; no public identifier is available yet."
     relationship: "formalizes"
     license: "all rights reserved"
     author_endorsement: "participated"
@@ -61,7 +61,7 @@ related_formalizations:
 status:
   scope: >-
     All four theorems of the paper's introduction are formalized and proved:
-    Theorems A, B, C and D, exported in the paper's own form in
+    Theorems A, B, C and D, exported with the documented rendering conventions in
     HCPoly/MainResults.lean, each checked against a Mathlib-only restatement by
     the Lean comparator.  Rendering conventions (stated in the theorem
     docstrings and in CORRESPONDENCE.md): the coefficient space is the class
@@ -111,7 +111,6 @@ status:
       file: "HCPoly/MainResults.lean"
       sorry_count: 0
       axioms: ["propext", "Classical.choice", "Quot.sound"]
-      comparator_config: ""
       literature_dependencies: []
 
 automation:
@@ -126,65 +125,35 @@ automation:
         - "claude-fable-5"
         - "gpt-5.6-terra"
       framework: >-
-        Claude Code (Anthropic) and Codex (OpenAI) agentic coding harnesses,
-        with DeepSeek workers driven through ollama for the Lean v4.33 upgrade.
-        Claude Fable 5.1 orchestrated the campaign (planning, statement design,
-        dispatch and review of the work); the proving, auditing and rewriting
-        agents were mostly Claude Opus 5 and GPT-5.6 Sol at low reasoning
-        effort; the toolchain upgrade was carried out by DeepSeek V4.1 Flash
-        workers with Claude Sonnet 5 on escalations.  The polynomial-entry
-        route by which Theorem A is proved was developed afterwards on the same
-        harnesses, with Claude Fable 5.1 orchestrating and Claude Opus 5 and
-        GPT-5.6 Sol at low reasoning effort writing the proofs; its port to
-        Lean v4.33.0 and its merge into this library were carried out by
-        DeepSeek V4.1 Flash workers with Claude Sonnet 5 on escalations; and
-        the consolidation of that route on 17-18 September 2026 - using the
-        published proofs for the results shared with them, regrouping the
-        response layer by its mathematics, renaming after what each
-        declaration states, narrowing the arithmetic closers to the facts
-        they use and removing the modules no exported theorem reaches - was
-        written by DeepSeek V4.1 Flash workers, with Claude Sonnet 5 on
-        escalations and review, Claude Opus 5 leading each phase and Claude
-        Fable 5.1 orchestrating.
+        Claude Code (Anthropic) and Codex (OpenAI) were used for proof writing,
+        statement review, and code revision. DeepSeek models were used through
+        ollama for the Lean v4.33.0 upgrade and the integration and cleanup of
+        the polynomial-entry proof. Claude Fable 5.1 coordinated the work;
+        Claude Opus 5 and GPT-5.6 Sol wrote most of the proofs, with Claude
+        Sonnet 5 reviewing later changes.
       tool_setup: >-
-        Lake builds under leanprover/lean4:v4.33.0 with Mathlib v4.33.0 and the
-        public CoarseGraining library at a pinned revision.  A frozen-statement
-        manifest with content hashes bound the certified statement surface
-        during development; every sealed theorem was certified by a two-key
-        process (a prover chain plus an independent adversarial audit by a
-        fresh model instance).  Read-only subagents were used for hostile
-        statement audits, dependency-order verification, and dead-code
-        analysis.  The Lean comparator was run locally on every comparator pair,
-        with the NanoDa kernel replay.
+        Lake builds with Lean and Mathlib v4.33.0 and the public CoarseGraining
+        library at a pinned revision. The authors reviewed theorem statements;
+        separate agent reviews checked their correspondence with the manuscript.
+        The four headline results were also checked against Mathlib-only
+        statements with leanprover/comparator and NanoDa replay.
       cost:
         wall_time: >-
-          about two and a half weeks of agentic work: the certified statement
-          surface and the proofs of the main theorems were completed between
-          21 August and 3 September 2026, followed by three days of dead-code,
-          naming and comment cleanup (4-6 September), one day (11 September)
-          for the public release (main-results module, the exports of Theorems B
-          and C, the four comparator pairs, and the citation rewrite), and one
-          night (13-14 September) for the upgrade to Lean v4.33.0; and a
-          further stretch from 6 to 17 September 2026 in which Theorem A was
-          proved along the paper's own route in its printed form, and that
-          route was ported to Lean v4.33.0 and merged into this library; and
-          two days (17-18 September 2026) in which that route was consolidated
+          About four weeks of agent-assisted work in August and September 2026,
+          including proof development, statement review, comparator checks,
+          the Lean v4.33.0 upgrade, and code cleanup.
         spend_usd: "not separately tracked (subscription accounts)"
         hardware: "a 16-CPU / 124 GB RAM Ubuntu machine"
       prompting_notes: >-
-        Human-directed agent work, closely supervised by the authors, with
-        author rulings recorded verbatim for every statement-level decision.
+        The authors directed the formalization and reviewed changes to theorem
+        statements and their correspondence with the manuscript.
   spend_usd: "not separately tracked (subscription accounts)"
   notes: >-
-    All Lean code in this repository was written by the listed large language
-    models under the close supervision of the authors: Claude Fable 5.1
-    orchestrated, and the agents doing the proofs, audits and rewrites were
-    mostly Claude Opus 5 and GPT-5.6 Sol (low reasoning effort).  Every proof
-    is checked by the Lean
-    kernel and Mathlib; the verified library contains no sorry and no custom
-    axiom.  The Mathlib-only comparator challenge files
-    (HCPolyAudit/*/Challenge.lean) each contain exactly one intentional
-    statement-level sorry (the theorem body), which is filled by the
+    Lean code was written with the listed AI models under the authors'
+    supervision. The Lean kernel checks the formal proofs; the library contains
+    no unresolved sorry and no custom axiom. The Mathlib-only comparator
+    challenge files (HCPolyAudit/*/Challenge.lean) each contain exactly one
+    intentional statement-level sorry (the theorem body), which is filled by the
     corresponding HCPolyAudit/*/Solution.lean and checked by leanprover/comparator.
 
 fidelity:
@@ -207,12 +176,7 @@ fidelity:
     satisfies X >= 1 (the paper states X >= max(1, S)), the homogenized
     matrix is produced existentially rather than identified with Theorem B's
     limit block, norms are valued in the extended nonnegative reals, and
-    fluxes are written for the skew-centered field.  The consolidation of
-    17-18 September 2026 left the seventeen printed statements of the route
-    unchanged beyond their import lines and three declaration renames
-    (logDetLoss to detIncrement, synchronizedLogDetLoss to synchCharge,
-    MemLqSchatten to SchattenMemLp), and left every exported statement
-    byte-identical.
+    fluxes are written for the skew-centered field.
 
 review:
   status: "author-verified"
@@ -221,12 +185,10 @@ review:
     - "Tuomo Kuusi"
     - "Amélie Loher"
   notes: >-
-    Correctness of every proof is guaranteed by the Lean kernel and Mathlib
-    (no sorry, no custom axiom).  The authors reviewed the public statements
-    and ruled on every statement-level decision during development; each
-    certified theorem was additionally checked by an independent adversarial
-    audit of the sealed statement and its proof cone.  This is not external
-    peer review.
+    The Lean kernel checks the formal proofs (no unresolved sorry or custom
+    axiom). The authors reviewed the theorem statements and their interpretation;
+    separate agent reviews checked the statements and their dependencies. This
+    is not external peer review.
 
 alignment:
   namespace: "HCPoly"

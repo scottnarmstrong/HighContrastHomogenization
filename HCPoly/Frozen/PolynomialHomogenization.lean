@@ -8,7 +8,7 @@ import HCPoly.Setup.AnalyticCarriers
 import HCPoly.Frozen.Stationarity
 import HCPoly.Frozen.UnitRange
 import HCPoly.Frozen.CoarseEllipticityDagger
-import HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.RootSealedFinal
+import HCPoly.Provider.PolynomialHomogenization.Root.CorrectorComposition.RootTheorem
 
 /-!
 # Theorem `t.random.homogenization`

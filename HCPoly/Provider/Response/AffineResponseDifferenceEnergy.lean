@@ -167,12 +167,12 @@ theorem descendantsAverage_additivityDiffHalfEnergy_eq_responseJPartitionDefect_
     have hsecond := Book.Ch02.secondVariation_eq_of_isResponseMaximizer
       (canonicalResponseSolution_isMaximizer (V R) (b R) p r) (z R)
     exact hsecond.symm.trans hdiff.symm
-  have hsealed := sum_weight_responseJ_sub_responseJ_eq_sum_weight_secondVariation
+  have hweighted := sum_weight_responseJ_sub_responseJ_eq_sum_weight_secondVariation
     (Z := Z) (U := U) (V := V) (a := a) (b := b)
     (fun R hR ↦ by simpa [a, b] using hcommon R (by simpa [Z] using hR))
     hsub hdisj hnull (v := v)
     (canonicalResponseSolution_isMaximizer U a p r) hz
-  have hsealed' :
+  have haverage :
       ((Z.card : ℝ))⁻¹ * ∑ R ∈ Z,
           Book.Ch02.responseJ (V R) (b R) p r -
         Book.Ch02.responseJ U a p r =
@@ -193,7 +193,7 @@ theorem descendantsAverage_additivityDiffHalfEnergy_eq_responseJPartitionDefect_
       _ = ∑ R ∈ Z, (volume (V R).carrier).toReal /
             (volume U.carrier).toReal *
               Book.Ch02.secondVariationEnergyValue (V R) (b R)
-                (canonicalResponseSolution (V R) (b R) p r) (z R) := hsealed
+                (canonicalResponseSolution (V R) (b R) p r) (z R) := hweighted
       _ = ((Z.card : ℝ))⁻¹ * ∑ R ∈ Z,
             Book.Ch02.secondVariationEnergyValue (V R) (b R)
               (canonicalResponseSolution (V R) (b R) p r) (z R) := by
@@ -211,7 +211,7 @@ theorem descendantsAverage_additivityDiffHalfEnergy_eq_responseJPartitionDefect_
       exact Finset.sum_congr rfl fun R hR ↦ (henergy R (by simpa [Z] using hR)).symm
     _ = ((Z.card : ℝ))⁻¹ * ∑ R ∈ Z,
           Book.Ch02.responseJ (V R) (b R) p r -
-        Book.Ch02.responseJ U a p r := hsealed'.symm
+        Book.Ch02.responseJ U a p r := haverage.symm
     _ = responseJPartitionDefectOnFamilyAtDepth F Q j p r := by
       rfl
 

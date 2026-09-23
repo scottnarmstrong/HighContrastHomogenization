@@ -98,7 +98,7 @@ theorem volume_closedNormBall_ne_top [NeZero d] {r : ℝ} (hr : 0 < r) :
 /-! ## The exact-root pullback identification, restated at `closedNormBall` -/
 
 /-- The exact-root pullback of the ellipsoid **is** the closed Euclidean ball.
-Restatement of the scratch identity in this module's vocabulary, so the two
+Restatement of the pullback identity in this module's vocabulary, so the two
 volume comparisons below can be read directly against
 `ExactRootGaugeTerminal`. -/
 theorem matImage_normalizedRoot_inv_ellipsoid_eq_closedNormBall [NeZero d]
