@@ -21,8 +21,8 @@ passed.  Under unit range of dependence, it proves that the coefficients
 enter the small-contrast regime at a length **polynomial** in the reference
 aspect ratio `Π` and the source-tail growth constant `K`, where the earlier
 high-contrast theory gave a quasipolynomial length.  Combining this with the
-high-contrast homogenization theory of Armstrong and Kuusi
-([*Renormalization Group and Elliptic Homogenization in High Contrast*](https://doi.org/10.1007/s00222-025-01370-9),
+high-contrast homogenization theory of Armstrong and Kuusi [AK25]
+([*Renormalization group and elliptic homogenization in high contrast*](https://doi.org/10.1007/s00222-025-01370-9),
 Invent. Math. 2025)
 gives algebraic convergence of the annealed coarse-grained matrices,
 quantitative Dirichlet homogenization, corrector estimates, a first-order
@@ -129,9 +129,8 @@ theorem docstrings and inventoried in
   identified, in the exported statement, with the limit block of Theorem B.
 - **Norms.**  Norms and energies are valued in `ℝ≥0∞`; fluxes are written
   for the skew-centered field.
-- **Citations.**  Docstrings cite the paper by its own LaTeX labels.  A few of
-  them cite lemmas of the companion paper HC (*Renormalization Group and
-  Elliptic Homogenization in High Contrast*) by that paper's labels instead:
+- **Citations.**  Docstrings cite the paper by its own LaTeX labels. A few
+  cite lemmas from [AK25] by that paper's labels instead:
   `a.CFS`, `e.grok`, `e.Euc.by.tilt`, `e.tilt.by.Euc`, `e.self.dual`,
   `l.bfE.bounds`, `l.weaknorms.moreproto` and `e.euclidean.contrast.bridge`.
 
