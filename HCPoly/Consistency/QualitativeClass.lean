@@ -7,37 +7,33 @@ import HCPoly.Setup.CoefficientSpace
 import Mathlib.MeasureTheory.Function.LocallyIntegrable
 
 /-!
-# The qualitative coefficient class
+# An integrability consequence of local uniform ellipticity
 
 This module checks the definition `CoeffSpace d` of the development: that the
-locally uniformly elliptic fields it collects do satisfy the qualitative
-integrability condition `e.qualitative.ellipticity` of `s.introduction`, here
-encoded by `IsQualitativeEllipticField`.  Were the check to fail, that class
-would contain none of the coefficient fields the development works with, the
-hypotheses of the paper's printed statements would have no instance here, and
-those statements would be vacuous on the coefficient space this development
-uses: the encoding would not be the object the paper prints.
+locally uniformly elliptic fields it collects satisfy the local integrability
+condition encoded by `IsQualitativeEllipticField`. This is an analytic
+consequence of the paper's stronger local essential boundedness condition
+`e.qualitative.ellipticity` in `s.introduction`.
 
 This module is a consistency check of that definition and is not a result of
 the paper.
 
-The reference text takes as its coefficient space the measurable fields
+The paper takes as its coefficient space the measurable fields
 `a : ℝ^d → ℝ^{d×d}` whose symmetric part `s` is positive definite almost
-everywhere and which satisfy the qualitative integrability condition
-`e.qualitative.ellipticity`: writing `k` for the skew-symmetric part, the
-three matrix fields
+everywhere and for which, writing `k` for the skew-symmetric part, the three
+matrix fields
 
 ```
 s,      s⁻¹,      kᵗ s⁻¹ k
 ```
 
-are locally integrable, entry by entry.
+are locally essentially bounded, entry by entry (`e.qualitative.ellipticity`).
+The predicate checked here asks only that they be locally integrable.
 
-The class used in this development, `AEUniformlyEllipticField`, is narrower: it
-asks that almost every value of the field on a bounded set be uniformly elliptic,
-for a pair of ellipticity constants attached to the field and to the set.  This
-file shows that the narrower class is contained in the qualitative one, which is
-the implication asserted wherever the coefficient class is introduced.
+The class used in this development, `AEUniformlyEllipticField`, asks that almost
+every value of the field on a bounded set be uniformly elliptic, for a pair of
+ellipticity constants attached to the field and to the set. This file proves
+that those bounds imply the local integrability needed by the analytic library.
 
 Both halves are quantitative consequences of `IsEllipticMatrix`, read on one
 bounded set at a time.  Coercivity of the values gives coercivity of the
@@ -65,10 +61,11 @@ symmetric part `s` and the skew-symmetric part `k` of a matrix. -/
 def skewSchurTerm (A : Mat d) : Mat d :=
   matTranspose (skewPart A) * (symmPart A)⁻¹ * skewPart A
 
-/-- The qualitative coefficient class of `s.introduction`: a measurable
+/-- A local integrability condition used by the analytic library: a measurable
 matrix field whose symmetric part is positive definite almost everywhere and
-whose three fields `s`, `s⁻¹` and `kᵗ s⁻¹ k` are entrywise locally integrable,
-which is the condition `e.qualitative.ellipticity`. -/
+whose three fields `s`, `s⁻¹` and `kᵗ s⁻¹ k` are entrywise locally integrable.
+The paper's `e.qualitative.ellipticity` requires local essential boundedness
+of those fields. -/
 structure IsQualitativeEllipticField (a : Vec d → Mat d) : Prop where
   /-- The field is Borel measurable. -/
   measurable : Measurable a
@@ -238,8 +235,8 @@ theorem ae_posDef_symmPart_of_aeUniformlyEllipticField {a : Source.AKL.Field d}
   obtain ⟨n, hn⟩ := exists_nat_gt ‖x‖
   exact hx n (mem_ball_zero_iff.2 (hn.trans (lt_add_one _)))
 
-/-- **`s ∈ L¹_loc`**, entry by entry: the first field of
-`e.qualitative.ellipticity`. -/
+/-- **`s ∈ L¹_loc`**, entry by entry: an integrability consequence of the
+paper's first locally bounded field in `e.qualitative.ellipticity`. -/
 theorem locallyIntegrable_symmPart_of_aeUniformlyEllipticField
     {a : Source.AKL.Field d} (ha : AEUniformlyEllipticField a) (i j : Fin d) :
     LocallyIntegrable (fun x => symmPart (a x) i j) volume := by
@@ -251,8 +248,8 @@ theorem locallyIntegrable_symmPart_of_aeUniformlyEllipticField
   filter_upwards [hM] with x hx hxS
   exact abs_apply_symmPart_le (hx hxS) i j
 
-/-- **`s⁻¹ ∈ L¹_loc`**, entry by entry: the second field of
-`e.qualitative.ellipticity`. -/
+/-- **`s⁻¹ ∈ L¹_loc`**, entry by entry: an integrability consequence of the
+paper's second locally bounded field in `e.qualitative.ellipticity`. -/
 theorem locallyIntegrable_symmPart_inv_of_aeUniformlyEllipticField
     {a : Source.AKL.Field d} (ha : AEUniformlyEllipticField a) (i j : Fin d) :
     LocallyIntegrable (fun x => (symmPart (a x))⁻¹ i j) volume := by
@@ -264,8 +261,8 @@ theorem locallyIntegrable_symmPart_inv_of_aeUniformlyEllipticField
   filter_upwards [hell] with x hx hxS
   exact abs_apply_symmPartInv_le_of_isEllipticMatrix (hx hxS) i j
 
-/-- **`kᵗ s⁻¹ k ∈ L¹_loc`**, entry by entry: the third field of
-`e.qualitative.ellipticity`. -/
+/-- **`kᵗ s⁻¹ k ∈ L¹_loc`**, entry by entry: an integrability consequence of
+the paper's third locally bounded field in `e.qualitative.ellipticity`. -/
 theorem locallyIntegrable_skewSchurTerm_of_aeUniformlyEllipticField
     {a : Source.AKL.Field d} (ha : AEUniformlyEllipticField a) (i j : Fin d) :
     LocallyIntegrable (fun x => skewSchurTerm (a x) i j) volume := by
@@ -277,8 +274,8 @@ theorem locallyIntegrable_skewSchurTerm_of_aeUniformlyEllipticField
   filter_upwards [hell] with x hx hxS
   exact abs_apply_skewSchurTerm_le (hx hxS) i j
 
-/-- **The coefficient class used here lies in the qualitative class of
-`e.qualitative.ellipticity`**: a locally uniformly elliptic field is
+/-- **Local uniform ellipticity implies the analytic integrability condition**:
+a locally uniformly elliptic field is
 measurable, its symmetric part is positive definite almost everywhere, and its
 three fields `s`, `s⁻¹` and `kᵗ s⁻¹ k` are entrywise locally integrable. -/
 theorem isQualitativeEllipticField_of_aeUniformlyEllipticField
@@ -293,8 +290,8 @@ theorem isQualitativeEllipticField_of_aeUniformlyEllipticField
   locallyIntegrable_skewSchurTerm :=
     locallyIntegrable_skewSchurTerm_of_aeUniformlyEllipticField ha
 
-/-- Every field of the coefficient space `Ω` lies in the qualitative class of
-`e.qualitative.ellipticity`. -/
+/-- Every field of the coefficient space `Ω` satisfies the analytic local
+integrability condition. -/
 theorem isQualitativeEllipticField_coeffSpace (a : CoeffSpace d) :
     IsQualitativeEllipticField (⇑a.1) :=
   isQualitativeEllipticField_of_aeUniformlyEllipticField a.2

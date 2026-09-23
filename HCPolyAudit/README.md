@@ -15,8 +15,8 @@ subdirectory:
 Each directory also carries a `DESIGN.md` recording the provenance of every
 rebuilt declaration, the bridge inventory, and the presentation deltas in full;
 the module docstring of each `Challenge.lean` carries the statement in words,
-the standing assumptions, and the deltas a reader needs to judge that the Lean
-statement says what the paper says.
+the standing assumptions, and the differences a reader needs to compare the
+Lean statement with the printed theorem.
 
 Each `Challenge.lean` imports only `Mathlib`, rebuilds from scratch every
 definition needed to read the theorem — the coefficient space of locally

@@ -26,9 +26,11 @@ of measurable fields that are locally uniformly elliptic: on every bounded subse
 of `ℝ^d` a pair of ellipticity constants serves almost every value of the field
 there, the pair being attached to the field and to the set rather than fixed in
 advance.  No constant appearing in any statement below depends on such a pair.
-The reference text introduces the wider class of fields satisfying only the
-qualitative integrability condition `e.qualitative.ellipticity`, which the
-class used here implies; all quantitative content — the reference aspect ratio
+The paper's standing condition `e.qualitative.ellipticity` requires local
+essential bounds on `s`, `s⁻¹` and `kᵗ s⁻¹ k`; this is its formulation of local
+uniform ellipticity. The class used here also implies the weaker local
+integrability conditions needed by the analytic library. All quantitative
+content — the reference aspect ratio
 `Π`, the concentration gauge and its growth witness, the annealed contrast `Θ_m`,
 and every dimensional constant — is unchanged.
 

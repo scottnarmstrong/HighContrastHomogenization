@@ -23,9 +23,11 @@ the field there, the pair being attached to the field and to the set rather than
 fixed in advance.  No constant appearing in any statement below depends on such
 a pair, and no bound of the development is uniform over the coefficient space.
 The class contains the fields uniformly elliptic almost everywhere on all of
-`ℝ^d`, and the reference text's wider class of fields satisfying only the
-qualitative integrability condition `e.qualitative.ellipticity` contains it
-in turn; all quantitative content — the reference aspect ratio `Π`, the
+`ℝ^d`. The paper's condition `e.qualitative.ellipticity` states local essential
+bounds on `s`, `s⁻¹` and `kᵗ s⁻¹ k`, expressing local uniform ellipticity in
+matrix terms. The coefficient class here also satisfies the weaker local
+integrability conditions used by the analytic library. All quantitative
+content — the reference aspect ratio `Π`, the
 concentration gauge and its growth witness, the annealed contrast `Θ_m`, and
 every dimensional constant — is unchanged.
 
@@ -75,7 +77,7 @@ def IsAELocallyUniformlyElliptic {d : ℕ} (b : CoeffField d) : Prop :=
 /-- Qualitative local uniform ellipticity of a point of the a.e.-quotient carrier
 `Source.AKL.Field`: local uniform ellipticity of any of its representatives.
 
-The qualitative integrability of `s`, `s⁻¹` and `kᵗ s⁻¹ k` required at
+The paper's local essential boundedness of `s`, `s⁻¹` and `kᵗ s⁻¹ k` at
 `e.qualitative.ellipticity`, and the almost everywhere positive definiteness
 of the symmetric part, both follow. -/
 def AEUniformlyEllipticField {d : ℕ} (a : Source.AKL.Field d) : Prop :=

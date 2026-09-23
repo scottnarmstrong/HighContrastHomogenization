@@ -45,7 +45,9 @@ theorem HCPoly.StatementAudit.UniformHomogenization.uniform_homogenization
 ```
 
 Every name is the challenge's own definition; the elided clauses are written out
-in full in `Challenge.lean`.
+in full in `Challenge.lean`. The paper's Theorem C prints the forced `L²`
+Dirichlet and large-scale energy estimates. The formal statement also exports
+corrector, Liouville and approximation clauses from Theorem D.
 
 ## Definition provenance
 

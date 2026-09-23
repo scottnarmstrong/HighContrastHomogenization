@@ -78,9 +78,9 @@ and source scale `S`.
 * **The reference block.**  The paper writes `𝐄` in the Schur form
   `e.reference.block`; here `E` is an arbitrary symmetric positive definite
   doubled block, which that form parametrizes exactly.
-* **The coefficient carrier.**  The paper takes the fields subject to
-  `e.qualitative.ellipticity`; here the almost-everywhere quotient of the
-  qualitatively locally uniformly elliptic fields, a subclass of it.
+* **The coefficient carrier.**  The paper's `e.qualitative.ellipticity` requires
+  local essential bounds on `s`, `s⁻¹` and `kᵗ s⁻¹ k`; here the almost-everywhere
+  quotient expresses local uniform ellipticity using bounds on each ball.
 * **Positive constants.**  The paper asserts that `C`, `C₀` and `C₁` are finite;
   here they are asserted positive as well, which is a normalization.
 * **The invariant event.**  The paper does not record the behaviour of the

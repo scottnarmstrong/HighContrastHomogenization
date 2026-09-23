@@ -1,8 +1,9 @@
 # HighContrastHomogenization
 
-A machine-checked **Lean 4** formalization of the manuscript
+A machine-checked **Lean 4** formalization of the final manuscript
 *Homogenization at a polynomial scale in high contrast*
-(Scott Armstrong, Tuomo Kuusi, and Amélie Loher). It is built on
+(Scott Armstrong, Tuomo Kuusi, and Amélie Loher), submitted to arXiv.
+It is built on
 [`mathlib`](https://github.com/leanprover-community/mathlib4) and the public
 [`CoarseGraining`](https://github.com/scottnarmstrong/CoarseGraining)
 homogenization library.
@@ -76,10 +77,11 @@ can be read alongside the paper-to-Lean map in
 * **`HCPoly.uniform_homogenization`** (Theorem C) — quantitative
   homogenization under uniform ellipticity: for laws whose fields are
   `(λ, Λ)`-elliptic almost surely, a homogenization scale `X ≥ 1` with the
-  tail `P[X ≥ C (2+Λ/λ)^C t] ≤ exp(−t^d)`, above which the Dirichlet
-  estimate, the correctors, the Liouville classification, the large-scale
-  energy estimate and the first-order approximation of Theorem D hold, with
-  dimensional constants.
+  tail `P[X ≥ C (2+Λ/λ)^C t] ≤ exp(−t^d)`. The paper states a forced `L²`
+  Dirichlet estimate and a large-scale energy estimate. The Lean theorem gives
+  the energy estimate and a homogeneous negative-Sobolev Dirichlet estimate;
+  it also exports corrector, Liouville and first-order approximation results
+  obtained by specializing Theorem D.
 * **`HCPoly.polynomial_homogenization`** (Theorem D) — homogenization with a
   random source scale: a homogenized matrix, a polynomially bounded length,
   a random homogenization radius `X` with the two-part tail
@@ -101,14 +103,15 @@ These differences from the printed statements are also recorded in the
 theorem docstrings and inventoried in
 [`CORRESPONDENCE.md`](CORRESPONDENCE.md):
 
-- **Coefficient class.**  The coefficient space consists of the measurable
-  fields, modulo almost-everywhere equality, that are locally uniformly
-  elliptic: on every bounded set one pair of ellipticity constants serves
-  almost every value of the field there.  The constants belong to the field
-  and enter no estimate.  This is the class over which the paper states
-  Theorem A.  For Theorems B, C and D the paper's qualitative class (local
-  integrability of `s`, `s⁻¹` and `kᵗ s⁻¹ k`) is wider, and the containment
-  of the formalized class in it is proved.
+- **Coefficient class.**  The paper's standing condition
+  (`e.qualitative.ellipticity`) is local uniform ellipticity: `s`, `s⁻¹` and
+  `kᵗ s⁻¹ k` are locally essentially bounded, where `s` and `k` are the
+  symmetric and skew parts of the coefficient field. The Lean coefficient
+  space expresses this with ellipticity constants on each bounded set and
+  identifies fields that agree almost everywhere. These local constants enter
+  no quantitative estimate. The consistency check
+  [`QualitativeClass.lean`](HCPoly/Consistency/QualitativeClass.lean) proves the
+  local integrability consequence used by the analytic library.
 - **Dirichlet domains in Theorem D.**  The Dirichlet estimate is stated on
   the adapted cells of the homogenized matrix (translates of the image of a
   triadic cube under `s̄^{1/2}`), normalized between two concentric adapted
@@ -120,9 +123,11 @@ theorem docstrings and inventoried in
   with a vanishing source scale and the reference block built from
   `(λ, Λ)`.  Its Dirichlet clause is therefore Theorem D's homogeneous
   negative-Sobolev estimate on adapted cells; the paper's `L²` estimate with
-  a forcing term (`e.uniform.dirichlet`) is deduced from it in the paper by
-  a further duality argument that is not formalized, and the tolerance `δ`
-  of that estimate is accordingly absent.
+  a forcing term (`e.uniform.dirichlet`) is obtained through a further
+  argument in `ss.uniform.homogenization` that is not formalized, and the
+  tolerance `δ` of that estimate is accordingly absent. The formal statement
+  also includes corrector, Liouville and first-order approximation conclusions
+  from Theorem D that are not listed in the paper's Theorem C.
 - **Random radius and homogenized matrix.**  The random radius satisfies
   `X ≥ 1`; the paper's statement `X ≥ max{1, S}` is not exported.  The
   homogenized matrix of Theorem D is produced existentially and is not
@@ -155,7 +160,7 @@ by the paper.
 | [`DomainCompleteness.lean`](HCPoly/Consistency/DomainCompleteness.lean) | the domains of the Dirichlet estimate are exactly the nonempty bounded open convex ones |
 | [`Necessity.lean`](HCPoly/Consistency/Necessity.lean) | what the measurability conjunct of the local Sobolev class excludes |
 | [`PrintedForm.lean`](HCPoly/Consistency/PrintedForm.lean) | the intrinsic contrast and `Λ_0` are the printed minima over skew matrices |
-| [`QualitativeClass.lean`](HCPoly/Consistency/QualitativeClass.lean) | the coefficient class used here lies inside the paper's qualitative class |
+| [`QualitativeClass.lean`](HCPoly/Consistency/QualitativeClass.lean) | local uniform ellipticity implies the local integrability used by the analytic library |
 | [`WitnessField.lean`](HCPoly/Consistency/WitnessField.lean) | the coefficient space has its reference point, fixed by every integer translation |
 | [`WitnessSigmaField.lean`](HCPoly/Consistency/WitnessSigmaField.lean) | the local σ-fields of the coefficient space separate points |
 
@@ -177,9 +182,6 @@ contains one intentional statement-level `sorry`, which the corresponding
 | [`HCPolyAudit/AlgebraicConvergence/comparator.json`](HCPolyAudit/AlgebraicConvergence/comparator.json) | B | `HCPoly.StatementAudit.AlgebraicConvergence.algebraic_convergence` |
 | [`HCPolyAudit/UniformHomogenization/comparator.json`](HCPolyAudit/UniformHomogenization/comparator.json) | C | `HCPoly.StatementAudit.UniformHomogenization.uniform_homogenization` |
 | [`HCPolyAudit/PolynomialHomogenization/comparator.json`](HCPolyAudit/PolynomialHomogenization/comparator.json) | D | `HCPoly.StatementAudit.PolynomialHomogenization.polynomial_homogenization` |
-
-For [Palomar](https://palomar-registry.org/how-to-submit), each configuration
-is a separate result submission at the same public commit.
 
 ## Building
 

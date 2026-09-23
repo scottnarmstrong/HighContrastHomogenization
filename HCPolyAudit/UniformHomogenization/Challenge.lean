@@ -30,6 +30,10 @@ the same scale and the same family throughout, the following hold:
 * the large-scale energy estimate `e.uniform.energy` and the first-order
   approximation, both on the ellipsoids `e.homogenized.ellipsoids`.
 
+The paper's Theorem C prints the forced `L²` Dirichlet estimate and the
+large-scale energy estimate. The additional corrector, Liouville and
+approximation clauses here come from specializing its Theorem D.
+
 The homogenization length is polynomial in the ellipticity ratio: the tail
 exponent is the dimension and the deterministic factor is a power of `2 + Λ/λ`.
 The shape constant `C₀` depends on nothing but the dimension, the regularity
@@ -72,10 +76,11 @@ of `e.uniform.ellipticity`, with `0 < λ ≤ 1 ≤ Λ`.
 * **The membership classes.**  The printed classes are completions of smooth
   functions in a norm; here each also carries the measurability that such a
   completion presupposes, and the approximants are globally smooth.
-* **The two ellipticity conditions.**  The carrier already carries the
-  qualitative condition, whose constants are quantified inside the predicate;
-  the `λ` and `Λ` of `e.uniform.ellipticity` are a separate hypothesis, and no
-  constant of the conclusion sees the qualitative pair.
+* **The two ellipticity conditions.**  The carrier already carries the paper's
+  local condition `e.qualitative.ellipticity`, with local constants quantified
+  inside the predicate; the `λ` and `Λ` of `e.uniform.ellipticity` are a
+  separate global hypothesis, and no constant of the conclusion depends on
+  the local constants.
 * **Positive constants.**  The paper asserts that `C`, `C₀` and `C₁` are finite;
   here they are asserted positive as well, which is a normalization.
 * **The invariant event.**  The paper does not record the behaviour of the

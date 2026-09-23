@@ -37,7 +37,7 @@ sources:
       - "Tuomo Kuusi"
       - "Amélie Loher"
     type: "paper"
-    note: "Manuscript by the project authors; no public identifier is available yet."
+    note: "Final manuscript submitted to arXiv; public identifier pending."
     relationship: "formalizes"
     license: "all rights reserved"
     author_endorsement: "participated"
@@ -66,15 +66,18 @@ status:
     the Lean comparator.  Rendering conventions (stated in the theorem
     docstrings and in CORRESPONDENCE.md): the coefficient space is the class
     of measurable fields, modulo almost-everywhere equality, that are locally
-    uniformly elliptic, which is the class over which the paper states
-    Theorem A (for Theorems B, C and D the paper's qualitative class is wider;
-    the containment is proved and no constant depends on the ellipticity
-    constants); Theorem A is proved and exported in the paper's printed form,
+    uniformly elliptic, matching the paper's standing condition
+    e.qualitative.ellipticity (local essential boundedness of s, s^-1 and
+    k^T s^-1 k); no constant depends on the local ellipticity constants;
+    Theorem A is proved and exported in the paper's printed form,
     the annealed contrast being at most 1 + sigma at every generation beyond
     the entry scale, together with the polynomial length bound on that scale;
     Theorem C is the instance of Theorem D for uniformly elliptic laws and its
     Dirichlet clause is exported in Theorem D's negative-Sobolev form rather than the
-    paper's L^2 form with a forcing term; Theorem D's Dirichlet estimate is
+    paper's L^2 form with a forcing term; the Lean Theorem C also exports
+    corrector, Liouville and first-order approximation conclusions obtained
+    by specializing Theorem D, beyond the paper's printed Theorem C;
+    Theorem D's Dirichlet estimate is
     stated on normalized adapted cells of the homogenized matrix for supplied
     weak solutions, the random radius satisfies X >= 1 (the paper states
     X >= max(1, S)), and the homogenized matrix is produced existentially
@@ -161,16 +164,18 @@ fidelity:
     Rendering conventions, each stated in the theorem docstrings and in
     CORRESPONDENCE.md: the coefficient space is the class of measurable
     fields, modulo almost-everywhere equality, that are locally uniformly
-    elliptic, which is the class over which the paper states Theorem A (for
-    Theorems B, C and D the paper's qualitative class is wider; the
-    containment is proved and no constant depends on the ellipticity
-    constants); Theorem A is proved and exported in the paper's printed form,
+    elliptic, matching the paper's standing condition
+    e.qualitative.ellipticity (local essential boundedness of s, s^-1 and
+    k^T s^-1 k); no constant depends on the local ellipticity constants;
+    Theorem A is proved and exported in the paper's printed form,
     with one tolerance sigma and the contrast bound at every generation beyond
     the entry scale, so no reformulation stands between the proved statement
     and the printed one; Theorem C is the instance of Theorem D for
     uniformly elliptic laws, with the Dirichlet clause in Theorem D's
     negative-Sobolev form rather than the paper's L^2 form with a forcing
-    term; Theorem D's Dirichlet estimate is stated on normalized adapted
+    term; the Lean Theorem C also exports corrector, Liouville and first-order
+    approximation conclusions obtained by specializing Theorem D, beyond the
+    printed Theorem C; Theorem D's Dirichlet estimate is stated on normalized adapted
     cells of the homogenized matrix for supplied weak solutions, with an
     endpoint constant depending on two trapping radii, the random radius
     satisfies X >= 1 (the paper states X >= max(1, S)), the homogenized

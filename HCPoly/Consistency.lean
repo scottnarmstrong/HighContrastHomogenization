@@ -28,7 +28,7 @@ infimum of Loewner scalings is not visibly the minimum of spectral norms the pap
 The modules collected here check exactly that, one definition at a time: that the admissible
 tests exist, that the coefficient space has a point and its sigma-fields separate points,
 that the membership classes are neither empty nor unreachable from the printed completions,
-that the coefficient class is contained in the paper's qualitative class, that the junk
+that local uniform ellipticity supplies the analytic integrability condition, that the junk
 branch of the coarse response is never attained, that the encodings of the intrinsic
 contrast and of `Λ_0` are the printed minima, and where a hypothesis of one of these
 definitions cannot be dropped.

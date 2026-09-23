@@ -126,9 +126,8 @@ from the Lebesgue quotient of the matrix-valued fields rather than from
 functions.  Its points are the fields that are locally uniformly elliptic in the
 qualitative sense: on every ball one pair of ellipticity constants serves almost
 every value of the field there.  Those constants belong to the field and to the
-ball and enter no estimate; what the condition supplies is the local
-integrability of the gradients and the fluxes, which is the role of
-`e.qualitative.ellipticity` in the paper.
+ball and enter no estimate. This is the paper's local uniform ellipticity
+condition `e.qualitative.ellipticity`, written through local matrix bounds.
 -/
 
 /-- A measurable representative of a coefficient field `a : ℝ^d → ℝ^{d×d}`. -/

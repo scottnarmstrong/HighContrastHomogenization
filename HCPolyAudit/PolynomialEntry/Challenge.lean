@@ -65,13 +65,12 @@ and source scale `S`.
   is the least scalar `t ≥ 0` realizing a Loewner bound.  Conjugating that
   Loewner bound by the positive definite `σ̄_*^{-1/2}` returns the printed
   spectral norm, so the two quantities agree.
-* **The coefficient carrier.**  The paper takes the coefficient fields subject
-  to `e.qualitative.ellipticity`.  Here the carrier is the almost-everywhere
-  quotient of the measurable fields that are qualitatively locally uniformly
-  elliptic.  That condition implies the printed one, so the class here is
-  contained in the printed class; no constant of the theorem depends on the
-  ellipticity constants it produces, and the quotient changes nothing because
-  every object named in the statement is insensitive to a null set.
+* **The coefficient carrier.**  The paper's `e.qualitative.ellipticity` requires
+  local essential bounds on `s`, `s⁻¹` and `kᵗ s⁻¹ k`. Here the carrier uses
+  local ellipticity constants on each bounded set, expressing the same local
+  uniform ellipticity condition modulo almost-everywhere equality. These
+  constants enter no estimate, and every object named in the statement is
+  insensitive to a null set.
 
 The only omitted proof is the proof of the theorem.
 -/
@@ -187,9 +186,8 @@ from the Lebesgue quotient of the matrix-valued fields rather than from
 functions.  Its points are the fields that are locally uniformly elliptic in the
 qualitative sense: on every ball one pair of ellipticity constants serves almost
 every value of the field there.  Those constants belong to the field and to the
-ball and enter no estimate; what the condition supplies is the local
-integrability of the gradients and the fluxes, which is the role of
-`e.qualitative.ellipticity` in the paper.
+ball and enter no estimate. This is the paper's local uniform ellipticity
+condition `e.qualitative.ellipticity`, written through local matrix bounds.
 -/
 
 /-- A measurable representative of a coefficient field `a : ℝ^d → ℝ^{d×d}`. -/

@@ -103,8 +103,9 @@ antisymmetric; `ā = s̄ + k̄` is the coefficient matrix associated with the la
 
 The coefficient fields are locally uniformly elliptic almost everywhere, with
 ellipticity constants belonging to the field and entering no estimate; the
-qualitative condition `e.qualitative.ellipticity` follows from this, and every
-quantitative object below is independent of those constants. -/
+paper's standing condition `e.qualitative.ellipticity` expresses this through
+local essential bounds on the symmetric and skew parts, and every quantitative
+object below is independent of the local ellipticity constants. -/
 theorem HCPoly.algebraic_convergence (d : ℕ) (hd : 2 ≤ d) (g : ℝ)
     (hg : g ∈ Set.Ico (0 : ℝ) 1) :
     ∃ C κ : ℝ, 0 < C ∧ 0 < κ ∧
@@ -145,9 +146,11 @@ matrix with positive definite symmetric part, a corrector family, and a
 homogenization scale `X ≥ 1` whose tail is `e.uniform.scale.tail`: the exponent
 is the dimension, and the deterministic factor in front of `t` is a power of
 `2 + Λ/λ` with a dimensional exponent.  On one translation invariant event of
-full probability the Dirichlet estimate, the corrector equation and estimate,
-the Liouville classification, the large-scale energy estimate `e.uniform.energy`
-and the first-order approximation all hold.
+full probability the Dirichlet estimate and the large-scale energy estimate
+`e.uniform.energy` hold. The Lean theorem also exports the corrector equation
+and estimate, the Liouville classification and the first-order approximation
+from its specialization of Theorem D; these are not clauses of the paper's
+printed Theorem C.
 
 This is the instance of Theorem D, `t.random.homogenization`, for uniformly
 elliptic laws: the coarse ellipticity condition holds at the exponent `g = 0`
@@ -283,9 +286,9 @@ the radius.
 
 **The coefficient class.**  The coefficient fields are locally uniformly
 elliptic almost everywhere, with ellipticity constants belonging to the field
-and entering no estimate below; the qualitative condition
-`e.qualitative.ellipticity` follows from this, and the class the paper states
-the theorem for is the wider one.  Every quantitative object below -- the
+and entering no estimate below; the paper's standing condition
+`e.qualitative.ellipticity` expresses this through local essential bounds on
+the symmetric and skew parts.  Every quantitative object below -- the
 reference aspect ratio, the gauge and its growth witness, the homogenized
 matrix, the length and its tail, and every dimensional constant and exponent --
 is independent of those constants.
@@ -490,7 +493,8 @@ to the random scale, below any prescribed tolerance.
 
 The coefficient fields are locally uniformly elliptic almost everywhere, with
 ellipticity constants belonging to the field and entering no estimate; the
-qualitative condition `e.qualitative.ellipticity` follows from this, and every
+paper's standing condition `e.qualitative.ellipticity` expresses this through
+local essential bounds on the symmetric and skew parts, and every
 quantitative object below -- the reference aspect ratio, the gauge and its
 growth witness, the limit block, the length, the tail, and every dimensional
 constant -- is independent of those constants. -/

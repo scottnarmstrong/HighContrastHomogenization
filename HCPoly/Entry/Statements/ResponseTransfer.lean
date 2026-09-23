@@ -2,10 +2,10 @@ import HCPoly.Entry.Setup.SelectionData
 import HCPoly.Entry.ResponseTransfer
 
 /-!
-# Proposition `p.response.transfer` — response transfer to the Euclidean scale
+# Proposition `p.response.transfer` — duality gap on Euclidean cubes
 
-`p.response.transfer`, the paper's Proposition "Response and transfer from the
-selected geometry", transcribed from the printed display.
+`p.response.transfer`, the paper's Proposition "Duality gap on Euclidean cubes",
+transcribed from the printed display.
 
 Reading of the display, stated here so that no divergence is silent:
 

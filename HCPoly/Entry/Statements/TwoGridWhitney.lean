@@ -47,8 +47,10 @@ Reading of the display, stated here so that no divergence is silent:
   then taken over `hfin.toFinset`. `Σ_{r ≤ j−ℓ}` is the unconditional sum over all integers
   `r ≤ j−ℓ`, written as a `tsum` over that subtype, since the print sums over an infinite range.
 * `|⋄_r^q|/|W|` is the ratio of Lebesgue volumes as a real number, and every printed power of `3`
-  is a real power. The first estimate of `e.two.grid.whitney.counts` is carried at the selected
-  generations `r ≤ j−ℓ`, the range in which the display uses it.
+  is a real power. The final paper states the first estimate of
+  `e.two.grid.whitney.counts` for `r < j−ℓ`; the Lean theorem also proves it
+  at the top generation `r = j−ℓ`. The cardinality bounds retain the printed
+  ranges.
 
 The proof applies `Homogenization.HighContrast.Entry.two_grid_whitney` (`HCPoly/Entry/TwoGridWhitney.lean`).
 -/
