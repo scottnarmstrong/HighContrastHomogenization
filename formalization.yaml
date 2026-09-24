@@ -4,18 +4,15 @@ version: "v0.4"
 project:
   name: "HighContrastHomogenization"
   description: >-
-    A Lean 4 / Mathlib formalization of the paper "Homogenization at a
-    polynomial scale in high contrast" (Armstrong, Kuusi, Loher): for
-    stationary coefficient laws with unit range of dependence whose
-    coarse-grained blocks are dominated by a reference block above a random
-    source scale, entry into the small-contrast regime at a length polynomial
-    in the reference aspect ratio and the source-tail growth constant
-    (Theorem A), algebraic convergence of the annealed coarse-grained matrices
-    (Theorem B), the uniformly elliptic model (Theorem C), and quantitative
-    homogenization with correctors, a first-order Liouville theorem and
-    large-scale regularity above a single random radius with an explicit
-    two-part tail (Theorem D).  The formalization consumes the public
-    CoarseGraining homogenization library as its analytic base.
+    A Lean formalization of "Homogenization at a polynomial scale in high
+    contrast" by Armstrong, Kuusi and Loher. The paper studies elliptic
+    equations in random media whose conductivity can vary greatly. It proves
+    that their large-scale behavior becomes predictable at a length bounded
+    by a polynomial in the parameters measuring contrast and randomness,
+    improving earlier bounds. The formalization includes quantitative
+    convergence estimates, approximation by an effective constant-coefficient
+    equation, and large-scale regularity results. It builds on the
+    CoarseGraining library.
   authors:
     - "Scott Armstrong"
     - "Tuomo Kuusi"
