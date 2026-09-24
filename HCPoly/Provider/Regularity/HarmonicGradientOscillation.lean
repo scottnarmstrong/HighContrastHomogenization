@@ -407,7 +407,6 @@ theorem exists_harmonic_gradient_oscillation_decay_at_integer_rate
           (u.grad x - cubeAverageVec R u.grad)) q.exponent
         (normalizedCubeMeasure R) :=
     MeasureTheory.eLpNorm_le_eLpNorm_of_exponent_le htwoq
-      hresMem.aestronglyMeasurable
   have hgradSum : ∑ j : Fin d,
         MeasureTheory.eLpNorm (fun x => u.grad x j) 2
           (normalizedCubeMeasure Q) ≤

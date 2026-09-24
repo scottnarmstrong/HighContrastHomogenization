@@ -71,7 +71,7 @@ theorem dualPairing_eq_top_of_not_integrableOn (V : Set (Vec d))
     (h : ¬ IntegrableOn (fun x => vecDot (F x) (ψ x)) V volume) :
     dualPairing V F ψ = ⊤ := by
   unfold dualPairing
-  rw [if_neg h]
+  rw [ite_eq_right h]
 
 /-- On an absolutely convergent pairing the value is the printed normalized
 pairing: no value that the reference text writes is changed. -/
@@ -80,7 +80,7 @@ theorem dualPairing_eq_ofReal (V : Set (Vec d)) (F ψ : Vec d → Vec d)
     dualPairing V F ψ =
       ENNReal.ofReal (volumeAverage V fun x => vecDot (F x) (ψ x)) := by
   unfold dualPairing
-  rw [if_pos h]
+  rw [ite_eq_left h]
 
 /-- Fail-closed: a single admissible test with a divergent pairing sends the
 whole dual norm to `∞`, so an estimate bounding it by a finite quantity is

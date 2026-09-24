@@ -239,16 +239,16 @@ theorem slotSourceSeq_sum_le_sharp {d : ℕ} (hd : 2 ≤ d) {Csub Msc delta : �
       (mul_nonneg (slotBaseCoefficient_nonneg d) hdelta)
   refine slot_source_sum_split_sharp hc1 hc2 hc3 (one_le_half_dim hd) ?_ ?_
   · intro j _ hjJ
-    rw [slotSourceSeq, if_pos hjJ, slotSourceValue_eq]
+    rw [slotSourceSeq, ite_eq_left hjJ, slotSourceValue_eq]
   · intro j _ hJj
     rcases eq_or_lt_of_le hJj with heq | hlt
-    · rw [slotSourceSeq, if_pos (le_of_eq heq.symm)]
+    · rw [slotSourceSeq, ite_eq_left (le_of_eq heq.symm)]
       have hzero : J - j = 0 := by omega
       rw [hzero, deepSlotConstant]
       have h0 : (0 : ℝ) ≤ slotBaseCoefficient d * delta :=
         mul_nonneg (slotBaseCoefficient_nonneg d) hdelta
       linarith only [h0]
-    · rw [slotSourceSeq, if_neg (by omega)]
+    · rw [slotSourceSeq, ite_eq_right (by omega)]
 
 /-- **The sharp summed source constant** — the window-height-free replacement
 for `slotVsumSharp`. -/
@@ -315,7 +315,7 @@ theorem slotVsumSharp_le {d : ℕ} (hd : 2 ≤ d) {Csub Msc delta : ℝ}
   have hzero : slotSourceSeq d Csub Msc delta J 0 ≤
       (Real.sqrt (2 * d) * 18 * Csub * Msc + Real.sqrt (2 * d) * 288) *
         halfRatio ^ J := by
-    rw [slotSourceSeq, if_pos (Nat.zero_le J), Nat.sub_zero, slotSourceValue_eq]
+    rw [slotSourceSeq, ite_eq_left (Nat.zero_le J), Nat.sub_zero, slotSourceValue_eq]
     have h1 := mul_le_mul_of_nonneg_left hshallow hc1
     have h2 := mul_le_mul_of_nonneg_left hunit hc2
     nlinarith only [h1, h2]

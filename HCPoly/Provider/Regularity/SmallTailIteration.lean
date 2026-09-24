@@ -6,7 +6,7 @@ Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 import Mathlib.Data.Finset.Interval
 import Mathlib.Data.Finset.Lattice.Fold
 import Mathlib.Data.Int.Interval
-import Mathlib.Data.Real.Basic
+import Mathlib.Basic.Real.Basic
 import Mathlib.Algebra.BigOperators.Ring.Finset
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Tactic.FieldSimp

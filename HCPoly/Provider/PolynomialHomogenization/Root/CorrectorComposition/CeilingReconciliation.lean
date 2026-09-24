@@ -73,7 +73,7 @@ theorem exists_commonCeiling (Q₁ Q₂ Q₃ Q₄ Q₅ : ℝ → ℝ → Prop)
         (min (Classical.choose (h₂ g hg))
           (min (Classical.choose (h₃ g hg))
             (min (Classical.choose (h₄ g hg))
-              (Classical.choose (h₅ g hg))))) := dif_pos hg
+              (Classical.choose (h₅ g hg))))) := dite_eq_left hg
   simp only [hval]
   have hmem := minCeiling_mem hm₁ hm₂ hm₃ hm₄ hm₅
   exact ⟨hmem,

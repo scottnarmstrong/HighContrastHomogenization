@@ -176,19 +176,19 @@ theorem exists_contDiff_eqOn_of_contDiffOn_isOpen {S : Set (Vec d)} (hS : IsOpen
         hχ.contDiffAt.mul (hw.contDiffAt hmem)
       refine hsmooth.congr_of_eventuallyEq ?_
       filter_upwards [hmem] with y hy
-      simp only [if_pos hy]
+      simp only [ite_eq_left hy]
     · have hxc : x ∈ Sᶜ := hx
       have hev : ∀ᶠ y in nhds x, χ y = 0 :=
         h0.filter_mono (nhds_le_nhdsSet hxc)
       refine (contDiffAt_const (c := (0 : ℝ))).congr_of_eventuallyEq ?_
       filter_upwards [hev] with y hy
       by_cases hyS : y ∈ S
-      · simp only [if_pos hyS, hy, zero_mul]
-      · simp only [if_neg hyS]
+      · simp only [ite_eq_left hyS, hy, zero_mul]
+      · simp only [ite_eq_right hyS]
   · intro x hx
     have hxS : x ∈ S := hKS hx
     have hone : χ x = 1 := h1.self_of_nhdsSet x hx
-    simp only [if_pos hxS, hone, one_mul]
+    simp only [ite_eq_left hxS, hone, one_mul]
 
 /-- **The two sections combined.**  On a convex `U` with an interior ball, a function
 smooth on `U` alone has a dilate that is realized on all of `closure U` by a

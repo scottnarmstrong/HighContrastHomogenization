@@ -41,7 +41,8 @@ theorem eLpNorm_weakRoot_le_profileMajorant
           (if (1 : ℝ≥0∞) < M a then
               M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a)
             else ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ))) *
-              ENNReal.ofReal (En a))) :
+              ENNReal.ofReal (En a)))
+    (hroot : AEStronglyMeasurable root P) :
     eLpNorm root 2 P ≤
       ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) +
         ENNReal.ofReal B *
@@ -77,14 +78,6 @@ theorem eLpNorm_weakRoot_le_profileMajorant
   have henergies : AEStronglyMeasurable
       (fun a ↦ badEnergy a + ENNReal.ofReal R * goodEnergy a) P :=
     hbadMeas.add hRgood
-  have hrecent : AEStronglyMeasurable (fun a ↦
-      ENNReal.ofReal A *
-        (ENNReal.ofReal (U a) + ENNReal.ofReal (V a))) P :=
-    (aemeasurable_const.mul hUV.aemeasurable).aestronglyMeasurable
-  have henergy : AEStronglyMeasurable (fun a ↦
-      ENNReal.ofReal B *
-        (badEnergy a + ENNReal.ofReal R * goodEnergy a)) P :=
-    (aemeasurable_const.mul henergies.aemeasurable).aestronglyMeasurable
   have hbranch : ∀ a,
       (if (1 : ℝ≥0∞) < M a then
           M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a)
@@ -96,7 +89,7 @@ theorem eLpNorm_weakRoot_le_profileMajorant
         simpa only [good, Set.mem_ofPred_eq, not_le] using hbad
       have hbadMem : a ∈ bad := by
         simpa only [bad, Set.mem_ofPred_eq] using hbad
-      rw [if_pos hbad, show badEnergy a =
+      rw [ite_eq_left hbad, show badEnergy a =
           M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a) by
             exact Set.indicator_of_mem hbadMem _,
         show goodEnergy a = (0 : ℝ≥0∞) by
@@ -106,7 +99,7 @@ theorem eLpNorm_weakRoot_le_profileMajorant
         simpa only [good, Set.mem_ofPred_eq] using le_of_not_gt hbad
       have hnotBad : a ∉ bad := by
         simpa only [bad, Set.mem_ofPred_eq] using hbad
-      rw [if_neg hbad,
+      rw [ite_eq_right hbad,
         show badEnergy a = (0 : ℝ≥0∞) by
           exact Set.indicator_of_notMem hnotBad _,
         show goodEnergy a = ENNReal.ofReal (En a) by
@@ -118,11 +111,13 @@ theorem eLpNorm_weakRoot_le_profileMajorant
             (ENNReal.ofReal (U a) + ENNReal.ofReal (V a)) +
           ENNReal.ofReal B *
             (badEnergy a + ENNReal.ofReal R * goodEnergy a)) 2 P := by
-    apply eLpNorm_mono_enorm_ae
+    apply eLpNorm_mono_enorm_ae hroot
     filter_upwards [hpoint, hfinite] with a ha _
     simpa only [enorm_eq_self, R, hbranch a] using ha
-  have htriangle := eLpNorm_add_le hrecent henergy
-    (by norm_num : (1 : ℝ≥0∞) ≤ 2)
+  have htriangle := eLpNorm_add_le
+    (f := fun a ↦ ENNReal.ofReal A * (ENNReal.ofReal (U a) + ENNReal.ofReal (V a)))
+    (g := fun a ↦ ENNReal.ofReal B * (badEnergy a + ENNReal.ofReal R * goodEnergy a))
+    (μ := P) (by norm_num : (1 : ℝ≥0∞) ≤ 2)
   have hrecentNorm : eLpNorm (fun a ↦
       ENNReal.ofReal A *
         (ENNReal.ofReal (U a) + ENNReal.ofReal (V a))) 2 P ≤
@@ -136,7 +131,8 @@ theorem eLpNorm_weakRoot_le_profileMajorant
       _ ≤ ENNReal.ofReal A *
           (eLpNorm (ENNReal.ofReal ∘ U) 2 P +
             eLpNorm (ENNReal.ofReal ∘ V) 2 P) :=
-        mul_le_mul_right (eLpNorm_add_le hUOf hVOf (by norm_num)) _
+        mul_le_mul_right (eLpNorm_add_le (f := ENNReal.ofReal ∘ U)
+          (g := ENNReal.ofReal ∘ V) (by norm_num)) _
       _ = ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) := by
         rw [eLpNorm_ofReal U (_root_.Filter.Eventually.of_forall hU0),
           eLpNorm_ofReal V (_root_.Filter.Eventually.of_forall hV0)]
@@ -159,7 +155,8 @@ theorem eLpNorm_weakRoot_le_profileMajorant
       _ ≤ ENNReal.ofReal B *
           (eLpNorm badEnergy 2 P +
             eLpNorm (fun a ↦ ENNReal.ofReal R * goodEnergy a) 2 P) :=
-        mul_le_mul_right (eLpNorm_add_le hbadMeas hRgood (by norm_num)) _
+        mul_le_mul_right (eLpNorm_add_le (f := badEnergy)
+          (g := fun a ↦ ENNReal.ofReal R * goodEnergy a) (by norm_num)) _
       _ ≤ ENNReal.ofReal B *
           (profileBadEnergy P M En + profileGoodEnergy P alpha H M En) :=
         mul_le_mul_right (add_le_add (by rfl) hgoodNorm) _
@@ -186,7 +183,8 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
           (if lev < M a then
               M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a)
             else ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ))) *
-              ENNReal.ofReal (En a))) :
+              ENNReal.ofReal (En a)))
+    (hroot : AEStronglyMeasurable root P) :
     eLpNorm root 2 P ≤
       ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) +
         ENNReal.ofReal B *
@@ -223,14 +221,6 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
   have henergies : AEStronglyMeasurable
       (fun a ↦ badEnergy a + ENNReal.ofReal R * goodEnergy a) P :=
     hbadMeas.add hRgood
-  have hrecent : AEStronglyMeasurable (fun a ↦
-      ENNReal.ofReal A *
-        (ENNReal.ofReal (U a) + ENNReal.ofReal (V a))) P :=
-    (aemeasurable_const.mul hUV.aemeasurable).aestronglyMeasurable
-  have henergy : AEStronglyMeasurable (fun a ↦
-      ENNReal.ofReal B *
-        (badEnergy a + ENNReal.ofReal R * goodEnergy a)) P :=
-    (aemeasurable_const.mul henergies.aemeasurable).aestronglyMeasurable
   have hbranch : ∀ a,
       (if lev < M a then
           M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a)
@@ -242,7 +232,7 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
         simpa only [good, Set.mem_ofPred_eq, not_le] using hbad
       have hbadMem : a ∈ bad := by
         simpa only [bad, Set.mem_ofPred_eq] using hbad
-      rw [if_pos hbad, show badEnergy a =
+      rw [ite_eq_left hbad, show badEnergy a =
           M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a) by
             exact Set.indicator_of_mem hbadMem _,
         show goodEnergy a = (0 : ℝ≥0∞) by
@@ -252,7 +242,7 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
         simpa only [good, Set.mem_ofPred_eq] using le_of_not_gt hbad
       have hnotBad : a ∉ bad := by
         simpa only [bad, Set.mem_ofPred_eq] using hbad
-      rw [if_neg hbad,
+      rw [ite_eq_right hbad,
         show badEnergy a = (0 : ℝ≥0∞) by
           exact Set.indicator_of_notMem hnotBad _,
         show goodEnergy a = ENNReal.ofReal (En a) by
@@ -264,11 +254,13 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
             (ENNReal.ofReal (U a) + ENNReal.ofReal (V a)) +
           ENNReal.ofReal B *
             (badEnergy a + ENNReal.ofReal R * goodEnergy a)) 2 P := by
-    apply eLpNorm_mono_enorm_ae
+    apply eLpNorm_mono_enorm_ae hroot
     filter_upwards [hpoint, hfinite] with a ha _
     simpa only [enorm_eq_self, R, hbranch a] using ha
-  have htriangle := eLpNorm_add_le hrecent henergy
-    (by norm_num : (1 : ℝ≥0∞) ≤ 2)
+  have htriangle := eLpNorm_add_le
+    (f := fun a ↦ ENNReal.ofReal A * (ENNReal.ofReal (U a) + ENNReal.ofReal (V a)))
+    (g := fun a ↦ ENNReal.ofReal B * (badEnergy a + ENNReal.ofReal R * goodEnergy a))
+    (μ := P) (by norm_num : (1 : ℝ≥0∞) ≤ 2)
   have hrecentNorm : eLpNorm (fun a ↦
       ENNReal.ofReal A *
         (ENNReal.ofReal (U a) + ENNReal.ofReal (V a))) 2 P ≤
@@ -282,7 +274,8 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
       _ ≤ ENNReal.ofReal A *
           (eLpNorm (ENNReal.ofReal ∘ U) 2 P +
             eLpNorm (ENNReal.ofReal ∘ V) 2 P) :=
-        mul_le_mul_right (eLpNorm_add_le hUOf hVOf (by norm_num)) _
+        mul_le_mul_right (eLpNorm_add_le (f := ENNReal.ofReal ∘ U)
+          (g := ENNReal.ofReal ∘ V) (by norm_num)) _
       _ = ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) := by
         rw [eLpNorm_ofReal U (_root_.Filter.Eventually.of_forall hU0),
           eLpNorm_ofReal V (_root_.Filter.Eventually.of_forall hV0)]
@@ -306,7 +299,8 @@ theorem eLpNorm_weakRoot_le_profileMajorantAt
       _ ≤ ENNReal.ofReal B *
           (eLpNorm badEnergy 2 P +
             eLpNorm (fun a ↦ ENNReal.ofReal R * goodEnergy a) 2 P) :=
-        mul_le_mul_right (eLpNorm_add_le hbadMeas hRgood (by norm_num)) _
+        mul_le_mul_right (eLpNorm_add_le (f := badEnergy)
+          (g := fun a ↦ ENNReal.ofReal R * goodEnergy a) (by norm_num)) _
       _ ≤ ENNReal.ofReal B *
           (profileBadEnergyAt P lev M En +
             profileGoodEnergyAt P lev alpha H M En) :=

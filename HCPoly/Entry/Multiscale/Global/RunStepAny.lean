@@ -65,7 +65,7 @@ private theorem geometryUpdate_eq_of_le {d : ℕ} [NeZero d] {m mStar : Mat d}
     have hN : (normalizedMat m mStar).PosDef := Geometry.normalizedMat_posDef hm hStar
     have h1 : matSqrt m * matSqrt m⁻¹ = 1 := Homogenization.HighContrast.matSqrt_mul_matSqrt_inv hm
     have h2 : matSqrt m⁻¹ * matSqrt m = 1 := Homogenization.HighContrast.matSqrt_inv_mul_matSqrt hm
-    rw [geometryUpdate, if_neg hEq, hθ, matPow_one_of_posDef hN, normalizedMat]
+    rw [geometryUpdate, ite_eq_right hEq, hθ, matPow_one_of_posDef hN, normalizedMat]
     calc matSqrt m * (matSqrt m⁻¹ * mStar * matSqrt m⁻¹) * matSqrt m
         = matSqrt m * matSqrt m⁻¹ * mStar * (matSqrt m⁻¹ * matSqrt m) := by noncomm_ring
       _ = mStar := by rw [h1, h2, one_mul, mul_one]

@@ -214,7 +214,8 @@ private theorem scalar_joint_gap {α ι : Type*} [MeasurableSpace α] {μ : Meas
         (Real.rpow_le_rpow (hza i hi) hzi hp) (Real.rpow_nonneg (hza i hi) _)
         (Real.rpow_nonneg hSa _)) hcoef
   have hsum := scalar_minkowski_toReal hN.le hu.1 hv
-  have hnonlinear := (ENNReal.toReal_mono hsum.1.eLpNorm_ne_top (eLpNorm_mono_ae hdom)).trans hsum.2
+  have hnonlinear := (ENNReal.toReal_mono hsum.1.eLpNorm_ne_top
+    (eLpNorm_mono_ae hZ.aestronglyMeasurable hdom)).trans hsum.2
   rw [hu.2, root_const_mul_read hN0 hcoef hmix0 hmix] at hnonlinear
   have hholder := scalar_mixedMoment_root_le hN hS0 hZ0 hS hZ
   have hnonlinear' : (eLpNorm Z (ENNReal.ofReal N) μ).toReal ≤
@@ -364,7 +365,8 @@ private theorem root_le_add_const {α : Type*} [MeasurableSpace α] {μ : Measur
     simpa only [integral_const, probReal_univ, one_smul] using Real.rpow_rpow_inv hc hN0.ne'
   rw [← scalar_eLpNorm_toReal_eq_root hN0 hu0 hu, ← scalar_eLpNorm_toReal_eq_root hN0 hf0 hf,
     ← scalar_eLpNorm_toReal_eq_root hN0 hg0 hg]
-  exact (ENNReal.toReal_mono hsum'.1.eLpNorm_ne_top (eLpNorm_mono_ae hdom)).trans (hsum'.2.trans (by rw [hconst]; exact add_le_add hsum.2 le_rfl))
+  exact (ENNReal.toReal_mono hsum'.1.eLpNorm_ne_top
+    (eLpNorm_mono_ae hu.aestronglyMeasurable hdom)).trans (hsum'.2.trans (by rw [hconst]; exact add_le_add hsum.2 le_rfl))
 
 /-- `p.two.grid.transport`: the full weighted joint-maximum positive gap. -/
 theorem positiveGap_weighted_joint_max (d : ℕ)
@@ -464,7 +466,7 @@ private theorem weightedMax_opNorm_moment_le {d : ℕ} {P : Measure (CoeffSpace 
     mul_le_mul_of_nonneg_left (blockOpNorm_le_absSchattenNorm (H := H i _) ((toFullBlockMat_isHermitian_iff _).2 ha) hN) (hw i)
   have hf (i) (hi : i ∈ I) : MemLp (f i) (ENNReal.ofReal N) P := by
     have hm : AEMeasurable (fun a => toFullBlockMat (H i a)) P :=
-      aemeasurable_pi_lambda _ fun α => aemeasurable_pi_lambda _ fun β => ((hH i hi).measurable α β).aemeasurable
+      AEMeasurable.of_eval fun α => AEMeasurable.of_eval fun β => ((hH i hi).measurable α β).aemeasurable
     apply (hs i hi).2.mono' (hm.norm.const_mul (w i)).aestronglyMeasurable
     filter_upwards [hfg i hi, hf0 i hi] with a ha hfa
     change ‖f i a‖ ≤ g i a

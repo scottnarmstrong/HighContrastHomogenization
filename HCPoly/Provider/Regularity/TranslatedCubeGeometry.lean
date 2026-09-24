@@ -192,7 +192,7 @@ theorem volume_cubeTranslationGap_toReal_le (Q : TriadicCube d) (u v : Vec d)
   have hinterLower : (L - V) ^ d ≤
       (volume (translatedCubeSet Q u ∩ translatedCubeSet Q v)).toReal := by
     rw [hinterReal, hconst]
-    exact Finset.prod_le_prod (fun i _ => by linarith only [hV, hVle])
+    exact Finset.prod_le_prod₀ (fun i _ => by linarith only [hV, hVle])
       (fun i _ => by linarith only [huv i])
   have hdiffU :
       (volume (translatedCubeSet Q u \ translatedCubeSet Q v)).toReal ≤

@@ -264,12 +264,11 @@ theorem weakMaximum_moment_package_at [NeZero d]
     have h1 : eLpNorm M (ENNReal.ofReal 4) P ≤
         eLpNorm (fun a => W a + ENNReal.ofReal (R / 2))
           (ENNReal.ofReal 4) P := by
-      refine eLpNorm_mono_enorm fun a => ?_
+      refine eLpNorm_mono_enorm hMmeas.aestronglyMeasurable fun a => ?_
       simp only [enorm_eq_self]
       exact hpoint a
     refine le_trans h1 ?_
-    refine le_trans (eLpNorm_add_le hWmeas.aestronglyMeasurable
-      aestronglyMeasurable_const (by
+    refine le_trans (eLpNorm_add_le (by
         rw [show ((1 : ℝ≥0∞)) = ENNReal.ofReal 1 from ENNReal.ofReal_one.symm]
         exact ENNReal.ofReal_le_ofReal (by norm_num))) ?_
     rw [eLpNorm_const_four]
@@ -277,7 +276,7 @@ theorem weakMaximum_moment_package_at [NeZero d]
       have := badMomentMajorant_nonneg K Delta
       positivity
     refine le_trans
-      (add_le_add (eLpNorm_four_le_of_lintegral_le hh0 hmom) le_rfl) ?_
+      (add_le_add (eLpNorm_four_le_of_lintegral_le hh0 hmom hWmeas) le_rfl) ?_
     rw [← ENNReal.ofReal_add (Real.rpow_nonneg hh0 _) (by positivity)]
   exact ⟨W, hWmeas, hpoint, hnorm, hmom⟩
 

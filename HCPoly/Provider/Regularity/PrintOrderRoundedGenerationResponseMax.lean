@@ -253,10 +253,10 @@ theorem exists_summable_roundedGenerationResponseMaxRow_le_scalarIdentityWeakErr
     by_cases hr : r ≤ parentScale
     · rw [show B r =
           Book.Ch02.maxDescendantNormalizedBlockResponseAtScale
-            parent r aRef (1 : Mat d) by simp only [B, if_pos hr]]
+            parent r aRef (1 : Mat d) by simp only [B, ite_eq_left hr]]
       exact Book.Ch02.maxDescendantNormalizedBlockResponseAtScale_nonneg
         parent (by simpa only [parent, originCube] using hr) aRef (1 : Mat d)
-    · simp only [B, if_neg hr, le_rfl]
+    · simp only [B, ite_eq_right hr, le_rfl]
   obtain ⟨hinner, houter, hconvolution⟩ :=
     Transport.summable_boundaryConvolution_shift_and_tsum_le
       hs hsHalf hC0 G A hA0 hA
@@ -303,7 +303,7 @@ theorem exists_summable_roundedGenerationResponseMaxRow_le_scalarIdentityWeakErr
         Book.Ch02.normalizedBlockResponseMax_le_maxDescendantNormalizedBlockResponseAtScale
           aRef (1 : Mat d) hdesc
       exact hcell.trans (by
-        simpa only [B, if_pos hrParent, parent] using hmax)
+        simpa only [B, ite_eq_left hrParent, parent] using hmax)
     let raw : ℕ → ℝ := fun v ↦
       (if v = 0 then 1 else
         rawBoundary * (3 : ℝ) ^ ((j - (v : ℤ)) - j)) *
@@ -319,7 +319,7 @@ theorem exists_summable_roundedGenerationResponseMaxRow_le_scalarIdentityWeakErr
         push_cast
         omega
       dsimp only [B, A, parent]
-      rw [if_pos hrParent, hscale]
+      rw [ite_eq_left hrParent, hscale]
     have hraw0 : ∀ v, 0 ≤ raw v := by
       intro v
       dsimp only [raw]
@@ -336,9 +336,9 @@ theorem exists_summable_roundedGenerationResponseMaxRow_le_scalarIdentityWeakErr
             C * (3 : ℝ) ^ (-(v : ℤ)) := by
         by_cases hv : v = 0
         · subst v
-          simpa only [if_pos, Nat.cast_zero, Int.ofNat_zero, neg_zero,
+          simpa only [ite_eq_left, Nat.cast_zero, Int.ofNat_zero, neg_zero,
             zpow_zero, mul_one] using le_max_left (1 : ℝ) rawBoundary
-        · rw [if_neg hv]
+        · rw [ite_eq_right hv]
           have hexponent : (j - (v : ℤ)) - j = -(v : ℤ) := by ring
           rw [hexponent]
           exact mul_le_mul_of_nonneg_right hrawBoundaryC

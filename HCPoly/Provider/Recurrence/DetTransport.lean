@@ -60,7 +60,7 @@ theorem sum_sub_one_le_prod_sub_one {ι : Type*} (s : Finset ι) (f : ι → ℝ
       have hfa : 1 ≤ f a := hf a (Finset.mem_insert_self a s)
       have hrest : ∀ i ∈ s, 1 ≤ f i := fun i hi => hf i (Finset.mem_insert_of_mem hi)
       have hprod : (1 : ℝ) ≤ ∏ i ∈ s, f i := by
-        have hbound := Finset.prod_le_prod (s := s) (f := fun _ => (1 : ℝ)) (g := f)
+        have hbound := Finset.prod_le_prod₀ (s := s) (f := fun _ => (1 : ℝ)) (g := f)
           (fun _ _ => zero_le_one) fun i hi => hrest i hi
         simpa using hbound
       have hstep := ih hrest

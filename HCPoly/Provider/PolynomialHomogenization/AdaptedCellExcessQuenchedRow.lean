@@ -116,7 +116,7 @@ theorem blockExcess_coarseBlock_adaptedCellAt_le_quenched_block_row
           B (((t + G : ℕ) : ℤ) - (j : ℤ))) =
         Quenched.quenched_block_row rho F sourceScale a (t + G) := by
     unfold Quenched.quenched_block_row
-    rw [if_pos hactive]
+    rw [ite_eq_left hactive]
   have hfactor0 :
       0 ≤ max 1 (6 * (d : ℝ) * Real.sqrt d * ‖q⁻¹‖) :=
     le_trans zero_le_one (le_max_left _ _)

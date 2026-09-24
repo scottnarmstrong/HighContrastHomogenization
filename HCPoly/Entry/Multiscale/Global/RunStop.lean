@@ -258,7 +258,7 @@ private theorem runSucc_spec {α : Type*} (idx : α → ℕ) (G : α → ℝ) (c
     idx (runSucc idx G c x) = idx x + 1 ∧ G (runSucc idx G c x) - G x ≤ -c := by
   have heq : runSucc idx G c x = h.choose := by
     unfold runSucc
-    exact dif_pos h
+    exact dite_eq_left h
   rw [heq]
   exact h.choose_spec
 

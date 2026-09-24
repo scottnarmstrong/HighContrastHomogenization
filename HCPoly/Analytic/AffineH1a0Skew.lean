@@ -107,9 +107,9 @@ theorem skewFluxPairing_affinePullback {L : Mat d} (hL : IsUnit L.det)
         (if IntegrableOn g U volume then ENNReal.ofReal (∫ x in U, g x ∂volume)
           else ⊤)
   by_cases hg : IntegrableOn g U volume
-  · rw [if_pos (hint.mpr hg), if_pos hg, hchange,
+  · rw [ite_eq_left (hint.mpr hg), ite_eq_left hg, hchange,
       ENNReal.ofReal_mul (inv_nonneg.mpr (abs_nonneg L.det))]
-  · rw [if_neg (mt hint.mp hg), if_neg hg]
+  · rw [ite_eq_right (mt hint.mp hg), ite_eq_right hg]
     exact (ENNReal.mul_top (ENNReal.ofReal_ne_zero_iff.mpr
       (inv_pos.mpr (abs_pos.mpr hL.ne_zero)))).symm
 
@@ -207,9 +207,9 @@ private theorem skewFluxPairing_const_mul {b : CoeffField d} {U : Set (Vec d)}
   unfold skewFluxPairing
   simp_rw [hpoint]
   by_cases hg : IntegrableOn g U volume
-  · rw [if_pos (hint.mpr hg), if_pos hg, integral_const_mul,
+  · rw [ite_eq_left (hint.mpr hg), ite_eq_left hg, integral_const_mul,
       ENNReal.ofReal_mul hc.le]
-  · rw [if_neg (mt hint.mp hg), if_neg hg]
+  · rw [ite_eq_right (mt hint.mp hg), ite_eq_right hg]
     exact (ENNReal.mul_top (ENNReal.ofReal_ne_zero_iff.mpr hc)).symm
 
 /-- The affine pullback of a skew flux is controlled in its weighted dual norm

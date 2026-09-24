@@ -243,7 +243,7 @@ theorem transport_weighted_mean_accumulation (d : ℕ) (hd : 2 ≤ d)
     have hh2 := Finset.mem_Icc.mp h2
     omega
   have he : (∑ j ∈ V, w j * M j) = ∑ j ∈ V, w j * (Ce * B ^ Q) := Finset.sum_congr rfl fun j hjj => by
-    dsimp only [M]; rw [if_pos (by have := (Finset.mem_Icc.mp hjj).2; dsimp only [J] at this; omega)]
+    dsimp only [M]; rw [ite_eq_left (by have := (Finset.mem_Icc.mp hjj).2; dsimp only [J] at this; omega)]
   have hl : (∑ j ∈ U, w j * M j) = Cm * ((∑ j ∈ U, w j * bulk j) + (∑ j ∈ U, w j * bd j) +
       (∑ j ∈ U, w j * δ) + B ^ Q * ∑ j ∈ U, w j * (decay j + decay j ^ Q)) := by
     calc
@@ -251,7 +251,7 @@ theorem transport_weighted_mean_accumulation (d : ℕ) (hd : 2 ≤ d)
           B ^ Q * (w j * (decay j + decay j ^ Q))) := by
         apply Finset.sum_congr rfl
         intro j hjj
-        dsimp only [M]; rw [if_neg (by have := (Finset.mem_Icc.mp hjj).1; dsimp only [J] at this; omega)]
+        dsimp only [M]; rw [ite_eq_right (by have := (Finset.mem_Icc.mp hjj).1; dsimp only [J] at this; omega)]
         dsimp only [bulk, bd, J]; ring
       _ = _ := by simp only [mul_add, Finset.sum_add_distrib, Finset.mul_sum]
   change (∑ j ∈ Finset.Icc J t, w j * M j) ≤ _
@@ -430,7 +430,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
   have hXs0 : ∀ᵐ a ∂P, 0 ≤ Xs a := ae_of_all P fun aa =>
     add_nonneg (add_nonneg (hX0 aa) (hY0 aa)) (by norm_num)
   have hXbm : (∫ a, Xb a ^ Q ∂P) ≤ Cb * (3 : ℝ) ^ (a * (L : ℝ)) * H := by
-    simpa only [Xb, fb, V, Z, dif_pos le_rfl, Real.rpow_natCast] using hbul
+    simpa only [Xb, fb, V, Z, dite_eq_left le_rfl, Real.rpow_natCast] using hbul
   have hXdm : (∫ a, Xd a ^ Q ∂P) ≤ Cd * (3 : ℝ) ^ (a * (L : ℝ)) * H := by
     simpa only [Real.rpow_natCast] using hbd
   have hXsm : (∫ a, Xs a ^ Q ∂P) ≤ Xm := transport_source_sum_moment Q hQ X Y (ae_of_all P hX0) (ae_of_all P hY0) hX hY hXN hYN
@@ -459,12 +459,12 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
     rw [hFmean p hp]; exact (hFdata p hp).2.2.2
   have hGmem (p) (hp : p ∈ I) : SchattenMemLp P (Q : ℝ) (G p) := by
     by_cases he : p.1 < (jStar : ℤ) + L
-    · simpa only [G, if_pos he] using hFmem p hp
-    · simpa only [G, if_neg he] using! (hOrd p hp).2.1
+    · simpa only [G, ite_eq_left he] using hFmem p hp
+    · simpa only [G, ite_eq_right he] using! (hOrd p hp).2.1
   have hFG (p) (hp : p ∈ I) : ∀ᵐ a ∂P, BlockMatLoewnerLE (F p a) (G p a) := by
     by_cases he : p.1 < (jStar : ℤ) + L
-    · exact ae_of_all P fun _ => by simp only [G, if_pos he]; exact fun _ => le_rfl
-    · simpa only [G, if_neg he] using! (hOrd p hp).2.2.1.mono fun _ h => h.2
+    · exact ae_of_all P fun _ => by simp only [G, ite_eq_left he]; exact fun _ => le_rfl
+    · simpa only [G, ite_eq_right he] using! (hOrd p hp).2.2.1.mono fun _ h => h.2
   have hCell (p) (hp : p ∈ I) : W p ⊆ centeredCube d (2 * (jStar : ℤ)) := by
     have hpt := ((hIeq p).mp hp).1.2
     have he : p.1 + ((t - p.1).toNat : ℤ) = t := by omega
@@ -501,7 +501,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
     exact ⟨hcentered, hmean⟩
   have hMbound (p) (hp : p ∈ I) : meanPenalty Q (MG p) ≤ M p.1 := by
     by_cases he : p.1 < (jStar : ℤ) + L
-    · simpa only [MG, G, M, if_pos he] using (hEarly p hp).2
+    · simpa only [MG, G, M, ite_eq_left he] using (hEarly p hp).2
     · have hpU : p ∈ U := Finset.mem_filter.mpr ⟨hp, by omega⟩
       have hz : 0 ≤ decay p.1 := by dsimp only [decay]; exact three_rpow_nonneg _
       have hm : meanPenalty Q (ofFullBlockMat (Matrix.of fun α β => ∫ a, blockMatEntry (Graw p a) α β ∂P)) ≤
@@ -510,7 +510,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
         (hLate p hpU).2.trans (mul_le_mul_of_nonneg_left
           (add_le_add le_rfl (mul_le_mul_of_nonneg_right (pow_le_pow_left₀ hBf0 hBf Q)
             (add_nonneg hz (pow_nonneg hz Q)))) hCm.le)
-      simpa only [MG, G, M, if_neg he] using hm
+      simpa only [MG, G, M, ite_eq_right he] using hm
   let f := fun p aa => weight p * absSchattenNorm (Q : ℝ) (blockSub (G p aa) (MG p))
   have hf0 (p) (hp : p ∈ I) : ∀ᵐ aa ∂P, 0 ≤ f p aa :=
     ((hGmem p hp).center hQ1).symmetric.mono fun _ ha =>
@@ -532,7 +532,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
     by_cases he : p.1 < (jStar : ℤ) + L
     · have hce : ∀ᵐ aa ∂P, absSchattenNorm (Q : ℝ) (blockSub (G p aa) (MG p)) ≤
           2 * (d : ℝ) * Ce * B * (Y aa + 2) := by
-        simpa only [MG, G, if_pos he] using (hEarly p hp).1
+        simpa only [MG, G, ite_eq_left he] using (hEarly p hp).1
       filter_upwards [hce, hXb0, hXd0] with aa haa hba hda
       have hYa : 0 ≤ Y aa + 2 := by linarith only [hY0 aa]
       have hYs : Y aa + 2 ≤ Xs aa := by dsimp only [Xs]; linarith only [hX0 aa]
@@ -546,7 +546,7 @@ theorem exists_two_grid_profile_comparison (d : ℕ) (hd : 2 ≤ d)
           A * (absSchattenNorm (Q : ℝ) (V p (cap p.1) aa) +
             ∑ r ∈ Finset.Icc (jStar : ℤ) (cap p.1 - 1), absSchattenNorm (Q : ℝ) (V p r aa)) +
           ((2 * (d : ℝ)) ^ (Q : ℝ)⁻¹ * (2 * (d : ℝ)) * Cf) * Bf * decay p.1 * (X aa + 2) := by
-        simpa only [MG, G, if_neg he] using (hLate p hpU).1
+        simpa only [MG, G, ite_eq_right he] using (hLate p hpU).1
       filter_upwards [hce, hfbMax p hpU, hfdMax p hpU] with aa haa hba hda
       have hXa : 0 ≤ X aa + 2 := by linarith only [hX0 aa]
       have hXs' : X aa + 2 ≤ Xs aa := by dsimp only [Xs]; linarith only [hY0 aa]

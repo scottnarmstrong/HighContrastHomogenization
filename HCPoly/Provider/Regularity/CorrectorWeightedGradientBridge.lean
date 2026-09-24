@@ -74,6 +74,11 @@ theorem cubeLpNorm_euclideanGrad_sub_const_le
         (fun x => euclideanNorm (u.grad x - e)) ≤
       cubeLpNorm Q (2 : ℝ≥0∞) (fun x => euclideanNorm (u.grad x)) +
         euclideanNorm e := by
+  by_cases hm : AEStronglyMeasurable (fun x => euclideanNorm (u.grad x - e))
+      (normalizedCubeMeasure Q)
+  swap
+  · rw [cubeLpNorm, eLpNorm_of_not_aestronglyMeasurable hm, ENNReal.toReal_top]
+    exact add_nonneg ENNReal.toReal_nonneg (euclideanNorm_nonneg e)
   have hfull := H1Function.memLp_euclideanGrad_normalizedCubeMeasure u
   have hconst : MemLp (fun _ : Vec d => euclideanNorm e) (2 : ℝ≥0∞)
       (normalizedCubeMeasure Q) := memLp_const _
@@ -85,7 +90,7 @@ theorem cubeLpNorm_euclideanGrad_sub_const_le
           (normalizedCubeMeasure Q) ≤
         eLpNorm (fun x => euclideanNorm (u.grad x) + euclideanNorm e) 2
           (normalizedCubeMeasure Q) := by
-    apply eLpNorm_mono_ae
+    apply eLpNorm_mono_ae hm
     filter_upwards [] with x
     simpa only [Real.norm_eq_abs,
       abs_of_nonneg (euclideanNorm_nonneg _), abs_of_nonneg (add_nonneg

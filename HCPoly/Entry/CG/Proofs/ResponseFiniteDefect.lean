@@ -2,7 +2,9 @@ import Homogenization.CoarseGraining.Definitions
 import Homogenization.Ambient.CoefficientField
 import Homogenization.PDE.Harmonic
 import Homogenization.CoarseGraining.ResponseIdentities.Foundations.Ellipticity
-import Mathlib.MeasureTheory.Measure.MeasureSpace
+import Mathlib.MeasureTheory.Measure.Restrict
+import Mathlib.MeasureTheory.Measure.Map
+import Mathlib.MeasureTheory.Measure.Sum
 import Mathlib.MeasureTheory.Measure.Typeclasses.Finite
 import Mathlib.MeasureTheory.Integral.Bochner.Set
 

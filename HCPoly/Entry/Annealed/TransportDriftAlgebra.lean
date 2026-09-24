@@ -341,11 +341,11 @@ theorem transport_drift_scalar_assembly (a b : ℝ) (ha : 0 < a) (ha1 : a < 1) (
         have := Finset.mem_Icc.mp hj
         simp only [V, Finset.mem_Icc] at hjV
         omega
-      simp only [old, if_pos he, mul_zero]
+      simp only [old, ite_eq_left he, mul_zero]
     rw [← Finset.sum_subset hVU hzero, Finset.mul_sum, ← Finset.sum_add_distrib]
     apply Finset.sum_congr rfl; intro j hj
     rw [show old j = f (j - (L : ℤ)) + Cb * ∑ r ∈ Finset.Icc J (j - (L : ℤ) - 1),
-      (3 : ℝ) ^ ((r : ℝ) - j) * f r by exact if_neg (not_lt.mpr (Finset.mem_Icc.mp hj).1)]
+      (3 : ℝ) ^ ((r : ℝ) - j) * f r by exact ite_eq_right (not_lt.mpr (Finset.mem_Icc.mp hj).1)]
     ring
   have hbulk := transport_drift_bulk_weights a J n L f hf
   have hboundary := transport_drift_boundary_weights a ha1 J n L f hf

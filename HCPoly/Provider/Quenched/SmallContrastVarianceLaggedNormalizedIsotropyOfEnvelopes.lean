@@ -208,9 +208,7 @@ theorem scaleVariance_le_lagged_normalized_of_block_of_envelopes [NeZero d]
           cN := by
       refine PortableHistory.blockSize_le_of_sandwich hXsym hFsym hFpd
         (mul_nonneg hbs0 (by linarith only [hcN1])) hup2 ?_
-      exact Matrix.le_iff.mpr (by
-        have h := Matrix.le_iff.mp hlo2
-        rwa [neg_smul, sub_neg_eq_add, add_comm] at h)
+      exact hlo2
     -- the pathwise wrapper
     have h3 := blockSize_variance_replacement_pathwise hstat hgrid hlj
       hjp hintj hintp hSj hStarj hformj hSp hStarp hformp hposj.le
@@ -287,7 +285,21 @@ theorem scaleVariance_le_lagged_normalized_of_block_of_envelopes [NeZero d]
               (adaptedMean P q j)) (adaptedMean P q p) +
           Real.sqrt (2 * d) * cN *
             (c2 + 4 * (d : ℝ) * drop)) 2 P := by
-    refine eLpNorm_mono_real fun a => ?_
+    have hXm : AEStronglyMeasurable (fun a => schattenSize 2
+        (blockSub (coarseBlock (adaptedCell q p) a) (adaptedMean P q p)) F) P := by
+      refine Transport.aestronglyMeasurable_schattenSize (by exact even_two)
+        (fun a => isSymmetricBlockMat_blockSub
+          (isSymmetricBlockMat_coarseBlock _ _) hmeanpsym) ?_
+      intro α β
+      have hmA : AEStronglyMeasurable
+          (fun a : CoeffSpace d ↦
+            toFullBlockMat (coarseBlock (adaptedCell q p) a) α β) P :=
+        Recurrence.hasMeasurableCoarseBlock_adaptedCell P hq p α β
+      have hm := hmA.sub
+        (aestronglyMeasurable_const
+          (b := toFullBlockMat (adaptedMean P q p) α β))
+      simpa only [Recurrence.toFullBlockMat_blockSub_apply] using! hm
+    refine eLpNorm_mono_real hXm fun a => ?_
     rw [Real.norm_eq_abs, abs_of_nonneg (hschat0 a)]
     have h := hpath a
     calc schattenSize 2
@@ -305,13 +317,16 @@ theorem scaleVariance_le_lagged_normalized_of_block_of_envelopes [NeZero d]
             (adaptedMean P q j)) (adaptedMean P q p)) P := by
     exact ((hgmeas.const_mul
       (Real.sqrt (2 * d) * cN * c1))).aestronglyMeasurable
-  have hadd := eLpNorm_add_le hmeas1
-    (aestronglyMeasurable_const :
-      AEStronglyMeasurable
-        (fun _ : CoeffSpace d =>
-          Real.sqrt (2 * d) * cN *
-            (c2 + 4 * (d : ℝ) * drop)) P)
-    (by norm_num : (1 : ℝ≥0∞) ≤ 2)
+  have hadd := eLpNorm_add_le
+    (f := fun a => Real.sqrt (2 * d) * cN * c1 *
+      blockSize
+        (blockSub (ofFullBlockMat ((Z.card : ℝ)⁻¹ •
+          ∑ w ∈ Z,
+            toFullBlockMat (coarseBlock (adaptedCellAt q j w) a)))
+          (adaptedMean P q j)) (adaptedMean P q p))
+    (g := fun _ : CoeffSpace d =>
+      Real.sqrt (2 * d) * cN * (c2 + 4 * (d : ℝ) * drop))
+    (μ := P) (by norm_num : (1 : ℝ≥0∞) ≤ 2)
   refine le_trans hadd ?_
   -- the constant piece
   have hconstpiece : eLpNorm
@@ -380,7 +395,7 @@ theorem scaleVariance_le_lagged_normalized_of_block_of_envelopes [NeZero d]
     rw [lqSchattenSize,
       show (ENNReal.ofReal 2) = (2 : ℝ≥0∞) from by
         rw [ENNReal.ofReal_ofNat]]
-    refine eLpNorm_mono_real fun a => ?_
+    refine eLpNorm_mono_real hgmeas.aestronglyMeasurable fun a => ?_
     have hsubsym : IsSymmetricBlockMat
         (blockSub (ofFullBlockMat ((Z.card : ℝ)⁻¹ •
           ∑ w ∈ Z,

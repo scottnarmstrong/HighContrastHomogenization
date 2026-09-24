@@ -312,7 +312,7 @@ theorem transport_whitney_raw_split {d : ℕ} (q : Mat d) (hq : IsUnit q) (W : S
   have hvol (t : ℤ) (v : Fin d → ℤ) : volume (adaptedCellAtCenter q t v) = volume (adaptedCell q t) := by
     rw [volume_adaptedCellAtCenter, ← adaptedCellTranslate_zero q t, volume_adaptedCellTranslate]
   have hrow (t : ℤ) (ht : t ≤ cap) : (∑' p : {p : I // p.1.1 = t}, f p) = toFullBlockMat (row t) := by
-    have hz : Z t = (hfin t ht).toFinset := dif_pos ht
+    have hz : Z t = (hfin t ht).toFinset := dite_eq_left ht
     simp only [row, hz, toFullBlockMat_ofFullBlockMat]
     rw [← transport_maximal_row_reindex W q hq cap t (hfin t ht)
       (fun z => ((volume (adaptedCell q t)).toReal / (volume W).toReal) •
@@ -421,7 +421,7 @@ theorem transport_centered_whitney_bound (d : ℕ) (hd : 2 ≤ d)
     have htl := (Finset.mem_Icc.mp ht).1
     have htu := (Finset.mem_Icc.mp ht).2
     have hZ (z) (hz : z ∈ Z t) : z ∈ adaptedLatticeAtScale q t := by
-      have hz' : z ∈ maximalAdaptedCellCenters W q cap t := (hfin t htu).mem_toFinset.mp (by simpa only [Z, dif_pos htu] using hz)
+      have hz' : z ∈ maximalAdaptedCellCenters W q cap t := (hfin t htu).mem_toFinset.mp (by simpa only [Z, dite_eq_left htu] using hz)
       rcases hz' with ⟨v, _hv, rfl⟩
       exact ⟨v, rfl⟩
     have he := (transport_centered_lattice_row d hd P γ E Ψ K S hstat hdag jStar hjStar m hm
@@ -623,7 +623,7 @@ theorem transport_whitney_mean_identity (d : ℕ) (hd : 2 ≤ d)
   have htl := (Finset.mem_Icc.mp ht).1
   have htu := (Finset.mem_Icc.mp ht).2
   have hz (z) (hz : z ∈ Z t) : z ∈ adaptedLatticeAtScale q t := by
-    have h : z ∈ maximalAdaptedCellCenters W q cap t := (hfin t htu).mem_toFinset.mp (by simpa only [Z, dif_pos htu] using hz)
+    have h : z ∈ maximalAdaptedCellCenters W q cap t := (hfin t htu).mem_toFinset.mp (by simpa only [Z, dite_eq_left htu] using hz)
     rcases h with ⟨v, _hv, rfl⟩
     exact ⟨v, rfl⟩
   have hmrow := (transport_centered_lattice_row d hd P γ E Ψ K S hstat hdag jStar hjStar m hm

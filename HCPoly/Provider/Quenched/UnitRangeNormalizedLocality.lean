@@ -122,9 +122,9 @@ theorem blockEntrySum_scaledBlockIdentity (c : ℝ) :
       ∑ β : BlockCoord d, |blockMatEntry (scaledBlockIdentity d c) α β| = |c| := by
     intro α
     rw [Finset.sum_eq_single α]
-    · rw [blockMatEntry_scaledBlockIdentity, if_pos rfl]
+    · rw [blockMatEntry_scaledBlockIdentity, ite_eq_left rfl]
     · intro β _ hβ
-      rw [blockMatEntry_scaledBlockIdentity, if_neg (Ne.symm hβ), abs_zero]
+      rw [blockMatEntry_scaledBlockIdentity, ite_eq_right (Ne.symm hβ), abs_zero]
     · intro hcon
       exact absurd (Finset.mem_univ α) hcon
   rw [Finset.sum_congr rfl fun α _ => hrow α, Finset.sum_const, card_blockCoord,
@@ -229,7 +229,7 @@ theorem measurable_blockMatEntry_blockCutoff_of_local {U : Set (Vec d)} (B : ℝ
       simp only [Set.mem_iInter, Set.mem_ofPred_eq]
     rw [hrw]
     exact MeasurableSet.iInter fun alpha => MeasurableSet.iInter fun beta =>
-      measurableSet_le (hH alpha beta).abs measurable_const
+      measurableSet_le (continuous_abs.measurable.comp (hH alpha beta)) measurable_const
   have hfun : (fun a : CoeffSpace d => blockMatEntry (blockCutoff B (H a)) α β)
       = fun a : CoeffSpace d =>
           if ∀ alpha beta : BlockCoord d, |blockMatEntry (H a) alpha beta| ≤ B then

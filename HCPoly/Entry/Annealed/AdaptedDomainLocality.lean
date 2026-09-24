@@ -75,7 +75,7 @@ theorem exists_elliptic_representative_adapted
   obtain ⟨lam, Lam, f, hlam, hle, hfm, hfp, hfa⟩ :=
     exists_pointwise_elliptic_representative a.2 hdomain.isBoundedDomain.isBounded
   refine ⟨lam, Lam, f, hlam, hle, ⟨?_, hfp⟩, hfa⟩
-  exact measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun k =>
+  exact Measurable.of_eval fun i => Measurable.of_eval fun k =>
     ((measurable_pi_apply k).comp ((measurable_pi_apply i).comp hfm)).ite
       hdomain.isOpen.measurableSet measurable_const
 

@@ -52,6 +52,7 @@ theorem centeredCubeNormalizedEuclideanLpENorm_add_le
         fun x ↦ euclideanNorm (G x)) 2
         (centeredCubeDomain d m).normalizedVolume := by
       apply eLpNorm_mono
+        (centeredCubeEuclideanL2FieldAdd F G).euclideanMagnitudeMemL2.aestronglyMeasurable
       intro x
       simp only [centeredCubeEuclideanL2FieldAdd_apply, Pi.add_apply,
         Real.norm_eq_abs, abs_of_nonneg (euclideanNorm_nonneg _),
@@ -61,9 +62,7 @@ theorem centeredCubeNormalizedEuclideanLpENorm_add_le
           (centeredCubeDomain d m).normalizedVolume +
         eLpNorm (fun x ↦ euclideanNorm (G x)) 2
           (centeredCubeDomain d m).normalizedVolume :=
-      eLpNorm_add_le F.euclideanMagnitudeMemL2.aestronglyMeasurable
-        G.euclideanMagnitudeMemL2.aestronglyMeasurable
-        (by norm_num : (1 : ℝ≥0∞) ≤ 2)
+      eLpNorm_add_le (by norm_num : (1 : ℝ≥0∞) ≤ 2)
 
 end
 

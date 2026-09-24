@@ -199,16 +199,16 @@ theorem exists_transport_whitney_rows (d : ℕ) (hd : 2 ≤ d)
     rw [tsum_eq_zero_of_not_summable hn] at htotal; norm_num at htotal
   refine ⟨?_, ?_, ?_, ?_⟩
   · intro r hr z hz
-    have hz' : z ∈ maximalAdaptedCellCenters (W p) q (cap p.1) r := (hfin p r hr).mem_toFinset.mp (by simpa only [Z, dif_pos hr] using! hz)
+    have hz' : z ∈ maximalAdaptedCellCenters (W p) q (cap p.1) r := (hfin p r hr).mem_toFinset.mp (by simpa only [Z, dite_eq_left hr] using! hz)
     have hh := transport_maximal_centers_subset (W p) q (cap p.1) r hz'
     exact ⟨hh.1, hW hh.2⟩
   · have hh := hs.sum_le_tsum ({⟨cap p.1, le_rfl⟩} : Finset {r : ℤ // r ≤ cap p.1})
       (fun _ _ => Finset.sum_nonneg fun _ _ => by dsimp only [v]; positivity)
     rw [htotal] at hh
-    simpa only [Z, dif_pos le_rfl, Finset.sum_singleton] using! hh
-  · simpa only [Z, dif_pos le_rfl] using! (hrows p).2.1
+    simpa only [Z, dite_eq_left le_rfl, Finset.sum_singleton] using! hh
+  · simpa only [Z, dite_eq_left le_rfl] using! (hrows p).2.1
   · intro r hr
-    simpa only [Z, dif_pos hr.le] using! (hrows p).2.2 r hr
+    simpa only [Z, dite_eq_left hr.le] using! (hrows p).2.2 r hr
 /-- The printed boundary fluctuation estimate for the actual Whitney rows,
 with the old and averaged generations combined under one joint maximum. -/
 theorem exists_transport_boundary_fluctuations (d : ℕ) (hd : 2 ≤ d)

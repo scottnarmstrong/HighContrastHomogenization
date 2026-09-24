@@ -158,7 +158,7 @@ theorem memLp_two_normalizedCubeMeasure_pullback_flux {q : Mat d} (hq : IsUnit q
     fun i => (memLp_pi_iff.mp hfluxb) i
   have hpull : GradMemL2On (openCubeSet (originCube d t))
       (fun y => matVecMul q⁻¹ ((optimizerField b u (matVecMul q y) - Y).2)) :=
-    gradMemL2On_matVecMul_comp_matVecMul hq q⁻¹
+    gradMemL2On_matVecMul_comp_matVecMul (G := fun x => (optimizerField b u x - Y).2) hq q⁻¹
       (image_openCubeSet_originCube_eq_adaptedCell q t).subset hG
   exact MemLp.of_eval fun i => memL2On_openCubeSet_normalizedCubeMeasure (hpull i)
 

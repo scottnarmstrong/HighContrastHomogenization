@@ -35,9 +35,9 @@ theorem tsum_geometric_of_mul_pow_lt_one_le
     by_cases hk : X * q ^ (k + 1) < 1
     · have hkLe : X * q ^ (k + 1) ≤ 1 := hk.le
       rw [show f (k + 1) = ENNReal.ofReal (q ^ (k + 1)) by
-        simp only [f, if_pos hk]]
+        simp only [f, ite_eq_left hk]]
       rw [show g k = ENNReal.ofReal (X * q ^ (k + 1)) by
-        simp only [g, if_pos hkLe]]
+        simp only [g, ite_eq_left hkLe]]
       rw [ENNReal.ofReal_mul hX.le]
       calc
         ENNReal.ofReal (q ^ (k + 1)) =
@@ -50,7 +50,7 @@ theorem tsum_geometric_of_mul_pow_lt_one_le
           rw [mul_assoc]
         _ ≤ (ENNReal.ofReal X)⁻¹ *
             (ENNReal.ofReal X * ENNReal.ofReal (q ^ (k + 1))) := le_rfl
-    · rw [show f (k + 1) = 0 by simp only [f, if_neg hk]]
+    · rw [show f (k + 1) = 0 by simp only [f, ite_eq_right hk]]
       exact bot_le
   have hhead := tsum_cutoff_geometric_head_le hq hX.le
     (by norm_num : (0 : ℝ) ≤ 1)
@@ -63,8 +63,8 @@ theorem tsum_geometric_of_mul_pow_lt_one_le
         1 + ∑' k : ℕ, (ENNReal.ofReal X)⁻¹ * g k := by
       exact add_le_add (by
         by_cases h0 : X * q ^ 0 < 1
-        · simp only [f, if_pos h0, pow_zero, ENNReal.ofReal_one, le_rfl]
-        · simp only [f, if_neg h0, zero_le])
+        · simp only [f, ite_eq_left h0, pow_zero, ENNReal.ofReal_one, le_rfl]
+        · simp only [f, ite_eq_right h0, zero_le])
         (ENNReal.tsum_le_tsum htail)
     _ = 1 + (ENNReal.ofReal X)⁻¹ * ∑' k : ℕ, g k := by
       rw [ENNReal.tsum_mul_left]

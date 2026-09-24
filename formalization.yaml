@@ -136,7 +136,7 @@ automation:
         Claude Opus 5 and GPT-5.6 Sol wrote most of the proofs, with Claude
         Sonnet 5 reviewing later changes.
       tool_setup: >-
-        Lake builds with Lean and Mathlib v4.33.0 and the public CoarseGraining
+        Lake builds with Lean and Mathlib v4.35.0-rc2 and the public CoarseGraining
         library at a pinned revision. The authors reviewed theorem statements;
         separate agent reviews checked their correspondence with the manuscript.
         The four headline results were also checked against Mathlib-only

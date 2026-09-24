@@ -106,7 +106,7 @@ theorem headCell_of_bridge_plus (P : Measure (CoeffSpace d)) (γ : ℝ) (jStar :
       IsEllipticFieldOn lam0 Lam0 S fa := by
     intro S hS
     refine ⟨?_, fun x _ => hEll_fa x⟩
-    exact measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j =>
+    exact Measurable.of_eval fun i => Measurable.of_eval fun j =>
       ((measurable_pi_apply j).comp ((measurable_pi_apply i).comp hmeas_fa)).ite hS
         measurable_const
   have hEllOf : ∀ (S : Set (Vec d)) (hS : MeasurableSet S),
@@ -148,7 +148,7 @@ theorem headCell_of_bridge_plus (P : Measure (CoeffSpace d)) (γ : ℝ) (jStar :
   have hzFam : ∀ w ∈ triadicIndexBox d n, (zFam w).toH1.grad = uRep.toH1.grad := by
     intro w hw
     dsimp only [zFam]
-    rw [dif_pos hw]
+    rw [dite_eq_left hw]
     exact Classical.choose_spec (hzExists w hw)
   -- The child optimizer transported along the representative restricted to its subcell.
   have haeSub : ∀ w ∈ triadicIndexBox d n,
@@ -166,7 +166,7 @@ theorem headCell_of_bridge_plus (P : Measure (CoeffSpace d)) (γ : ℝ) (jStar :
   have hvFam : ∀ w ∈ triadicIndexBox d n, (vFam w).toH1.grad = (v w).toH1.grad := by
     intro w hw
     dsimp only [vFam]
-    rw [dif_pos hw]
+    rw [dite_eq_left hw]
     rfl
   have hEllFam : ∀ w : Fin d → ℤ, IsEllipticFieldOn (aU w).lam (aU w).Lam
       (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w) (aU w).toCoeffField :=

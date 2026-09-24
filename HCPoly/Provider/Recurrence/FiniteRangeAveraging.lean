@@ -225,7 +225,8 @@ theorem finite_range_matrix_averaging (d : ℕ) (hd : 0 < d) {Q : ℝ} (hQ : 2 �
     fun w hw α β => le_trans
       (lqNorm_normalizedBlock_le_lqSchattenSize P hQ0
         (fun a => isSymmetricBlockMat_coarseBlock_sub a (isSymmetricBlockMat_adaptedMean P q j))
-        F α β)
+        F α β (aestronglyMeasurable_toFullBlockMat_normalizedBlock_blockSub
+          (hasMeasurableCoarseBlock_adaptedCellAt P (posDef_of_isRoundedGrid hq) j w) _ F α β))
       (hbd w hw)
   exact le_trans (lqSchattenSize_alignedAverage_le_of_lqNorm_le hPs hP hQ hq hj hint F hv hZ
       hentrybd)
@@ -274,7 +275,8 @@ theorem lqNorm_normalizedBlock_adaptedCellAt_le_centeredMoment {P : Measure (Coe
     (adaptedMean P q j) w α β]
   exact lqNorm_normalizedBlock_le_lqSchattenSize P hQ
     (fun a => isSymmetricBlockMat_coarseBlock_sub a (isSymmetricBlockMat_adaptedMean P q j))
-    (adaptedMean P q j) α β
+    (adaptedMean P q j) α β (aestronglyMeasurable_toFullBlockMat_normalizedBlock_blockSub
+      (hasMeasurableCoarseBlock_adaptedCell P (posDef_of_isRoundedGrid hq) j) _ _ α β)
 
 /-- **The averaging step of `p.fixed.geometry.parent.child.recurrence`.**  The mixed norm of
 the centred average of the responses over the `M` aligned scale-`j` cells is at

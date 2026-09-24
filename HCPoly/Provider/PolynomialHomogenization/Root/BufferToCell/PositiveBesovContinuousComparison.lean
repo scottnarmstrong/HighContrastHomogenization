@@ -75,10 +75,11 @@ private theorem normalizedDomainMeasure_isProbability
 
 private theorem eLpNorm_two_eq_rpow
     {A : Type*} [MeasurableSpace A]
-    {E : Type*} [NormedAddCommGroup E] (f : A → E) (mu : Measure A) :
+    {E : Type*} [NormedAddCommGroup E] (f : A → E) (mu : Measure A)
+    (hf : AEStronglyMeasurable f mu) :
     eLpNorm f 2 mu =
       (∫⁻ x, ‖f x‖ₑ ^ (2 : ℝ) ∂mu) ^ (1 / (2 : ℝ)) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hf]
   norm_num
 
 private theorem integral_normalizedDomainMeasure_eq_volumeAverageVec
@@ -122,8 +123,9 @@ theorem ofReal_vecNormSq_volumeAverageVec_le_eVolumeAverage
       (∫⁻ x, ‖FH x‖ₑ ^ (2 : ℝ) ∂mu) ^ (1 / (2 : ℝ)) := by
     have hcmp := eLpNorm_le_eLpNorm_of_exponent_le
       (μ := mu) (p := 1) (q := 2) (f := FH)
-      (by norm_num) hFHmu.aestronglyMeasurable
-    rwa [eLpNorm_one_eq_lintegral_enorm, eLpNorm_two_eq_rpow] at hcmp
+      (by norm_num)
+    rwa [eLpNorm_one_eq_lintegral_enorm hFHmu.aestronglyMeasurable,
+      eLpNorm_two_eq_rpow _ _ hFHmu.aestronglyMeasurable] at hcmp
   have hpow := ENNReal.rpow_le_rpow (hL1.trans hL2)
     (by norm_num : (0 : ℝ) ≤ 2)
   have hmean : ∫ x, FH x ∂mu =
@@ -171,6 +173,10 @@ private theorem scalarGagliardoKernel_aestronglyMeasurable
       (Gagliardo.gagliardoCubeMeasure Q) := by
   let mu1 := normalizedCubeMeasure Q
   let mu2 := cubeMeasure Q
+  have : SFinite mu2 := by
+    dsimp only [mu2]
+    unfold cubeMeasure
+    infer_instance
   have hfirst : AEStronglyMeasurable (fun z : Vec d × Vec d => F z.1 i)
       (mu1.prod mu2) :=
     ((continuous_apply i).comp_aestronglyMeasurable hFnorm).comp_quasiMeasurePreserving
@@ -190,6 +196,23 @@ private theorem scalarGagliardoKernel_aestronglyMeasurable
   unfold Gagliardo.gagliardoKernel Gagliardo.gagliardoCubeMeasure
   exact hweight.aestronglyMeasurable.smul hdiff
 
+private theorem cubeAmbientHilbertWspKernel_two_aestronglyMeasurable
+    (Q : TriadicCube d) (s : FractionalOrder) (F : Vec d → Vec d)
+    (hFnorm : AEStronglyMeasurable F (normalizedCubeMeasure Q))
+    (hFcube : AEStronglyMeasurable F (cubeMeasure Q)) :
+    AEStronglyMeasurable (cubeAmbientHilbertWspKernel s FiniteLpExponent.two F)
+      (Gagliardo.gagliardoCubeMeasure Q) := by
+  have : SFinite (cubeMeasure Q) := by
+    unfold cubeMeasure
+    infer_instance
+  have hfst := hFnorm.comp_quasiMeasurePreserving
+    (Measure.quasiMeasurePreserving_fst (ν := cubeMeasure Q))
+  have hsnd := hFcube.comp_quasiMeasurePreserving
+    (Measure.quasiMeasurePreserving_snd (μ := normalizedCubeMeasure Q))
+  exact ((continuous_fst.dist continuous_snd).measurable.pow
+    measurable_const).aestronglyMeasurable.smul
+      ((HilbertVec.ofVecL d).continuous.comp_aestronglyMeasurable (hfst.sub hsnd))
+
 private theorem forceSobolevRegularity_of_hsNormSq_lt_top
     [NeZero d] (Q : TriadicCube d) (sF : FractionalOrder)
     (F : Vec d → Vec d)
@@ -205,9 +228,9 @@ private theorem forceSobolevRegularity_of_hsNormSq_lt_top
   rw [Gagliardo.memWsp_iff]
   constructor
   · exact scalarGagliardoKernel_aestronglyMeasurable Q sF.1 F
-      hBesov.memLp.1 (by
+      hBesov.memLp.aestronglyMeasurable (by
         simpa [cubeMeasure,
-          volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hFcube.1) i
+          volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using hFcube.aestronglyMeasurable) i
   · have hcoord :
         (Gagliardo.cubeGagliardoESeminorm Q sF.1 (2 : ℝ≥0∞)
           (fun x => F x i)) ^ (2 : ℝ) ≤
@@ -223,8 +246,13 @@ private theorem forceSobolevRegularity_of_hsNormSq_lt_top
       Q sF FiniteLpExponent.two F
     have heuc := cubeAmbientHilbertWspESeminorm_rpow_le_metricComparisonConstant_mul
       Q sF FiniteLpExponent.two F
+      (cubeAmbientHilbertWspKernel_two_aestronglyMeasurable Q sF F
+        hBesov.memLp.aestronglyMeasurable (by
+          simpa [cubeMeasure,
+            volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using
+            hFcube.aestronglyMeasurable))
     have hfrac := cubeEuclideanWspESeminorm_two_sq_eq_fracSeminormSq
-      Q sF F hFcube.1
+      Q sF F hFcube.aestronglyMeasurable
     have hfrac_le : fracSeminormSq (openCubeSet Q) sF.1 F ≤
         hsNormSq (openCubeSet Q) sF.1 F := by
       unfold hsNormSq
@@ -397,8 +425,13 @@ theorem positiveBesovNorm_sq_le_continuousFractionalSquare
     Q sF FiniteLpExponent.two F
   have heuc := cubeAmbientHilbertWspESeminorm_rpow_le_metricComparisonConstant_mul
     Q sF FiniteLpExponent.two F
+    (cubeAmbientHilbertWspKernel_two_aestronglyMeasurable Q sF F
+      hBesov.memLp.aestronglyMeasurable (by
+        simpa [cubeMeasure,
+          volume_restrict_cubeSet_eq_volume_restrict_openCubeSet] using
+          hFcube.aestronglyMeasurable))
   have hfrac := cubeEuclideanWspESeminorm_two_sq_eq_fracSeminormSq
-    Q sF F hFcube.1
+    Q sF F hFcube.aestronglyMeasurable
   let Coord : ℝ≥0∞ := cubeCoordinateGagliardoPowerEnergy
     Q sF FiniteLpExponent.two F
   have hCoordle : Coord ≤ (d : ℝ≥0∞) *

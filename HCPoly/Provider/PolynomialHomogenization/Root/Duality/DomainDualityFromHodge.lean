@@ -51,16 +51,16 @@ private theorem dualPairing_add_le (V : Set (Vec d)) (F G psi : Vec d → Vec d)
         simp only [volumeAverage, hfun]
         rw [integral_add hF hG, mul_add]
       unfold dualPairing
-      rw [if_pos hsum, if_pos hF, if_pos hG, hval]
+      rw [ite_eq_left hsum, ite_eq_left hF, ite_eq_left hG, hval]
       exact ENNReal.ofReal_add_le
     · have htop : dualPairing V G psi = ⊤ := by
         unfold dualPairing
-        rw [if_neg hG]
+        rw [ite_eq_right hG]
       rw [htop]
       simp
   · have htop : dualPairing V F psi = ⊤ := by
       unfold dualPairing
-      rw [if_neg hF]
+      rw [ite_eq_right hF]
     rw [htop]
     simp
 

@@ -147,7 +147,7 @@ theorem matSqrt_spec {n : Type*} [Fintype n] [DecidableEq n]
     (matSqrt M).PosSemidef ∧ matSqrt M * matSqrt M = M := by
   have hex : ∃ B : Matrix n n ℝ, B.PosSemidef ∧ B * B = M :=
     exists_posSemidef_mul_self hM
-  rw [matSqrt, dif_pos hex]
+  rw [matSqrt, dite_eq_left hex]
   exact hex.choose_spec
 
 /-- `matSqrt` is independent of the choice made in its definition: it is the

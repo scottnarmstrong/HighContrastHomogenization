@@ -73,7 +73,7 @@ theorem bridge_skolem (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set.Ico 
       else 1,
     ?_⟩
   intro σ hσ L hL
-  simp only [dif_pos (And.intro hσ hL)]
+  simp only [dite_eq_left (And.intro hσ hL)]
   exact Classical.choose_spec (hbr σ hσ L hL)
 
 /-- Monotonicity in `Csrc`: a body at a smaller `Csrc` is a body at a larger one (`1 < K` gives

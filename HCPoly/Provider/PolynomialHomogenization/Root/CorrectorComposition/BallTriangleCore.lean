@@ -165,11 +165,11 @@ theorem exists_isEllipticFieldOn_ae_eq {b0 : CoeffField d} {lam Lam : ℝ}
     exact Measurable.ite (by simpa using hU) hinner measurable_const
   · intro x _
     by_cases hx : x ∈ E
-    · simpa only [if_pos hx] using hEell x hx
-    · simpa only [if_neg hx] using
+    · simpa only [ite_eq_left hx] using hEell x hx
+    · simpa only [ite_eq_right hx] using
         Internal.Ch02.BookCh02.isEllipticMatrix_smul_one (d := d) hlam hle
   · filter_upwards [hEae] with x hxE
-    simp only [if_pos hxE]
+    simp only [ite_eq_left hxE]
 
 /-! ## Minkowski, for an almost-everywhere elliptic coefficient -/
 

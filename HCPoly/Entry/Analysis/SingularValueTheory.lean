@@ -143,16 +143,16 @@ theorem singularValueAt_antitone (X : Matrix n n ℝ) : Antitone (singularValueA
   intro i j hij
   by_cases hj : j < Fintype.card n
   · have hi := lt_of_le_of_lt hij hj
-    simp only [singularValueAt, dif_pos hi, dif_pos hj]
+    simp only [singularValueAt, dite_eq_left hi, dite_eq_left hj]
     exact singularValues₀_antitone X hij
-  · simp only [singularValueAt, dif_neg hj]
+  · simp only [singularValueAt, dite_eq_right hj]
     split
     · exact singularValues₀_nonneg X _
     · exact le_rfl
 
 theorem singularValueAt_eq_zero (X : Matrix n n ℝ) {r : ℕ}
     (hr : Fintype.card n ≤ r) : singularValueAt X r = 0 := by
-  exact dif_neg (not_lt_of_ge hr)
+  exact dite_eq_right (not_lt_of_ge hr)
 
 omit [DecidableEq n] in
 theorem rank_add_le (X Y : Matrix n n ℝ) : (X + Y).rank ≤ X.rank + Y.rank := by
@@ -208,7 +208,7 @@ private theorem exists_supported_kernel (B : Matrix n n ℝ)
   let J : Matrix n (Fin (r + 1)) ℝ := fun i j => if i = f j then 1 else 0
   have hJ (w : Fin (r + 1) → ℝ) (j : Fin (r + 1)) : (J *ᵥ w) (f j) = w j := by
     simp only [J, mulVec, dotProduct, hf.eq_iff, ite_mul, one_mul, zero_mul,
-      Finset.sum_ite_eq, Finset.mem_univ, if_true]
+      Finset.sum_ite_eq, Finset.mem_univ, ite_true]
   have hdim := (B * J).mulVecLin.finrank_range_add_finrank_ker
   have hCJ : (B * J).rank ≤ r := (Matrix.rank_mul_le_left B J).trans hB
   have hker : LinearMap.ker (B * J).mulVecLin ≠ ⊥ := by
@@ -235,7 +235,7 @@ private theorem exists_supported_kernel (B : Matrix n n ℝ)
       have hv : (e i).val = j.val := by
         simpa only [f, Equiv.apply_symm_apply] using congrArg (fun k => (e k).val) h
       omega
-    simp only [J, if_neg hij, zero_mul]
+    simp only [J, ite_eq_right hij, zero_mul]
 
 private theorem norm_gram_diagonal (X : Matrix n n ℝ) (a : n → ℝ) :
     ‖X * (isHermitian_conjTranspose_mul_self X).eigenvectorUnitary * diagonal a‖ ^ 2 =
@@ -259,7 +259,7 @@ private theorem singularValueAt_sq (X : Matrix n n ℝ) {r : ℕ}
   have h := Matrix.eigenvalues_conjTranspose_mul_self_nonneg X (e.symm ⟨r, hr⟩)
   change 0 ≤ (isHermitian_conjTranspose_mul_self X).eigenvalues₀ (e (e.symm ⟨r, hr⟩)) at h
   rw [Equiv.apply_symm_apply] at h
-  simpa only [singularValueAt, dif_pos hr, singularValues₀] using Real.sq_sqrt h
+  simpa only [singularValueAt, dite_eq_left hr, singularValues₀] using Real.sq_sqrt h
 
 theorem singularValueAt_le_norm_sub (X R : Matrix n n ℝ) {r : ℕ}
     (hR : R.rank ≤ r) : singularValueAt X r ≤ ‖X - R‖ := by
@@ -303,7 +303,7 @@ theorem exists_rank_approximation (X : Matrix n n ℝ) (r : ℕ) :
       rw [Matrix.rank_diagonal]
       have ha (i : {i // a i ≠ 0}) : (e i.val).val < r := by
         by_contra hi
-        exact i.prop (if_neg hi)
+        exact i.prop (ite_eq_right hi)
       let f : {i // a i ≠ 0} → Fin r := fun i => ⟨(e i.val).val, ha i⟩
       have hf : Function.Injective f := by
         intro i j hij
@@ -332,10 +332,10 @@ theorem exists_rank_approximation (X : Matrix n n ℝ) (r : ℕ) :
       apply (pi_norm_le_iff_of_nonneg ?_).2
       · intro i
         by_cases hi : (e i).val < r
-        · simp only [b, if_pos hi, zero_pow (by decide : 2 ≠ 0), mul_zero, norm_zero]
+        · simp only [b, ite_eq_left hi, zero_pow (by decide : 2 ≠ 0), mul_zero, norm_zero]
           rw [← singularValueAt_sq X hr]
           exact sq_nonneg _
-        · simp only [b, if_neg hi, one_pow, mul_one]
+        · simp only [b, ite_eq_right hi, one_pow, mul_one]
           rw [Real.norm_of_nonneg (Matrix.eigenvalues_conjTranspose_mul_self_nonneg X i)]
           exact hG.eigenvalues₀_antitone (show (⟨r, hr⟩ : Fin (Fintype.card n)) ≤ e i from
             Nat.le_of_not_gt hi)

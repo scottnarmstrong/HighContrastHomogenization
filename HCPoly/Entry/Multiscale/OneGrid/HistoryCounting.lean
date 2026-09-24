@@ -278,7 +278,7 @@ theorem oneGrid_integrable_opNorm_pow {d : ℕ} (P : Measure (CoeffSpace d))
     Integrable (fun a => blockOpNorm (H a) ^ N) P := by
   open scoped Matrix.Norms.L2Operator in
   have hm : AEMeasurable (fun a => toFullBlockMat (H a)) P :=
-    aemeasurable_pi_lambda _ fun α => aemeasurable_pi_lambda _ fun β => by
+    AEMeasurable.of_eval fun α => AEMeasurable.of_eval fun β => by
       simpa only [toFullBlockMat_eq_blockMatEntry] using (hmem.measurable α β).aemeasurable
   have hmoment : Integrable (fun a => absSchattenNorm (N : ℝ) (H a) ^ N) P := by
     simpa only [Real.rpow_natCast] using hmem.integrable

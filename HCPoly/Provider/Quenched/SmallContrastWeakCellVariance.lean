@@ -45,7 +45,7 @@ theorem le_of_sq_le_sq {a b : ℝ≥0∞}
 
 /-- The square of the two-norm of a nonnegative statistic. -/
 theorem eLpNorm_two_real_sq {P : Measure (CoeffSpace d)}
-    {f : CoeffSpace d → ℝ} (hf : ∀ a, 0 ≤ f a) :
+    {f : CoeffSpace d → ℝ} (hf : ∀ a, 0 ≤ f a) (hfm : AEStronglyMeasurable f P) :
     eLpNorm f 2 P ^ (2 : ℕ) =
       ∫⁻ a, ENNReal.ofReal (f a ^ 2) ∂P := by
   have h1 : ∀ a, ‖f a‖ₑ ^ (2 : ℝ) = ENNReal.ofReal (f a ^ 2) := by
@@ -55,7 +55,7 @@ theorem eLpNorm_two_real_sq {P : Measure (CoeffSpace d)}
     congr 1
     rw [← Real.rpow_natCast (f a) 2]
     norm_num
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hfm]
   simp only [ENNReal.toReal_ofNat]
   rw [lintegral_congr h1, ← ENNReal.rpow_natCast _ 2, ← ENNReal.rpow_mul]
   norm_num
@@ -332,28 +332,15 @@ theorem eLpNorm_diagonalWeakCellDefect_le [NeZero d]
         (_root_.Filter.Eventually.of_forall fun a => by rw [Finset.sum_apply])
     exact (aestronglyMeasurable_const.mul hsum).congr
       (_root_.Filter.Eventually.of_forall fun a => rfl)
-  have hmeasC : AEStronglyMeasurable C P := by
-    rw [hC]
-    refine Transport.aestronglyMeasurable_schattenSize (by exact even_two)
-      (fun a => isSymmetricBlockMat_blockSub
-        (isSymmetricBlockMat_coarseBlock _ _)
-        (Recurrence.isSymmetricBlockMat_adaptedMean P q t)) ?_
-    intro α β
-    have hmA : AEStronglyMeasurable
-        (fun a : CoeffSpace d ↦
-          toFullBlockMat (coarseBlock (adaptedCell q t) a) α β) P :=
-      Recurrence.hasMeasurableCoarseBlock_adaptedCell P hq t α β
-    have hm := hmA.sub
-      (aestronglyMeasurable_const
-        (b := toFullBlockMat (adaptedMean P q t) α β))
-    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using! hm
   -- the L² triangle
   have hmono : eLpNorm (fun a => Response.diagonalWeakCellDefect q k t F a) 2 P ≤
       eLpNorm
         ((fun a => Real.sqrt
             (Response.avsum (Response.alignedIndex q k t) fun w => A w a ^ 2)) +
           ((fun _ => B) + C)) 2 P := by
-    refine eLpNorm_mono fun a => ?_
+    refine eLpNorm_mono
+      (Response.aemeasurable_diagonalWeakCellDefect hq k t hFsym hFpd).aestronglyMeasurable
+      fun a => ?_
     rw [Real.norm_eq_abs,
       abs_of_nonneg (Response.diagonalWeakCellDefect_nonneg q k t F a)]
     calc
@@ -371,17 +358,14 @@ theorem eLpNorm_diagonalWeakCellDefect_le [NeZero d]
       eLpNorm (fun a => Real.sqrt
           (Response.avsum (Response.alignedIndex q k t) fun w => A w a ^ 2)) 2 P +
         (eLpNorm (fun _ : CoeffSpace d => B) 2 P + eLpNorm C 2 P) := by
-    refine le_trans
-      (eLpNorm_add_le hmeasG1
-        ((aestronglyMeasurable_const).add hmeasC) (by norm_num)) ?_
-    exact add_le_add le_rfl
-      (eLpNorm_add_le aestronglyMeasurable_const hmeasC (by norm_num))
+    refine le_trans (eLpNorm_add_le (by norm_num)) ?_
+    exact add_le_add le_rfl (eLpNorm_add_le (by norm_num))
   -- the three parts
   have hpart1 : eLpNorm (fun a => Real.sqrt
       (Response.avsum (Response.alignedIndex q k t) fun w => A w a ^ 2)) 2 P ≤
       scaleVariance P q F k := by
     refine le_of_sq_le_sq ?_
-    rw [eLpNorm_two_real_sq (fun a => Real.sqrt_nonneg _)]
+    rw [eLpNorm_two_real_sq (fun a => Real.sqrt_nonneg _) hmeasG1]
     have hsq : ∀ a, Real.sqrt
         (Response.avsum (Response.alignedIndex q k t) fun w => A w a ^ 2) ^ 2 =
         Response.avsum (Response.alignedIndex q k t) fun w => A w a ^ 2 := fun a =>
@@ -412,7 +396,7 @@ theorem eLpNorm_diagonalWeakCellDefect_le [NeZero d]
             exact eLpNorm_schattenTwo_adaptedCellAt_eq hstat hgrid hlk
               (adaptedMean P q k) F
               (Recurrence.isSymmetricBlockMat_adaptedMean P q k) w
-          rw [← eLpNorm_two_real_sq (hA0 w), h1]
+          rw [← eLpNorm_two_real_sq (hA0 w) (hmeasA w), h1]
         rw [Finset.sum_congr rfl hper]
         rw [Finset.sum_const, nsmul_eq_mul]
         rcases Finset.eq_empty_or_nonempty (Response.alignedIndex q k t) with
@@ -486,14 +470,6 @@ theorem eLpNorm_diagonalWeakCellSum_le_variance [NeZero d]
                 (blockSub (adaptedMean P q (t - (j : ℤ)))
                   (adaptedMean P q t)) F)) := by
   classical
-  have hq : q.PosDef := Recurrence.posDef_of_isRoundedGrid hgrid
-  have hsummand : ∀ j : ℕ, AEStronglyMeasurable
-      (fun a => (3 : ℝ) ^ (-(1 / 2 : ℝ) * (j : ℝ)) *
-        Response.diagonalWeakCellDefect q (t - (j : ℤ)) t F a) P := by
-    intro j
-    exact aestronglyMeasurable_const.mul
-      (Response.aemeasurable_diagonalWeakCellDefect hq (t - (j : ℤ)) t
-        hFsym hFpd).aestronglyMeasurable
   have hfun : (fun a => Response.diagonalWeakCellSum q t H (1 / 2) F a) =
       ∑ j ∈ Finset.range (H + 1),
         (fun a => (3 : ℝ) ^ (-(1 / 2 : ℝ) * (j : ℝ)) *
@@ -503,7 +479,7 @@ theorem eLpNorm_diagonalWeakCellSum_le_variance [NeZero d]
     rw [Finset.sum_apply]
   rw [hfun]
   refine le_trans
-    (eLpNorm_sum_le (fun j _ => hsummand j) (by norm_num)) ?_
+    (eLpNorm_sum_le (by norm_num)) ?_
   refine Finset.sum_le_sum fun j hj => ?_
   have hjH : (j : ℤ) ≤ (H : ℤ) := by
     exact_mod_cast Nat.lt_succ_iff.mp (Finset.mem_range.mp hj)

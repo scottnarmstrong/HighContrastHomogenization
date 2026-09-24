@@ -346,7 +346,7 @@ theorem exists_scalarIdentityFiniteAffineBestFitInductionConstants
       have hr : r ∈ Finset.Icc n m := Finset.mem_Icc.2 ⟨hnr, hrm⟩
       have hr1 : r + 1 ∈ Finset.Icc n m := Finset.mem_Icc.2 ⟨hnr1, hr1m⟩
       have hd := hlocal r hjr hrk hrm hr1m
-      simp only [p, dif_pos hr, dif_pos hr1]
+      simp only [p, dite_eq_left hr, dite_eq_left hr1]
       have htri := euclideanNorm_le_add_sub
         (finiteAffineBestFitSlope a (r + 1) m hr1m b)
         (finiteAffineBestFitSlope a r m hrm b)
@@ -362,7 +362,7 @@ theorem exists_scalarIdentityFiniteAffineBestFitInductionConstants
       have hr : r ∈ Finset.Icc n m := Finset.mem_Icc.2 ⟨hnr, hrm⟩
       have hr1 : r + 1 ∈ Finset.Icc n m := Finset.mem_Icc.2 ⟨hnr1, hr1m⟩
       have hd := hlocal r hjr hrk hrm hr1m
-      simp only [p, dif_pos hr, dif_pos hr1]
+      simp only [p, dite_eq_left hr, dite_eq_left hr1]
       have htri := euclideanNorm_le_add_sub
         (finiteAffineBestFitSlope a r m hrm b)
         (finiteAffineBestFitSlope a (r + 1) m hr1m b)
@@ -375,7 +375,7 @@ theorem exists_scalarIdentityFiniteAffineBestFitInductionConstants
     have hpw := finiteRealSequence_pow_bounds p (C * delta)
       (mul_nonneg hCpos.le hdelta_nonneg) (hCdelta.trans (by norm_num))
       hjk hlower hupper
-    simpa only [p, dif_pos hj, dif_pos hk] using hpw
+    simpa only [p, dite_eq_left hj, dite_eq_left hk] using hpw
   have hterminal' : k = m →
       euclideanNorm (finiteAffineBestFitSlope a m m (le_refl m) b - b) ≤
         C * delta * euclideanNorm b := by

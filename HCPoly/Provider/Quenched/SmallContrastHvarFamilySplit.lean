@@ -142,7 +142,7 @@ theorem hvar_family_of_account_of_block_split [NeZero d] (hd : 2 ≤ d) {g : ℝ
       (hdropAt jb t (by omega) hjbt) hFsym hFpd (henvFam j hj) hCsub hsubdiv
       (hdropAt jb p (by omega) hjbt)
     refine le_trans hbase (ENNReal.ofReal_le_ofReal ?_)
-    rw [slotFamilyValue, slotSourceSeq, if_pos hshallow, hlagcast]
+    rw [slotFamilyValue, slotSourceSeq, ite_eq_left hshallow, hlagcast]
   · -- deep leg: the supply at the leg's own scale
     have hburnp := burn_condition_mono
       (by rw [hpdef]; omega : t - (Hw : ℤ) ≤ p) hburnStart
@@ -152,7 +152,7 @@ theorem hvar_family_of_account_of_block_split [NeZero d] (hd : 2 ≤ d) {g : ℝ
       (by linarith only [hdelta4]) (hdropAt p t hlp hpt)
       hFsym hFpd (henvFam j hj) hCsub hsubdiv
     refine le_trans hbase (ENNReal.ofReal_le_ofReal ?_)
-    rw [slotFamilyValue, slotSourceSeq, if_neg (by omega), deepSlotConstant]
+    rw [slotFamilyValue, slotSourceSeq, ite_eq_right (by omega), deepSlotConstant]
     have hpos : 0 ≤ slotBaseCoefficient d * hatExcessAt P q jb :=
       mul_nonneg (slotBaseCoefficient_nonneg d) hFjb0
     linarith only [hpos]

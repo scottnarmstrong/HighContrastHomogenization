@@ -92,7 +92,7 @@ theorem bridge_tolerance_mem (ε σ : ℝ) (hε : ε ∈ Set.Ioc (0 : ℝ) 1) (h
     Real.sqrt ε * σ ∈ Set.Ioc (0 : ℝ) 1 := by
   constructor
   · exact mul_pos (Real.sqrt_pos.2 hε.1) hσ.1
-  · exact mul_le_one₀ (Real.sqrt_le_one.mpr hε.2) (le_of_lt hσ.1) (hσ.2.trans hε.2)
+  · exact (mul_le_of_le_one_left (le_of_lt hσ.1) (Real.sqrt_le_one.mpr hε.2)).trans (hσ.2.trans hε.2)
 
 theorem bridge_tolerance_le_quarter (ε σ : ℝ) (hε : ε ∈ Set.Ioc (0 : ℝ) (1 / 4))
     (hσ : σ ∈ Set.Ioc (0 : ℝ) ε) : Real.sqrt ε * σ ∈ Set.Icc (0 : ℝ) (1 / 4) := by

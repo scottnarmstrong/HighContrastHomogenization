@@ -80,7 +80,7 @@ theorem coe_alignedIndex {q : Mat d} (hq : q.PosDef) {j p : ℤ} (hjp : j ≤ p)
   obtain ⟨Z, hZ, _⟩ := Recurrence.exists_finset_adaptedCellCenter_mem hq hjp
   have hfin : {w : Fin d → ℤ | adaptedCellCenter q j w ∈ adaptedCell q p}.Finite :=
     hZ ▸ Z.finite_toSet
-  rw [alignedIndex, dif_pos hfin, hfin.coe_toFinset]
+  rw [alignedIndex, dite_eq_left hfin, hfin.coe_toFinset]
 
 /-- Membership in the aligned index. -/
 theorem mem_alignedIndex_iff {q : Mat d} (hq : q.PosDef) {j p : ℤ} (hjp : j ≤ p)

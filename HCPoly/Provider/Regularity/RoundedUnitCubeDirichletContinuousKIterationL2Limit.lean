@@ -58,7 +58,12 @@ theorem norm_unitCubeEuclideanL2FieldHilbertL2
   rw [← normalizedCubeMeasure_originCube_zero_eq_volumeMeasureOn_openCubeSet]
   rw [← normalizedCubeMeasure_originCube_zero_eq_unitCenteredCubeDomain_normalizedVolume]
   congr 1
-  apply MeasureTheory.eLpNorm_congr_norm_ae
+  have hF : MeasureTheory.AEStronglyMeasurable (hilbertifyVecField F.toField)
+      (normalizedCubeMeasure (originCube d 0)) := by
+    rw [normalizedCubeMeasure_originCube_zero_eq_unitCenteredCubeDomain_normalizedVolume]
+    exact F.euclideanMemL2.aestronglyMeasurable
+  refine MeasureTheory.eLpNorm_congr_norm_ae hF ?_ ?_
+  · simpa only [euclideanNorm_eq_norm_ofVec, hilbertifyVecField] using hF.norm
   exact _root_.Filter.Eventually.of_forall fun x ↦ by
     simp only [hilbertifyVecField, euclideanNorm_eq_norm_ofVec,
       Real.norm_eq_abs, abs_of_nonneg (norm_nonneg _)]

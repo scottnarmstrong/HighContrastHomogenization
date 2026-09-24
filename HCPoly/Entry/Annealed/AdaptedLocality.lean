@@ -653,9 +653,9 @@ theorem measurable_coarseBlock_matrix_adapted
       (fun a => toFullBlockMat (coarseBlock (HighContrast.adaptedCellTranslate q j y) a)) := by
   let : MeasurableSpace (CoeffSpace d) :=
     coeffSigma d (HighContrast.adaptedCellTranslate q j y)
-  apply measurable_pi_lambda
+  apply Measurable.of_eval
   intro α
-  apply measurable_pi_lambda
+  apply Measurable.of_eval
   intro β
   exact measurable_coarseBlock_entry_adapted q hq j y α β
 

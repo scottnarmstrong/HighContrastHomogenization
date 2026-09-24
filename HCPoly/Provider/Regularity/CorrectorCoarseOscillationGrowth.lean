@@ -37,6 +37,10 @@ theorem cubeLpNorm_le_of_bound_on_cubeSet
     (f : Vec d → ℝ) {B : ℝ} (hB : 0 ≤ B)
     (hbound : ∀ x ∈ cubeSet Q, ‖f x‖ ≤ B) :
     cubeLpNorm Q p f ≤ B := by
+  by_cases hfm : AEStronglyMeasurable f (normalizedCubeMeasure Q)
+  swap
+  · rw [cubeLpNorm, eLpNorm_of_not_aestronglyMeasurable hfm, ENNReal.toReal_top]
+    exact hB
   have hboundCube : ∀ᵐ x ∂ (cubeMeasure Q), ‖f x‖ ≤ ‖B‖ := by
     rw [cubeMeasure,
       MeasureTheory.ae_restrict_iff' (measurableSet_cubeSet Q)]
@@ -48,7 +52,7 @@ theorem cubeLpNorm_le_of_bound_on_cubeSet
         (ENNReal.ofReal ((cubeVolume Q)⁻¹))
   have hle : eLpNorm f p (normalizedCubeMeasure Q) ≤
       eLpNorm (fun _ : Vec d => B) p (normalizedCubeMeasure Q) :=
-    eLpNorm_mono_ae hboundNormalized
+    eLpNorm_mono_ae hfm hboundNormalized
   have htop : eLpNorm (fun _ : Vec d => B) p
       (normalizedCubeMeasure Q) ≠ ⊤ := by
     exact (memLp_const B).eLpNorm_ne_top

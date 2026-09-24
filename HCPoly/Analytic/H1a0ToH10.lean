@@ -113,7 +113,12 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
           ENNReal.ofReal (vecNormSq (smoothGrad (v n) x - Du x)) ∂volume) ^
             (1 / 2 : ℝ)) atTop (nhds (0 ^ (1 / 2 : ℝ))) :=
       (ENNReal.continuous_rpow_const.tendsto 0).comp hgradIntegral
-    simpa [eLpNorm_hilbertifyVecField_eq_rpow_lintegral_vecNormSq] using hroot
+    have hDu : MemVectorL2 U Du :=
+      w0.toH1Function.grad_memVectorL2.ae_eq hgradAE
+    have hmeas : ∀ n, AEStronglyMeasurable
+        (hilbertifyVecField (fun x ↦ smoothGrad (v n) x - Du x)) (volume.restrict U) :=
+      fun n ↦ (memHilbertVectorL2_hilbertifyVecField ((hvgrad n).sub hDu)).aestronglyMeasurable
+    simpa [eLpNorm_hilbertifyVecField_eq_rpow_lintegral_vecNormSq, hmeas] using hroot
   have hgradELp' : Tendsto
       (fun n ↦ eLpNorm
         (fun x ↦ hilbertifyVecField (smoothGrad (v n)) x -
@@ -201,7 +206,9 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
       atTop (nhds 0) := by
     convert hvalueIntegral using 1
     funext n
-    rw [eLpNorm_one_eq_lintegral_enorm]
+    have hmeas : AEStronglyMeasurable (fun x ↦ v n x - u x) (volume.restrict U) :=
+      (hvL2 n).aestronglyMeasurable.sub hpair.1
+    rw [eLpNorm_one_eq_lintegral_enorm hmeas]
     apply lintegral_congr
     intro x
     rw [← ofReal_norm]
@@ -229,10 +236,7 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
         _ ≤ eLpNorm (fun x ↦ w0.toH1Function.toFun x - v n x) 1
               (volume.restrict U) +
             eLpNorm (fun x ↦ v n x - u x) 1 (volume.restrict U) :=
-          eLpNorm_add_le
-            (w0.toH1Function.memL2.aestronglyMeasurable.sub
-              (hvL2 n).aestronglyMeasurable)
-            ((hvL2 n).aestronglyMeasurable.sub hpair.1) (by norm_num)
+          eLpNorm_add_le (by norm_num)
         _ = eLpNorm (fun x ↦ v n x - w0.toH1Function.toFun x) 1
               (volume.restrict U) +
             eLpNorm (fun x ↦ v n x - u x) 1 (volume.restrict U) := by
@@ -242,7 +246,6 @@ theorem exists_h10Function_of_memH1a0 [NeZero d]
               (volume.restrict U)))
   have hvalueAE : w0.toH1Function.toFun =ᵐ[volume.restrict U] u := by
     have hzero := (eLpNorm_eq_zero_iff
-      (w0.toH1Function.memL2.aestronglyMeasurable.sub hpair.1)
       (by norm_num : (1 : ENNReal) ≠ 0)).mp hvalueZero
     filter_upwards [hzero] with x hx
     exact sub_eq_zero.mp hx

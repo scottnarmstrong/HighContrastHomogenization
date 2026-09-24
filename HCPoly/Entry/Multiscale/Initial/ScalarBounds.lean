@@ -515,7 +515,7 @@ theorem normalizedBlock_le_scale_and_logDet_le {d : ℕ} (F G : BlockMat d)
     have hdet : (toFullBlockMat (normalizedBlock F G)).det ≤ c ^ (2 * d) := by
       rw [hN.isHermitian.det_eq_prod_eigenvalues]
       simp only [RCLike.ofReal_real_eq_id, id_eq]
-      have hp := Finset.prod_le_prod (fun i (_ : i ∈ Finset.univ) =>
+      have hp := Finset.prod_le_prod₀ (fun i (_ : i ∈ Finset.univ) =>
           (hN.eigenvalues_pos i).le) (fun i (_ : i ∈ Finset.univ) => heig i)
       simpa only [Finset.prod_const, Finset.card_univ, BlockCoord,
         Fintype.card_sum, Fintype.card_fin, two_mul] using hp

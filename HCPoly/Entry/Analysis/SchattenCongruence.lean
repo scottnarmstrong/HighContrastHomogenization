@@ -113,7 +113,7 @@ theorem singularNorm_congr_le (X B : Matrix n n ℝ) {p : ℝ} (hp : 0 < p) :
     singularNorm p (Bᵀ * X * B) ≤ ‖B‖ ^ 2 * singularNorm p X := by
   have hpoint (i : Fin (Fintype.card n)) :
       singularValues₀ (Bᵀ * X * B) i ≤ ‖B‖ ^ 2 * singularValues₀ X i := by
-    simpa only [singularValueAt, dif_pos i.isLt] using singularValueAt_congr_le X B i.val
+    simpa only [singularValueAt, dite_eq_left i.isLt] using singularValueAt_congr_le X B i.val
   have hsum : (∑ i, singularValues₀ (Bᵀ * X * B) i ^ p) ≤
       (‖B‖ ^ 2) ^ p * ∑ i, singularValues₀ X i ^ p := by
     rw [Finset.mul_sum]

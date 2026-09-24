@@ -101,8 +101,9 @@ private noncomputable def wspL2FieldOfHsNormSq [NeZero d] (Q : TriadicCube d)
     simpa only [BoundedMeasurableDomain.normalizedEuclideanLpENorm,
       BoundedMeasurableDomain.normalizedLpENorm,
       cubeBoundedMeasurableDomain_normalizedVolume_eq_normalizedCubeMeasure,
-      euclideanNorm_eq_norm_ofVec, eLpNorm_norm] using
+      euclideanNorm_eq_norm_ofVec, eLpNorm_norm _ hGhilbertMeas] using
         normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage Q G
+          (by simpa only [euclideanNorm_eq_norm_ofVec] using hGhilbertMeas.norm)
   have hL2top : eLpNorm (fun x => HilbertVec.ofVec (G x)) 2
       (normalizedCubeMeasure Q) ≠ ⊤ := by
     intro htop
@@ -111,7 +112,7 @@ private noncomputable def wspL2FieldOfHsNormSq [NeZero d] (Q : TriadicCube d)
     norm_num
   have hGmemL2 : MemLp (fun x => HilbertVec.ofVec (G x)) 2
       (normalizedCubeMeasure Q) :=
-    ⟨hGhilbertMeas, lt_top_iff_ne_top.mpr hL2top⟩
+    lt_top_iff_ne_top.mpr hL2top
   have hsemisq :
       (cubeEuclideanWspESeminorm Q sF FiniteLpExponent.two G) ^ (2 : ℕ) =
         fracSeminormSq (openCubeSet Q) s G := by

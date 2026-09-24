@@ -77,13 +77,13 @@ theorem exists_coeffSpaceDoubledResponse_adaptedCellTranslate_le_tsum_rowMajoran
     intro u
     by_cases hu : u = 0
     · subst u
-      simp only [rowBound, if_pos, Nat.cast_zero, sub_zero]
+      simp only [rowBound, ite_eq_left, Nat.cast_zero, sub_zero]
       exact hrowOne n
     · have hun : n - (u : ℤ) < n := by
         have huPos : 0 < u := Nat.pos_of_ne_zero hu
         omega
       dsimp only [rowBound]
-      rw [if_neg hu]
+      rw [ite_eq_right hu]
       exact hrow (n - (u : ℤ)) hun
   have hcellCoeff : ∀ (u : ℕ) (w : Fin d → ℤ),
       w ∈ Z (n - (u : ℤ)) →

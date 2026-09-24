@@ -63,12 +63,12 @@ theorem skewFluxPairing_congr_coeff {b b' : CoeffField d} {V : Set (Vec d)}
   · have hint' : IntegrableOn
         (fun x => vecDot (smoothGrad φ x) (matVecMul (skewPart (b' x)) (F x))) V
         volume := hint.congr hfun
-    rw [if_pos hint, if_pos hint']
+    rw [ite_eq_left hint, ite_eq_left hint']
     exact congrArg ENNReal.ofReal (integral_congr_ae hfun)
   · have hint' : ¬ IntegrableOn
         (fun x => vecDot (smoothGrad φ x) (matVecMul (skewPart (b' x)) (F x))) V
         volume := fun hc => hint (hc.congr hfun.symm)
-    rw [if_neg hint, if_neg hint']
+    rw [ite_eq_right hint, ite_eq_right hint']
 
 /-- The skew-flux dual norm on `V` reads the field only on `V`: the test class
 and the pairing it takes the supremum of are both unchanged. -/

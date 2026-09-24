@@ -162,8 +162,10 @@ private theorem ae_belowStartSup_le_mul :
   ring
 
 include hCd hg hE hEpd hY hnu hq hF hFpd hrho hZ in
-/-- **The `L^Q` norm of the below-start source maximum.** -/
-theorem eLpNorm_belowStartSup_le (Q : ℝ) :
+/-- **The `L^Q` norm of the below-start source maximum.**  The supremum is assumed
+a.e. strongly measurable, since it runs over an arbitrary family of centers. -/
+theorem eLpNorm_belowStartSup_le (Q : ℝ)
+    (hS : AEStronglyMeasurable (belowStartSup rho (roundedGrid jStar nu) jStar t Z F) P) :
     eLpNorm (belowStartSup rho (roundedGrid jStar nu) jStar t Z F)
         (ENNReal.ofReal Q) P ≤
       ENNReal.ofReal (boundaryConst Cd g nu * blockSize E F *
@@ -176,7 +178,7 @@ theorem eLpNorm_belowStartSup_le (Q : ℝ) :
       (PortableHistory.blockSize_nonneg hE hF hFpd)) (Real.rpow_pos_of_pos (by norm_num) _).le
   have hmono : eLpNorm (belowStartSup rho (roundedGrid jStar nu) jStar t Z F)
       (ENNReal.ofReal Q) P ≤ eLpNorm (c • Y) (ENNReal.ofReal Q) P := by
-    refine eLpNorm_mono_enorm_ae ?_
+    refine eLpNorm_mono_enorm_ae hS ?_
     filter_upwards [ae_belowStartSup_le_mul hCd hg hE hEpd hY hnu hq hF hFpd hrho t hZ]
       with a ha
     have hnn : (0 : ℝ) ≤ c * Y a := mul_nonneg hc0 (le_trans zero_le_one (hY.one_le a))

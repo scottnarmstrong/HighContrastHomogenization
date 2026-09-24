@@ -55,10 +55,10 @@ theorem blockVecDot_scaledBlockIdentity (c : ℝ) (X : BlockVec d) :
   rw [blockVecDot_blockMatVecMul_eq_sum, Finset.mul_sum]
   refine Finset.sum_congr rfl fun α _ => ?_
   rw [Finset.sum_eq_single α]
-  · rw [blockMatEntry_scaledBlockIdentity, if_pos rfl]
+  · rw [blockMatEntry_scaledBlockIdentity, ite_eq_left rfl]
     ring
   · intro β _ hβ
-    rw [blockMatEntry_scaledBlockIdentity, if_neg (Ne.symm hβ)]
+    rw [blockMatEntry_scaledBlockIdentity, ite_eq_right (Ne.symm hβ)]
     ring
   · intro hcon
     exact absurd (Finset.mem_univ α) hcon

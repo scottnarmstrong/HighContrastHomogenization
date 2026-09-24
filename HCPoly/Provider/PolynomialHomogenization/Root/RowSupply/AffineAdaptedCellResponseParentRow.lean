@@ -79,10 +79,10 @@ theorem exists_normalizedRootLoads_adaptedTarget_le_enclosingParentRow
     intro r
     by_cases hr : r ≤ M
     · rw [show B r = Book.Ch02.maxDescendantNormalizedBlockResponseAtScale
-          (originCube d M) r aRef (1 : Mat d) by simp only [B, if_pos hr]]
+          (originCube d M) r aRef (1 : Mat d) by simp only [B, ite_eq_left hr]]
       exact Book.Ch02.maxDescendantNormalizedBlockResponseAtScale_nonneg
         (originCube d M) hr aRef (1 : Mat d)
-    · simp only [B, if_neg hr, le_rfl]
+    · simp only [B, ite_eq_right hr, le_rfl]
   have hmax : ∀ (u : ℕ) (w : Fin d → ℤ), w ∈ Z (n - (u : ℤ)) →
       Book.Ch02.normalizedBlockResponseMax
           (translateCube w (originCube d (n - (u : ℤ)))) aRef (1 : Mat d) ≤
@@ -93,14 +93,14 @@ theorem exists_normalizedRootLoads_adaptedTarget_le_enclosingParentRow
         descendantsAtScale (originCube d M) (n - (u : ℤ)) := by
       apply translateCube_mem_descendantsAtScale_originCube_of_mem_adaptedTarget_filling
         hq hnM hZ hEnclose hw
-    simpa only [B, if_pos hscale] using
+    simpa only [B, ite_eq_left hscale] using
       Book.Ch02.normalizedBlockResponseMax_le_maxDescendantNormalizedBlockResponseAtScale
         aRef (1 : Mat d) hdesc
   have hB_at (u : ℕ) : B (n - (u : ℤ)) =
       Book.Ch02.maxDescendantNormalizedBlockResponseAtScale
         (originCube d M) (n - (u : ℤ)) aRef (1 : Mat d) := by
     have hscale : n - (u : ℤ) ≤ M := by omega
-    simp only [B, if_pos hscale]
+    simp only [B, ite_eq_left hscale]
   have hsumB : Summable (fun u : ℕ ↦
       (if u = 0 then 1 else
         6 * (d : ℝ) * Real.sqrt d * ‖p⁻¹ * q‖ *

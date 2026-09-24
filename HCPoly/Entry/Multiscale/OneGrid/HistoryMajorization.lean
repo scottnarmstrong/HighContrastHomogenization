@@ -125,7 +125,7 @@ theorem fluctuationHistory_decompose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
       (fun j => Z j m) (fun j => if h : j ≤ m then (hfin j m h).toFinset else ∅)
       (fun j => v j m) (fun j => hv j m) ?_ ?_ L hL hLint (houter m).1 hlower
     · intro j hj z hz
-      rw [dif_pos (Finset.mem_Icc.mp hj).2]
+      rw [dite_eq_left (Finset.mem_Icc.mp hj).2]
       exact (hfin j m (Finset.mem_Icc.mp hj).2).mem_toFinset.mpr hz
     · intro j _ z _
       exact hint j m z
@@ -166,7 +166,7 @@ theorem fluctuationHistory_decompose (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
         (w j m * ((hfin j m hjm).toFinset.card : ℝ)) *
           (Real.exp ((Q : ℝ) * detIncrement P q j m) * M j) := by
       dsimp only [U]
-      rw [dif_pos hjm, integral_const_mul, integral_finsetSum _ (fun z _ => hint j m z)]
+      rw [dite_eq_left hjm, integral_const_mul, integral_finsetSum _ (fun z _ => hint j m z)]
       calc
         _ ≤ w j m * ∑ _z ∈ (hfin j m hjm).toFinset,
             (Real.exp ((Q : ℝ) * detIncrement P q j m) * M j) :=

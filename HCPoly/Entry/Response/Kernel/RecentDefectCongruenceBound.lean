@@ -367,7 +367,7 @@ private theorem measurable_blockOpNorm {α : Type*} [MeasurableSpace α]
     (X : α → BlockMat d) (h : ∀ ζ δ, Measurable fun a => toFullBlockMat (X a) ζ δ) :
     Measurable fun a => blockOpNorm (X a) := by
   have hM : Measurable fun a => toFullBlockMat (X a) :=
-    measurable_pi_lambda _ fun ζ => measurable_pi_lambda _ fun δ => h ζ δ
+    Measurable.of_eval fun ζ => Measurable.of_eval fun δ => h ζ δ
   exact continuous_norm.measurable.comp hM
 
 /-- Measurability of the two-sided all-scale maximum: the `respAllScaleAbs` twin of

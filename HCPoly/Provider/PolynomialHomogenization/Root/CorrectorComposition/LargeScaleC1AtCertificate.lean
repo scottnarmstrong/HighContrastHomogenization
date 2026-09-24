@@ -94,9 +94,9 @@ theorem largeScaleC1_of_terminal_atCertificate (d : ℕ) [NeZero d]
   · intro ϑ
     dsimp only
     by_cases hϑ : ϑ ∈ Ioo (0 : ℝ) 1
-    · rw [dif_pos hϑ]
+    · rw [dite_eq_left hϑ]
       exact (Classical.choose_spec (key ϑ hϑ)).1
-    · rw [dif_neg hϑ]
+    · rw [dite_eq_right hϑ]
       norm_num
   · intro abar Phi gradPhi hmarker a x hx hgood R hxR u Du hu hweak ϑ hϑ
     have hmain := (Classical.choose_spec (key ϑ hϑ)).2
@@ -105,7 +105,7 @@ theorem largeScaleC1_of_terminal_atCertificate (d : ℕ) [NeZero d]
     refine ⟨e, fun r hr ↦ ?_⟩
     have hval : (fun ϑ' ↦ if hϑ' : ϑ' ∈ Ioo (0 : ℝ) 1 then
         Classical.choose (key ϑ' hϑ') else 1) ϑ =
-        Classical.choose (key ϑ hϑ) := dif_pos hϑ
+        Classical.choose (key ϑ hϑ) := dite_eq_left hϑ
     rw [hval]
     exact he r hr
 

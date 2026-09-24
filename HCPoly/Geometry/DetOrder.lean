@@ -108,7 +108,7 @@ theorem le_smul_one_of_eigenvalues_le {A : Matrix n n ℝ} (hA : A.IsHermitian) 
 /-- **A matrix above the identity has determinant at least one.** -/
 theorem one_le_det_of_one_le {A : Matrix n n ℝ} (hA : A.PosDef) (h : 1 ≤ A) : 1 ≤ A.det := by
   rw [det_eq_prod_eigenvalues_real hA.isHermitian]
-  have hbound := Finset.prod_le_prod (s := (Finset.univ : Finset n)) (f := fun _ => (1 : ℝ))
+  have hbound := Finset.prod_le_prod₀ (s := (Finset.univ : Finset n)) (f := fun _ => (1 : ℝ))
     (g := hA.isHermitian.eigenvalues) (fun _ _ => zero_le_one)
     (fun i _ => one_le_eigenvalues_of_one_le hA.isHermitian h i)
   simpa using hbound
@@ -124,7 +124,7 @@ theorem norm_le_det_of_one_le {A : Matrix n n ℝ} (hA : A.PosDef) (h : 1 ≤ A)
   rw [det_eq_prod_eigenvalues_real hA.isHermitian,
     ← Finset.mul_prod_erase _ _ (Finset.mem_univ i)]
   have hrest : (1 : ℝ) ≤ ∏ j ∈ Finset.univ.erase i, hA.isHermitian.eigenvalues j := by
-    have hbound := Finset.prod_le_prod (s := Finset.univ.erase i) (f := fun _ => (1 : ℝ))
+    have hbound := Finset.prod_le_prod₀ (s := Finset.univ.erase i) (f := fun _ => (1 : ℝ))
       (g := hA.isHermitian.eigenvalues) (fun _ _ => zero_le_one)
       (fun j _ => one_le_eigenvalues_of_one_le hA.isHermitian h j)
     simpa using hbound

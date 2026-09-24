@@ -142,20 +142,20 @@ theorem measurable_localGradientShellLift {d : ℕ} {E : Type*}
 
 private noncomputable def localValueStrongRepresentative {d : ℕ}
     (z : NormalizedLocalH1Carrier d) (n : ℕ) : Vec d → ℝ :=
-  let h := (Lp.memLp (z.valueComponent n)).1
+  let h := (Lp.memLp (z.valueComponent n)).aestronglyMeasurable
   h.mk (z.valueComponent n)
 
 private theorem stronglyMeasurable_localValueStrongRepresentative {d : ℕ}
     (z : NormalizedLocalH1Carrier d) (n : ℕ) :
     StronglyMeasurable (localValueStrongRepresentative z n) := by
-  exact (Lp.memLp (z.valueComponent n)).1.stronglyMeasurable_mk
+  exact (Lp.memLp (z.valueComponent n)).aestronglyMeasurable.stronglyMeasurable_mk
 
 private theorem valueComponent_ae_eq_localValueStrongRepresentative {d : ℕ}
     (z : NormalizedLocalH1Carrier d) (n : ℕ) :
     z.valueComponent n
       =ᵐ[volumeMeasureOn (localGradientCube d n)]
         localValueStrongRepresentative z n := by
-  exact (Lp.memLp (z.valueComponent n)).1.ae_eq_mk
+  exact (Lp.memLp (z.valueComponent n)).aestronglyMeasurable.ae_eq_mk
 
 private theorem localValueStrongRepresentative_ae_eq_of_le {d m n : ℕ}
     (z : NormalizedLocalH1Carrier d) (hmn : m ≤ n) :
@@ -185,20 +185,20 @@ private noncomputable def localGradientVectorComponent {d : ℕ}
 
 private noncomputable def localGradientStrongRepresentative {d : ℕ}
     (z : NormalizedLocalH1Carrier d) (n : ℕ) : Vec d → Vec d :=
-  let h := (Lp.memLp (localGradientVectorComponent z n)).1
+  let h := (Lp.memLp (localGradientVectorComponent z n)).aestronglyMeasurable
   h.mk (localGradientVectorComponent z n)
 
 private theorem stronglyMeasurable_localGradientStrongRepresentative {d : ℕ}
     (z : NormalizedLocalH1Carrier d) (n : ℕ) :
     StronglyMeasurable (localGradientStrongRepresentative z n) := by
-  exact (Lp.memLp (localGradientVectorComponent z n)).1.stronglyMeasurable_mk
+  exact (Lp.memLp (localGradientVectorComponent z n)).aestronglyMeasurable.stronglyMeasurable_mk
 
 private theorem localGradientVectorComponent_ae_eq_strongRepresentative {d : ℕ}
     (z : NormalizedLocalH1Carrier d) (n : ℕ) :
     localGradientVectorComponent z n
       =ᵐ[volumeMeasureOn (localGradientCube d n)]
         localGradientStrongRepresentative z n := by
-  exact (Lp.memLp (localGradientVectorComponent z n)).1.ae_eq_mk
+  exact (Lp.memLp (localGradientVectorComponent z n)).aestronglyMeasurable.ae_eq_mk
 
 private theorem localGradientVectorComponent_ae_eq_of_le {d m n : ℕ}
     (z : NormalizedLocalH1Carrier d) (hmn : m ≤ n) :

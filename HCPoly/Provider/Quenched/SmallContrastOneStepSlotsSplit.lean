@@ -213,8 +213,21 @@ theorem exists_one_step_with_slots_of_block_at_level_conv_split (d : ℕ) (hd : 
     rwa [hz] at h
   have hEt : BlockPosDef (adaptedMean P q t) :=
     (finite_adaptedMean_of_coarseEllipticityDagger hdag hq t).2
+  have hXm : AEStronglyMeasurable (fun a => schattenSize 2
+      (blockSub (coarseBlock (adaptedCell q t) a) (adaptedMean P q t))
+      (adaptedMean P q t)) P := by
+    refine Transport.aestronglyMeasurable_schattenSize (by exact even_two)
+      (fun a => isSymmetricBlockMat_blockSub (isSymmetricBlockMat_coarseBlock _ a)
+        (Recurrence.isSymmetricBlockMat_adaptedMean P q t)) ?_
+    intro α β
+    have hmA : AEStronglyMeasurable
+        (fun a : CoeffSpace d ↦ toFullBlockMat (coarseBlock (adaptedCell q t) a) α β) P :=
+      Recurrence.hasMeasurableCoarseBlock_adaptedCell P hq t α β
+    have h := hmA.sub
+      (aestronglyMeasurable_const (b := toFullBlockMat (adaptedMean P q t) α β))
+    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using! h
   have hvmean := entry_supply_mean_slot_bound_at (E := E) hEt hFsym hFpd hcF0
-    hkap0 hFeq hcompE hvart
+    hkap0 hFeq hcompE hvart hXm
   -- the smallness pack
   obtain ⟨heps1, hsmallC, hdropAll⟩ :=
     account_smallness_pack hgrid

@@ -222,13 +222,13 @@ theorem observationHomogenizationError_le_referencePowerTail_fixedParent
     intro u
     by_cases hu : u = 0
     · subst u
-      simpa only [if_pos, Int.ofNat_zero, neg_zero, zpow_zero, mul_one, C,
+      simpa only [ite_eq_left, Int.ofNat_zero, neg_zero, zpow_zero, mul_one, C,
         observationFillingCoefficient] using
         le_max_left (1 : ℝ)
           (6 * (d : ℝ) * Real.sqrt d *
             ‖(epsilonAffineGrid epsilon abar)⁻¹ *
               Selection.normalizedRoot (symmPart abar)‖)
-    · rw [if_neg hu]
+    · rw [ite_eq_right hu]
       exact mul_le_mul_of_nonneg_right
         (le_max_right (1 : ℝ)
           (6 * (d : ℝ) * Real.sqrt d *

@@ -173,9 +173,9 @@ theorem response_source_load_bound (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
     have hcfun0 : ∀ n, 0 ≤ cfun n := by
       intro n
       by_cases h : n ≤ N
-      · simp only [hcfun, h, if_true]
+      · simp only [hcfun, h, ite_true]
         exact mul_nonneg (mul_nonneg (by norm_num) (hpow1 n)) (mul_nonneg _hCc.le hsqκ)
-      · simp only [hcfun, h, if_false]
+      · simp only [hcfun, h, ite_false]
         exact mul_nonneg (mul_nonneg (mul_nonneg (mul_nonneg hCsc.le hasp0) hecc0)
           (hpow2 (n - N))) (mul_nonneg _hCc.le hsqκ)
     -- the per-cell Loewner bound, in both regimes
@@ -216,7 +216,7 @@ theorem response_source_load_bound (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
         refine fun V => le_trans (le_trans (step1 V) (step2 V)) ?_
         rw [blockScale_blockScale]
         refine Source.blockScale_le_blockScale_of_pos hM0pd ?_ V
-        simp only [hcfun, hn, if_true]
+        simp only [hcfun, hn, ite_true]
         exact mul_le_mul_of_nonneg_right hscal (mul_nonneg _hCc.le hsqκ)
       · have h1 := hcell P E Ψ Kg Src raw.stat raw.ell jStar raw.hj hthr (explicitCanonicalMetric F)
           hmF s hjs hwin (s - (n : ℤ)) z
@@ -239,7 +239,7 @@ theorem response_source_load_bound (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
         refine fun V => le_trans (le_trans (step1 V) (step2 V)) ?_
         rw [blockScale_blockScale]
         refine Source.blockScale_le_blockScale_of_pos hM0pd ?_ V
-        simp only [hcfun, Nat.not_le.mpr hn, if_false]
+        simp only [hcfun, Nat.not_le.mpr hn, ite_false]
         exact le_rfl
     -- the two-regime summation
     set Msc : ℝ := Cl * κ with hMsc
@@ -264,7 +264,7 @@ theorem response_source_load_bound (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
       intro n hn
       have : u n = (6 * (Cc * Real.sqrt κ) * Msc) *
           (((3 : ℝ) ^ (-((3 : ℝ) / 2))) * ((3 : ℝ) ^ Quenched.contrastRho γ)) ^ n := by
-        simp only [hudef, hcfun, hn, if_true, mul_pow, hmulpow n]
+        simp only [hudef, hcfun, hn, ite_true, mul_pow, hmulpow n]
         ring
       rw [this, hr1eq]
     have hsmall2 : aspectRatio E * (‖explicitCanonicalMetric F‖ * ‖(explicitCanonicalMetric F)⁻¹‖) *
@@ -297,7 +297,7 @@ theorem response_source_load_bound (d : ℕ) (_hd : 2 ≤ d) (γ : ℝ)
           (aspectRatio E * (‖explicitCanonicalMetric F‖ * ‖(explicitCanonicalMetric F)⁻¹‖) *
             ((3 : ℝ) ^ (-((3 : ℝ) / 2))) ^ N) *
           (((3 : ℝ) ^ (-((3 : ℝ) / 2))) * ((3 : ℝ) ^ γ)) ^ (n - N) := by
-        simp only [hudef, hcfun, Nat.not_le.mpr hn, if_false, mul_pow, hmulpow n, hpowsplit]
+        simp only [hudef, hcfun, Nat.not_le.mpr hn, ite_false, mul_pow, hmulpow n, hpowsplit]
         ring
       rw [hue, hr2eq]
       refine mul_le_mul_of_nonneg_right ?_ (le_of_lt (pow_pos hr2pos _))

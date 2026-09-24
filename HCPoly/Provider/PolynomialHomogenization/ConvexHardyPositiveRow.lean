@@ -44,10 +44,11 @@ private theorem isProbabilityMeasure_positiveRowNormalizedDomainMeasure
 
 private theorem positiveRow_eLpNorm_two_eq_rpow
     {A : Type*} [MeasurableSpace A]
-    {E : Type*} [NormedAddCommGroup E] (f : A → E) (mu : Measure A) :
+    {E : Type*} [NormedAddCommGroup E] (f : A → E) (mu : Measure A)
+    (hf : AEStronglyMeasurable f mu) :
     eLpNorm f 2 mu =
       (∫⁻ x, ‖f x‖ₑ ^ (2 : ℝ) ∂mu) ^ (1 / (2 : ℝ)) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hf]
   norm_num
 
 private theorem integral_positiveRowNormalizedDomainMeasure_eq_volumeAverageVec
@@ -93,9 +94,9 @@ theorem ofReal_vecNormSq_volumeAverageVec_le_eVolumeAverage
       (∫⁻ x, ‖FH x‖ₑ ^ (2 : ℝ) ∂mu) ^ (1 / (2 : ℝ)) := by
     have hcmp := eLpNorm_le_eLpNorm_of_exponent_le
       (μ := mu) (p := 1) (q := 2) (f := FH)
-      (by norm_num) hFHmu.aestronglyMeasurable
-    rwa [eLpNorm_one_eq_lintegral_enorm,
-      positiveRow_eLpNorm_two_eq_rpow] at hcmp
+      (by norm_num)
+    rwa [eLpNorm_one_eq_lintegral_enorm hFHmu.aestronglyMeasurable,
+      positiveRow_eLpNorm_two_eq_rpow _ _ hFHmu.aestronglyMeasurable] at hcmp
   have hpow := ENNReal.rpow_le_rpow (hL1.trans hL2)
     (by norm_num : (0 : ℝ) ≤ 2)
   have hmean : ∫ x, FH x ∂mu =

@@ -169,7 +169,10 @@ theorem lintegral_iSup_translate_le {P : Measure (CoeffSpace d)}
 /-- **The `Q`-th power of the centered moment `v_j^q` is the lower integral of
 the `Q`-th power of the Schatten size.** -/
 theorem centeredMoment_rpow (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 0 < Q) (q : Mat d)
-    (j : ℤ) :
+    (j : ℤ)
+    (hmeas : AEStronglyMeasurable (fun x => schattenSize Q
+      (blockSub (coarseBlock (adaptedCell q j) x) (adaptedMean P q j))
+      (adaptedMean P q j)) P) :
     centeredMoment P Q q j ^ Q =
       ∫⁻ x, ENNReal.ofReal (schattenSize Q
         (blockSub (coarseBlock (adaptedCell q j) x) (adaptedMean P q j))
@@ -185,7 +188,7 @@ theorem centeredMoment_rpow (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 0 < Q) 
       (isSymmetricBlockMat_blockSub (isSymmetricBlockMat_coarseBlock _ x)
         (Recurrence.isSymmetricBlockMat_adaptedMean P q j))) Q
   rw [centeredMoment, lqSchattenSize,
-    eLpNorm_eq_lintegral_rpow_enorm_toReal hne (by simp), htoReal, one_div,
+    eLpNorm_eq_lintegral_rpow_enorm_toReal hne (by simp) hmeas, htoReal, one_div,
     ENNReal.rpow_inv_rpow hQ.ne']
   exact lintegral_congr fun x => by rw [Real.enorm_eq_ofReal (hnn x)]
 

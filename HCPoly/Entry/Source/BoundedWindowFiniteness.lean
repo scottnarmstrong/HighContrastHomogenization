@@ -243,7 +243,7 @@ theorem memLqSchatten_congruence {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ
     (B : FullBlockMat d) :
     SchattenMemLp P N (fun a => ofFullBlockMat (B.conjTranspose * toFullBlockMat (A a) * B)) := by
   have hm : AEMeasurable (fun a => toFullBlockMat (A a)) P :=
-    aemeasurable_pi_lambda _ (fun α => aemeasurable_pi_lambda _ (fun β =>
+    AEMeasurable.of_eval (fun α => AEMeasurable.of_eval (fun β =>
       (hA.measurable α β).aemeasurable))
   have hc : AEMeasurable (fun a => B.conjTranspose * toFullBlockMat (A a) * B) P :=
     (aemeasurable_const.mul hm).mul aemeasurable_const

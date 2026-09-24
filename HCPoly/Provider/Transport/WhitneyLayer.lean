@@ -172,22 +172,22 @@ theorem volume_layer_centeredCube_le (j : ℤ) {t : ℝ} (ht : 0 ≤ t) :
       · rintro ⟨hz, hi⟩ k
         by_cases hk : k = i
         · subst hk
-          rw [if_pos rfl]
+          rw [ite_eq_left rfl]
           exact ⟨⟨(hz k).1, (hz k).2⟩, hi⟩
-        · rw [if_neg hk]
+        · rw [ite_eq_right hk]
           exact ⟨(hz k).1, (hz k).2⟩
       · intro h
         refine ⟨fun k => ?_, ?_⟩
         · by_cases hk : k = i
           · subst hk
             have := h k
-            rw [if_pos rfl] at this
+            rw [ite_eq_left rfl] at this
             exact ⟨this.1.1, this.1.2⟩
           · have := h k
-            rw [if_neg hk] at this
+            rw [ite_eq_right hk] at this
             exact ⟨this.1, this.2⟩
         · have := h i
-          rw [if_pos rfl] at this
+          rw [ite_eq_left rfl] at this
           exact this.2
     calc volume {z : Vec d | z ∈ centeredCube d j ∧
             (1 / 2 : ℝ) * (3 : ℝ) ^ j - t ≤ |z i|}
@@ -198,12 +198,12 @@ theorem volume_layer_centeredCube_le (j : ℤ) {t : ℝ} (ht : 0 ≤ t) :
           rw [hpi, volume_pi, MeasureTheory.Measure.pi_pi]
       _ ≤ ∏ k : Fin d, ((if k = i then ENNReal.ofReal c else 1) *
             ENNReal.ofReal ((3 : ℝ) ^ j)) := by
-          refine Finset.prod_le_prod' fun k _ => ?_
+          refine Finset.prod_le_prod fun k _ => ?_
           by_cases hk : k = i
           · subst hk
-            rw [if_pos rfl, if_pos rfl, hcmul]
+            rw [ite_eq_left rfl, ite_eq_left rfl, hcmul]
             exact volume_slabLine_le₀ j ht
-          · rw [if_neg hk, if_neg hk, one_mul, Real.volume_Ioo]
+          · rw [ite_eq_right hk, ite_eq_right hk, one_mul, Real.volume_Ioo]
             refine le_of_eq (congrArg ENNReal.ofReal ?_)
             ring
       _ = (∏ k : Fin d, if k = i then ENNReal.ofReal c else 1) *

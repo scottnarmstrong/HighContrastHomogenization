@@ -254,13 +254,13 @@ theorem IsAELocallyUniformlyElliptic.exists_ae_isEllipticMatrix_ae_eq_restrict
     hminpos, hminle, ?_, ?_⟩
   · filter_upwards [hell] with x hx
     by_cases hxb : x ∈ Metric.ball (0 : Vec d) R
-    · simp only [if_pos hxb]
+    · simp only [ite_eq_left hxb]
       exact (hx hxb).mono hminpos (min_le_left _ _) (le_max_left _ _)
-    · simp only [if_neg hxb]
+    · simp only [ite_eq_right hxb]
       exact (isEllipticMatrix_one_le (d := d) le_rfl).mono hminpos
         (min_le_right _ _) (le_max_right _ _)
   · filter_upwards [ae_restrict_mem_of_subset hSR measurableSet_ball] with x hxb
-    simp only [if_pos hxb]
+    simp only [ite_eq_left hxb]
 
 /-- A field uniformly elliptic almost everywhere on all of `ℝ^d` is locally
 uniformly elliptic, with the same pair of constants on every ball. -/
@@ -473,10 +473,10 @@ private theorem exists_ball_representative {a : Source.AKL.Field d}
       AEEqFun.coeFn_smul (lam⁻¹ : ℝ) a] with x hbx hellx hsmx
     rw [hbx]
     by_cases hx : x ∈ Metric.ball (0 : Vec d) R
-    · rw [if_pos hx, hsmx]
+    · rw [ite_eq_left hx, hsmx]
       simp only [Pi.smul_apply]
       exact isEllipticMatrix_inv_smul hlam (hellx hx)
-    · rw [if_neg hx]
+    · rw [ite_eq_right hx]
       exact isEllipticMatrix_one_le hΘ
   obtain ⟨g, hgm, hgp, hbg⟩ :=
     (Source.AKL.field_ae_elliptic_iff_exists_pointwise_representative hΘ
@@ -486,7 +486,7 @@ private theorem exists_ball_representative {a : Source.AKL.Field d}
   filter_upwards [AEEqFun.coeFn_mk _ hcmeas.aestronglyMeasurable, hbg,
     AEEqFun.coeFn_smul (lam⁻¹ : ℝ) a] with x hbx hbgx hsmx hxball
   have hgx : g x = lam⁻¹ • a x := by
-    rw [← hbgx, hbx, if_pos hxball, hsmx]
+    rw [← hbgx, hbx, ite_eq_left hxball, hsmx]
     rfl
   rw [hgx, smul_smul, mul_inv_cancel₀ hlam.ne', one_smul]
 
@@ -506,13 +506,13 @@ theorem exists_pointwise_elliptic_representative {a : Source.AKL.Field d}
     fun x => if x ∈ Metric.ball (0 : Vec d) R then f x else (⇑a : Vec d → Mat d) x,
     hlam, hle, Measurable.ite measurableSet_ball hfm a.measurable, ?_, ?_⟩
   · intro x hx
-    simp only [if_pos (hSR hx)]
+    simp only [ite_eq_left (hSR hx)]
     exact hfp x
   · filter_upwards [hfa] with x hx
     by_cases hxb : x ∈ Metric.ball (0 : Vec d) R
-    · simp only [if_pos hxb]
+    · simp only [ite_eq_left hxb]
       exact hx hxb
-    · simp only [if_neg hxb]
+    · simp only [ite_eq_right hxb]
 
 /-- **The locally elliptic representative.**  Every field of the coefficient
 space has one measurable representative, equal to it almost everywhere, that is

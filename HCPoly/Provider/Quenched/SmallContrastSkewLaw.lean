@@ -84,7 +84,7 @@ instance isProbabilityMeasure_recenteredLaw (P : Measure (CoeffSpace d))
     [IsProbabilityMeasure P] {g : Mat d} (hg : IsSkewMat g) :
     IsProbabilityMeasure (recenteredLaw P hg) := by
   rw [recenteredLaw]
-  exact P.isProbabilityMeasure_map (Selection.measurable_subSkew g hg).aemeasurable
+  infer_instance
 
 /-! ## Stationarity is invariant -/
 

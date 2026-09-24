@@ -118,7 +118,7 @@ theorem profile_old_terms_advance_le (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     rw [hweight]
     have h := mul_le_mul_of_nonneg_right
       (mul_le_mul_of_nonneg_left (hadv n hn hnm) (mul_nonneg (hw (L : ℝ)) (hw ((m : ℝ) - (n : ℝ))))) hhistory
-    convert h using 1 <;> try rfl
+    (convert h using 1; try rfl)
     ring
   have hmean : (∑ j ∈ Finset.Ico n m,
       w (((m + L : ℤ) : ℝ) - 1 - (j : ℝ)) * p j (m + L)) ≤

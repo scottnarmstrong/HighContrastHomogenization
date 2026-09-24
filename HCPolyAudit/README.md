@@ -54,8 +54,8 @@ lake build HCPolyAudit
 lake env comparator HCPolyAudit/PolynomialEntry/comparator.json
 ```
 
-with `leanprover/comparator` (commit `5756749`), `lean4export` at the
-project's toolchain tag `v4.33.0` (commit `15f6055`) and `landrun`
+with `leanprover/comparator` (commit `32bd61d`), `lean4export` at the
+project's toolchain tag `v4.35.0-rc2` (commit `6cea977`) and `landrun`
 (`v0.1.18`) on the path, the same pins the continuous-integration workflow
 builds (see the comparator's README for the sandboxed `systemd-run` form);
 the acceptance line is `Your solution is okay!`.

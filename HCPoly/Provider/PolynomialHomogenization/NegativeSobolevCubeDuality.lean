@@ -102,8 +102,9 @@ private noncomputable def cubeEuclideanWspL2FieldOfHsNormSq
     simpa only [BoundedMeasurableDomain.normalizedEuclideanLpENorm,
       BoundedMeasurableDomain.normalizedLpENorm,
       cubeBoundedMeasurableDomain_normalizedVolume_eq_normalizedCubeMeasure,
-      euclideanNorm_eq_norm_ofVec, eLpNorm_norm] using
+      euclideanNorm_eq_norm_ofVec, eLpNorm_norm _ hGhilbertMeas] using
         normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage Q G
+          (by simpa only [euclideanNorm_eq_norm_ofVec] using hGhilbertMeas.norm)
   have hL2top : eLpNorm (fun x => HilbertVec.ofVec (G x)) 2
       (normalizedCubeMeasure Q) ≠ ⊤ := by
     intro htop
@@ -112,7 +113,7 @@ private noncomputable def cubeEuclideanWspL2FieldOfHsNormSq
     norm_num
   have hGmemL2 : MemLp (fun x => HilbertVec.ofVec (G x)) 2
       (normalizedCubeMeasure Q) :=
-    ⟨hGhilbertMeas, lt_top_iff_ne_top.mpr hL2top⟩
+    lt_top_iff_ne_top.mpr hL2top
   have hsemisq :
       (cubeEuclideanWspESeminorm Q sF FiniteLpExponent.two G) ^ (2 : ℕ) =
         fracSeminormSq (openCubeSet Q) s G := by
@@ -344,12 +345,17 @@ theorem cubeEuclideanNegativeWspSmoothDualENorm_le_negSobolevNorm
   have hL2sq : L2err ^ (2 : ℕ) =
       eVolumeAverage (openCubeSet Q)
         (fun x => ENNReal.ofReal (vecNormSq (psi x - h.toField x))) := by
+    have herrHilbertMeas : AEStronglyMeasurable
+        (fun x => HilbertVec.ofVec (psi x - h.toField x)) (normalizedCubeMeasure Q) :=
+      ((HilbertVec.ofVecL d).continuous.comp
+        (hpsi.contDiff.continuous.sub h.contDiff.continuous)).aestronglyMeasurable
     simpa only [L2err, BoundedMeasurableDomain.normalizedEuclideanLpENorm,
       BoundedMeasurableDomain.normalizedLpENorm,
       cubeBoundedMeasurableDomain_normalizedVolume_eq_normalizedCubeMeasure,
-      euclideanNorm_eq_norm_ofVec, eLpNorm_norm] using
+      euclideanNorm_eq_norm_ofVec, eLpNorm_norm _ herrHilbertMeas] using
         normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage Q
           (fun x => psi x - h.toField x)
+          (by simpa only [euclideanNorm_eq_norm_ofVec] using herrHilbertMeas.norm)
   have hweighted : W * L2err ^ (2 : ℕ) ≤
       hsNormSq (openCubeSet Q) s (fun x => psi x - h.toField x) := by
     unfold hsNormSq

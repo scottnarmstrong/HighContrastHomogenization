@@ -147,10 +147,10 @@ theorem hasSubgaussianMGF_sum_standardCell_colour
             show (fun i => ((w' i : ZMod 3))) = col w' from rfl, hw, hw']
         simpa [hU, hw, hw'] using
           unitSeparated_standardCell_of_intCast_eq hk hww hcolour
-      · simp only [hU, if_neg hw']
+      · simp only [hU, ite_eq_right hw']
         intro x y _ hy
         exact absurd hy (Set.notMem_empty y)
-    · simp only [hU, if_neg hw]
+    · simp only [hU, ite_eq_right hw]
       intro x y hx _
       exact absurd hx (Set.notMem_empty x)
   have hYloc : ∀ w, @Measurable (CoeffSpace d) ℝ (coeffSigma d (U w)) _ (Y w) := by
@@ -159,7 +159,7 @@ theorem hasSubgaussianMGF_sum_standardCell_colour
     · have hUw : U w = standardCell d k w := by simp [hU, hw]
       rw [hUw]
       simpa [hY, hw] using hXloc w
-    · simp only [hY, if_neg hw]
+    · simp only [hY, ite_eq_right hw]
       exact measurable_const
   have hYbd : ∀ w, ∀ᵐ a ∂P, |Y w a| ≤ 1 := by
     intro w

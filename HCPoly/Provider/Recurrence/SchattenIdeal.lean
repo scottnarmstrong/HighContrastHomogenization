@@ -148,7 +148,8 @@ block. -/
 theorem lqSchattenSize_le_of_le {P : Measure (CoeffSpace d)} {Ej Ep : BlockMat d}
     (hEj : (toFullBlockMat Ej).PosDef) (hEp : (toFullBlockMat Ep).PosDef)
     (hmean : toFullBlockMat Ep ≤ toFullBlockMat Ej) {W : CoeffSpace d → BlockMat d}
-    (hW : ∀ a, IsSymmetricBlockMat (W a)) {Q : ℝ} (hQ : 0 < Q) :
+    (hW : ∀ a, IsSymmetricBlockMat (W a)) {Q : ℝ} (hQ : 0 < Q)
+    (hWm : AEStronglyMeasurable (fun a => schattenSize Q (W a) Ep) P) :
     lqSchattenSize P Q W Ep ≤
       ENNReal.ofReal ((2 * d : ℝ) ^ Q⁻¹ * Real.exp (blockLogDet Ej - blockLogDet Ep)) *
         lqSchattenSize P Q W Ej := by
@@ -167,7 +168,7 @@ theorem lqSchattenSize_le_of_le {P : Measure (CoeffSpace d)} {Ej Ep : BlockMat d
     simpa [Real.norm_of_nonneg hp, Real.norm_of_nonneg (mul_nonneg hK0 hj)] using hle
   calc lqSchattenSize P Q W Ep
       ≤ eLpNorm (K • fun b => schattenSize Q (W b) Ej) (ENNReal.ofReal Q) P :=
-        eLpNorm_mono hptwise
+        eLpNorm_mono hWm hptwise
     _ = ‖K‖ₑ * lqSchattenSize P Q W Ej := eLpNorm_const_smul K _ _ _
     _ = ENNReal.ofReal K * lqSchattenSize P Q W Ej := by rw [Real.enorm_eq_ofReal hK0]
 
@@ -181,7 +182,8 @@ theorem transported_average_le {P : Measure (CoeffSpace d)} {Ej Ep : BlockMat d}
     (hEj : Book.Ch02.BlockPosDef Ej) (hEp : Book.Ch02.BlockPosDef Ep)
     (hmean : BlockMatLoewnerLE Ep Ej) {W : CoeffSpace d → BlockMat d}
     (hW : ∀ a, IsSymmetricBlockMat (W a)) {Q : ℝ} (hQ : 0 < Q) {c : ℝ}
-    {v : ℝ≥0∞} (haverage : lqSchattenSize P Q W Ej ≤ ENNReal.ofReal c * v) :
+    {v : ℝ≥0∞} (haverage : lqSchattenSize P Q W Ej ≤ ENNReal.ofReal c * v)
+    (hWm : AEStronglyMeasurable (fun a => schattenSize Q (W a) Ep) P) :
     lqSchattenSize P Q W Ep ≤
       ENNReal.ofReal ((2 * d : ℝ) ^ Q⁻¹ *
         Real.exp (blockLogDet Ej - blockLogDet Ep) * c) * v := by
@@ -192,7 +194,7 @@ theorem transported_average_le {P : Measure (CoeffSpace d)} {Ej Ep : BlockMat d}
   set K : ℝ := (2 * d : ℝ) ^ Q⁻¹ * Real.exp (blockLogDet Ej - blockLogDet Ep) with hK
   have hK0 : 0 ≤ K := by positivity
   calc lqSchattenSize P Q W Ep ≤ ENNReal.ofReal K * lqSchattenSize P Q W Ej :=
-        lqSchattenSize_le_of_le hEj' hEp' hmean' hW hQ
+        lqSchattenSize_le_of_le hEj' hEp' hmean' hW hQ hWm
     _ ≤ ENNReal.ofReal K * (ENNReal.ofReal c * v) := mul_le_mul_right haverage _
     _ = ENNReal.ofReal (K * c) * v := by rw [ENNReal.ofReal_mul hK0, mul_assoc]
 

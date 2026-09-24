@@ -127,8 +127,8 @@ theorem tsum_cutoff_geometric_head_le
     apply Finset.sum_congr rfl
     intro k _
     by_cases hk : X * q ^ (k + 1) ≤ C
-    · simp only [if_pos hk]
-    · simp only [if_neg hk, ENNReal.ofReal_zero]
+    · simp only [ite_eq_left hk]
+    · simp only [ite_eq_right hk, ENNReal.ofReal_zero]
   rw [hLift]
   exact ENNReal.ofReal_le_ofReal hReal
 

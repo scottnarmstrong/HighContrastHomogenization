@@ -144,10 +144,10 @@ theorem quenched_block_row_le_stoppingGeneration_of_endpoint_family [NeZero d]
               exact mul_le_mul_of_nonneg_right
                 (mul_le_mul_of_nonneg_right hCblk hdelta.le)
                 (Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 3) _)
-      rw [stoppingGeneration, dif_pos hcand]
+      rw [stoppingGeneration, dite_eq_left hcand]
       have hqm : q ≤ m := hq.trans (Nat.sub_le m nstar)
       simpa only [q, n, Nat.cast_sub hqm] using hmain
-    · rw [stoppingGeneration, dif_neg hcand]
+    · rw [stoppingGeneration, dite_eq_right hcand]
       have hfb := hfallback m hm hsource
       have hmstar : nstar ≤ m := hm
       have hcast : ((m - nstar + qfb : ℕ) : ℝ) =
@@ -158,7 +158,7 @@ theorem quenched_block_row_le_stoppingGeneration_of_endpoint_family [NeZero d]
       congr 2
       ring
   · unfold quenched_block_row
-    rw [if_neg hsource]
+    rw [ite_eq_right hsource]
     exact mul_nonneg (mul_nonneg hCblkPos.le hdelta.le)
       (Real.rpow_nonneg (by norm_num) _)
 

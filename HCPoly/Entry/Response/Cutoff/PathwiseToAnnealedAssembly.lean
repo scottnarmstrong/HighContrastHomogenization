@@ -567,9 +567,9 @@ theorem measurable_tsum_of_measurable {α : Type*} [MeasurableSpace α] {g : ℕ
       fun a => ∑' n, g n a := by
     funext a
     by_cases ha : Summable fun n => g n a
-    · rw [if_pos ha]
+    · rw [ite_eq_left ha]
       exact ((Summable.hasSum ha).tendsto_sum_nat).liminf_eq
-    · rw [if_neg ha, tsum_eq_zero_of_not_summable ha]
+    · rw [ite_eq_right ha, tsum_eq_zero_of_not_summable ha]
   rw [← hfun]
   exact Measurable.ite hsum (Measurable.liminf hpart) measurable_const
 

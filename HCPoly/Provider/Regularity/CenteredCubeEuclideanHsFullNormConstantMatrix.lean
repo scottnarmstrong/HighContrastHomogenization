@@ -47,6 +47,7 @@ theorem centeredCubeNormalizedEuclideanLpENorm_constMatrixMul_le
   unfold BoundedMeasurableDomain.normalizedEuclideanLpENorm
     BoundedMeasurableDomain.normalizedLpENorm
   apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul
+    (centeredCubeEuclideanL2FieldConstMatrixMul A F).euclideanMagnitudeMemL2.aestronglyMeasurable
   · exact Filter.Eventually.of_forall fun x ↦ by
       simpa only [centeredCubeEuclideanL2FieldConstMatrixMul_apply,
         Real.norm_eq_abs, abs_of_nonneg (euclideanNorm_nonneg _)] using

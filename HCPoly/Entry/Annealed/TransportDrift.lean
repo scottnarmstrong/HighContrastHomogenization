@@ -393,16 +393,16 @@ theorem exists_transport_bulk_fluctuations (d : ℕ) (hd : 2 ≤ d)
       adaptedLatticeAtScale q (cap p.1) ∩ adaptedCell qPlus (n + (L : ℤ)) := by
     have hh : (((if hr : cap p.1 ≤ cap p.1 then (hfin p (cap p.1) hr).toFinset else ∅) : Finset (Vec d)) : Set (Vec d)) ⊆
         adaptedLatticeAtScale q (cap p.1) ∩ adaptedCell qPlus (n + (L : ℤ)) := (hdata p hp).1 (cap p.1) le_rfl
-    simpa only [dif_pos le_rfl] using hh
+    simpa only [dite_eq_left le_rfl] using hh
   have hmasscap (p) (hp : p ∈ I) : ∑ _z ∈ Z p, v p ≤ 1 := by
     have hh : (∑ _z ∈ (if hr : cap p.1 ≤ cap p.1 then (hfin p (cap p.1) hr).toFinset else ∅), v p) ≤ 1 :=
       (hdata p hp).2.1
-    simpa only [dif_pos le_rfl] using hh
+    simpa only [dite_eq_left le_rfl] using hh
   have hrootcap (p) (hp : p ∈ I) : (∑ _z ∈ Z p, v p ^ 2) ^ ((1 : ℝ) / 2) ≤
       D * (3 : ℝ) ^ (-(d : ℝ) / 2 * (ell p.1 : ℝ)) := by
     have hh : (∑ _z ∈ (if hr : cap p.1 ≤ cap p.1 then (hfin p (cap p.1) hr).toFinset else ∅), v p ^ 2) ^ ((1 : ℝ) / 2) ≤
         D * (3 : ℝ) ^ (-(d : ℝ) / 2 * (ell p.1 : ℝ)) := (hdata p hp).2.2.1
-    simpa only [dif_pos le_rfl] using hh
+    simpa only [dite_eq_left le_rfl] using hh
   have hcaplo (p) (hp : p ∈ Il) : cap p.1 = p.1 - 1 := by
     have hh := (Finset.mem_filter.mp hp).2
     dsimp only [cap, ell] at hh ⊢
@@ -477,7 +477,7 @@ theorem transport_fluctuation_history_reindex {d : ℕ} (P : Measure (CoeffSpace
     ((alignedCenterSet_finite_card d j (t - j).toNat).1).toFinset else ∅
   have hZ (j : ℤ) (hj : j ≤ t) (w : Fin d → ℤ) : w ∈ Z j ↔ standardCellCenter j w ∈ centeredCube d t := by
     have he : j + ((t - j).toNat : ℤ) = t := by omega
-    simp only [Z, dif_pos hj, Set.Finite.mem_toFinset, he, Set.mem_ofPred_eq]
+    simp only [Z, dite_eq_left hj, Set.Finite.mem_toFinset, he, Set.mem_ofPred_eq]
   let I := (Finset.Icc (jStar : ℤ) t).biUnion (fun j => (Z j).image (fun w => (j, w)))
   have hI (p : ℤ × (Fin d → ℤ)) : p ∈ I ↔ p.1 ∈ Set.Icc (jStar : ℤ) t ∧
       standardCellCenter p.1 p.2 ∈ centeredCube d t := by
@@ -735,7 +735,7 @@ theorem exists_transport_whitney_reduction (d : ℕ) (hd : 2 ≤ d)
         (⟨r.1, (Finset.mem_Icc.mp r.2).2⟩ : {r : ℤ // r ≤ cap})) := fun _ _ h => Subtype.ext (congrArg (fun x : {r : ℤ // r ≤ cap} => x.1) h)
     dsimp only [U] at hu
     rw [Finset.sum_image (fun _ _ _ _ h => he h)] at hu
-    have hz (r) (hr : r ∈ Finset.Icc (jStar : ℤ) cap) : Z r = (hfin r (Finset.mem_Icc.mp hr).2).toFinset := dif_pos (Finset.mem_Icc.mp hr).2
+    have hz (r) (hr : r ∈ Finset.Icc (jStar : ℤ) cap) : Z r = (hfin r (Finset.mem_Icc.mp hr).2).toFinset := dite_eq_left (Finset.mem_Icc.mp hr).2
     have heq : (∑ r ∈ (Finset.Icc (jStar : ℤ) cap).attach,
         ∑ _z ∈ (hfin r.1 (Finset.mem_Icc.mp r.2).2).toFinset,
           (volume (adaptedCell q r.1)).toReal / (volume W).toReal) =
@@ -759,7 +759,7 @@ theorem exists_transport_whitney_reduction (d : ℕ) (hd : 2 ≤ d)
       (hTdata.mono fun _ h => h.1) (hTdata.mono fun _ h => h.2) hIG hmass
     intro r hr
     have hrc : r < cap := by have := (Finset.mem_Icc.mp hr).2; omega
-    simpa only [Z, dif_pos hrc.le] using! hrow r hrc
+    simpa only [Z, dite_eq_left hrc.le] using! hrow r hrc
 
 end
 end Homogenization.HighContrast.Annealed

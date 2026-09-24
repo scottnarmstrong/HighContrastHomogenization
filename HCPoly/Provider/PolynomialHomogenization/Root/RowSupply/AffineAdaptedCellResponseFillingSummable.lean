@@ -82,7 +82,7 @@ theorem summable_normalizedRoot_adaptedTarget_enclosingParentRow
     rw [← zpow_add₀ (by norm_num : (3 : ℝ) ≠ 0)]
     congr 1
     omega
-  simp only [hpos, if_false, A, C, Nat.cast_add, Nat.cast_one]
+  simp only [hpos, ite_false, A, C, Nat.cast_add, Nat.cast_one]
   rw [hscale]
   rw [← hpow]
   ring

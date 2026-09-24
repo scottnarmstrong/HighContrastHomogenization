@@ -381,7 +381,7 @@ theorem tendsto_continuousKSeminormIntegrand_of_tendsto_hilbertL2
         (nhds (ENNReal.ofReal (continuousKFunctional tau G ^ 2))) :=
       (ENNReal.continuous_ofReal.tendsto _).comp hKsq
     simp only [continuousKSeminormIntegrand,
-      continuousKFunctionalOnOpenScale, dif_pos ht]
+      continuousKFunctionalOnOpenScale, dite_eq_left ht]
     have hleft : Tendsto
         (fun n ↦ ENNReal.ofReal (Real.rpow t (-2 * sigma)) *
           ENNReal.ofReal (continuousKFunctional tau (F n) ^ 2)) atTop
@@ -393,7 +393,7 @@ theorem tendsto_continuousKSeminormIntegrand_of_tendsto_hilbertL2
     exact ENNReal.Tendsto.mul_const
       (b := ENNReal.ofReal t⁻¹) hleft (Or.inr ENNReal.ofReal_ne_top)
   · simp only [continuousKSeminormIntegrand,
-      continuousKFunctionalOnOpenScale, dif_neg ht, zero_pow (by norm_num : 2 ≠ 0),
+      continuousKFunctionalOnOpenScale, dite_eq_right ht, zero_pow (by norm_num : 2 ≠ 0),
       ENNReal.ofReal_zero, mul_zero]
     exact tendsto_const_nhds
 

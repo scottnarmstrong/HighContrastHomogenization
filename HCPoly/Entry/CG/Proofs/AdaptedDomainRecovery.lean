@@ -291,7 +291,7 @@ theorem isOpenBoundedConvexDomain_affine_openCube
   · exact (Matrix.toLin' q).isOpenMap_of_finiteDimensional
       (Matrix.mulVec_surjective_iff_isUnit.mpr hq) _ hcube.isOpen
   · exact Bornology.IsBounded.isBoundedDomain
-      (L.lipschitz.isBounded_image hcube.isBoundedDomain.isBounded)
+      (L.lipschitzWith.isBounded_image hcube.isBoundedDomain.isBounded)
   · exact hcube.convex.linear_image (Matrix.toLin' q)
 
 /-- Every invertible affine open cube has positive finite real volume, for every integer scale. -/

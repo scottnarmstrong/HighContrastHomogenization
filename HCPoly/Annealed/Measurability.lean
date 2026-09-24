@@ -191,9 +191,9 @@ theorem measurable_blockMatEntry_coarseBlock (m : ℤ) (α β : BlockCoord d) :
       blockMatEntry (coarseBlock (centeredCube d m) a) α β := by
   simp only [coarseBlock, blockMatEntry_coarseBlockMatrix]
   by_cases h : α = β
-  · simp only [if_pos h]
+  · simp only [ite_eq_left h]
     exact (measurable_Mu_centeredCube m (blockBasis α)).const_mul 2
-  · simp only [if_neg h]
+  · simp only [ite_eq_right h]
     exact ((measurable_Mu_centeredCube m (blockBasis α + blockBasis β)).sub
       (measurable_Mu_centeredCube m (blockBasis α))).sub
       (measurable_Mu_centeredCube m (blockBasis β))

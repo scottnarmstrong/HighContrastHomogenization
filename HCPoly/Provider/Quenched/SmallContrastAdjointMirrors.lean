@@ -5,6 +5,7 @@ Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.Quenched.SmallContrastWeakEnergyTail
 import HCPoly.Provider.Quenched.SmallContrastCenterVariance
+import HCPoly.Provider.Response.ProfileSkewMeasurability
 
 /-!
 # The adjoint mirrors: bad energy and centering variance
@@ -155,7 +156,11 @@ theorem profileAdjointCenterVariance_le_variance [NeZero d]
     Response.profileAdjointCenterVariance P m hq t
         (fun a => a.subSkew h0 hh0) p r ≤
         eLpNorm (fun a => ENNReal.ofReal C * ENNReal.ofReal (Z a)) 2 P := by
-      refine eLpNorm_mono_enorm fun a => ?_
+      refine eLpNorm_mono_enorm ?_ fun a => ?_
+      · exact (ENNReal.measurable_ofReal.comp_aemeasurable
+          (Response.AEMeasurable.sqrt_metricBlockNormSq_sub_const
+            (Response.aemeasurable_blockCellAverage_diagonalWeakAdjointState_subSkew
+              hq t h0 hh0 p r) m _)).aestronglyMeasurable
       simp only [enorm_eq_self]
       exact hpoint a
     _ ≤ ENNReal.ofReal C *
@@ -167,8 +172,11 @@ theorem profileAdjointCenterVariance_le_variance [NeZero d]
       congr 1
       have heq : eLpNorm (fun a => ENNReal.ofReal (Z a)) 2 P =
           eLpNorm Z 2 P := by
-        rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num),
-          eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+        have hZofReal : AEStronglyMeasurable (fun a => ENNReal.ofReal (Z a)) P :=
+          (ENNReal.measurable_ofReal.comp_aemeasurable
+            hZmeas.aemeasurable).aestronglyMeasurable
+        rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hZofReal,
+          eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hZmeas]
         congr 1
         refine lintegral_congr fun a => ?_
         congr 1

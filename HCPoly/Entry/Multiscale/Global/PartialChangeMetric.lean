@@ -135,7 +135,7 @@ theorem partial_change_metric {d : ℕ} (P : Measure (CoeffSpace d)) (jStar : �
         simpa [matTranspose] using Geometry.transpose_eq_of_isHermitian hTPD.isHermitian
       have hTdet : IsUnit (matSqrt m⁻¹).det := (Matrix.isUnit_iff_isUnit_det _).mp hTPD.isUnit
       have hmPlus_unfold : mPlus = matSqrt m * matPow θ N * matSqrt m := by
-        rw [hmPlus_def, geometryUpdate, if_neg hne, ← hθ_def, ← hN_def]
+        rw [hmPlus_def, geometryUpdate, ite_eq_right hne, ← hθ_def, ← hN_def]
       have hTmStarT : matTranspose (matSqrt m⁻¹) * mStar * matSqrt m⁻¹ = N := by
         rw [hTherm, hN_def, normalizedMat]
       have hcross : ∀ t : ℝ,

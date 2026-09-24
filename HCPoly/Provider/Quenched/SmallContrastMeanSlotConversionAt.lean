@@ -54,7 +54,10 @@ theorem scaleVariance_mean_le_of_comparability [NeZero d]
     {F : BlockMat d} (hFsym : IsSymmetricBlockMat F)
     (hFpd : Book.Ch02.BlockPosDef F)
     {cP : ℝ} (hcP0 : 0 ≤ cP)
-    (hF2le : BlockMatLoewnerLE F (blockScale cP (adaptedMean P q t))) :
+    (hF2le : BlockMatLoewnerLE F (blockScale cP (adaptedMean P q t)))
+    (hXm : AEStronglyMeasurable (fun a => schattenSize 2
+      (blockSub (coarseBlock (adaptedCell q t) a) (adaptedMean P q t))
+      (adaptedMean P q t)) P) :
     scaleVariance P q (adaptedMean P q t) t ≤
       ENNReal.ofReal (Real.sqrt (2 * d) * cP) * scaleVariance P q F t := by
   classical
@@ -156,7 +159,7 @@ theorem scaleVariance_mean_le_of_comparability [NeZero d]
         (fun a => Real.sqrt (2 * d) * cP * schattenSize 2
           (blockSub (coarseBlock (adaptedCell q t) a) (adaptedMean P q t))
           F) 2 P := by
-    refine eLpNorm_mono_real fun a => ?_
+    refine eLpNorm_mono_real hXm fun a => ?_
     rw [Real.norm_eq_abs, abs_of_nonneg (hsc0 a)]
     exact hpath a
   refine le_trans hmono ?_
@@ -182,7 +185,10 @@ theorem entry_scaleVariance_mean_le_reference_at [NeZero d]
     {cF kap : ℝ} (hcF0 : 0 ≤ cF) (hkap0 : 0 ≤ kap) (hFeq : F = blockScale cF E)
     (hcomp : ∀ X : BlockVec d,
       blockVecDot X (blockMatVecMul E X) ≤
-        kap * blockVecDot X (blockMatVecMul (adaptedMean P q t) X)) :
+        kap * blockVecDot X (blockMatVecMul (adaptedMean P q t) X))
+    (hXm : AEStronglyMeasurable (fun a => schattenSize 2
+      (blockSub (coarseBlock (adaptedCell q t) a) (adaptedMean P q t))
+      (adaptedMean P q t)) P) :
     scaleVariance P q (adaptedMean P q t) t ≤
       ENNReal.ofReal (meanSlotConversionAt d cF kap) * scaleVariance P q F t := by
   have hF2le : BlockMatLoewnerLE F
@@ -201,7 +207,7 @@ theorem entry_scaleVariance_mean_le_reference_at [NeZero d]
     linarith only [h4]
   rw [meanSlotConversionAt]
   exact scaleVariance_mean_le_of_comparability hEt hFsym hFpd
-    (mul_nonneg hcF0 hkap0) hF2le
+    (mul_nonneg hcF0 hkap0) hF2le hXm
 
 /-- **The mean slot at a supplied comparability constant.** -/
 theorem entry_supply_mean_slot_bound_at [NeZero d]
@@ -214,7 +220,10 @@ theorem entry_supply_mean_slot_bound_at [NeZero d]
     (hcomp : ∀ X : BlockVec d,
       blockVecDot X (blockMatVecMul E X) ≤
         kap * blockVecDot X (blockMatVecMul (adaptedMean P q t) X))
-    {V0 : ℝ} (hterm : scaleVariance P q F t ≤ ENNReal.ofReal V0) :
+    {V0 : ℝ} (hterm : scaleVariance P q F t ≤ ENNReal.ofReal V0)
+    (hXm : AEStronglyMeasurable (fun a => schattenSize 2
+      (blockSub (coarseBlock (adaptedCell q t) a) (adaptedMean P q t))
+      (adaptedMean P q t)) P) :
     scaleVariance P q (adaptedMean P q t) t ≤
       ENNReal.ofReal (meanSlotConversionAt d cF kap * V0) := by
   have hconv0 : 0 ≤ meanSlotConversionAt d cF kap :=
@@ -230,7 +239,7 @@ theorem entry_supply_mean_slot_bound_at [NeZero d]
   rw [← hmul]
   exact le_trans
     (entry_scaleVariance_mean_le_reference_at hEt hFsym hFpd hcF0 hkap0 hFeq
-      hcomp) hstep
+      hcomp hXm) hstep
 
 end
 

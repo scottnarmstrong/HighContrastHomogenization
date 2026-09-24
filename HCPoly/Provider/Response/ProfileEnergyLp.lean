@@ -3,6 +3,7 @@ Copyright (c) 2026 Scott Armstrong, Tuomo Kuusi, Amélie Loher. All rights reser
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
+import HCPoly.Provider.Response.ProfileEnergyMeasurability
 import HCPoly.Provider.Response.ProfileMaximumBadLp
 import HCPoly.Provider.Response.ProfileRecentCellLp
 
@@ -111,7 +112,9 @@ theorem profileBadEnergy_le_of_complete_maximum
     (hmoment : ∫⁻ a, W a ^ Q ∂P ≤ ENNReal.ofReal h)
     {energy : CoeffSpace d → ℝ} {C : ℝ} (hC : 0 ≤ C)
     (henergy : ∀ a, M a ≠ ⊤ → (1 : ℝ≥0∞) < M a →
-      energy a ≤ C * Real.sqrt (M a).toReal) :
+      energy a ≤ C * Real.sqrt (M a).toReal)
+    (hmeas : AEStronglyMeasurable ({a | (1 : ℝ≥0∞) < M a}.indicator fun a =>
+      M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (energy a)) P) :
     profileBadEnergy P M energy ≤
       ENNReal.ofReal (C * profileBadMajorant Q h beta) := by
   let bad : Set (CoeffSpace d) := {a | (1 : ℝ≥0∞) < M a}
@@ -124,7 +127,9 @@ theorem profileBadEnergy_le_of_complete_maximum
   have hmono : eLpNorm (bad.indicator fun a =>
       M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (energy a)) 2 P ≤
       eLpNorm (fun a => ENNReal.ofReal C * bad.indicator M a) 2 P := by
-    apply eLpNorm_mono_enorm_ae
+    have hmeasBad : AEStronglyMeasurable (bad.indicator fun a =>
+        M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (energy a)) P := hmeas
+    apply eLpNorm_mono_enorm_ae hmeasBad
     filter_upwards [hfinite] with a ha
     by_cases habad : a ∈ bad
     · simp only [Set.indicator_of_mem habad, enorm_eq_self]
@@ -150,25 +155,26 @@ theorem profileGoodEnergy_le_of_pointwise
     {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
     {alpha : ℝ} {H : ℕ} {M : CoeffSpace d → ℝ≥0∞}
     {energy : CoeffSpace d → ℝ} {C : ℝ}
-    (henergy : ∀ a, M a ≤ (1 : ℝ≥0∞) → energy a ≤ C) :
+    (henergy : ∀ a, M a ≤ (1 : ℝ≥0∞) → energy a ≤ C)
+    (hmeas : AEStronglyMeasurable ({a | M a ≤ (1 : ℝ≥0∞)}.indicator fun a =>
+      ENNReal.ofReal (energy a)) P) :
     profileGoodEnergy P alpha H M energy ≤
       ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ)) * C) := by
   let good : Set (CoeffSpace d) := {a | M a ≤ (1 : ℝ≥0∞)}
-  have hmono : eLpNorm (good.indicator fun a => ENNReal.ofReal (energy a)) 2 P ≤
-      eLpNorm (good.indicator fun _ => ENNReal.ofReal C) 2 P := by
-    apply eLpNorm_mono_enorm
-    intro a
-    by_cases hgood : a ∈ good
-    · simp only [Set.indicator_of_mem hgood, enorm_eq_self]
-      exact ENNReal.ofReal_le_ofReal (henergy a hgood)
-    · simp only [Set.indicator_of_notMem hgood]
-      exact le_rfl
-  have hconst : eLpNorm (good.indicator fun _ => ENNReal.ofReal C) 2 P ≤
+  have hconst : eLpNorm (good.indicator fun a => ENNReal.ofReal (energy a)) 2 P ≤
       ENNReal.ofReal C := by
     calc
-      eLpNorm (good.indicator fun _ => ENNReal.ofReal C) 2 P ≤
-          eLpNorm (fun _ : CoeffSpace d => ENNReal.ofReal C) 2 P :=
-        eLpNorm_indicator_le _
+      eLpNorm (good.indicator fun a => ENNReal.ofReal (energy a)) 2 P ≤
+          eLpNorm (fun _ : CoeffSpace d => ENNReal.ofReal C) 2 P := by
+        have hmeasGood : AEStronglyMeasurable (good.indicator fun a =>
+            ENNReal.ofReal (energy a)) P := hmeas
+        apply eLpNorm_mono_enorm hmeasGood
+        intro a
+        by_cases hgood : a ∈ good
+        · simp only [Set.indicator_of_mem hgood, enorm_eq_self]
+          exact ENNReal.ofReal_le_ofReal (henergy a hgood)
+        · simp only [Set.indicator_of_notMem hgood, enorm_zero]
+          exact zero_le
       _ = ENNReal.ofReal C := by
         rw [eLpNorm_const _ (by norm_num) (IsProbabilityMeasure.ne_zero P),
           measure_univ, ENNReal.one_rpow, mul_one, enorm_eq_self]
@@ -178,7 +184,7 @@ theorem profileGoodEnergy_le_of_pointwise
     profileGoodEnergy P alpha H M energy ≤
         ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ))) *
           ENNReal.ofReal C :=
-      mul_le_mul_of_nonneg_left (hmono.trans hconst) zero_le
+      mul_le_mul_of_nonneg_left hconst zero_le
     _ = ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ)) * C) := by
       rw [← ENNReal.ofReal_mul hfac0]
 
@@ -194,25 +200,26 @@ theorem profileGoodEnergyAt_le_of_pointwise
     {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
     {alpha : ℝ} {H : ℕ} {lev : ℝ≥0∞} {M : CoeffSpace d → ℝ≥0∞}
     {energy : CoeffSpace d → ℝ} {C : ℝ}
-    (henergy : ∀ a, M a ≤ lev → energy a ≤ C) :
+    (henergy : ∀ a, M a ≤ lev → energy a ≤ C)
+    (hmeas : AEStronglyMeasurable ({a | M a ≤ lev}.indicator fun a =>
+      ENNReal.ofReal (energy a)) P) :
     profileGoodEnergyAt P lev alpha H M energy ≤
       ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ)) * C) := by
   let good : Set (CoeffSpace d) := {a | M a ≤ lev}
-  have hmono : eLpNorm (good.indicator fun a => ENNReal.ofReal (energy a)) 2 P ≤
-      eLpNorm (good.indicator fun _ => ENNReal.ofReal C) 2 P := by
-    apply eLpNorm_mono_enorm
-    intro a
-    by_cases hgood : a ∈ good
-    · simp only [Set.indicator_of_mem hgood, enorm_eq_self]
-      exact ENNReal.ofReal_le_ofReal (henergy a hgood)
-    · simp only [Set.indicator_of_notMem hgood]
-      exact le_rfl
-  have hconst : eLpNorm (good.indicator fun _ => ENNReal.ofReal C) 2 P ≤
+  have hconst : eLpNorm (good.indicator fun a => ENNReal.ofReal (energy a)) 2 P ≤
       ENNReal.ofReal C := by
     calc
-      eLpNorm (good.indicator fun _ => ENNReal.ofReal C) 2 P ≤
-          eLpNorm (fun _ : CoeffSpace d => ENNReal.ofReal C) 2 P :=
-        eLpNorm_indicator_le _
+      eLpNorm (good.indicator fun a => ENNReal.ofReal (energy a)) 2 P ≤
+          eLpNorm (fun _ : CoeffSpace d => ENNReal.ofReal C) 2 P := by
+        have hmeasGood : AEStronglyMeasurable (good.indicator fun a =>
+            ENNReal.ofReal (energy a)) P := hmeas
+        apply eLpNorm_mono_enorm hmeasGood
+        intro a
+        by_cases hgood : a ∈ good
+        · simp only [Set.indicator_of_mem hgood, enorm_eq_self]
+          exact ENNReal.ofReal_le_ofReal (henergy a hgood)
+        · simp only [Set.indicator_of_notMem hgood, enorm_zero]
+          exact zero_le
       _ = ENNReal.ofReal C := by
         rw [eLpNorm_const _ (by norm_num) (IsProbabilityMeasure.ne_zero P),
           measure_univ, ENNReal.one_rpow, mul_one, enorm_eq_self]
@@ -222,7 +229,7 @@ theorem profileGoodEnergyAt_le_of_pointwise
     profileGoodEnergyAt P lev alpha H M energy ≤
         ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ))) *
           ENNReal.ofReal C :=
-      mul_le_mul_of_nonneg_left (hmono.trans hconst) zero_le
+      mul_le_mul_of_nonneg_left hconst zero_le
     _ = ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ)) * C) := by
       rw [← ENNReal.ofReal_mul hfac0]
 
@@ -246,6 +253,10 @@ theorem profileGoodEnergyAt_diagonalWeakEnergy_le [NeZero d]
       profileEnergyLoad (diagonalWeakLoadMinus E p r) p r)
     (fun a hgood => diagonalWeakEnergy_le_sqrt_two_mul_good_at_level
       hq hE hEpd p r hlev hgood)
+    ((ENNReal.measurable_ofReal.comp_aemeasurable
+      (aemeasurable_diagonalWeakEnergy hq t p r)).indicator₀
+      (nullMeasurableSet_le (aemeasurable_diagonalWeakMaximum hq hE hEpd)
+        aemeasurable_const)).aestronglyMeasurable
   exact hmain.trans_eq (congrArg ENNReal.ofReal (by ring))
 
 /-- The adjoint good optimizer energy at a released split level. -/
@@ -268,6 +279,10 @@ theorem profileGoodEnergyAt_diagonalWeakAdjointEnergy_le [NeZero d]
       profileEnergyLoad (diagonalWeakLoadPlus E p r) p r)
     (fun a hgood => diagonalWeakAdjointEnergy_le_sqrt_two_mul_good_at_level
       hq hE hEpd p r hlev hgood)
+    ((ENNReal.measurable_ofReal.comp_aemeasurable
+      (aemeasurable_diagonalWeakAdjointEnergy hq t p r)).indicator₀
+      (nullMeasurableSet_le (aemeasurable_diagonalWeakMaximum hq hE hEpd)
+        aemeasurable_const)).aestronglyMeasurable
   exact hmain.trans_eq (congrArg ENNReal.ofReal (by ring))
 
 end

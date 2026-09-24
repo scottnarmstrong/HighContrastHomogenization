@@ -148,7 +148,15 @@ private theorem continuousKResidualNorm_constMatrixMul_le
         ENNReal.ofReal ‖A‖ *
           eLpNorm (fun x ↦ euclideanNorm (F x - G.toField x))
             (2 : ℝ≥0∞) mu := by
-    apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul
+    have hmeas : AEStronglyMeasurable
+        (fun x ↦ euclideanNorm
+          (unitCubeEuclideanL2FieldConstMatrixMul A F x -
+            (continuousKCompetitorConstMatrixMul A G).toField x)) mu := by
+      have hsub := (unitCubeEuclideanL2FieldConstMatrixMul A F).euclideanMemL2.sub
+        (continuousKCompetitorConstMatrixMul A G).euclideanMemL2
+      simpa only [mu, euclideanNorm_eq_norm_ofVec, HilbertVec.ofVec,
+        PiLp.toLp_apply, Pi.sub_apply] using! hsub.norm.aestronglyMeasurable
+    apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul hmeas
     exact _root_.Filter.Eventually.of_forall fun x ↦ by
       simpa only [Real.norm_eq_abs,
         abs_of_nonneg (euclideanNorm_nonneg _)] using hpoint x
@@ -193,6 +201,7 @@ private theorem continuousKGradientNorm_constMatrixMul_le
           eLpNorm (fun x ↦ matrixFrobeniusMagnitude (G.gradient x))
             (2 : ℝ≥0∞) mu := by
     apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul
+      (continuousKCompetitorConstMatrixMul A G).gradientFrobeniusMemL2.aestronglyMeasurable
     exact _root_.Filter.Eventually.of_forall fun x ↦ by
       simpa only [continuousKCompetitorConstMatrixMul_gradient,
         Real.norm_eq_abs,
@@ -360,7 +369,7 @@ theorem continuousKSeminormIntegrand_constMatrixMul_le
             ENNReal.ofReal (continuousKFunctional tau F ^ 2) := by
           rw [ENNReal.ofReal_mul (sq_nonneg ‖A‖)]
     unfold continuousKSeminormIntegrand continuousKFunctionalOnOpenScale
-    simp only [dif_pos ht]
+    simp only [dite_eq_left ht]
     change
       ENNReal.ofReal (Real.rpow t (-2 * sigma)) *
           ENNReal.ofReal

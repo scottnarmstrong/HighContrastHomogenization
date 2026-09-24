@@ -54,7 +54,7 @@ private theorem weakRoot_le_recent_add_energy
           (a := (1 : ℝ≥0∞)) (b := M) (by norm_num) hfinite)
     by_cases hbad : (1 : ℝ≥0∞) < M
     · have hbadReal : (1 : ℝ) < M.toReal := hiff.mpr hbad
-      rw [if_pos hbad, if_pos hbadReal]
+      rw [ite_eq_left hbad, ite_eq_left hbadReal]
       have hM0 : 0 ≤ M.toReal := ENNReal.toReal_nonneg
       have hMrpow : M ^ (1 / 2 : ℝ) =
           ENNReal.ofReal (Real.sqrt M.toReal) := by
@@ -68,7 +68,7 @@ private theorem weakRoot_le_recent_add_energy
             rw [Real.sqrt_eq_rpow]
       rw [hMrpow, ← ENNReal.ofReal_mul (Real.sqrt_nonneg _)]
     · have hbadReal : ¬(1 : ℝ) < M.toReal := fun h ↦ hbad (hiff.mp h)
-      rw [if_neg hbad, if_neg hbadReal,
+      rw [ite_eq_right hbad, ite_eq_right hbadReal,
         ← ENNReal.ofReal_mul hR]
   have hrecent : 0 ≤ 16 * K * L * (U + V) := by positivity
   have hfactor : 0 ≤
@@ -134,7 +134,7 @@ theorem profilePrimalWeakRoot_randomCentered_le [NeZero d]
     hrho (by linarith only [hrho1])
     (by linarith only [hrho1]) (by norm_num) (by norm_num) (by norm_num)
     (a := a) p r
-  rw [if_neg hfinite] at hraw
+  rw [ite_eq_right hfinite] at hraw
   norm_num only [Real.sqrt_one, inv_one] at hraw
   have halphaPos : 0 < alpha := by
     rw [halpha]
@@ -227,7 +227,7 @@ theorem profileAdjointWeakRoot_randomCentered_le [NeZero d]
     hrho (by linarith only [hrho1])
     (by linarith only [hrho1]) (by norm_num) (by norm_num) (by norm_num)
     a p r
-  rw [if_neg hfinite] at hraw
+  rw [ite_eq_right hfinite] at hraw
   norm_num only [Real.sqrt_one, inv_one] at hraw
   have halphaPos : 0 < alpha := by
     rw [halpha]
@@ -323,7 +323,7 @@ private theorem weakRoot_le_recent_add_energy_at_level
           else ENNReal.ofReal R * ENNReal.ofReal En := by
     by_cases hbad : ENNReal.ofReal lev < M
     · have hbadReal : lev < M.toReal := hiff.mpr hbad
-      rw [if_pos hbad, if_pos hbadReal]
+      rw [ite_eq_left hbad, ite_eq_left hbadReal]
       have hM0 : 0 ≤ M.toReal := ENNReal.toReal_nonneg
       have hMrpow : M ^ (1 / 2 : ℝ) =
           ENNReal.ofReal (Real.sqrt M.toReal) := by
@@ -337,7 +337,7 @@ private theorem weakRoot_le_recent_add_energy_at_level
             rw [Real.sqrt_eq_rpow]
       rw [hMrpow, ← ENNReal.ofReal_mul (Real.sqrt_nonneg _)]
     · have hbadReal : ¬lev < M.toReal := fun h ↦ hbad (hiff.mp h)
-      rw [if_neg hbad, if_neg hbadReal, ← ENNReal.ofReal_mul hR]
+      rw [ite_eq_right hbad, ite_eq_right hbadReal, ← ENNReal.ofReal_mul hR]
   have hrecent : 0 ≤ crec * K * L * (U + V) := by positivity
   have hfactor : 0 ≤
       if lev < M.toReal then Real.sqrt M.toReal else R := by
@@ -401,7 +401,7 @@ theorem profilePrimalWeakRoot_randomCentered_at_level_le [NeZero d]
     hE hEpd (rho := rho) (s := (1 / 2 : ℝ)) (delta := lev)
     hrho (by linarith only [hrho1]) (by norm_num) hlev
     (a := a) p r
-  rw [if_neg hfinite] at hraw
+  rw [ite_eq_right hfinite] at hraw
   have halphaPos : 0 < alpha := by
     rw [halpha]
     linarith only [hrho1]
@@ -496,7 +496,7 @@ theorem profileAdjointWeakRoot_randomCentered_at_level_le [NeZero d]
     hE hEpd (rho := rho) (s := (1 / 2 : ℝ)) (delta := lev)
     hrho (by linarith only [hrho1]) (by norm_num) hlev
     a p r
-  rw [if_neg hfinite] at hraw
+  rw [ite_eq_right hfinite] at hraw
   have halphaPos : 0 < alpha := by
     rw [halpha]
     linarith only [hrho1]

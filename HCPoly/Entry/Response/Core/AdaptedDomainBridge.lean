@@ -281,7 +281,7 @@ private theorem matSqrt_eq_one_of_not_posSemidef {n : Type*} [Fintype n] [Decida
     rw [hB.isHermitian.eq, hBB] at hq
     exact hq
   unfold matSqrt
-  rw [dif_neg hne]
+  rw [dite_eq_right hne]
 
 omit [NeZero d] in
 private theorem toFullBlockMat_eq_fromBlocks (M : BlockMat d) :

@@ -103,7 +103,7 @@ theorem cubeScaleFactor_le_two_mul_of_translateSet_subset [NeZero d]
     intro t ht htlt
     set e : Vec d := fun k => if k = hi then t else 0 with hedef
     have hecoord : ∀ k, e k = if k = hi then t else 0 := fun k => rfl
-    have hehi : e hi = t := by rw [hecoord hi, if_pos rfl]
+    have hehi : e hi = t := by rw [hecoord hi, ite_eq_left rfl]
     have hmem : ∀ sgn : ℝ, sgn = 1 ∨ sgn = -1 →
         w + sgn • e ∈ translateSet w (openCubeSet (originCube d j)) := by
       intro sgn hsgn
@@ -114,8 +114,8 @@ theorem cubeScaleFactor_le_two_mul_of_translateSet_subset [NeZero d]
         ring
       have hek : e k = t ∨ e k = 0 := by
         by_cases hk : k = hi
-        · exact Or.inl (by rw [hecoord k, if_pos hk])
-        · exact Or.inr (by rw [hecoord k, if_neg hk])
+        · exact Or.inl (by rw [hecoord k, ite_eq_left hk])
+        · exact Or.inr (by rw [hecoord k, ite_eq_right hk])
       have hsg : sgn * e k = e k ∨ sgn * e k = -(e k) := by
         rcases hsgn with h | h
         · exact Or.inl (by rw [h, one_mul])

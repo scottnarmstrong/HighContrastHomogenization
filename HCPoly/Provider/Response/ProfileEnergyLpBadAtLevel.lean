@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Armstrong, Tuomo Kuusi, Amélie Loher
 -/
 import HCPoly.Provider.Response.ProfileEnergyLp
+import HCPoly.Provider.Response.ProfileEnergyMeasurability
 
 /-!
 # The bad optimizer energy at a released split level
@@ -43,7 +44,9 @@ theorem profileBadEnergyAt_le_of_complete_maximum
     (hmoment : ∫⁻ a, W a ^ Q ∂P ≤ ENNReal.ofReal h)
     {energy : CoeffSpace d → ℝ} {C : ℝ} (hC : 0 ≤ C)
     (henergy : ∀ a, M a ≠ ⊤ → ENNReal.ofReal lev < M a →
-      energy a ≤ C * Real.sqrt (M a).toReal) :
+      energy a ≤ C * Real.sqrt (M a).toReal)
+    (hmeas : AEStronglyMeasurable ({a | ENNReal.ofReal lev < M a}.indicator fun a =>
+      M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (energy a)) P) :
     profileBadEnergyAt P (ENNReal.ofReal lev) M energy ≤
       ENNReal.ofReal (C * profileBadMajorantAt Q h beta lev) := by
   let bad : Set (CoeffSpace d) := {a | ENNReal.ofReal lev < M a}
@@ -56,7 +59,9 @@ theorem profileBadEnergyAt_le_of_complete_maximum
   have hmono : eLpNorm (bad.indicator fun a =>
       M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (energy a)) 2 P ≤
       eLpNorm (fun a => ENNReal.ofReal C * bad.indicator M a) 2 P := by
-    apply eLpNorm_mono_enorm_ae
+    have hmeasBad : AEStronglyMeasurable (bad.indicator fun a =>
+        M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (energy a)) P := hmeas
+    apply eLpNorm_mono_enorm_ae hmeasBad
     filter_upwards [hfinite] with a ha
     by_cases habad : a ∈ bad
     · simp only [Set.indicator_of_mem habad, enorm_eq_self]
@@ -103,6 +108,13 @@ theorem profileBadEnergyAt_diagonalWeakEnergy_le [NeZero d]
     (profileEnergyLoad_nonneg (diagonalWeakLoadMinus E p r) p r)
   apply profileBadEnergyAt_le_of_complete_maximum hQ hh hbeta
     (aemeasurable_diagonalWeakMaximum hq hE hEpd) hW hpoint hnorm hmoment hC
+  rotate_left
+  · have hMmeas := aemeasurable_diagonalWeakMaximum (P := P) (rho := rho) (t := t)
+      hq hE hEpd
+    have henergyMeas := ENNReal.measurable_ofReal.comp_aemeasurable
+      (aemeasurable_diagonalWeakEnergy (P := P) hq t p r)
+    exact (((hMmeas.pow_const _).mul henergyMeas).indicator₀
+      (nullMeasurableSet_lt aemeasurable_const hMmeas)).aestronglyMeasurable
   intro a hfinite hbad
   have hbound := diagonalWeakEnergy_le_sqrt_two_mul_bad_at_level
     hq hE hEpd p r hlev hfinite hbad
@@ -142,6 +154,13 @@ theorem profileBadEnergyAt_diagonalWeakAdjointEnergy_le [NeZero d]
     (profileEnergyLoad_nonneg (diagonalWeakLoadPlus E p r) p r)
   apply profileBadEnergyAt_le_of_complete_maximum hQ hh hbeta
     (aemeasurable_diagonalWeakMaximum hq hE hEpd) hW hpoint hnorm hmoment hC
+  rotate_left
+  · have hMmeas := aemeasurable_diagonalWeakMaximum (P := P) (rho := rho) (t := t)
+      hq hE hEpd
+    have henergyMeas := ENNReal.measurable_ofReal.comp_aemeasurable
+      (aemeasurable_diagonalWeakAdjointEnergy (P := P) hq t p r)
+    exact (((hMmeas.pow_const _).mul henergyMeas).indicator₀
+      (nullMeasurableSet_lt aemeasurable_const hMmeas)).aestronglyMeasurable
   intro a hfinite hbad
   have hbound := diagonalWeakAdjointEnergy_le_sqrt_two_mul_bad_at_level
     hq hE hEpd p r hlev hfinite hbad

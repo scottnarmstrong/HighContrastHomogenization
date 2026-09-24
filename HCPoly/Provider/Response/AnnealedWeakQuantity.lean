@@ -38,34 +38,48 @@ variable {d : ℕ}
 /-- The square of the `L²` norm of an extended-nonnegative observable is the
 integral of its square. -/
 theorem eLpNorm_two_sq_eq_lintegral_sq {α : Type*} [MeasurableSpace α]
-    (μ : Measure α) (g : α → ℝ≥0∞) :
+    (μ : Measure α) (g : α → ℝ≥0∞) (hg : AEStronglyMeasurable g μ) :
     eLpNorm g 2 μ ^ (2 : ℕ) = ∫⁻ a, g a ^ (2 : ℕ) ∂μ := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hg]
   simp only [ENNReal.toReal_ofNat, enorm_eq_self]
   rw [← ENNReal.rpow_natCast (_ ^ (1 / (2 : ℝ))) 2, ← ENNReal.rpow_mul]
   norm_num
+
+/-- The integral of the square of an extended-nonnegative observable is at
+most the square of its `L²` norm, with no measurability assumption. -/
+private theorem lintegral_sq_le_eLpNorm_two_sq {α : Type*} [MeasurableSpace α]
+    (μ : Measure α) (g : α → ℝ≥0∞) :
+    ∫⁻ a, g a ^ (2 : ℕ) ∂μ ≤ eLpNorm g 2 μ ^ (2 : ℕ) := by
+  by_cases hg : AEStronglyMeasurable g μ
+  · exact (eLpNorm_two_sq_eq_lintegral_sq μ g hg).ge
+  · rw [eLpNorm_of_not_aestronglyMeasurable hg, ENNReal.top_pow two_ne_zero]
+    exact le_top
 
 /-- The primal weak quantity is the integral of the squared primal weak
 root. -/
 theorem profilePrimalWeakQuantity_eq_lintegral (P : Measure (CoeffSpace d))
     (m0 : Mat d) {q : Mat d} (hq : q.PosDef) (t : ℤ)
-    (sample : CoeffSpace d → CoeffSpace d) (p r : Vec d) :
+    (sample : CoeffSpace d → CoeffSpace d) (p r : Vec d)
+    (hroot : AEStronglyMeasurable (profilePrimalWeakRoot m0 hq t sample p r
+      (profilePrimalCenter P hq t sample p r)) P) :
     profilePrimalWeakQuantity P m0 hq t sample p r =
       ∫⁻ a, profilePrimalWeakRoot m0 hq t sample p r
         (profilePrimalCenter P hq t sample p r) a ^ (2 : ℕ) ∂P := by
   rw [profilePrimalWeakQuantity_eq]
-  exact eLpNorm_two_sq_eq_lintegral_sq P _
+  exact eLpNorm_two_sq_eq_lintegral_sq P _ hroot
 
 /-- The coefficient-transpose weak quantity is the integral of the squared
 adjoint weak root. -/
 theorem profileAdjointWeakQuantity_eq_lintegral (P : Measure (CoeffSpace d))
     (m0 : Mat d) {q : Mat d} (hq : q.PosDef) (t : ℤ)
-    (sample : CoeffSpace d → CoeffSpace d) (p r : Vec d) :
+    (sample : CoeffSpace d → CoeffSpace d) (p r : Vec d)
+    (hroot : AEStronglyMeasurable (profileAdjointWeakRoot m0 hq t sample p r
+      (profileAdjointCenter P hq t sample p r)) P) :
     profileAdjointWeakQuantity P m0 hq t sample p r =
       ∫⁻ a, profileAdjointWeakRoot m0 hq t sample p r
         (profileAdjointCenter P hq t sample p r) a ^ (2 : ℕ) ∂P := by
   rw [profileAdjointWeakQuantity_eq]
-  exact eLpNorm_two_sq_eq_lintegral_sq P _
+  exact eLpNorm_two_sq_eq_lintegral_sq P _ hroot
 
 /-! ## The Jensen step -/
 
@@ -100,8 +114,9 @@ theorem ofReal_abs_integral_le_mul_profilePrimalWeakQuantity
           (profilePrimalCenter P hq t sample p r) a ^ (2 : ℕ)) :
     ENNReal.ofReal |∫ a, term a ∂P| ≤
       ENNReal.ofReal Cdiv * profilePrimalWeakQuantity P m0 hq t sample p r := by
-  rw [profilePrimalWeakQuantity_eq_lintegral]
-  exact ofReal_abs_integral_le_mul_lintegral ENNReal.ofReal_ne_top hmajorant
+  rw [profilePrimalWeakQuantity_eq]
+  exact (ofReal_abs_integral_le_mul_lintegral ENNReal.ofReal_ne_top hmajorant).trans
+    (mul_le_mul' le_rfl (lintegral_sq_le_eLpNorm_two_sq P _))
 
 /-- The coefficient-transpose weak component. -/
 theorem ofReal_abs_integral_le_mul_profileAdjointWeakQuantity
@@ -114,8 +129,9 @@ theorem ofReal_abs_integral_le_mul_profileAdjointWeakQuantity
           (profileAdjointCenter P hq t sample p r) a ^ (2 : ℕ)) :
     ENNReal.ofReal |∫ a, term a ∂P| ≤
       ENNReal.ofReal Cdiv * profileAdjointWeakQuantity P m0 hq t sample p r := by
-  rw [profileAdjointWeakQuantity_eq_lintegral]
-  exact ofReal_abs_integral_le_mul_lintegral ENNReal.ofReal_ne_top hmajorant
+  rw [profileAdjointWeakQuantity_eq]
+  exact (ofReal_abs_integral_le_mul_lintegral ENNReal.ofReal_ne_top hmajorant).trans
+    (mul_le_mul' le_rfl (lintegral_sq_le_eLpNorm_two_sq P _))
 
 /-! ## The two-step form -/
 

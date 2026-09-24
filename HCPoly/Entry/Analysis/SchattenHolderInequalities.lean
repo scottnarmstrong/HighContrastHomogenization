@@ -355,7 +355,7 @@ theorem singularValueAt_prod_le {N : ℕ} (hN : 0 < N)
           ‖X - Y‖ ≤ ∏ k, singularValueAt (A k) r := by
         rw [hres]
         exact (list_prod_norm_le C).trans
-          (Finset.prod_le_prod (fun k _ => norm_nonneg (C k)) fun k _ => by
+          (Finset.prod_le_prod₀ (fun k _ => norm_nonneg (C k)) fun k _ => by
             simpa [C] using hRnorm k)
       exact happrox.trans hnorm
 

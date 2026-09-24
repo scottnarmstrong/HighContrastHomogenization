@@ -47,13 +47,13 @@ theorem admissiblePsi_renormalizedRadiusGauge (d : Nat) {mu : Real}
     simp only [Set.mem_Ici] at hs ht
     by_cases hsc : s < (3 : Real) ^ (b + 1)
     · by_cases htc : t < (3 : Real) ^ (b + 1)
-      · simp only [renormalizedRadiusGauge, if_pos hsc, if_pos htc]
+      · simp only [renormalizedRadiusGauge, ite_eq_left hsc, ite_eq_left htc]
         exact le_rfl
-      · simp only [renormalizedRadiusGauge, if_pos hsc, if_neg htc]
+      · simp only [renormalizedRadiusGauge, ite_eq_left hsc, ite_eq_right htc]
         exact hraw.2 (div_nonneg ht hc.le)
     · have htc : ¬ t < (3 : Real) ^ (b + 1) :=
         fun h => hsc (lt_of_le_of_lt hst h)
-      simp only [renormalizedRadiusGauge, if_neg hsc, if_neg htc]
+      simp only [renormalizedRadiusGauge, ite_eq_right hsc, ite_eq_right htc]
       exact hraw.1 (div_nonneg hs hc.le) (div_nonneg ht hc.le)
         (div_le_div_of_nonneg_right hst hc.le)
   · intro t ht
@@ -87,16 +87,16 @@ theorem hasPsiGrowth_renormalizedRadiusGauge (d : Nat) {mu : Real}
   have hnot : ¬ (c * K * t < c) := not_lt_of_ge hct
   rw [renormalizedRadiusGrowthWitness]
   simp only [renormalizedRadiusGauge]
-  rw [if_neg hnot]
+  rw [ite_eq_right hnot]
   have harg : c * K * t / c = K * t := by field_simp [ne_of_gt (zero_lt_one.trans_le hc)]
   rw [harg]
   by_cases htc : t < c
-  · rw [if_pos htc]
+  · rw [ite_eq_left htc]
     have hraw := hasPsiGrowth_frPoweredGauge d hmu ht
     have hrawone : 1 <= frPoweredGauge d mu t :=
       (admissiblePsi_frPoweredGauge d hmu).2 (zero_le_one.trans ht)
     exact (mul_le_mul_of_nonneg_left hrawone (zero_le_one.trans ht)).trans hraw
-  · rw [if_neg htc]
+  · rw [ite_eq_right htc]
     have hdiv : t / c <= t := div_le_self (zero_le_one.trans ht) hc
     have hmono := (admissiblePsi_frPoweredGauge d hmu).1
       (div_nonneg (zero_le_one.trans ht) (zero_le_one.trans hc))
@@ -151,7 +151,7 @@ theorem measureReal_normalized_renormRadius_gt_le [NeZero d]
   let c : Real := (3 : Real) ^ (b + 1)
   have hc : 0 < c := by positivity
   by_cases htc : t < c
-  · rw [renormalizedRadiusGauge, if_pos htc, inv_one]
+  · rw [renormalizedRadiusGauge, ite_eq_left htc, inv_one]
     exact measureReal_le_one
   · have hct : c <= t := le_of_not_gt htc
     have htone : 1 <= t := (one_le_pow₀ (by norm_num : (1 : Real) <= 3)).trans hct
@@ -203,7 +203,7 @@ theorem measureReal_normalized_renormRadius_gt_le [NeZero d]
       exact (Real.exp_le_exp.2 (neg_le_neg <|
         mul_le_mul_of_nonneg_left (by simpa only [mul_comm] using hpowmono)
           (frGaugeConst_pos d).le))
-    rw [renormalizedRadiusGauge, if_neg htc]
+    rw [renormalizedRadiusGauge, ite_eq_right htc]
     exact (measureReal_mono hsub).trans (htail.trans hexp)
 
 /-- The supremum defining the renormalization scale is finite almost surely.

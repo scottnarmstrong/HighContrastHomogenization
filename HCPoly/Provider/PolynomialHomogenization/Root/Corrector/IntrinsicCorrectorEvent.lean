@@ -312,7 +312,7 @@ theorem rootJointCarrier_of_event [NeZero d] (e : Vec d) {a : CoeffSpace d}
     rootJointCarrier d e a =
       finiteAffineCorrectionJointLocalLimit (selectedRootCorrectorData a h).aFin
         (selectedRootCorrectorData a h).hCauchy e := by
-  simp only [rootJointCarrier, dif_pos h]
+  simp only [rootJointCarrier, dite_eq_left h]
 
 /-! ## Slope linearity of the selected family -/
 

@@ -64,18 +64,18 @@ theorem exists_lintegral_fractionalBoundarySchurKernel_rpow_two_le
   have hweight0 : ∀ x, fractionalBoundarySchurWeight U a x ≠ 0 := by
     intro x
     by_cases hx : x ∈ U
-    · rw [fractionalBoundarySchurWeight, if_pos hx]
+    · rw [fractionalBoundarySchurWeight, ite_eq_left hx]
       unfold euclideanBoundaryWeight
       exact ENNReal.ofReal_ne_zero_iff.mpr
         (Real.rpow_pos_of_pos (euclideanBoundaryDistance_pos hd hU hx) _)
-    · rw [fractionalBoundarySchurWeight, if_neg hx]
+    · rw [fractionalBoundarySchurWeight, ite_eq_right hx]
       norm_num
   have hweightTop : ∀ x, fractionalBoundarySchurWeight U a x ≠ ⊤ := by
     intro x
     by_cases hx : x ∈ U
-    · rw [fractionalBoundarySchurWeight, if_pos hx]
+    · rw [fractionalBoundarySchurWeight, ite_eq_left hx]
       exact ENNReal.ofReal_ne_top
-    · rw [fractionalBoundarySchurWeight, if_neg hx]
+    · rw [fractionalBoundarySchurWeight, ite_eq_right hx]
       norm_num
   have hrow : ∀ᵐ x ∂volume.restrict U,
       (∫⁻ y, fractionalBoundarySchurKernel U s x y *
@@ -83,7 +83,7 @@ theorem exists_lintegral_fractionalBoundarySchurKernel_rpow_two_le
         A * fractionalBoundarySchurWeight U a x := by
     filter_upwards [self_mem_ae_restrict
       (measurableSet_of_isOpenBoundedConvexDomain hU)] with x hx
-    rw [fractionalBoundarySchurWeight, if_pos hx]
+    rw [fractionalBoundarySchurWeight, ite_eq_left hx]
     calc
       (∫⁻ y, fractionalBoundarySchurKernel U s x y *
           fractionalBoundarySchurWeight U a y ∂volume.restrict U) =
@@ -92,7 +92,7 @@ theorem exists_lintegral_fractionalBoundarySchurKernel_rpow_two_le
         refine lintegral_congr_ae ?_
         filter_upwards [self_mem_ae_restrict
           (measurableSet_of_isOpenBoundedConvexDomain hU)] with y hy
-        rw [fractionalBoundarySchurWeight, if_pos hy]
+        rw [fractionalBoundarySchurWeight, ite_eq_left hy]
       _ ≤ A * euclideanBoundaryWeight U a x := (hrows U hU hsand).1 x hx
   have hcol : ∀ᵐ y ∂volume.restrict U,
       (∫⁻ x, fractionalBoundarySchurKernel U s x y *
@@ -100,7 +100,7 @@ theorem exists_lintegral_fractionalBoundarySchurKernel_rpow_two_le
         B * fractionalBoundarySchurWeight U a y := by
     filter_upwards [self_mem_ae_restrict
       (measurableSet_of_isOpenBoundedConvexDomain hU)] with y hy
-    rw [fractionalBoundarySchurWeight, if_pos hy]
+    rw [fractionalBoundarySchurWeight, ite_eq_left hy]
     calc
       (∫⁻ x, fractionalBoundarySchurKernel U s x y *
           fractionalBoundarySchurWeight U a x ∂volume.restrict U) =
@@ -109,7 +109,7 @@ theorem exists_lintegral_fractionalBoundarySchurKernel_rpow_two_le
         refine lintegral_congr_ae ?_
         filter_upwards [self_mem_ae_restrict
           (measurableSet_of_isOpenBoundedConvexDomain hU)] with x hx
-        rw [fractionalBoundarySchurWeight, if_pos hx]
+        rw [fractionalBoundarySchurWeight, ite_eq_left hx]
       _ ≤ B * euclideanBoundaryWeight U a y := (hrows U hU hsand).2 y hy
   exact lintegral_weightedNonnegativeKernel_rpow_two_le
     (volume.restrict U) (volume.restrict U)

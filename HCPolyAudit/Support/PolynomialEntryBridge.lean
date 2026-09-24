@@ -164,9 +164,9 @@ theorem coarseBlockEntry_eq (U : Set (Vec d)) (a : CoeffField d) (α β : BlockC
       Homogenization.blockMatEntry (Homogenization.coarseBlockMatrix U a) α β := by
   rw [Homogenization.HighContrast.blockMatEntry_coarseBlockMatrix, coarseBlockEntry]
   by_cases h : α = β
-  · rw [dif_pos h, if_pos h, mu_eq]
+  · rw [dite_eq_left h, ite_eq_left h, mu_eq]
     rfl
-  · rw [dif_neg h, if_neg h, mu_eq, mu_eq, mu_eq]
+  · rw [dite_eq_right h, ite_eq_right h, mu_eq, mu_eq, mu_eq]
     rfl
 
 theorem coarseBlockMatrix_eq (U : Set (Vec d)) (a : CoeffField d) :

@@ -55,7 +55,7 @@ theorem blockMatEntry_blockCutoff (B : ℝ) (H : BlockMat d) (α β : BlockCoord
 /-- The cutoff keeps the block when the level is respected. -/
 theorem blockCutoff_eq_self {B : ℝ} {H : BlockMat d}
     (h : ∀ α β : BlockCoord d, |blockMatEntry H α β| ≤ B) : blockCutoff B H = H := by
-  rw [blockCutoff, if_pos h]
+  rw [blockCutoff, ite_eq_left h]
 
 /-- The cutoff respects its level. -/
 theorem abs_blockMatEntry_blockCutoff_le {B : ℝ} (hB : 0 ≤ B) (H : BlockMat d)

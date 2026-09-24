@@ -104,13 +104,13 @@ theorem dualPairing_translateSet (z : Vec d) (V : Set (Vec d))
       (g := fun y : Vec d => vecDot (F y) (psi y))
   simp only [dualPairing]
   by_cases h : IntegrableOn (fun x => vecDot (F x) (psi x)) V volume
-  · rw [if_pos (hiff.2 h), if_pos h]
+  · rw [ite_eq_left (hiff.2 h), ite_eq_left h]
     refine congrArg ENNReal.ofReal ?_
     unfold volumeAverage
     rw [volume_translateSet_eq,
       setIntegral_comp_subRight_translateSet z V
         (fun y : Vec d => vecDot (F y) (psi y))]
-  · rw [if_neg (fun hcon => h (hiff.1 hcon)), if_neg h]
+  · rw [ite_eq_right (fun hcon => h (hiff.1 hcon)), ite_eq_right h]
 
 /-- One direction of the translation invariance of the dual fractional norm. -/
 theorem negSobolevNorm_translateSet_le (z : Vec d) (V : Set (Vec d)) (s : ℝ)

@@ -280,8 +280,8 @@ private theorem tendsto_integral_mul_of_tendsto_eLpNorm
     exact MeasureTheory.eLpNorm_le_eLpNorm_mul_eLpNorm_of_nnnorm
       (μ := MeasureTheory.volume.restrict U)
       (p := (2 : ENNReal)) (q := (2 : ENNReal)) (r := (1 : ENNReal))
+      (fun a b : ℝ => a * b) 1 continuous_mul
       hf.aestronglyMeasurable ((hF n).sub hG).aestronglyMeasurable
-      (fun a b : ℝ => a * b) 1
       (Filter.Eventually.of_forall fun x => by simp)
   have hne : MeasureTheory.eLpNorm f 2 (MeasureTheory.volume.restrict U) ≠ ⊤ :=
     hf.eLpNorm_lt_top.ne
@@ -316,7 +316,7 @@ private theorem tendsto_integral_mul_of_tendsto_eLpNorm
     simp [mul_sub]
   exact MeasureTheory.tendsto_integral_of_L1'
     (μ := MeasureTheory.volume.restrict U) (fun x => f x * G x)
-    hf_int.aestronglyMeasurable hFn_int hL1'
+    hFn_int hL1'
 
 omit [NeZero d] in
 /-- Coordinate expansion of the `L²` pairing of a matrix-transformed field with a gradient. -/

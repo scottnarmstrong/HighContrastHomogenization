@@ -200,9 +200,9 @@ project's root namespace, beside `matSqrt` itself. -/
 theorem _root_.Homogenization.HighContrast.matSqrt_posSemidef {ι : Type*} [Fintype ι] [DecidableEq ι]
     (M : Matrix ι ι ℝ) : (matSqrt M).PosSemidef := by
   by_cases h : ∃ B : Matrix ι ι ℝ, B.PosSemidef ∧ B * B = M
-  · rw [matSqrt, dif_pos h]
+  · rw [matSqrt, dite_eq_left h]
     exact h.choose_spec.1
-  · rw [matSqrt, dif_neg h]
+  · rw [matSqrt, dite_eq_right h]
     exact Matrix.PosSemidef.one
 
 /-- The congruence `B A B` of a positive semidefinite `A` by a positive semidefinite `B`;

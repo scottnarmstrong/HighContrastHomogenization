@@ -81,7 +81,10 @@ theorem isPotentialOn_grad_on_openSubset_of_memH1a
           ENNReal.ofReal (vecNormSq (smoothGrad (v n) x - Du x)) ∂volume) ^
             (1 / 2 : ℝ)) atTop (nhds (0 ^ (1 / 2 : ℝ))) :=
       (ENNReal.continuous_rpow_const.tendsto 0).comp hgradIntegral
-    simpa [eLpNorm_hilbertifyVecField_eq_rpow_lintegral_vecNormSq] using hroot
+    have hmeas : ∀ n, AEStronglyMeasurable
+        (hilbertifyVecField (fun x ↦ smoothGrad (v n) x - Du x)) (volume.restrict U) :=
+      fun n ↦ (memHilbertVectorL2_hilbertifyVecField ((hvgrad n).sub hDu)).aestronglyMeasurable
+    simpa [eLpNorm_hilbertifyVecField_eq_rpow_lintegral_vecNormSq, hmeas] using hroot
   have hgradELp' : Tendsto
       (fun n ↦ eLpNorm
         (fun x ↦ hilbertifyVecField (smoothGrad (v n)) x -

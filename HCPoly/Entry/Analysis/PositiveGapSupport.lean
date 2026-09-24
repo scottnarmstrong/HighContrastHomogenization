@@ -391,7 +391,7 @@ theorem scalar_minkowski_toReal {α : Type*} [MeasurableSpace α] {μ : Measure 
       eLpNorm (fun x => f x + g x) (ENNReal.ofReal N) μ ≤
         eLpNorm f (ENNReal.ofReal N) μ + eLpNorm g (ENNReal.ofReal N) μ := by
     simpa only [Pi.add_apply] using!
-      eLpNorm_add_le hf.aestronglyMeasurable hg.aestronglyMeasurable hp1
+      eLpNorm_add_le hp1
   have htop :
       eLpNorm f (ENNReal.ofReal N) μ + eLpNorm g (ENNReal.ofReal N) μ ≠ ⊤ := by
     exact ENNReal.add_ne_top.2 ⟨hf.eLpNorm_ne_top, hg.eLpNorm_ne_top⟩
@@ -567,7 +567,8 @@ theorem lqSchattenNorm_sub_le {d : ℕ} {P : Measure (CoeffSpace d)}
           (ENNReal.ofReal N) P).toReal ≤
         (eLpNorm (fun a => absSchattenNorm N (F a) + absSchattenNorm N (G a))
           (ENNReal.ofReal N) P).toReal :=
-    ENNReal.toReal_mono hsum.1.eLpNorm_ne_top (eLpNorm_mono_ae hpoint)
+    ENNReal.toReal_mono hsum.1.eLpNorm_ne_top
+      (eLpNorm_mono_ae (hD.memLp_absSchattenNorm hN).aestronglyMeasurable hpoint)
   calc
     lqSchattenNorm P N (fun a => blockSub (F a) (G a))
         = (eLpNorm (fun a => absSchattenNorm N (blockSub (F a) (G a)))

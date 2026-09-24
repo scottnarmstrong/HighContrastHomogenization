@@ -46,18 +46,18 @@ theorem admissiblePsi_flooredSourceGauge {Psi : Real -> Real}
     simp only [Set.mem_Ici] at hs ht
     by_cases hs1 : s < 1
     · by_cases ht1 : t < 1
-      · simp only [flooredSourceGauge, if_pos hs1, if_pos ht1]
+      · simp only [flooredSourceGauge, ite_eq_left hs1, ite_eq_left ht1]
         exact le_rfl
-      · simp only [flooredSourceGauge, if_pos hs1, if_neg ht1]
+      · simp only [flooredSourceGauge, ite_eq_left hs1, ite_eq_right ht1]
         exact hPsi.2 ht
     · have ht1 : ¬ t < 1 := fun h => hs1 (lt_of_le_of_lt hst h)
-      simp only [flooredSourceGauge, if_neg hs1, if_neg ht1]
+      simp only [flooredSourceGauge, ite_eq_right hs1, ite_eq_right ht1]
       exact hPsi.1 hs ht hst
   · intro t ht
     by_cases ht1 : t < 1
-    · simp only [flooredSourceGauge, if_pos ht1]
+    · simp only [flooredSourceGauge, ite_eq_left ht1]
       exact le_rfl
-    · simp only [flooredSourceGauge, if_neg ht1]
+    · simp only [flooredSourceGauge, ite_eq_right ht1]
       exact hPsi.2 ht
 
 theorem hasPsiGrowth_flooredSourceGauge {Psi : Real -> Real} {K : Real}
@@ -72,7 +72,7 @@ theorem hasPsiGrowth_flooredSourceGauge {Psi : Real -> Real} {K : Real}
         _ = K * 1 := by ring
         _ <= K * t := mul_le_mul_of_nonneg_left ht (le_of_lt (zero_lt_one.trans hK))
     exact not_lt_of_ge hKt'.le
-  simpa only [flooredSourceGauge, if_neg ht1, if_neg hKt] using hPsi ht
+  simpa only [flooredSourceGauge, ite_eq_right ht1, ite_eq_right hKt] using hPsi ht
 
 theorem measurable_flooredSource {S : Omega -> Real} (hS : Measurable S) :
     Measurable (flooredSource S) := measurable_const.max hS
@@ -89,14 +89,14 @@ theorem sourceTail_flooredSource {P : Measure Omega} [IsProbabilityMeasure P]
         (flooredSourceGauge Psi t)⁻¹ := by
   intro t ht
   by_cases ht1 : t < 1
-  · rw [flooredSourceGauge, if_pos ht1, inv_one]
+  · rw [flooredSourceGauge, ite_eq_left ht1, inv_one]
     exact measureReal_le_one
   · have h1t : 1 <= t := le_of_not_gt ht1
     have hevent : upperTailEvent (flooredSource S) t = upperTailEvent S t := by
       ext omega
       simp only [upperTailEvent, Set.mem_ofPred_eq, flooredSource]
       exact lt_max_iff.trans <| or_iff_right (not_lt_of_ge h1t)
-    rw [flooredSourceGauge, if_neg ht1, hevent]
+    rw [flooredSourceGauge, ite_eq_right ht1, hevent]
     exact htail t h1t
 
 theorem admissiblePsi_combinedSourceGauge {Psi₁ Psi₂ : Real -> Real}

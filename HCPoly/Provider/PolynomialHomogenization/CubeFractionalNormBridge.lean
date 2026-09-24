@@ -25,7 +25,8 @@ open scoped ENNReal
 noncomputable section
 
 theorem normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage
-    {d : ℕ} (Q : TriadicCube d) (F : Vec d → Vec d) :
+    {d : ℕ} (Q : TriadicCube d) (F : Vec d → Vec d)
+    (hF : AEStronglyMeasurable (fun x => euclideanNorm (F x)) (normalizedCubeMeasure Q)) :
     ((cubeBoundedMeasurableDomain Q).normalizedEuclideanLpENorm 2 F) ^ (2 : ℕ) =
       eVolumeAverage (openCubeSet Q)
         (fun x ↦ ENNReal.ofReal (vecNormSq (F x))) := by
@@ -33,7 +34,7 @@ theorem normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage
     BoundedMeasurableDomain.normalizedLpENorm
   rw [cubeBoundedMeasurableDomain_normalizedVolume_eq_normalizedCubeMeasure]
   rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num : (2 : ℝ≥0∞) ≠ 0)
-    (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)]
+    (by norm_num : (2 : ℝ≥0∞) ≠ ⊤) hF]
   norm_num only [ENNReal.toReal_ofNat]
   rw [← ENNReal.rpow_natCast]
   rw [← ENNReal.rpow_mul]
@@ -129,10 +130,31 @@ theorem cubeEuclideanWspESeminorm_two_sq_eq_fracSeminormSq
       (volume.restrict (openCubeSet Q))) :
     (cubeEuclideanWspESeminorm Q s FiniteLpExponent.two F) ^ (2 : ℕ) =
       fracSeminormSq (openCubeSet Q) s.1 F := by
+  have hK : AEStronglyMeasurable (cubeEuclideanWspKernel s FiniteLpExponent.two F)
+      (Gagliardo.gagliardoCubeMeasure Q) := by
+    have : SFinite (cubeMeasure Q) := by
+      unfold cubeMeasure
+      infer_instance
+    have hcube : AEStronglyMeasurable F (cubeMeasure Q) := by
+      simpa only [cubeMeasure, volume_restrict_cubeSet_eq_volume_restrict_openCubeSet]
+        using hFmeas
+    have hnorm : AEStronglyMeasurable F (normalizedCubeMeasure Q) := by
+      unfold normalizedCubeMeasure
+      exact hcube.mono_ac Measure.smul_absolutelyContinuous
+    have hfst := hnorm.comp_quasiMeasurePreserving
+      (Measure.quasiMeasurePreserving_fst (ν := cubeMeasure Q))
+    have hsnd := hcube.comp_quasiMeasurePreserving
+      (Measure.quasiMeasurePreserving_snd (μ := normalizedCubeMeasure Q))
+    have hdist : Measurable fun z : Vec d × Vec d => euclideanDist z.1 z.2 := by
+      simp only [euclideanDist_eq_norm_sub_ofVec]
+      exact (((HilbertVec.ofVecL d).continuous.comp continuous_fst).sub
+        ((HilbertVec.ofVecL d).continuous.comp continuous_snd)).norm.measurable
+    exact (hdist.pow measurable_const).aestronglyMeasurable.smul
+      ((HilbertVec.ofVecL d).continuous.comp_aestronglyMeasurable (hfst.sub hsnd))
   unfold cubeEuclideanWspESeminorm
   norm_num only [FiniteLpExponent.two_exponent]
   rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num : (2 : ℝ≥0∞) ≠ 0)
-    (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)]
+    (by norm_num : (2 : ℝ≥0∞) ≠ ⊤) hK]
   norm_num only [FiniteLpExponent.two_exponent, ENNReal.toReal_ofNat]
   rw [← ENNReal.rpow_natCast, ← ENNReal.rpow_mul]
   norm_num
@@ -196,7 +218,17 @@ theorem cubeEuclideanWspFullENorm_two_sq_eq_hsNormSq
   rw [← ENNReal.rpow_mul]
   norm_num
   apply congrArg₂ (fun a b : ℝ≥0∞ => a + b)
-  · rw [normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage]
+  · have hnorm : AEStronglyMeasurable F (normalizedCubeMeasure Q) := by
+      unfold normalizedCubeMeasure cubeMeasure
+      rw [volume_restrict_cubeSet_eq_volume_restrict_openCubeSet]
+      exact hFmeas.mono_ac Measure.smul_absolutelyContinuous
+    have hnormF : AEStronglyMeasurable (fun x => euclideanNorm (F x))
+        (normalizedCubeMeasure Q) := by
+      have hcont : Continuous (fun v : Vec d => euclideanNorm v) := by
+        simp_rw [euclideanNorm_eq_norm_ofVec]
+        exact (PiLp.continuous_toLp 2 fun _ : Fin d => ℝ).norm
+      exact hcont.comp_aestronglyMeasurable hnorm
+    rw [normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage Q F hnormF]
     rw [cubeEuclideanWspScalePowerWeight_two_eq_hsWeight]
   · rw [cubeEuclideanWspESeminorm_two_sq_eq_fracSeminormSq Q s F hFmeas]
 

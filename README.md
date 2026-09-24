@@ -49,7 +49,7 @@ under [Scope and faithfulness](#scope-and-faithfulness).
   standard foundational axioms — `propext`, `Classical.choice`, `Quot.sound` —
   verified by
   [`HCPoly/Meta/AxiomsAudit.lean`](HCPoly/Meta/AxiomsAudit.lean).
-- Pinned to Lean `v4.33.0`, `mathlib` `v4.33.0`, and `CoarseGraining` at a
+- Pinned to Lean `v4.35.0-rc2`, `mathlib` `v4.35.0-rc2`, and `CoarseGraining` at a
   fixed revision.
 
 ## Main results

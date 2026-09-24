@@ -283,7 +283,7 @@ private theorem inverse_entry_aestronglyMeasurable {ι Ω : Type*}
   let : OpensMeasurableSpace (Matrix ι ι ℝ) :=
     inferInstanceAs (OpensMeasurableSpace (ι → ι → ℝ))
   have hm : AEMeasurable A P :=
-    aemeasurable_pi_lambda _ fun i => aemeasurable_pi_lambda _ fun j => (hA i j).aemeasurable
+    AEMeasurable.of_eval fun i => AEMeasurable.of_eval fun j => (hA i j).aemeasurable
   have hd : AEMeasurable (fun a => (A a).det) P :=
     continuous_id.matrix_det.measurable.comp_aemeasurable hm
   have ha : AEMeasurable (fun a => (A a).adjugate i j) P :=

@@ -457,7 +457,7 @@ theorem matSqrt_eq_one_of_not_posSemidef {n : Type*} [Fintype n] [DecidableEq n]
     have hBH : Bᴴ * B = M := by rw [hB.isHermitian.eq]; exact hBB
     rw [← hBH]
     exact Matrix.posSemidef_conjTranspose_mul_self B
-  simp only [matSqrt, dif_neg hno]
+  simp only [matSqrt, dite_eq_right hno]
 
 /-- `matSqrt 0 = 0`. -/
 theorem matSqrt_zero {n : Type*} [Fintype n] [DecidableEq n] :
@@ -738,9 +738,9 @@ branch value the cell-average estimate prints. -/
 theorem le_tail_branch (M θ : ℝ) (_hM : 0 ≤ M) (_hθ : 0 ≤ θ) :
     min (Real.sqrt M) θ ≤ (if 1 < M then Real.sqrt M else θ) := by
   by_cases h : 1 < M
-  · simp only [if_pos h]
+  · simp only [ite_eq_left h]
     exact min_le_left _ _
-  · simp only [if_neg h]
+  · simp only [ite_eq_right h]
     exact min_le_right _ _
 
 /-- The branch-free tail comparison behind `e.response.weak.estimate`: a value `Agood` bounded by
@@ -754,11 +754,11 @@ theorem branchfree_tail_le (γ : ℝ) (_hγ : γ ∈ Set.Ico (0 : ℝ) 1) (H : �
     (if 1 < M then Abad else Agood)
       ≤ max cgood cbad * (if 1 < M then Real.sqrt M else (3 : ℝ) ^ (-(Quenched.contrastAlpha γ * (H : ℝ)))) := by
   by_cases h : 1 < M
-  · simp only [if_pos h]
+  · simp only [ite_eq_left h]
     calc Abad ≤ cbad * Real.sqrt M := hbad h
       _ ≤ max cgood cbad * Real.sqrt M :=
           mul_le_mul_of_nonneg_right (le_max_right cgood cbad) (Real.sqrt_nonneg M)
-  · simp only [if_neg h]
+  · simp only [ite_eq_right h]
     have hr : 0 ≤ (3 : ℝ) ^ (-(Quenched.contrastAlpha γ * (H : ℝ))) :=
       Real.rpow_nonneg (by norm_num : (0 : ℝ) ≤ 3) _
     calc Agood ≤ cgood * (3 : ℝ) ^ (-(Quenched.contrastAlpha γ * (H : ℝ))) := hgood (not_lt.mp h)

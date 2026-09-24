@@ -180,7 +180,7 @@ theorem eLpNorm_blockTrace_eq_ofReal {P : Measure (CoeffSpace d)}
     rw [← hmean]
     exact integral_congr_ae (Filter.Eventually.of_forall fun a =>
       Real.norm_of_nonneg (hpos a).trace_nonneg)
-  rw [eLpNorm_one_eq_lintegral_enorm,
+  rw [eLpNorm_one_eq_lintegral_enorm (integrable_blockTrace hint).aestronglyMeasurable,
     ← ofReal_integral_norm_eq_lintegral_enorm (integrable_blockTrace hint), hnorm]
 
 /-! ## The expectation identities at the adapted means -/

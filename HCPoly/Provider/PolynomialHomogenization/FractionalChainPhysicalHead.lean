@@ -71,9 +71,9 @@ theorem tsum_fractionalChainPhysicalHead_le
       (if X * q ^ n < 1 then ENNReal.ofReal (q ^ n) else 0) := by
     intro n
     by_cases hn : P n
-    · rw [if_pos hn, if_pos]
+    · rw [ite_eq_left hn, ite_eq_left]
       exact fractionalChainPhysicalCutoff hr hL ha (hP n hn)
-    · simp only [if_neg hn, zero_le]
+    · simp only [ite_eq_right hn, zero_le]
   have hhead := tsum_geometric_of_mul_pow_lt_one_le hX hq
   have hsum : (∑' n : ℕ, if P n then ENNReal.ofReal (q ^ n) else 0) ≤
       1 + (ENNReal.ofReal X)⁻¹ * ENNReal.ofReal (q / (q - 1)) :=

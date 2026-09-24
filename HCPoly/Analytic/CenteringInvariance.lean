@@ -205,7 +205,7 @@ theorem skewFluxPairing_zero (b : CoeffField d) (V : Set (Vec d))
         (matVecMul (skewPart (b x)) ((fun _ => (0 : Vec d)) x)) = 0 := by
     intro x
     simp [matVecMul, vecDot]
-  rw [if_pos (by simp [hz] : IntegrableOn
+  rw [ite_eq_left (by simp [hz] : IntegrableOn
       (fun x => vecDot (smoothGrad φ x)
         (matVecMul (skewPart (b x)) ((fun _ => (0 : Vec d)) x))) V volume)]
   simp [hz]

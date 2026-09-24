@@ -148,7 +148,7 @@ theorem moment_diagonal_le_fluctuationHistory (d : ℕ) (hd : 2 ≤ d) (γ : ℝ
   have hopint (j : ℤ) (z : Vec d) : Integrable (fun a =>
       blockOpNorm (normalizedFluctuation P q j n z a) ^ bigQ d γ) P := by
     have hm : AEMeasurable (fun a => toFullBlockMat (normalizedFluctuation P q j n z a)) P :=
-      aemeasurable_pi_lambda _ fun α => aemeasurable_pi_lambda _ fun β => by
+      AEMeasurable.of_eval fun α => AEMeasurable.of_eval fun β => by
         simpa only [toFullBlockMat_eq_blockMatEntry] using ((hmem j z).measurable α β).aemeasurable
     have hmoment : Integrable (fun a => absSchattenNorm (bigQ d γ : ℝ)
         (normalizedFluctuation P q j n z a) ^ bigQ d γ) P := by

@@ -175,7 +175,7 @@ theorem headEnergy_carrier_plus (P : Measure (CoeffSpace d)) (jStar : ℕ) (F : 
       else zeroAHarmonic f (adaptedCellAtCenter q (t - (n : ℤ)) w)
   have hvT : ∀ w ∈ Z, IsResponseMaximizer (adaptedCellAtCenter q (t - (n : ℤ)) w) p r f (vT w) := by
     intro w hw
-    have hvw : vT w = Response.aHarmonicOfAEEq (haeW w hw) (v w) := dif_pos hw
+    have hvw : vT w = Response.aHarmonicOfAEEq (haeW w hw) (v w) := dite_eq_left hw
     rw [hvw]
     exact isResponseMaximizer_of_ae_eq (haeW w hw) (hv w hw)
   -- Step C.  The response identity at `f`, with its integrability side conditions supplied by the
@@ -239,7 +239,7 @@ theorem headEnergy_carrier_plus (P : Measure (CoeffSpace d)) (jStar : ℕ) (F : 
     congr 1
     apply Finset.sum_congr rfl
     intro w hw
-    have hvw : vT w = Response.aHarmonicOfAEEq (haeW w hw) (v w) := dif_pos hw
+    have hvw : vT w = Response.aHarmonicOfAEEq (haeW w hw) (v w) := dite_eq_left hw
     rw [hvw]
     exact volumeAverage_diffEnergy_congr_ae (haeW w hw)
       (fun y => u.toH1.grad y - (v w).toH1.grad y)

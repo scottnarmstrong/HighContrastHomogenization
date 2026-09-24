@@ -200,7 +200,7 @@ private theorem measurable_normalizedBlock_comp (A R : BlockMat d) :
     funext M
     rw [normalizedBlock, toFullBlockMat_ofFullBlockMat, hsub]
   rw [hrw]
-  refine measurable_pi_lambda _ fun α => measurable_pi_lambda _ fun β => ?_
+  refine Measurable.of_eval fun α => Measurable.of_eval fun β => ?_
   simp only [Matrix.mul_apply]
   refine Finset.measurable_sum _ fun γ _ => ?_
   refine Measurable.mul ?_ measurable_const

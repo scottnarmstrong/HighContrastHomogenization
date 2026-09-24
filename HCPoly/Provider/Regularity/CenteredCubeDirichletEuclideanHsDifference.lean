@@ -35,9 +35,6 @@ noncomputable def centeredCubeEuclideanL2FieldNeg
     have h := F.euclideanMemL2.neg
     convert h using 1
     · rfl
-    · funext x
-      simp only [Pi.neg_apply, ← HilbertVec.ofVecL_apply]
-      exact (HilbertVec.ofVecL d).map_neg _
 
 @[simp] theorem centeredCubeEuclideanL2FieldNeg_apply
     (F : CenteredCubeEuclideanL2Field d m) (x : Vec d) :

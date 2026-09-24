@@ -34,12 +34,14 @@ private theorem h1_grad_hilbert_memLp_two_normalized {d : ℕ}
     u.grad_memL2_normalizedCubeMeasure i
 
 private theorem cubeLpNorm_euclidean_eq_toReal_eLpNorm_hilbert {d : ℕ}
-    (Q : TriadicCube d) (F : Vec d → Vec d) :
+    (Q : TriadicCube d) (F : Vec d → Vec d)
+    (hF : MeasureTheory.AEStronglyMeasurable (fun x => HilbertVec.ofVec (F x))
+      (normalizedCubeMeasure Q)) :
     cubeLpNorm Q (2 : ℝ≥0∞) (fun x => euclideanNorm (F x)) =
       (MeasureTheory.eLpNorm (fun x => HilbertVec.ofVec (F x)) 2
         (normalizedCubeMeasure Q)).toReal := by
   simp only [cubeLpNorm, euclideanNorm_eq_norm_ofVec,
-    MeasureTheory.eLpNorm_norm]
+    MeasureTheory.eLpNorm_norm _ hF]
 
 private theorem central_descendant_two_children_origin_cube {d : ℕ}
     (k : ℤ) (depth p t : ℕ) :
@@ -107,14 +109,19 @@ theorem exists_harmonic_normalized_affine_candidate_error_decay_at_integer_rate
       (ENNReal.mul_ne_top hCOtop (ENNReal.pow_ne_top (by norm_num)))
       hvPmem.eLpNorm_ne_top
   have hoscReal := ENNReal.toReal_mono hoscRhsTop hosc
+  have hRmeas : MeasureTheory.AEStronglyMeasurable
+      (fun x => HilbertVec.ofVec (vP.grad x - g)) (normalizedCubeMeasure R) :=
+    (MeasureTheory.memLp_iff.2
+      (lt_of_le_of_lt hosc (lt_top_iff_ne_top.2 hoscRhsTop))).aestronglyMeasurable
   have hoscCube :
       cubeLpNorm R (2 : ℝ≥0∞)
           (fun x => euclideanNorm (vP.grad x - g)) ≤
         CO.toReal * ((1 : ℝ) / 3) ^ ((2 * p - 1) * t) *
           cubeLpNorm P (2 : ℝ≥0∞)
             (fun x => euclideanNorm (vP.grad x)) := by
+    rw [cubeLpNorm_euclidean_eq_toReal_eLpNorm_hilbert R _ hRmeas,
+      cubeLpNorm_euclidean_eq_toReal_eLpNorm_hilbert P _ hvPmem.aestronglyMeasurable]
     simpa only [P, D, R, g,
-      cubeLpNorm_euclidean_eq_toReal_eLpNorm_hilbert,
       ENNReal.toReal_mul, ENNReal.toReal_pow, ENNReal.toReal_inv,
       ENNReal.toReal_ofNat, one_div] using hoscReal
   have hVP :

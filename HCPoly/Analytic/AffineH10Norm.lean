@@ -53,7 +53,7 @@ theorem eLpNorm_affinePullback {L : Mat d} (hL : IsUnit L.det)
 summand does. -/
 theorem tendsto_eLpNorm_finset_sum_zero {ι : Type*} [Fintype ι]
     (f : ℕ → ι → Vec d → ℝ) (mu : Measure (Vec d))
-    (hmeas : ∀ n i, AEStronglyMeasurable (f n i) mu)
+    (_hmeas : ∀ n i, AEStronglyMeasurable (f n i) mu)
     (htend : ∀ i, Filter.Tendsto (fun n ↦ eLpNorm (f n i) 2 mu)
       Filter.atTop (nhds 0)) :
     Filter.Tendsto (fun n ↦ eLpNorm (∑ i, f n i) 2 mu)
@@ -62,7 +62,7 @@ theorem tendsto_eLpNorm_finset_sum_zero {ι : Type*} [Fintype ι]
   have hupper : ∀ n,
       eLpNorm (∑ i, f n i) 2 mu ≤ ∑ i, eLpNorm (f n i) 2 mu := by
     intro n
-    exact eLpNorm_sum_le (p := 2) (fun i _ ↦ hmeas n i) (by norm_num)
+    exact eLpNorm_sum_le (p := 2) (by norm_num)
   have hsum : Filter.Tendsto (fun n ↦ ∑ i, eLpNorm (f n i) 2 mu)
       Filter.atTop (nhds 0) := by
     simpa using tendsto_finsetSum Finset.univ (fun i _ ↦ htend i)

@@ -81,7 +81,7 @@ theorem integrableOn_blockEnergyDensity_coeffSpace
     exists_pointwise_elliptic_representative a.2 hUb
   refine integrableOn_blockEnergyDensity_of_representative (lam := lam)
     (Lam := Lam) hfa ⟨?_, hfp⟩ hX
-  refine measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j => ?_
+  refine Measurable.of_eval fun i => Measurable.of_eval fun j => ?_
   exact Measurable.ite hU
     (((measurable_pi_apply j).comp ((measurable_pi_apply i).comp hfm)))
     measurable_const

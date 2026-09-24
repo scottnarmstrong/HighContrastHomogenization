@@ -65,24 +65,25 @@ block.**  This is the entrywise spectral comparison of
 `l.fixed.geometry.matrix.averaging` after the `L^Q` norm is taken. -/
 theorem lqNorm_normalizedBlock_le_lqSchattenSize (P : Measure (CoeffSpace d)) {Q : ℝ}
     (hQ : 0 < Q) {A : CoeffSpace d → BlockMat d} (hA : ∀ a, IsSymmetricBlockMat (A a))
-    (F : BlockMat d) (α β : BlockCoord d) :
+    (F : BlockMat d) (α β : BlockCoord d)
+    (hmeas : AEStronglyMeasurable (fun a => toFullBlockMat (normalizedBlock (A a) F) α β) P) :
     lqNorm P Q (fun a => toFullBlockMat (normalizedBlock (A a) F) α β)
       ≤ lqSchattenSize P Q A F :=
   lqNorm_le_eLpNorm_schattenNorm P hQ (fun a => isSymmetricBlockMat_normalizedBlock (hA a)) α β
+    hmeas
 
 /-! ## The integrability binder -/
 
 /-- **An entry of the normalized centred response lies in `L^Q`** as soon as its
-`L^Q` norm is finite; measurability is the measurability of the variational
-coarse block. -/
+`L^Q` norm is finite. -/
 theorem memLp_toFullBlockMat_normalizedBlock_blockSub {P : Measure (CoeffSpace d)} {Q : ℝ}
-    {U : Set (Vec d)} (hmeas : HasMeasurableCoarseBlock P U) (E F : BlockMat d)
+    {U : Set (Vec d)} (E F : BlockMat d)
     (α β : BlockCoord d)
     (hfin : lqNorm P Q
       (fun a => toFullBlockMat (normalizedBlock (blockSub (coarseBlock U a) E) F) α β) ≠ ⊤) :
     MemLp (fun a => toFullBlockMat (normalizedBlock (blockSub (coarseBlock U a) E) F) α β)
       (ENNReal.ofReal Q) P :=
-  ⟨aestronglyMeasurable_toFullBlockMat_normalizedBlock_blockSub hmeas E F α β, hfin.lt_top⟩
+  hfin.lt_top
 
 /-- **The `Q`-th power of the absolute value of an `L^Q` variable is
 integrable.**  This is the integrability binder of the independent-sum
@@ -265,7 +266,7 @@ theorem lqNorm_sum_colourClass_le {P : Measure (CoeffSpace d)} [IsProbabilityMea
     (fun w => measurable_toFullBlockMat_normalizedBlock_adaptedCellAt
       (posDef_of_isRoundedGrid hq) j w (adaptedMean P q j) F α β)
     (fun w hw => memLp_toFullBlockMat_normalizedBlock_blockSub
-      (hasMeasurableCoarseBlock_adaptedCellAt P (posDef_of_isRoundedGrid hq) j w) _ F α β
+      (U := adaptedCellAt q j w) _ F α β
       (lt_of_le_of_lt (hbd w (hmem w hw)) hv.lt_top).ne)
     (fun w hw => integral_toFullBlockMat_normalizedBlock_adaptedCellAt_eq_zero hPs hq hj hint
       F w α β)

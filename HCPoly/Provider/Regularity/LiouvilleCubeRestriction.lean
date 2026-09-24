@@ -95,8 +95,7 @@ theorem memLp_volumeRestrict_of_normalizedL2Norm_ne_top
     exact AEStronglyMeasurable.mono_ac Measure.smul_absolutelyContinuous
       hvmeas.restrict
   have hmemNorm : MemLp v 2 (volumeNormalizedMeasure V) := by
-    refine ⟨hmeasNorm, ?_⟩
-    rw [← normalizedL2Norm_eq_eLpNorm_volumeNormalizedMeasure]
+    rw [memLp_iff, ← normalizedL2Norm_eq_eLpNorm_volumeNormalizedMeasure V v hmeasNorm]
     exact lt_top_iff_ne_top.2 hnorm
   have hscaled := hmemNorm.smul_measure hVtop
   simpa only [volumeNormalizedMeasure, smul_smul,

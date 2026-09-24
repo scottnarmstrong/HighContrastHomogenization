@@ -81,7 +81,7 @@ theorem skewFluxDualNorm_eq_zero {b : CoeffField d} {V : Set (Vec d)}
         (fun x => vecDot (smoothGrad φ x) (matVecMul (skewPart (b x)) (F x))) V
         volume := by
       rw [hint]; exact integrableOn_zero
-    simp only [skewFluxPairing, if_pos hI, hint]
+    simp only [skewFluxPairing, ite_eq_left hI, hint]
     simp
   refine le_antisymm (iSup_le fun φ => (hzero φ.1).le) zero_le
 

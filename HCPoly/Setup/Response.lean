@@ -116,7 +116,7 @@ theorem isSymmetricBlockMat_coarseBlockMatrix (U : Set (Vec d)) (a : CoeffField 
   rw [blockMatEntry_coarseBlockMatrix, blockMatEntry_coarseBlockMatrix]
   by_cases h : α = β
   · rw [h]
-  · rw [if_neg h, if_neg (Ne.symm h), add_comm (blockBasis α) (blockBasis β)]
+  · rw [ite_eq_right h, ite_eq_right (Ne.symm h), add_comm (blockBasis α) (blockBasis β)]
     ring
 
 /-- On the coefficient space the variational quantity of the coarse block
@@ -143,7 +143,7 @@ theorem zero_le_Mu_coeffSpace (U : Set (Vec d)) (Q : BlockVec d) (a : CoeffSpace
 /-- Diagonal entries of the coarse response are nonnegative. -/
 theorem zero_le_blockMatEntry_coarseBlock_diag (U : Set (Vec d)) (a : CoeffSpace d)
     (γ : BlockCoord d) : 0 ≤ blockMatEntry (coarseBlock U a) γ γ := by
-  rw [coarseBlock, blockMatEntry_coarseBlockMatrix, if_pos rfl]
+  rw [coarseBlock, blockMatEntry_coarseBlockMatrix, ite_eq_left rfl]
   have := zero_le_Mu_coeffSpace U (blockBasis γ) a
   linarith only [this]
 
@@ -161,7 +161,7 @@ theorem zero_le_blockVecDot_coarseBlock_blockBasis_add (U : Set (Vec d))
   · rw [coarseBlock] at *
     rw [blockMatEntry_coarseBlockMatrix, blockMatEntry_coarseBlockMatrix,
       blockMatEntry_coarseBlockMatrix, blockMatEntry_coarseBlockMatrix,
-      if_pos rfl, if_pos rfl, if_neg h, if_neg (Ne.symm h),
+      ite_eq_left rfl, ite_eq_left rfl, ite_eq_right h, ite_eq_right (Ne.symm h),
       add_comm (blockBasis β) (blockBasis α)]
     have := zero_le_Mu_coeffSpace U (blockBasis α + blockBasis β) a
     linarith only [this]

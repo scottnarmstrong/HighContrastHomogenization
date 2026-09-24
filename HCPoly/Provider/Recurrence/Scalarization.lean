@@ -35,7 +35,7 @@ namespace Homogenization
 namespace HighContrast
 namespace Recurrence
 
-open MeasureTheory
+open MeasureTheory Filter Topology
 
 open scoped ENNReal
 
@@ -49,15 +49,78 @@ variable {d : ℕ}
 symmetric matrix holds pointwise, so it holds after taking `L^Q` norms. -/
 theorem lqNorm_le_eLpNorm_schattenNorm (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 0 < Q)
     {H : CoeffSpace d → BlockMat d} (hH : ∀ a, IsSymmetricBlockMat (H a))
-    (α β : BlockCoord d) :
+    (α β : BlockCoord d) (hmeas : AEStronglyMeasurable (fun a => toFullBlockMat (H a) α β) P) :
     lqNorm P Q (fun a => toFullBlockMat (H a) α β)
       ≤ eLpNorm (fun a => schattenNorm Q (H a)) (ENNReal.ofReal Q) P := by
   simp only [lqNorm]
-  refine eLpNorm_mono_real fun a => ?_
+  refine eLpNorm_mono_real hmeas fun a => ?_
   rw [Real.norm_eq_abs]
   exact abs_toFullBlockMat_le_schattenNorm (hH a) hQ α β
 
 /-! ## The mixed norm is dominated by the entries -/
+
+/-- The Schatten norm of a random symmetric doubled block with measurable entries is
+measurable, at every real exponent: the power `x ↦ x^{Q/2}` is a locally uniform limit of
+polynomials (Weierstrass), and the functional calculus of a polynomial is a polynomial
+in the entries. -/
+private theorem aestronglyMeasurable_schattenNorm_of_entries {P : Measure (CoeffSpace d)} {Q : ℝ}
+    (hQ : 0 ≤ Q) {H : CoeffSpace d → BlockMat d} (hH : ∀ a, IsSymmetricBlockMat (H a))
+    (hmeas : ∀ α β : BlockCoord d,
+      AEStronglyMeasurable (fun a => toFullBlockMat (H a) α β) P) :
+    AEStronglyMeasurable (fun a => schattenNorm Q (H a)) P := by
+  classical
+  set f : ℝ → ℝ := fun x => x ^ (Q / 2) with hf
+  have hfc : Continuous f := Real.continuous_rpow_const (by positivity)
+  choose p hp using fun n : ℕ => exists_polynomial_near_of_continuousOn (-(n : ℝ)) n f
+    hfc.continuousOn (1 / ((n : ℝ) + 1)) (by positivity)
+  set S : CoeffSpace d → FullBlockMat d := fun a => toFullBlockMat (H a) * toFullBlockMat (H a)
+    with hS
+  have hSsa : ∀ a, IsSelfAdjoint (S a) :=
+    fun a => isSelfAdjoint_mul_self (isSelfAdjoint_toFullBlockMat (hH a))
+  have hm : AEMeasurable (fun a => (toFullBlockMat (H a) : BlockCoord d → BlockCoord d → ℝ)) P :=
+    AEMeasurable.of_eval fun α => AEMeasurable.of_eval fun β => (hmeas α β).aemeasurable
+  have happrox : ∀ n : ℕ, AEStronglyMeasurable
+      (fun a => Matrix.trace (Polynomial.aeval (S a) (p n))) P := by
+    intro n
+    have hc : Continuous fun M : FullBlockMat d => Matrix.trace (Polynomial.aeval (M * M) (p n)) :=
+      Continuous.matrix_trace ((p n).continuous_aeval.comp (continuous_id.matrix_mul continuous_id))
+    have hc' : Continuous fun M : BlockCoord d → BlockCoord d → ℝ =>
+        Matrix.trace (Polynomial.aeval (Matrix.of M * Matrix.of M) (p n)) := hc
+    exact (hc'.measurable.comp_aemeasurable hm).aestronglyMeasurable
+  have hlim : ∀ a, Tendsto (fun n : ℕ => Matrix.trace (Polynomial.aeval (S a) (p n))) atTop
+      (𝓝 (Matrix.trace (cfc f (S a)))) := by
+    intro a
+    have hfin : (spectrum ℝ (S a)).Finite := Matrix.finite_real_spectrum
+    obtain ⟨R, hR⟩ := hfin.isBounded.exists_norm_le
+    have hunif : TendstoUniformlyOn (fun n : ℕ => fun x : ℝ => (p n).eval x) f atTop
+        (spectrum ℝ (S a)) := by
+      rw [Metric.tendstoUniformlyOn_iff]
+      intro ε hε
+      obtain ⟨N, hN⟩ := exists_nat_gt (max R (1 / ε))
+      filter_upwards [eventually_ge_atTop N] with n hn x hx
+      have hnN : (N : ℝ) ≤ n := by exact_mod_cast hn
+      have hxR : |x| ≤ R := by simpa [Real.norm_eq_abs] using hR x hx
+      have hxn : x ∈ Set.Icc (-(n : ℝ)) n := by
+        rw [Set.mem_Icc, ← abs_le]
+        linarith [le_max_left R (1 / ε)]
+      have h1 := hp n x hxn
+      have hεn : 1 / ((n : ℝ) + 1) < ε := by
+        rw [div_lt_iff₀ (by positivity)]
+        have : 1 / ε < (n : ℝ) + 1 := by linarith [le_max_right R (1 / ε)]
+        rw [div_lt_iff₀ hε] at this
+        linarith
+      rw [Real.dist_eq, abs_sub_comm]
+      exact h1.trans hεn
+    have hcfc := tendsto_cfc_fun (a := S a) hunif
+      (Eventually.of_forall fun n => (p n).continuousOn)
+    have hpoly : ∀ n : ℕ, cfc (fun x : ℝ => (p n).eval x) (S a) = Polynomial.aeval (S a) (p n) :=
+      fun n => cfc_polynomial (p n) (S a) (hSsa a)
+    simp only [hpoly] at hcfc
+    exact ((continuous_id.matrix_trace).tendsto _).comp hcfc
+  have htr : AEStronglyMeasurable (fun a => Matrix.trace (cfc f (S a))) P :=
+    aestronglyMeasurable_of_tendsto_ae atTop happrox (ae_of_all _ hlim)
+  exact (Real.continuous_rpow_const (inv_nonneg.mpr hQ)).comp_aestronglyMeasurable htr
+
 
 /-- **The scalarization display of `l.fixed.geometry.matrix.averaging`**,
 `‖H‖_{L^Q(S_Q)} ≤ (Σ_{a,b}‖H_{ab}‖_{L^Q}²)^{1/2}`, for a random symmetric
@@ -80,7 +143,8 @@ theorem eLpNorm_schattenNorm_le (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 2 �
       ≤ eLpNorm (fun a =>
           (∑ α : BlockCoord d, ∑ β : BlockCoord d, toFullBlockMat (H a) α β ^ 2) ^ (2⁻¹ : ℝ))
         (ENNReal.ofReal Q) P := by
-    refine eLpNorm_mono_real fun a => ?_
+    refine eLpNorm_mono_real (aestronglyMeasurable_schattenNorm_of_entries hQ0 hH hmeas)
+      fun a => ?_
     rw [Real.norm_eq_abs, abs_of_nonneg (zero_le_schattenNorm (hH a) Q)]
     exact schattenNorm_le_sum_sq_rpow (hH a) hQ
   have h2 : eLpNorm (fun a =>
@@ -96,7 +160,11 @@ theorem eLpNorm_schattenNorm_le (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 2 �
       rw [Real.norm_eq_abs, abs_of_nonneg (hS0 a)]
     have hp : ENNReal.ofReal Q * ENNReal.ofReal (2⁻¹ : ℝ) = ENNReal.ofReal (Q / 2) := by
       rw [← ENNReal.ofReal_mul hQ0, div_eq_mul_inv]
-    rw [hfun, eLpNorm_norm_rpow _ (by norm_num : (0 : ℝ) < 2⁻¹), hp]
+    have hsm : AEStronglyMeasurable
+        (fun a => ∑ α : BlockCoord d, ∑ β : BlockCoord d, toFullBlockMat (H a) α β ^ 2) P :=
+      Finset.aestronglyMeasurable_fun_sum _ fun α _ =>
+        Finset.aestronglyMeasurable_fun_sum _ fun β _ => (hmeas α β).pow 2
+    rw [hfun, eLpNorm_norm_rpow _ hsm (by norm_num : (0 : ℝ) < 2⁻¹), hp]
   have hsum : (fun a => ∑ α : BlockCoord d, ∑ β : BlockCoord d, toFullBlockMat (H a) α β ^ 2)
       = ∑ i : BlockCoord d × BlockCoord d, fun a => toFullBlockMat (H a) i.1 i.2 ^ 2 := by
     funext a
@@ -109,10 +177,9 @@ theorem eLpNorm_schattenNorm_le (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 2 �
       ≤ ∑ i : BlockCoord d × BlockCoord d,
           eLpNorm (fun a => toFullBlockMat (H a) i.1 i.2 ^ 2) (ENNReal.ofReal (Q / 2)) P := by
     rw [hsum]
-    refine eLpNorm_sum_le (fun i _ => ?_) ?_
-    · simpa [Pi.pow_apply] using! (hmeas i.1 i.2).pow 2
-    · rw [ENNReal.one_le_ofReal]
-      linarith only [hQ]
+    refine eLpNorm_sum_le ?_
+    rw [ENNReal.one_le_ofReal]
+    linarith only [hQ]
   have h4 : ∀ i : BlockCoord d × BlockCoord d,
       eLpNorm (fun a => toFullBlockMat (H a) i.1 i.2 ^ 2) (ENNReal.ofReal (Q / 2)) P
         = eLpNorm (fun a => toFullBlockMat (H a) i.1 i.2) (ENNReal.ofReal Q) P ^ (2 : ℝ) := by
@@ -125,7 +192,7 @@ theorem eLpNorm_schattenNorm_le (P : Measure (CoeffSpace d)) {Q : ℝ} (hQ : 2 �
       rw [← ENNReal.ofReal_mul (by linarith only [hQ] : (0 : ℝ) ≤ Q / 2)]
       congr 1
       ring
-    rw [hfun, eLpNorm_norm_rpow _ (by norm_num : (0 : ℝ) < 2), hp]
+    rw [hfun, eLpNorm_norm_rpow _ (hmeas i.1 i.2) (by norm_num : (0 : ℝ) < 2), hp]
   refine le_trans h1 (le_trans (le_of_eq h2) ?_)
   refine ENNReal.rpow_le_rpow (le_trans h3 ?_) (by norm_num)
   rw [Fintype.sum_prod_type]

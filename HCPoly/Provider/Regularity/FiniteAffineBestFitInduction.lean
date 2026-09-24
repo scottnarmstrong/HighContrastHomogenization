@@ -883,9 +883,9 @@ theorem exists_scalarIdentityFiniteAffineBestFitErrorInductionConstants
         have hpseq : ∀ t, 0 ≤ pseq t := by
           intro t
           by_cases ht : t ≤ L
-          · simp only [pseq, dif_pos ht]
+          · simp only [pseq, dite_eq_left ht]
             exact euclideanNorm_nonneg _
-          · simp only [pseq, dif_neg ht]
+          · simp only [pseq, dite_eq_right ht]
             exact le_rfl
         have hadjseq : ∀ t : ℕ, t < L →
             pseq (t + 1) ≤ pseq t + (Ca * C * delta) * pseq (t + 1) := by
@@ -907,7 +907,7 @@ theorem exists_scalarIdentityFiniteAffineBestFitErrorInductionConstants
               (finiteAffineBestFitSlope a (j + (t : ℤ)) m (by omega) b)
               (finiteAffineBestFitSlope a (j + ((t + 1 : ℕ) : ℤ)) m
                 (by omega) b)
-          simp only [pseq, dif_pos htL, dif_pos hsuccL]
+          simp only [pseq, dite_eq_left htL, dite_eq_left hsuccL]
           calc
             euclideanNorm
                 (finiteAffineBestFitSlope a (j + ((t + 1 : ℕ) : ℤ)) m
@@ -948,7 +948,7 @@ theorem exists_scalarIdentityFiniteAffineBestFitErrorInductionConstants
               2 * euclideanNorm (finiteAffineBestFitSlope a j m hjm b) := by
           have := hpbound N (by dsimp [L]; omega)
           have hNL : N ≤ L := by dsimp [L]; omega
-          simp only [pseq, dif_pos hNL, dif_pos (Nat.zero_le L), Nat.cast_zero] at this
+          simp only [pseq, dite_eq_left hNL, dite_eq_left (Nat.zero_le L), Nat.cast_zero] at this
           have hbase := congrArg euclideanNorm
             (finiteAffineBestFitSlope_congr_index a (by ring : j + (0 : ℤ) = j)
               (by omega) hjm b)
@@ -958,7 +958,7 @@ theorem exists_scalarIdentityFiniteAffineBestFitErrorInductionConstants
             (finiteAffineBestFitSlope a (j + (L : ℤ)) m (by omega) b) ≤
               2 * euclideanNorm (finiteAffineBestFitSlope a j m hjm b) := by
           have := hpbound L le_rfl
-          simp only [pseq, dif_pos le_rfl, dif_pos (Nat.zero_le L), Nat.cast_zero]
+          simp only [pseq, dite_eq_left le_rfl, dite_eq_left (Nat.zero_le L), Nat.cast_zero]
             at this
           have hbase := congrArg euclideanNorm
             (finiteAffineBestFitSlope_congr_index a (by ring : j + (0 : ℤ) = j)

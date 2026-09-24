@@ -63,7 +63,7 @@ theorem two_mul_le_cubeScale_of_antipodal_mem [NeZero d] {j : ℤ} {w cc : Vec d
   classical
   let i0 : Fin d := ⟨0, Nat.pos_of_ne_zero (NeZero.ne d)⟩
   let e : Vec d := fun i => if i = i0 then t else 0
-  have he0 : e i0 = t := by simp only [e, if_pos rfl]
+  have he0 : e i0 = t := by simp only [e, ite_eq_left rfl]
   have hnorm_e : vecNormSq e = t ^ 2 := by
     have hterm : ∀ i : Fin d, e i * e i = if i = i0 then t * t else 0 := by
       intro i

@@ -129,8 +129,11 @@ private theorem continuousKResidualNorm_add_le
               (continuousKCompetitorAdd G V).toField x))
           (2 : ℝ≥0∞) mu ≤
         eLpNorm (f + h) (2 : ℝ≥0∞) mu := by
-          apply eLpNorm_mono
-          intro x
+          refine eLpNorm_mono ?_ fun x ↦ ?_
+          · have hsub := (unitCubeEuclideanL2FieldAdd F H).euclideanMemL2.sub
+              (continuousKCompetitorAdd G V).euclideanMemL2
+            simpa only [mu, euclideanNorm_eq_norm_ofVec, HilbertVec.ofVec,
+              PiLp.toLp_apply, Pi.sub_apply] using! hsub.norm.aestronglyMeasurable
           simp only [unitCubeEuclideanL2FieldAdd_apply,
             continuousKCompetitorAdd_toField, Pi.add_apply, f, h,
             Real.norm_eq_abs, abs_of_nonneg (euclideanNorm_nonneg _),
@@ -146,8 +149,7 @@ private theorem continuousKResidualNorm_add_le
           exact euclideanNorm_add_le_continuousKAddition _ _
       _ ≤ eLpNorm f (2 : ℝ≥0∞) mu +
           eLpNorm h (2 : ℝ≥0∞) mu :=
-        eLpNorm_add_le hfMem.aestronglyMeasurable
-          hhMem.aestronglyMeasurable (by norm_num)
+        eLpNorm_add_le (by norm_num)
   unfold continuousKResidualNorm
   change
     (eLpNorm
@@ -195,8 +197,8 @@ private theorem continuousKGradientNorm_add_le
             ((continuousKCompetitorAdd G V).gradient x))
           (2 : ℝ≥0∞) mu ≤
         eLpNorm (g + v) (2 : ℝ≥0∞) mu := by
-          apply eLpNorm_mono
-          intro x
+          refine eLpNorm_mono ?_ fun x ↦ ?_
+          · exact (continuousKCompetitorAdd G V).gradientFrobeniusMemL2.aestronglyMeasurable
           simp only [continuousKCompetitorAdd_gradient, Pi.add_apply, g, v,
             Real.norm_eq_abs,
             abs_of_nonneg (matrixFrobeniusMagnitude_nonneg _),
@@ -206,8 +208,7 @@ private theorem continuousKGradientNorm_add_le
           exact matrixFrobeniusMagnitude_add_le_continuousKAddition _ _
       _ ≤ eLpNorm g (2 : ℝ≥0∞) mu +
           eLpNorm v (2 : ℝ≥0∞) mu :=
-        eLpNorm_add_le hgMem.aestronglyMeasurable
-          hvMem.aestronglyMeasurable (by norm_num)
+        eLpNorm_add_le (by norm_num)
   unfold continuousKGradientNorm
     BoundedMeasurableDomain.normalizedLpNorm
     BoundedMeasurableDomain.normalizedLpFiniteENorm
@@ -368,7 +369,7 @@ theorem continuousKSeminormIntegrand_add_le
             ENNReal.ofReal_mul (by norm_num : (0 : ℝ) ≤ 2)]
           norm_num
     unfold continuousKSeminormIntegrand continuousKFunctionalOnOpenScale
-    simp only [dif_pos ht]
+    simp only [dite_eq_left ht]
     change
       ENNReal.ofReal (Real.rpow t (-2 * sigma)) *
           ENNReal.ofReal (kOut ^ 2) * ENNReal.ofReal t⁻¹ ≤

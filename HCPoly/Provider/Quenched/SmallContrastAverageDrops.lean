@@ -331,7 +331,10 @@ theorem eLpNorm_sqrt_blockSize_averageDefect_le_drop [NeZero d]
     mul_nonneg (by positivity : (0 : ℝ) ≤ 2 * d) hDr0
   refine le_trans (le_rpow_inv_two_of_sq_le'
     (b := ENNReal.ofReal (2 * d * Dr)) ?_) (le_of_eq ?_)
-  · rw [eLpNorm_two_real_sq (fun a => Real.sqrt_nonneg _)]
+  · have hsqrtm : AEStronglyMeasurable (fun a => Real.sqrt (g a)) P :=
+      Real.continuous_sqrt.comp_aestronglyMeasurable
+        (aemeasurable_blockSize_averageDefect hq k t F).aestronglyMeasurable
+    rw [eLpNorm_two_real_sq (fun a => Real.sqrt_nonneg _) hsqrtm]
     have hsq : ∀ a, Real.sqrt (g a) ^ 2 = g a := fun a =>
       Real.sq_sqrt (hbs0 a)
     rw [lintegral_congr fun a => congrArg ENNReal.ofReal (hsq a)]
@@ -369,18 +372,6 @@ theorem eLpNorm_diagonalWeakAverageSum_le_drops [NeZero d]
             blockSize (blockSub (adaptedMean P q (t - (j : ℤ)))
               (adaptedMean P q t)) F)) := by
   classical
-  have hq : q.PosDef := Recurrence.posDef_of_isRoundedGrid hgrid
-  have hsummand : ∀ j : ℕ, AEStronglyMeasurable
-      (fun a => (3 : ℝ) ^ (-(1 / 2 - rho / 2) * (j : ℝ)) *
-        Real.sqrt
-          (blockSize
-            (Response.diagonalWeakAverageDefect q (t - (j : ℤ)) t F a)
-            (blockIdentity d))) P := by
-    intro j
-    refine aestronglyMeasurable_const.mul ?_
-    refine Continuous.comp_aestronglyMeasurable Real.continuous_sqrt ?_
-    exact (aemeasurable_blockSize_averageDefect hq (t - (j : ℤ)) t
-      F).aestronglyMeasurable
   have hfun : (fun a => Response.diagonalWeakAverageSum q t H (1 / 2) rho F a) =
       ∑ j ∈ Finset.range (H + 1),
         (fun a => (3 : ℝ) ^ (-(1 / 2 - rho / 2) * (j : ℝ)) *
@@ -393,7 +384,7 @@ theorem eLpNorm_diagonalWeakAverageSum_le_drops [NeZero d]
     rw [Finset.sum_apply]
   rw [hfun]
   refine le_trans
-    (eLpNorm_sum_le (fun j _ => hsummand j) (by norm_num)) ?_
+    (eLpNorm_sum_le (by norm_num)) ?_
   refine Finset.sum_le_sum fun j hj => ?_
   have hjH : (j : ℤ) ≤ (H : ℤ) := by
     exact_mod_cast Nat.lt_succ_iff.mp (Finset.mem_range.mp hj)

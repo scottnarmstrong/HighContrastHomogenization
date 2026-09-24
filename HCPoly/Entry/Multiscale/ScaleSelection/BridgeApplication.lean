@@ -193,7 +193,7 @@ theorem old_grid_smallness (d : ℕ) (hd : 2 ≤ d) (γ : ℝ) (hγ : γ ∈ Set
   have hε1 : ε ≤ 1 := by nlinarith only [hQε, hQd4, hε0, hlog2]
   have hσ1 : σ ≤ 1 := hσε.trans hε1
   have hεσ0 : (0 : ℝ) < ε * σ := mul_pos hε0 hσ0
-  have hεσ1 : ε * σ ≤ 1 := mul_le_one₀ hε1 hσ0.le hσ1
+  have hεσ1 : ε * σ ≤ 1 := (mul_le_of_le_one_left hσ0.le hε1).trans hσ1
   have hp3 : c₀ * (ε * σ) ≤ ε * σ := mul_le_of_le_one_left hεσ0.le hc₀1.le
   have hc₀εσ : c₀ * (ε * σ) ≤ 1 := hp3.trans hεσ1
   have hdεσ : (d : ℝ) * (ε * σ) ≤ (d : ℝ) * ε :=

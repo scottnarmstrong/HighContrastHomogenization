@@ -57,7 +57,7 @@ theorem exists_uniformParameterConstant {β : Type*} [Nonempty β]
   refine ⟨fun s rho Rad =>
     if h : ∃ b, P s rho Rad b then h.choose else Classical.arbitrary β, ?_⟩
   intro s rho Rad h
-  simp only [dif_pos h]
+  simp only [dite_eq_left h]
   exact h.choose_spec
 
 /-- **S-2b.**  One Hardy constant, fixed before every domain binder, serving

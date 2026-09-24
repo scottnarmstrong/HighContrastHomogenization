@@ -111,9 +111,9 @@ theorem aestronglyMeasurable_adjugate_of_entries {F : Ω → Matrix n n ℝ}
   refine aestronglyMeasurable_det_of_entries fun p q => ?_
   simp only [Matrix.updateRow_apply]
   by_cases hpj : p = j
-  · simp only [if_pos hpj]
+  · simp only [ite_eq_left hpj]
     exact aestronglyMeasurable_const
-  · simp only [if_neg hpj]
+  · simp only [ite_eq_right hpj]
     exact h p q
 
 /-- **The entries of the inverse are measurable** as soon as the entries are:

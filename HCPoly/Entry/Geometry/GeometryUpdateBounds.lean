@@ -119,7 +119,7 @@ theorem normalizedMat_geometryUpdate_of_not_projectiveEq {m mStar : Mat d}
     (hm : m.PosDef) (hne : ¬ ProjectiveEq m mStar) (ε : ℝ) :
     normalizedMat m (geometryUpdate ε m mStar) =
       matPow (min (ε / projectiveDistance m mStar) 1) (normalizedMat m mStar) := by
-  rw [geometryUpdate, if_neg hne, normalizedMat, matSqrt_eq_cfc_sqrt hm.posSemidef]
+  rw [geometryUpdate, ite_eq_right hne, normalizedMat, matSqrt_eq_cfc_sqrt hm.posSemidef]
   let θ := min (ε / projectiveDistance m mStar) 1
   let P := matPow θ (normalizedMat m mStar)
   change matSqrt m⁻¹ * (CFC.sqrt m * P * CFC.sqrt m) * matSqrt m⁻¹ = P
@@ -141,7 +141,7 @@ theorem geometryUpdate_posDef {m mStar : Mat d}
   by_cases h : ProjectiveEq m mStar
   · rw [geometryUpdate_of_projectiveEq h ε]
     exact hStar
-  · rw [geometryUpdate, if_neg h]
+  · rw [geometryUpdate, ite_eq_right h]
     have hsqrt : (CFC.sqrt m).PosDef := posDef_sqrt hm
     have hsqrt_trans : Matrix.transpose (CFC.sqrt m) = CFC.sqrt m := transpose_sqrt hm
     have hinj : Function.Injective (CFC.sqrt m).vecMul :=

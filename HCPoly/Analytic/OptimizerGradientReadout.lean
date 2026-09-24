@@ -72,7 +72,7 @@ theorem memVectorL2_smul_basisVec {U : Set (Vec d)} {eta : Vec d → ℝ}
     (heta : MemScalarL2 U eta) (i : Fin d) :
     MemVectorL2 U (fun x => eta x • basisVec i) := by
   have hcomp :=
-    (((ContinuousLinearMap.id ℝ ℝ).smulRight (basisVec (d := d) i)).lipschitz).comp_memLp
+    (((ContinuousLinearMap.id ℝ ℝ).smulRight (basisVec (d := d) i)).lipschitzWith).comp_memLp
       (by simp) heta
   simpa [Function.comp_def] using hcomp
 

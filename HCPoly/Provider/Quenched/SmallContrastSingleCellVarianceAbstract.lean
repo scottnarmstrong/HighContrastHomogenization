@@ -127,9 +127,25 @@ theorem scaleVariance_le_of_envelopes [NeZero d]
         (isSymmetricBlockMat_blockSub
           (isSymmetricBlockMat_coarseBlock _ a)
           (Recurrence.isSymmetricBlockMat_adaptedMean P _ k))) 2
+  have hfm : AEStronglyMeasurable (fun a => schattenSize 2
+      (blockSub (coarseBlock (adaptedCell (roundedGrid l n) k) a)
+        (adaptedMean P (roundedGrid l n) k)) F) P := by
+    refine Transport.aestronglyMeasurable_schattenSize (by exact even_two)
+      (fun a => isSymmetricBlockMat_blockSub (isSymmetricBlockMat_coarseBlock _ a)
+        (Recurrence.isSymmetricBlockMat_adaptedMean P _ k)) ?_
+    intro α β
+    have hmA : AEStronglyMeasurable
+        (fun a : CoeffSpace d ↦
+          toFullBlockMat (coarseBlock (adaptedCell (roundedGrid l n) k) a) α β) P :=
+      Recurrence.hasMeasurableCoarseBlock_adaptedCell P
+        (Recurrence.posDef_roundedGrid hl hn) k α β
+    have h := hmA.sub
+      (aestronglyMeasurable_const
+        (b := toFullBlockMat (adaptedMean P (roundedGrid l n) k) α β))
+    simpa only [Recurrence.toFullBlockMat_blockSub_apply] using! h
   rw [scaleVariance]
   refine le_of_sq_le_sq ?_
-  rw [eLpNorm_two_real_sq hf0]
+  rw [eLpNorm_two_real_sq hf0 hfm]
   have hmono : (∫⁻ a, ENNReal.ofReal
       (schattenSize 2
         (blockSub (coarseBlock (adaptedCell (roundedGrid l n) k) a)

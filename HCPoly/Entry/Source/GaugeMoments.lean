@@ -110,7 +110,7 @@ theorem source_lintegral_moment_le_of_power_tail (μ : Measure Ω) [IsProbabilit
       _ ≤ ∫⁻ _t in Ioc (0 : ℝ) 1, (1 : ENNReal) := by
         apply setLIntegral_mono' measurableSet_Ioc
         intro t ht
-        apply mul_le_one₀ (prob_le_one) zero_le
+        refine (mul_le_of_le_one_left zero_le prob_le_one).trans ?_
         exact (ENNReal.ofReal_le_one).2
           (Real.rpow_le_one ht.1.le ht.2 (sub_nonneg.mpr hp))
       _ = 1 := by simp

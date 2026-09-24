@@ -44,14 +44,15 @@ theorem aemeasurable_profileCenteredMaximum
 defining history. -/
 theorem eLpNorm_profileCenteredMaximum_eq
     {P : Measure (CoeffSpace d)} {q : Mat d} {rhoMax Q : ℝ}
-    (hQ : 0 < Q) (jStar t : ℤ) :
+    (hQ : 0 < Q) (jStar t : ℤ)
+    (hmeas : AEStronglyMeasurable (profileCenteredMaximum P rhoMax q jStar t) P) :
     eLpNorm (profileCenteredMaximum P rhoMax q jStar t)
         (ENNReal.ofReal Q) P =
       centeredHistory P Q rhoMax q jStar t ^ Q⁻¹ := by
   have hp0 : ENNReal.ofReal Q ≠ 0 := by
     rw [ne_eq, ENNReal.ofReal_eq_zero, not_le]
     exact hQ
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top,
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top hmeas,
     ENNReal.toReal_ofReal hQ.le, one_div]
   simp only [enorm_eq_self]
   rfl
@@ -72,8 +73,8 @@ theorem eLpNorm_two_profileCenteredMaximum_le
   have hpq : (2 : ℝ≥0∞) ≤ ENNReal.ofReal Q := by
     rw [show (2 : ℝ≥0∞) = ENNReal.ofReal 2 by norm_num]
     exact ENNReal.ofReal_le_ofReal hQ
-  exact (eLpNorm_le_eLpNorm_of_exponent_le hpq hmeas).trans_eq
-    (eLpNorm_profileCenteredMaximum_eq (by linarith only [hQ]) jStar t)
+  exact (eLpNorm_le_eLpNorm_of_exponent_le hpq).trans_eq
+    (eLpNorm_profileCenteredMaximum_eq (by linarith only [hQ]) jStar t hmeas)
 
 /-- Multiplication by a finite nonnegative scalar costs at most that scalar in
 an extended-real `L^p` seminorm. -/
@@ -82,7 +83,8 @@ theorem eLpNorm_ofReal_mul_le {X : CoeffSpace d → ℝ≥0∞}
     (c : ℝ) (p : ℝ≥0∞) :
     eLpNorm (fun x ↦ ENNReal.ofReal c * X x) p P ≤
       ENNReal.ofReal c * eLpNorm X p P := by
-  apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' p hX
+  apply eLpNorm_le_mul_eLpNorm_of_ae_le_mul'' p
+    (hX.aemeasurable.const_mul (ENNReal.ofReal c)).aestronglyMeasurable
   filter_upwards [] with x
   simp only [enorm_eq_self]
   exact le_rfl

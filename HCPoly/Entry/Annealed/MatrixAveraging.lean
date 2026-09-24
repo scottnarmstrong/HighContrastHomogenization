@@ -383,7 +383,7 @@ theorem matrix_averaging_roundedGrid (d : ℕ) (hd : 2 ≤ d)
     Classical.choose (exists_unique_index_of_mem_adaptedLatticeAtScale hq j (hZ hz)) else 0
   have hw (z : Vec d) (hz : z ∈ Z) : adaptedCellCenter q j (w z) = z := by
     dsimp only [w]
-    rw [dif_pos hz]
+    rw [dite_eq_left hz]
     exact (Classical.choose_spec (exists_unique_index_of_mem_adaptedLatticeAtScale hq j (hZ hz))).1
   let col : Vec d → Fin d → ZMod 3 := fun z i => (w z i : ZMod 3)
   have hc (z : Vec d) (hz : z ∈ Z) :

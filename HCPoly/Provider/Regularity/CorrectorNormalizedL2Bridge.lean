@@ -30,10 +30,10 @@ noncomputable def volumeNormalizedMeasure {d : ℕ} (V : Set (Vec d)) :
 
 private theorem eLpNorm_two_eq_rpow_normalizedL2
     {A : Type*} [MeasurableSpace A]
-    (f : A → ℝ) (mu : Measure A) :
+    (f : A → ℝ) (mu : Measure A) (hf : AEStronglyMeasurable f mu) :
     eLpNorm f 2 mu =
       (∫⁻ x, ENNReal.ofReal (f x ^ 2) ∂mu) ^ (1 / 2 : ℝ) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hf]
   congr 1
   apply lintegral_congr
   intro x
@@ -47,9 +47,10 @@ private theorem eLpNorm_two_eq_rpow_normalizedL2
 /-- The frozen normalized `L²` norm is exactly the ordinary `eLpNorm` for
 the explicitly volume-normalized restricted measure. -/
 theorem normalizedL2Norm_eq_eLpNorm_volumeNormalizedMeasure
-    {d : ℕ} (V : Set (Vec d)) (f : Vec d → ℝ) :
+    {d : ℕ} (V : Set (Vec d)) (f : Vec d → ℝ)
+    (hf : AEStronglyMeasurable f (volumeNormalizedMeasure V)) :
     normalizedL2Norm V f = eLpNorm f 2 (volumeNormalizedMeasure V) := by
-  rw [eLpNorm_two_eq_rpow_normalizedL2]
+  rw [eLpNorm_two_eq_rpow_normalizedL2 f _ hf]
   unfold normalizedL2Norm eVolumeAverage volumeNormalizedMeasure
   rw [lintegral_smul_measure, smul_eq_mul, ENNReal.div_eq_inv_mul]
 
@@ -100,7 +101,8 @@ theorem normalizedL2Norm_openCubeSet_eq_ofReal_cubeLpNorm
     congr 1
     rw [← ENNReal.ofReal_toReal (volume_cubeSet_lt_top Q).ne]
     simp only [volume_cubeSet_toReal, ENNReal.ofReal_inv_of_pos (cubeVolume_pos Q)]
-  rw [normalizedL2Norm_eq_eLpNorm_volumeNormalizedMeasure, hmeasure]
+  rw [normalizedL2Norm_eq_eLpNorm_volumeNormalizedMeasure _ f
+    (hmeasure ▸ hf.aestronglyMeasurable), hmeasure]
   unfold cubeLpNorm
   exact (ENNReal.ofReal_toReal hf.eLpNorm_ne_top).symm
 

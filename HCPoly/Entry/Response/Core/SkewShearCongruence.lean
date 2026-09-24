@@ -601,7 +601,7 @@ private theorem one_le_det_of_one_le {n : Type*} [Fintype n] [DecidableEq n]
   rw [hX.isHermitian.det_eq_prod_eigenvalues]
   simp only [RCLike.ofReal_real_eq_id, id_eq]
   simpa only [Finset.prod_const_one] using
-    (Finset.prod_le_prod (fun _ _ => (show (0 : ℝ) ≤ 1 by norm_num)) (fun i _ => heig i))
+    (Finset.prod_le_prod₀ (fun _ _ => (show (0 : ℝ) ≤ 1 by norm_num)) (fun i _ => heig i))
 
 /-- `X ≤ X.det • 1` whenever `X` is positive-definite and `1 ≤ X`: each eigenvalue of `X` is at
 most the product of all of them once every eigenvalue is `≥ 1`. -/
@@ -623,7 +623,7 @@ theorem le_det_smul_one_of_one_le {n : Type*} [Fintype n] [DecidableEq n]
     rw [hdet]
     have herase : (1 : ℝ) ≤ ∏ j ∈ Finset.univ.erase i, hX.isHermitian.eigenvalues j := by
       simpa only [Finset.prod_const_one] using
-        Finset.prod_le_prod (fun j _ => (show (0 : ℝ) ≤ 1 by norm_num))
+        Finset.prod_le_prod₀ (fun j _ => (show (0 : ℝ) ≤ 1 by norm_num))
           (fun j _ => heig j)
     have hmul := le_mul_of_one_le_right (le_trans zero_le_one (heig i)) herase
     rwa [Finset.mul_prod_erase Finset.univ hX.isHermitian.eigenvalues

@@ -59,7 +59,7 @@ theorem volume_coordHalfspace_eq_top (hd : 0 < d) (i : Fin d) :
     by_cases h : j = i
     · simp only [h]
       exact Real.volume_Ici
-    · simp only [if_neg h]
+    · simp only [ite_eq_right h]
       exact Real.volume_univ
   rw [Finset.prod_congr rfl fun j _ => hfac j]
   simp [Finset.prod_const, ENNReal.top_pow hd.ne']
@@ -75,7 +75,7 @@ theorem lintegral_abs_coord_univ_eq_top (hd : 0 < d) (i : Fin d) :
     by_cases h : j = i
     · simp only [h]
       exact measurableSet_Ici
-    · simp only [if_neg h]
+    · simp only [ite_eq_right h]
       exact MeasurableSet.univ
   have hlow : volume S ≤ ∫⁻ x in S, ENNReal.ofReal |x i| ∂volume := by
     rw [← setLIntegral_one S]
@@ -83,7 +83,7 @@ theorem lintegral_abs_coord_univ_eq_top (hd : 0 < d) (i : Fin d) :
     filter_upwards [ae_restrict_mem hSm] with x hx
     have hxi : (1 : ℝ) ≤ x i := by
       have h := hx i (Set.mem_univ i)
-      simpa only [hSdef, if_pos rfl, Set.mem_Ici] using! h
+      simpa only [hSdef, ite_eq_left rfl, Set.mem_Ici] using! h
     calc (1 : ℝ≥0∞) = ENNReal.ofReal 1 := by simp
       _ ≤ ENNReal.ofReal |x i| :=
           ENNReal.ofReal_le_ofReal (hxi.trans (le_abs_self _))

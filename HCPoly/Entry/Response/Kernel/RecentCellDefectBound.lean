@@ -315,7 +315,7 @@ theorem aestronglyMeasurable_recentDefectBlock_minus [NeZero d] {q : Mat d} (hq 
     AEStronglyMeasurable (fun a : CoeffSpace d =>
       recentDefectBlock q t n w E (respCoeffMinus F a)) P := by
   refine Measurable.aestronglyMeasurable ?_
-  refine measurable_pi_lambda _ fun α => measurable_pi_lambda _ fun β => ?_
+  refine Measurable.of_eval fun α => Measurable.of_eval fun β => ?_
   have hcell : HighContrast.adaptedCell q t = adaptedCellAtCenter q t 0 := (adaptedCellAtCenter_zero q t).symm
   have hrw : (fun a : CoeffSpace d => recentDefectBlock q t n w E (respCoeffMinus F a) α β)
       = fun a : CoeffSpace d =>
@@ -386,7 +386,7 @@ theorem aestronglyMeasurable_recentDefectBlock_plus [NeZero d] {q : Mat d} (hq :
     AEStronglyMeasurable (fun a : CoeffSpace d =>
       recentDefectBlock q t n w E (respCoeffPlus F a)) P := by
   refine Measurable.aestronglyMeasurable ?_
-  refine measurable_pi_lambda _ fun α => measurable_pi_lambda _ fun β => ?_
+  refine Measurable.of_eval fun α => Measurable.of_eval fun β => ?_
   have hcell : HighContrast.adaptedCell q t = adaptedCellAtCenter q t 0 := (adaptedCellAtCenter_zero q t).symm
   have hrw : (fun a : CoeffSpace d => recentDefectBlock q t n w E (respCoeffPlus F a) α β)
       = fun a : CoeffSpace d =>

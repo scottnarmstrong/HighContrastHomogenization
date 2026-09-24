@@ -56,7 +56,7 @@ theorem aeLocallyUniformlyEllipticField_of_pointwise {lam Lam : ℝ} {f : CoeffF
   intro Q
   refine ⟨lam, Lam, hlam, hle, IsAEEllipticFieldOn.of_isEllipticFieldOn ?_⟩
   refine ⟨?_, fun x _ => hfp x⟩
-  refine measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j => ?_
+  refine Measurable.of_eval fun i => Measurable.of_eval fun j => ?_
   exact Measurable.ite (measurableSet_openCubeSet Q)
     ((measurable_pi_apply j).comp ((measurable_pi_apply i).comp hfm)) measurable_const
 
@@ -114,7 +114,7 @@ theorem aeLocallyUniformlyEllipticField_of_ball_pointwise {f : CoeffField d}
   obtain ⟨lam, Lam, hlam, hle, hell⟩ := hfp R hR
   refine ⟨lam, Lam, hlam, hle, IsAEEllipticFieldOn.of_isEllipticFieldOn ?_⟩
   refine ⟨?_, fun x hx => hell x (hQR hx)⟩
-  refine measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j => ?_
+  refine Measurable.of_eval fun i => Measurable.of_eval fun j => ?_
   exact Measurable.ite (measurableSet_openCubeSet Q)
     ((measurable_pi_apply j).comp ((measurable_pi_apply i).comp hfm)) measurable_const
 

@@ -64,13 +64,13 @@ private theorem aestronglyMeasurable_weakProfileMajorant
         simpa only [bad, Set.mem_ofPred_eq] using hbad
       have hnotGood : a ∉ good := by
         simpa only [good, Set.mem_ofPred_eq, not_le] using hbad
-      rw [if_pos hbad, Set.indicator_of_mem hbadMem,
+      rw [ite_eq_left hbad, Set.indicator_of_mem hbadMem,
         Set.indicator_of_notMem hnotGood, add_zero]
     · have hnotBad : a ∉ bad := by
         simpa only [bad, Set.mem_ofPred_eq] using hbad
       have hgood : a ∈ good := by
         simpa only [good, Set.mem_ofPred_eq] using le_of_not_gt hbad
-      rw [if_neg hbad, Set.indicator_of_notMem hnotBad,
+      rw [ite_eq_right hbad, Set.indicator_of_notMem hnotBad,
         Set.indicator_of_mem hgood, zero_add]
   have hbranchIf : AEMeasurable (fun a ↦
       if (1 : ℝ≥0∞) < M a then badValue a else goodValue a) P := by
@@ -99,7 +99,8 @@ private theorem eLpNorm_fullWeakRoot_le_profileMajorant
           (if (1 : ℝ≥0∞) < M a then
               M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a)
             else ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ))) *
-              ENNReal.ofReal (En a))) + ENNReal.ofReal c * center a) :
+              ENNReal.ofReal (En a))) + ENNReal.ofReal c * center a)
+    (hroot : AEStronglyMeasurable fullRoot P) :
     eLpNorm fullRoot 2 P ≤
       (ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) +
         ENNReal.ofReal B *
@@ -114,23 +115,21 @@ private theorem eLpNorm_fullWeakRoot_le_profileMajorant
             ENNReal.ofReal (En a))
   have hmajorant : AEStronglyMeasurable majorant P :=
     aestronglyMeasurable_weakProfileMajorant hU hV hM hEn A B alpha H
-  have hcenterMul : AEStronglyMeasurable
-      (fun a ↦ ENNReal.ofReal c * center a) P :=
-    (aemeasurable_const.mul hcenter).aestronglyMeasurable
   have hmono : eLpNorm fullRoot 2 P ≤
       eLpNorm (fun a ↦ majorant a + ENNReal.ofReal c * center a) 2 P := by
-    apply eLpNorm_mono_enorm_ae
+    apply eLpNorm_mono_enorm_ae hroot
     filter_upwards [hpoint] with a ha
     simpa only [majorant, enorm_eq_self] using ha
   have hmajorantNorm : eLpNorm majorant 2 P ≤
       ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) +
         ENNReal.ofReal B *
           (profileBadEnergy P M En + profileGoodEnergy P alpha H M En) := by
-    apply eLpNorm_weakRoot_le_profileMajorant hU0 hV0 hU hV hM hEn hfinite
+    refine eLpNorm_weakRoot_le_profileMajorant hU0 hV0 hU hV hM hEn hfinite ?_
+      hmajorant
     filter_upwards [] with a
     exact le_rfl
-  have htriangle := eLpNorm_add_le hmajorant hcenterMul
-    (by norm_num : (1 : ℝ≥0∞) ≤ 2)
+  have htriangle := eLpNorm_add_le (f := majorant)
+    (g := fun a ↦ ENNReal.ofReal c * center a) (μ := P) (by norm_num : (1 : ℝ≥0∞) ≤ 2)
   have hcenterNorm : eLpNorm (fun a ↦ ENNReal.ofReal c * center a) 2 P ≤
       ENNReal.ofReal c * eLpNorm center 2 P :=
     eLpNorm_ofReal_mul_le hcenter.aestronglyMeasurable c 2
@@ -156,7 +155,9 @@ theorem eLpNorm_profilePrimalWeakRoot_sample_le [NeZero d]
       (fun a ↦ diagonalWeakEnergy hq t (sample a) p r) P)
     (havg : AEMeasurable (fun a ↦ blockCellAverage (adaptedCell q t)
       (diagonalWeakState hq t (sample a) p r)) P)
-    (hfinite : ∀ᵐ a ∂P, diagonalWeakMaximum rho q t E (sample a) ≠ ⊤) :
+    (hfinite : ∀ᵐ a ∂P, diagonalWeakMaximum rho q t E (sample a) ≠ ⊤)
+    (hroot : AEStronglyMeasurable (profilePrimalWeakRoot m hq t sample p r
+        (profilePrimalCenter P hq t sample p r)) P) :
     eLpNorm (profilePrimalWeakRoot m hq t sample p r
         (profilePrimalCenter P hq t sample p r)) 2 P ≤
       (ENNReal.ofReal (16 * diagonalWeakMetricFactor m E *
@@ -183,7 +184,7 @@ theorem eLpNorm_profilePrimalWeakRoot_sample_le [NeZero d]
   apply eLpNorm_fullWeakRoot_le_profileMajorant
     (fun a ↦ diagonalWeakCellSum_nonneg q t H (1 / 2) E (sample a))
     (fun a ↦ diagonalWeakAverageSum_nonneg q t H (1 / 2) rho E (sample a))
-    hU hV hM hEn hfluct hfinite
+    hU hV hM hEn hfluct hfinite ?_ hroot
   filter_upwards [hfinite] with a ha
   have hsplit := profilePrimalWeakRoot_le_randomCentered_add_constant
     hq t hm (sample a) p r center
@@ -214,7 +215,9 @@ theorem eLpNorm_profileAdjointWeakRoot_sample_le [NeZero d]
       (fun a ↦ diagonalWeakAdjointEnergy hq t (sample a) p r) P)
     (havg : AEMeasurable (fun a ↦ blockCellAverage (adaptedCell q t)
       (diagonalWeakAdjointState hq t (sample a) p r)) P)
-    (hfinite : ∀ᵐ a ∂P, diagonalWeakMaximum rho q t E (sample a) ≠ ⊤) :
+    (hfinite : ∀ᵐ a ∂P, diagonalWeakMaximum rho q t E (sample a) ≠ ⊤)
+    (hroot : AEStronglyMeasurable (profileAdjointWeakRoot m hq t sample p r
+        (profileAdjointCenter P hq t sample p r)) P) :
     eLpNorm (profileAdjointWeakRoot m hq t sample p r
         (profileAdjointCenter P hq t sample p r)) 2 P ≤
       (ENNReal.ofReal (16 * diagonalWeakMetricFactor m E *
@@ -241,7 +244,7 @@ theorem eLpNorm_profileAdjointWeakRoot_sample_le [NeZero d]
   apply eLpNorm_fullWeakRoot_le_profileMajorant
     (fun a ↦ diagonalWeakCellSum_nonneg q t H (1 / 2) E (sample a))
     (fun a ↦ diagonalWeakAverageSum_nonneg q t H (1 / 2) rho E (sample a))
-    hU hV hM hEn hfluct hfinite
+    hU hV hM hEn hfluct hfinite ?_ hroot
   filter_upwards [hfinite] with a ha
   have hsplit := profileAdjointWeakRoot_le_randomCentered_add_constant
     hq t hm (sample a) p r center
@@ -299,13 +302,13 @@ private theorem aestronglyMeasurable_weakProfileMajorantAt
         simpa only [bad, Set.mem_ofPred_eq] using hbad
       have hnotGood : a ∉ good := by
         simpa only [good, Set.mem_ofPred_eq, not_le] using hbad
-      rw [if_pos hbad, Set.indicator_of_mem hbadMem,
+      rw [ite_eq_left hbad, Set.indicator_of_mem hbadMem,
         Set.indicator_of_notMem hnotGood, add_zero]
     · have hnotBad : a ∉ bad := by
         simpa only [bad, Set.mem_ofPred_eq] using hbad
       have hgood : a ∈ good := by
         simpa only [good, Set.mem_ofPred_eq] using le_of_not_gt hbad
-      rw [if_neg hbad, Set.indicator_of_notMem hnotBad,
+      rw [ite_eq_right hbad, Set.indicator_of_notMem hnotBad,
         Set.indicator_of_mem hgood, zero_add]
   have hbranchIf : AEMeasurable (fun a ↦
       if lev < M a then badValue a else goodValue a) P := by
@@ -335,7 +338,8 @@ private theorem eLpNorm_fullWeakRoot_le_profileMajorantAt
           (if lev < M a then
               M a ^ (1 / 2 : ℝ) * ENNReal.ofReal (En a)
             else ENNReal.ofReal ((3 : ℝ) ^ (-alpha * (H : ℝ))) *
-              ENNReal.ofReal (En a))) + ENNReal.ofReal c * center a) :
+              ENNReal.ofReal (En a))) + ENNReal.ofReal c * center a)
+    (hroot : AEStronglyMeasurable fullRoot P) :
     eLpNorm fullRoot 2 P ≤
       (ENNReal.ofReal A * (eLpNorm U 2 P + eLpNorm V 2 P) +
         ENNReal.ofReal B *
@@ -351,12 +355,9 @@ private theorem eLpNorm_fullWeakRoot_le_profileMajorantAt
             ENNReal.ofReal (En a))
   have hmajorant : AEStronglyMeasurable majorant P :=
     aestronglyMeasurable_weakProfileMajorantAt hU hV hM hEn A B alpha H lev
-  have hcenterMul : AEStronglyMeasurable
-      (fun a ↦ ENNReal.ofReal c * center a) P :=
-    (aemeasurable_const.mul hcenter).aestronglyMeasurable
   have hmono : eLpNorm fullRoot 2 P ≤
       eLpNorm (fun a ↦ majorant a + ENNReal.ofReal c * center a) 2 P := by
-    apply eLpNorm_mono_enorm_ae
+    apply eLpNorm_mono_enorm_ae hroot
     filter_upwards [hpoint] with a ha
     simpa only [majorant, enorm_eq_self] using ha
   have hmajorantNorm : eLpNorm majorant 2 P ≤
@@ -364,11 +365,12 @@ private theorem eLpNorm_fullWeakRoot_le_profileMajorantAt
         ENNReal.ofReal B *
           (profileBadEnergyAt P lev M En +
             profileGoodEnergyAt P lev alpha H M En) := by
-    apply eLpNorm_weakRoot_le_profileMajorantAt hU0 hV0 hU hV hM hEn hfinite
+    refine eLpNorm_weakRoot_le_profileMajorantAt hU0 hV0 hU hV hM hEn hfinite ?_
+      hmajorant
     filter_upwards [] with a
     exact le_rfl
-  have htriangle := eLpNorm_add_le hmajorant hcenterMul
-    (by norm_num : (1 : ℝ≥0∞) ≤ 2)
+  have htriangle := eLpNorm_add_le (f := majorant)
+    (g := fun a ↦ ENNReal.ofReal c * center a) (μ := P) (by norm_num : (1 : ℝ≥0∞) ≤ 2)
   have hcenterNorm : eLpNorm (fun a ↦ ENNReal.ofReal c * center a) 2 P ≤
       ENNReal.ofReal c * eLpNorm center 2 P :=
     eLpNorm_ofReal_mul_le hcenter.aestronglyMeasurable c 2
@@ -393,7 +395,9 @@ theorem eLpNorm_profilePrimalWeakRoot_sample_at_level_le [NeZero d]
       (fun a ↦ diagonalWeakEnergy hq t (sample a) p r) P)
     (havg : AEMeasurable (fun a ↦ blockCellAverage (adaptedCell q t)
       (diagonalWeakState hq t (sample a) p r)) P)
-    (hfinite : ∀ᵐ a ∂P, diagonalWeakMaximum rho q t E (sample a) ≠ ⊤) :
+    (hfinite : ∀ᵐ a ∂P, diagonalWeakMaximum rho q t E (sample a) ≠ ⊤)
+    (hroot : AEStronglyMeasurable (profilePrimalWeakRoot m hq t sample p r
+        (profilePrimalCenter P hq t sample p r)) P) :
     eLpNorm (profilePrimalWeakRoot m hq t sample p r
         (profilePrimalCenter P hq t sample p r)) 2 P ≤
       (ENNReal.ofReal (recentConstantAtLevel lev *
@@ -422,7 +426,7 @@ theorem eLpNorm_profilePrimalWeakRoot_sample_at_level_le [NeZero d]
   apply eLpNorm_fullWeakRoot_le_profileMajorantAt
     (fun a ↦ diagonalWeakCellSum_nonneg q t H (1 / 2) E (sample a))
     (fun a ↦ diagonalWeakAverageSum_nonneg q t H (1 / 2) rho E (sample a))
-    hU hV hM hEn hfluct hfinite
+    hU hV hM hEn hfluct hfinite ?_ hroot
   filter_upwards [hfinite] with a ha
   have hsplit := profilePrimalWeakRoot_le_randomCentered_add_constant
     hq t hm (sample a) p r center
@@ -452,7 +456,9 @@ theorem eLpNorm_profileAdjointWeakRoot_sample_at_level_le [NeZero d]
       (fun a ↦ diagonalWeakAdjointEnergy hq t (sample a) p r) P)
     (havg : AEMeasurable (fun a ↦ blockCellAverage (adaptedCell q t)
       (diagonalWeakAdjointState hq t (sample a) p r)) P)
-    (hfinite : ∀ᵐ a ∂P, diagonalWeakMaximum rho q t E (sample a) ≠ ⊤) :
+    (hfinite : ∀ᵐ a ∂P, diagonalWeakMaximum rho q t E (sample a) ≠ ⊤)
+    (hroot : AEStronglyMeasurable (profileAdjointWeakRoot m hq t sample p r
+        (profileAdjointCenter P hq t sample p r)) P) :
     eLpNorm (profileAdjointWeakRoot m hq t sample p r
         (profileAdjointCenter P hq t sample p r)) 2 P ≤
       (ENNReal.ofReal (recentConstantAtLevel lev *
@@ -481,7 +487,7 @@ theorem eLpNorm_profileAdjointWeakRoot_sample_at_level_le [NeZero d]
   apply eLpNorm_fullWeakRoot_le_profileMajorantAt
     (fun a ↦ diagonalWeakCellSum_nonneg q t H (1 / 2) E (sample a))
     (fun a ↦ diagonalWeakAverageSum_nonneg q t H (1 / 2) rho E (sample a))
-    hU hV hM hEn hfluct hfinite
+    hU hV hM hEn hfluct hfinite ?_ hroot
   filter_upwards [hfinite] with a ha
   have hsplit := profileAdjointWeakRoot_le_randomCentered_add_constant
     hq t hm (sample a) p r center

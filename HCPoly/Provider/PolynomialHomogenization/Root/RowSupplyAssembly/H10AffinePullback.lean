@@ -54,7 +54,7 @@ theorem eLpNorm_comp_matVecMul {L : Mat d} (hL : IsUnit L.det)
           (Measure.map (matVecMul L)
             (volume.restrict (matImage L⁻¹ U))) :=
     (eLpNorm_map_measure haem hmeasL.aemeasurable).symm
-  rw [hstep, hmap, eLpNorm_smul_measure_of_ne_top (by norm_num)]
+  rw [hstep, hmap, eLpNorm_smul_measure_of_ne_top (by norm_num) _ _ hf]
   simp [ENNReal.toReal_ofNat]
 
 /-- Convergence to zero of an `L²` sequence survives the affine pullback. -/
@@ -101,8 +101,7 @@ theorem tendsto_eLpNorm_transpose_comp_zero {L : Mat d} (hL : IsUnit L.det)
       simp only [Finset.sum_apply, matVecMul, matTranspose,
         Matrix.transpose_apply]
     rw [hEq]
-    refine eLpNorm_sum_le (fun j _ => ?_) (by norm_num)
-    exact (hmeasV n j).const_mul _
+    exact eLpNorm_sum_le (by norm_num)
   have hterm : ∀ j : Fin d,
       Tendsto (fun n => eLpNorm
         (fun y => L j i * D n (matVecMul L y) j) 2 (volume.restrict V))
@@ -115,7 +114,7 @@ theorem tendsto_eLpNorm_transpose_comp_zero {L : Mat d} (hL : IsUnit L.det)
           ENNReal.ofReal (|L j i|) *
             eLpNorm (fun y => D n (matVecMul L y) j) 2 (volume.restrict V) := by
       intro n
-      exact eLpNorm_le_mul_eLpNorm_of_ae_le_mul
+      exact eLpNorm_le_mul_eLpNorm_of_ae_le_mul ((hmeasV n j).const_mul _)
         (_root_.Filter.Eventually.of_forall (fun y => by
           simp)) 2
     have hmul : Tendsto (fun n => ENNReal.ofReal (|L j i|) *

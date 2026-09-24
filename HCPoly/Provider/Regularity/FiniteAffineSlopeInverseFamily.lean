@@ -81,7 +81,7 @@ theorem exists_scalarIdentityFiniteAffineSlopeInverseFamilyConstants
   refine ⟨Q, ?_, ?_, hsmall⟩
   · intro k hk
     have hkm : k ≤ m := (Finset.mem_Icc.mp hk).2
-    simp only [Q, dif_pos hk]
+    simp only [Q, dite_eq_left hk]
     exact ⟨finiteAffineBestFitSlopeInverseMatrix_isUnit_det
         a k m hkm (hbijAt k hk),
       finiteAffineBestFitSlopeMatrix_mul_inverseMatrix
@@ -90,7 +90,7 @@ theorem exists_scalarIdentityFiniteAffineSlopeInverseFamilyConstants
         a k m hkm (hbijAt k hk)⟩
   · have hQm : Q m =
         finiteAffineBestFitSlopeInverseMatrix a m m le_rfl hbijTerminal := by
-      simp only [Q, dif_pos hm]
+      simp only [Q, dite_eq_left hm]
     rw [hQm]
     exact hterminalBound.trans
       (mul_le_mul_of_nonneg_right hTC hdelta.1.le)

@@ -172,7 +172,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
                 (cellAverage (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w)
                   (optimizerField (respCoeffMinus F a) (u a)) - Y)).1 i := by
           funext a
-          simp only [havg, if_pos hw]
+          simp only [havg, ite_eq_left hw]
         rw [hsplit]
         have hW : Measurable fun a : CoeffSpace d =>
             cellAverage (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w)
@@ -189,7 +189,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
         exact (measurable_pi_apply i).comp hZ.fst
       · have hsplit : (fun a : CoeffSpace d => (avg a n w).1 i) = fun _ => (0 : ℝ) := by
           funext a
-          simp only [havg, if_neg hw]
+          simp only [havg, ite_eq_right hw]
           rfl
         rw [hsplit]
         exact measurable_const
@@ -201,7 +201,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
                 (cellAverage (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w)
                   (optimizerField (respCoeffMinus F a) (u a)) - Y)).2 i := by
           funext a
-          simp only [havg, if_pos hw]
+          simp only [havg, ite_eq_left hw]
         rw [hsplit]
         have hW : Measurable fun a : CoeffSpace d =>
             cellAverage (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w)
@@ -218,7 +218,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
         exact (measurable_pi_apply i).comp hZ.snd
       · have hsplit : (fun a : CoeffSpace d => (avg a n w).2 i) = fun _ => (0 : ℝ) := by
           funext a
-          simp only [havg, if_neg hw]
+          simp only [havg, ite_eq_right hw]
           rfl
         rw [hsplit]
         exact measurable_const
@@ -230,7 +230,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
         = fun a : CoeffSpace d => besovSeminorm t (avg a) ^ 2 := by
       funext a
       exact congrArg (fun x : ℝ => x ^ 2)
-        (besovSeminorm_congr (fun n w hw => by simp only [havg, if_pos hw]))
+        (besovSeminorm_congr (fun n w hw => by simp only [havg, ite_eq_left hw]))
     rw [hgoal]
     have hbase := measurable_besovSeminorm t havg1 havg2
     simpa only [pow_two] using! hbase.mul hbase
@@ -315,7 +315,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
                 (cellAverage (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w)
                   (optimizerField (respCoeffPlus F a) (u a)) - Y)).1 i := by
           funext a
-          simp only [havg, if_pos hw]
+          simp only [havg, ite_eq_left hw]
         rw [hsplit]
         have hW : Measurable fun a : CoeffSpace d =>
             cellAverage (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w)
@@ -332,7 +332,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
         exact (measurable_pi_apply i).comp hZ.fst
       · have hsplit : (fun a : CoeffSpace d => (avg a n w).1 i) = fun _ => (0 : ℝ) := by
           funext a
-          simp only [havg, if_neg hw]
+          simp only [havg, ite_eq_right hw]
           rfl
         rw [hsplit]
         exact measurable_const
@@ -344,7 +344,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
                 (cellAverage (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w)
                   (optimizerField (respCoeffPlus F a) (u a)) - Y)).2 i := by
           funext a
-          simp only [havg, if_pos hw]
+          simp only [havg, ite_eq_left hw]
         rw [hsplit]
         have hW : Measurable fun a : CoeffSpace d =>
             cellAverage (adaptedCellAtCenter (respGrid jStar F) (t - (n : ℤ)) w)
@@ -361,7 +361,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
         exact (measurable_pi_apply i).comp hZ.snd
       · have hsplit : (fun a : CoeffSpace d => (avg a n w).2 i) = fun _ => (0 : ℝ) := by
           funext a
-          simp only [havg, if_neg hw]
+          simp only [havg, ite_eq_right hw]
           rfl
         rw [hsplit]
         exact measurable_const
@@ -373,7 +373,7 @@ theorem aestronglyMeasurable_besovSeminorm_sq_of_maximizer {d : ℕ} [NeZero d]
         = fun a : CoeffSpace d => besovSeminorm t (avg a) ^ 2 := by
       funext a
       exact congrArg (fun x : ℝ => x ^ 2)
-        (besovSeminorm_congr (fun n w hw => by simp only [havg, if_pos hw]))
+        (besovSeminorm_congr (fun n w hw => by simp only [havg, ite_eq_left hw]))
     rw [hgoal]
     have hbase := measurable_besovSeminorm t havg1 havg2
     simpa only [pow_two] using! hbase.mul hbase

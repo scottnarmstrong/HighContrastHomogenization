@@ -105,12 +105,12 @@ theorem profileBadMajorant_of_lt_one {Q h beta : ℝ} (hbeta : beta < 1) :
     profileBadMajorant Q h beta =
       (h ^ Q⁻¹ + beta) * (1 - beta) ^ (1 - Q / 2) *
         h ^ (1 / 2 - Q⁻¹) := by
-  simp only [profileBadMajorant, if_pos hbeta]
+  simp only [profileBadMajorant, ite_eq_left hbeta]
 
 /-- The defining equation for the large-drift branch of `𝔅_Q`. -/
 theorem profileBadMajorant_of_one_le {Q h beta : ℝ} (hbeta : 1 ≤ beta) :
     profileBadMajorant Q h beta = h ^ Q⁻¹ + beta := by
-  simp only [profileBadMajorant, if_neg (not_lt.mpr hbeta)]
+  simp only [profileBadMajorant, ite_eq_right (not_lt.mpr hbeta)]
 
 /-- **The two-branch bad-event majorant at a released split level.**  The
 fixed-level `profileBadMajorant` is this at `lev = 1`: the guard `beta < 1`
@@ -126,12 +126,12 @@ def profileBadMajorantAt (Q h beta lev : ℝ) : ℝ :=
 theorem profileBadMajorantAt_of_lt {Q h beta lev : ℝ} (hbeta : beta < lev) :
     profileBadMajorantAt Q h beta lev =
       (h ^ Q⁻¹ + beta) * (lev - beta) ^ (1 - Q / 2) * h ^ (1 / 2 - Q⁻¹) := by
-  simp only [profileBadMajorantAt, if_pos hbeta]
+  simp only [profileBadMajorantAt, ite_eq_left hbeta]
 
 /-- The large-drift branch. -/
 theorem profileBadMajorantAt_of_ge {Q h beta lev : ℝ} (hbeta : lev ≤ beta) :
     profileBadMajorantAt Q h beta lev = h ^ Q⁻¹ + beta := by
-  simp only [profileBadMajorantAt, if_neg (not_lt.mpr hbeta)]
+  simp only [profileBadMajorantAt, ite_eq_right (not_lt.mpr hbeta)]
 
 theorem profileBadMajorantAt_nonneg {Q h beta lev : ℝ} (hh : 0 ≤ h)
     (hbeta : 0 ≤ beta) : 0 ≤ profileBadMajorantAt Q h beta lev := by

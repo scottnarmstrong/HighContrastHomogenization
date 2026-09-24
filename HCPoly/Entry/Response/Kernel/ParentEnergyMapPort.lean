@@ -402,7 +402,7 @@ theorem tailCell_of_bridge_plus (P : Measure (CoeffSpace d)) (γ : ℝ) (jStar :
       IsEllipticFieldOn lam0 Lam0 S fa := by
     intro S hS
     refine ⟨?_, fun x _ => hEll_fa x⟩
-    exact measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j =>
+    exact Measurable.of_eval fun i => Measurable.of_eval fun j =>
       ((measurable_pi_apply j).comp ((measurable_pi_apply i).comp hmeas_fa)).ite hS
         measurable_const
   have hEllOf : ∀ (S : Set (Vec d)) (hS : MeasurableSet S),
@@ -449,13 +449,13 @@ theorem tailCell_of_bridge_plus (P : Measure (CoeffSpace d)) (γ : ℝ) (jStar :
   have hzFam : ∀ w, (zFam w).toH1.grad = (uFam w).toH1.grad := by
     intro w
     by_cases hw : w ∈ triadicIndexBox d n
-    · have hz : zFam w = Classical.choose (hzExists w hw) := dif_pos hw
-      have hu : uFam w = uRep := dif_pos hw
+    · have hz : zFam w = Classical.choose (hzExists w hw) := dite_eq_left hw
+      have hu : uFam w = uRep := dite_eq_left hw
       rw [hz, hu]
       exact Classical.choose_spec (hzExists w hw)
     · have hz : zFam w = Book.Ch02.zeroSolution
-          (adaptedDomainAt (respGrid jStar F) hgrid (t - (n : ℤ)) w) (aU w) := dif_neg hw
-      have hu : uFam w = zeroH := dif_neg hw
+          (adaptedDomainAt (respGrid jStar F) hgrid (t - (n : ℤ)) w) (aU w) := dite_eq_right hw
+      have hu : uFam w = zeroH := dite_eq_right hw
       rw [hz, hu]
       rfl
   have hEllFam : ∀ w : Fin d → ℤ, IsEllipticFieldOn (aU w).lam (aU w).Lam
@@ -495,7 +495,7 @@ theorem tailCell_of_bridge_plus (P : Measure (CoeffSpace d)) (γ : ℝ) (jStar :
     (hcoarse := hcoarseFam)
   intro w hw
   have h := hport w hw
-  have huFam_w : uFam w = uRep := dif_pos hw
+  have huFam_w : uFam w = uRep := dite_eq_left hw
   have haU_w : (aU w).toCoeffField = f := rfl
   have huRep_grad : uRep.toH1.grad = u.toH1.grad := rfl
   have hgrad_z : (zFam w).toH1.grad = u.toH1.grad := by

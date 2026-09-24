@@ -41,9 +41,9 @@ theorem diagonalWeakNorm_primal_le [NeZero d]
                   (3 : ℝ) ^ (-((s - rho / 2) * (H : ℝ)))) *
                 diagonalWeakEnergy hq t a p r) := by
   by_cases htop : diagonalWeakMaximum rho q t E a = ⊤
-  · rw [if_pos htop]
+  · rw [ite_eq_left htop]
     exact le_top
-  rw [if_neg htop]
+  rw [ite_eq_right htop]
   let K := diagonalWeakMetricFactor m E
   let L := diagonalWeakLoadMinus E p r
   let U := diagonalWeakCellSum q t H s E a +
@@ -65,7 +65,7 @@ theorem diagonalWeakNorm_primal_le [NeZero d]
     rw [Real.sqrt_le_iff]
     constructor <;> norm_num
   by_cases hbad : delta < M
-  · rw [if_pos hbad]
+  · rw [ite_eq_left hbad]
     have hraw := normalized_adaptedWeakSeminorm_bad_le hq t hsymm hsq hm
       hE hEpd hrho hs hs1 hdelta hdelta1 p r htop hbad
     have hrootM0 : 0 ≤ Real.sqrt M := Real.sqrt_nonneg _
@@ -111,7 +111,7 @@ theorem diagonalWeakNorm_primal_le [NeZero d]
     congr 1
     dsimp only [K, L, U, M, En, G]
     ring
-  · rw [if_neg hbad]
+  · rw [ite_eq_right hbad]
     have hgood : M ≤ delta := le_of_not_gt hbad
     have hraw := normalized_adaptedWeakSeminorm_good_le hq t H hsymm hsq hm
       hE hEpd hrho hs hs1 hdelta hdelta1 p r htop hgood
@@ -210,9 +210,9 @@ theorem diagonalWeakNorm_primal_at_level_le [NeZero d]
                   (3 : ℝ) ^ (-((s - rho / 2) * (H : ℝ)))) *
                 diagonalWeakEnergy hq t a p r) := by
   by_cases htop : diagonalWeakMaximum rho q t E a = ⊤
-  · rw [if_pos htop]
+  · rw [ite_eq_left htop]
     exact le_top
-  rw [if_neg htop]
+  rw [ite_eq_right htop]
   set K : ℝ := diagonalWeakMetricFactor m E with hKdef
   set L : ℝ := diagonalWeakLoadMinus E p r with hLdef
   set U : ℝ := diagonalWeakCellSum q t H s E a +
@@ -242,7 +242,7 @@ theorem diagonalWeakNorm_primal_at_level_le [NeZero d]
   have hrecent0 : 0 ≤ crec * K * L * U := by positivity
   have ha0 : 0 < s - rho / 2 := by linarith only [hs]
   by_cases hbad : delta < M
-  · rw [if_pos hbad]
+  · rw [ite_eq_left hbad]
     have hraw := normalized_adaptedWeakSeminorm_bad_at_level_le hq t hsymm hsq
       hm hE hEpd hrho hs hs1 hdelta p r htop hbad
     have hM0 : 0 ≤ Real.sqrt M := Real.sqrt_nonneg _
@@ -300,7 +300,7 @@ theorem diagonalWeakNorm_primal_at_level_le [NeZero d]
       _ ≤ ENNReal.ofReal (crec * K * L * U +
           (cmax / (2 * s - rho) * K) * Real.sqrt M * En) :=
         ENNReal.ofReal_le_ofReal (le_add_of_nonneg_left hrecent0)
-  · rw [if_neg hbad]
+  · rw [ite_eq_right hbad]
     have hgood : M ≤ delta := le_of_not_gt hbad
     have hraw := normalized_adaptedWeakSeminorm_good_at_level_le hq t H hsymm
       hsq hm hE hEpd hrho hs hs1 p r htop hgood

@@ -62,7 +62,7 @@ theorem lt_of_lt_stoppingGeneration {nstar qfb : ℕ} {R : ℕ → Ω → ℝ} {
   push Not at hcon
   have hex : ∃ q, IsStoppingCandidate nstar R m ω q := ⟨q, hq, hcon⟩
   have hle : Nat.find hex ≤ q := Nat.find_le ⟨hq, hcon⟩
-  rw [stoppingGeneration, dif_pos hex] at hlt
+  rw [stoppingGeneration, dite_eq_left hex] at hlt
   omega
 
 /-- The shifted upper-tail event of the generation map inherits the overshoot

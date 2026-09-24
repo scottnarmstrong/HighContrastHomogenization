@@ -53,10 +53,17 @@ private theorem tendsto_eLpNorm_one_of_tendsto_eLpNorm_two
     hscaled (fun _ => zero_le) hbound
 
 private theorem eLpNorm_hilbert_single {α : Type*} [MeasurableSpace α]
-    {d : ℕ} (i : Fin d) {μ : Measure α} {p : ℝ≥0∞} (f : α → ℝ) :
+    {d : ℕ} (i : Fin d) {μ : Measure α} {p : ℝ≥0∞} (f : α → ℝ)
+    (hf : AEStronglyMeasurable f μ) :
     eLpNorm (fun x => HilbertVec.ofVec (Pi.single i (f x))) p μ =
       eLpNorm f p μ := by
-  apply eLpNorm_congr_norm_ae
+  let L : ℝ →L[ℝ] HilbertVec d :=
+    (HilbertVec.ofVecL d).comp
+      (ContinuousLinearMap.single ℝ (fun _ : Fin d => ℝ) i)
+  have hg : AEStronglyMeasurable
+      (fun x => HilbertVec.ofVec (Pi.single i (f x))) μ :=
+    L.continuous.comp_aestronglyMeasurable hf
+  apply eLpNorm_congr_norm_ae hg hf
   exact ae_of_all μ fun x => by
     rw [show HilbertVec.ofVec (Pi.single i (f x)) = PiLp.single 2 i (f x) from rfl,
       PiLp.norm_single]
@@ -96,19 +103,6 @@ private theorem tendsto_eLpNorm_hilbertGradient_sub_convexApproxSmoothH1
     intro n
     let singleField : Fin d → Vec d → HilbertVec d := fun i x =>
       HilbertVec.ofVec (Pi.single i ((psi n).grad x i - u.grad x i))
-    have hsingle : ∀ i : Fin d,
-        AEStronglyMeasurable (singleField i) (volume.restrict U) := by
-      intro i
-      let L : ℝ →L[ℝ] HilbertVec d :=
-        (HilbertVec.ofVecL d).comp
-          (ContinuousLinearMap.single ℝ (fun _ : Fin d => ℝ) i)
-      change AEStronglyMeasurable
-        (L ∘ fun x => (psi n).grad x i - u.grad x i) (volume.restrict U)
-      have hs : AEStronglyMeasurable
-          (fun x => (psi n).grad x i - u.grad x i) (volume.restrict U) :=
-        ((psi n).grad_memL2 i).aestronglyMeasurable.sub
-          (u.grad_memL2 i).aestronglyMeasurable
-      exact L.continuous.comp_aestronglyMeasurable hs
     have hfield :
         hilbertifyVecField (fun x => (psi n).grad x - u.grad x) =
           ∑ i : Fin d, singleField i := by
@@ -117,19 +111,20 @@ private theorem tendsto_eLpNorm_hilbertGradient_sub_convexApproxSmoothH1
       intro j
       simp [hilbertifyVecField, singleField, HilbertVec.ofVec]
     rw [hfield]
-    refine (eLpNorm_sum_le (fun i _ => hsingle i)
-      (by norm_num : (1 : ENNReal) ≤ 2)).trans_eq ?_
+    refine (eLpNorm_sum_le (by norm_num : (1 : ENNReal) ≤ 2)).trans_eq ?_
     apply Finset.sum_congr rfl
     intro i _
     exact eLpNorm_hilbert_single i _
+      (((psi n).grad_memL2 i).aestronglyMeasurable.sub
+        (u.grad_memL2 i).aestronglyMeasurable)
   exact tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds
     hsum (fun _ => zero_le) hbound
 
 private theorem eLpNorm_two_sq_eq_lintegral_enorm
-    {α E : Type*} [MeasurableSpace α] [ENorm E]
-    (μ : Measure α) (F : α → E) :
+    {α E : Type*} [MeasurableSpace α] [ENorm E] [TopologicalSpace E]
+    (μ : Measure α) (F : α → E) (hF : AEStronglyMeasurable F μ) :
     eLpNorm F 2 μ ^ (2 : ℕ) = ∫⁻ x, ‖F x‖ₑ ^ (2 : ℝ) ∂μ := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hF]
   norm_num only [ENNReal.toReal_ofNat]
   rw [← ENNReal.rpow_natCast (_ ^ (1 / (2 : ℝ))) 2,
     ← ENNReal.rpow_mul]
@@ -162,7 +157,7 @@ private theorem tendsto_h1NormSqOnUnweighted_of_tendsto_eLpNorm_two
       simpa only [ENNReal.rpow_two] using hpow
     convert hpow' using 1
     funext n
-    rw [eLpNorm_one_eq_lintegral_enorm]
+    rw [eLpNorm_one_eq_lintegral_enorm (hf n)]
     congr 2
     funext x
     rw [← ofReal_norm]
@@ -179,9 +174,14 @@ private theorem tendsto_h1NormSqOnUnweighted_of_tendsto_eLpNorm_two
         (fun n => eLpNorm (hilbertifyVecField (F n)) 2
           (volume.restrict U) ^ (2 : ℕ)) atTop (nhds 0) := by
       simpa only [ENNReal.rpow_two] using hpow
-    convert hpow' using 1
-    funext n
-    rw [eLpNorm_two_sq_eq_lintegral_enorm]
+    refine tendsto_of_tendsto_of_tendsto_of_le_of_le tendsto_const_nhds hpow'
+      (fun _ => zero_le) fun n => ?_
+    by_cases hmeas :
+        AEStronglyMeasurable (hilbertifyVecField (F n)) (volume.restrict U)
+    swap
+    · simp [eLpNorm_of_not_aestronglyMeasurable hmeas]
+    refine le_of_eq ?_
+    rw [eLpNorm_two_sq_eq_lintegral_enorm _ _ hmeas]
     apply lintegral_congr
     intro x
     rw [← ofReal_norm, ENNReal.ofReal_rpow_of_nonneg

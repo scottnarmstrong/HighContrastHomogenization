@@ -105,7 +105,7 @@ theorem source_envelope_integral_le_two (d : ℕ) (hd : 2 ≤ d) (γ : ℝ)
     exact_mod_cast (Homogenization.HighContrast.Multiscale.bigQ_two_le d γ hγ).trans' (by norm_num)
   have hmono : eLpNorm X (ENNReal.ofReal (1 : ℝ)) P ≤
       eLpNorm X (ENNReal.ofReal (bigQ d γ : ℝ)) P :=
-    eLpNorm_le_eLpNorm_of_exponent_le hQ hlp.aestronglyMeasurable
+    eLpNorm_le_eLpNorm_of_exponent_le hQ
   have hle : (eLpNorm X (ENNReal.ofReal (1 : ℝ)) P).toReal ≤ 2 := by
     have htop : ENNReal.ofReal (2 : ℝ) ≠ ⊤ := ENNReal.ofReal_ne_top
     exact (ENNReal.toReal_mono htop (hmono.trans hnorm)).trans_eq

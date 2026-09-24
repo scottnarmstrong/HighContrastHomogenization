@@ -96,7 +96,7 @@ theorem memLp_list_prod {Ω E ι : Type*} [MeasurableSpace Ω] [NormedRing E]
     have ht := ih (fun j hj => hf j (by simp [hj]))
     have htriple : ENNReal.HolderTriple p (((l.length : ℝ≥0∞) * p⁻¹)⁻¹)
         ((((i :: l).length : ℝ≥0∞) * p⁻¹)⁻¹) := ⟨by simp [add_mul, add_comm]⟩
-    simpa only [List.map_cons, List.prod_cons, List.length_cons, Nat.cast_add, Nat.cast_one] using (ht.mul' hi (hpqr := htriple))
+    simpa only [List.map_cons, List.prod_cons, List.length_cons, Nat.cast_add, Nat.cast_one] using (hi.fun_mul ht (hpqr := htriple))
 
 /-- A Schatten moment controls the full matrix operator-norm moment. -/
 theorem memLp_toFullBlockMat {d : ℕ} {P : Measure (CoeffSpace d)} {N : ℝ} {H : CoeffSpace d → BlockMat d}
@@ -122,15 +122,16 @@ theorem memLp_prod_entry {d : ℕ} {ι : Type*} {P : Measure (CoeffSpace d)}
       have hm : AEStronglyMeasurable (fun a => toFullBlockMat (Y i a)) P := by
         change AEStronglyMeasurable (fun a α β => toFullBlockMat (Y i a) α β) P
         apply AEMeasurable.aestronglyMeasurable
-        exact aemeasurable_pi_lambda _ fun α => aemeasurable_pi_lambda _ fun β =>
+        exact AEMeasurable.of_eval fun α => AEMeasurable.of_eval fun β =>
           by simpa only [toFullBlockMat_eq_blockMatEntry] using
             ((hY i hi).measurable α β).aemeasurable
       refine ((hY i hi).memLp_absSchattenNorm hN).mono' hm ?_
       filter_upwards [(hY i hi).symmetric] with a ha
       exact blockOpNorm_le_absSchattenNorm ((toFullBlockMat_isHermitian_iff _).2 ha) hN)
-  have hm : AEMeasurable (fun a => (l.map (fun i => toFullBlockMat (Y i a))).prod α β) P :=
-    (measurable_pi_apply β).comp_aemeasurable
-      ((measurable_pi_apply α).comp_aemeasurable hp.1.aemeasurable)
+  have hm : AEMeasurable (fun a => (l.map (fun i => toFullBlockMat (Y i a))).prod α β) P := by
+    let : ContinuousENorm (FullBlockMat d) := SeminormedAddGroup.toContinuousENorm
+    exact (measurable_pi_apply β).comp_aemeasurable
+      ((measurable_pi_apply α).comp_aemeasurable hp.aestronglyMeasurable.aemeasurable)
   refine hp.norm.mono' hm.aestronglyMeasurable (Filter.Eventually.of_forall fun a => ?_)
   simpa only [toFullBlockMat_ofFullBlockMat, blockMatEntry_ofFullBlockMat,
     blockOpNorm, Real.norm_eq_abs] using
@@ -197,7 +198,7 @@ theorem integral_trace_mul_prod_eq_zero {d : ℕ} {ι : Type*}
     (∫ a, Matrix.trace (toFullBlockMat (Y i a) *
       (l.map (fun j => toFullBlockMat (Y j a))).prod) ∂P) = 0 := by
   have hNR : (1 : ℝ) ≤ N := by exact_mod_cast hN
-  have hm := fun j => (memLp_toFullBlockMat (hY j) hNR).1.aemeasurable
+  have hm := fun j => (memLp_toFullBlockMat (hY j) hNR).aestronglyMeasurable.aemeasurable
   have hind := indepFun_list_prod_of_notMem hindep hm i l hi
   have he (α β : BlockCoord d) : IndepFun
       (fun a => blockMatEntry (Y i a) α β)
@@ -271,18 +272,18 @@ theorem integral_prod_le_prod_eLpNorm {Ω : Type*} [MeasurableSpace Ω]
     exact mul_inv_cancel₀ hNR.ne'
   have h := ENNReal.lintegral_prod_norm_pow_le (Finset.univ : Finset (Fin N))
     (f := fun k a => ‖f k a‖ₑ ^ (N : ℝ))
-    (fun k _ => (hmem k).1.enorm.pow_const _)
+    (fun k _ => (hmem k).aestronglyMeasurable.enorm.pow_const _)
     hw (fun _ _ => inv_nonneg.mpr hNR.le)
   have he (k : Fin N) :
       (∫⁻ a, ‖f k a‖ₑ ^ (N : ℝ) ∂μ) ^ ((N : ℝ)⁻¹) =
         eLpNorm (f k) (ENNReal.ofReal (N : ℝ)) μ := by
-    rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top,
-      ENNReal.toReal_ofReal hNR.le, one_div]
+    rw [eLpNorm_eq_lintegral_rpow_enorm_toReal hp0 ENNReal.ofReal_ne_top
+      (hmem k).aestronglyMeasurable, ENNReal.toReal_ofReal hNR.le, one_div]
   simp only [← ENNReal.rpow_mul, mul_inv_cancel₀ hNR.ne', ENNReal.rpow_one, he] at h
   have hr := ENNReal.toReal_mono (ENNReal.prod_ne_top (fun k _ => (hmem k).eLpNorm_ne_top)) h
   rw [ENNReal.toReal_prod] at hr
   have hprodmeas : AEStronglyMeasurable (fun a => ∏ k, f k a) μ :=
-    (Finset.univ.aemeasurable_fun_prod (fun k _ => (hmem k).1.aemeasurable)).aestronglyMeasurable
+    (Finset.univ.aemeasurable_fun_prod (fun k _ => (hmem k).aestronglyMeasurable.aemeasurable)).aestronglyMeasurable
   have hprodnn : 0 ≤ᵐ[μ] fun a => ∏ k, f k a :=
     (ae_all_iff.mpr hnn).mono fun a ha => Finset.prod_nonneg (fun k _ => ha k)
   rw [integral_eq_lintegral_of_nonneg_ae hprodnn hprodmeas]
@@ -351,7 +352,7 @@ theorem sum_prod_eqPattern_le {κ β ι : Type*} [Fintype κ] [Fintype β] [Fint
     _ ≤ ∑ x : β → ι, W x := Finset.sum_le_sum_of_subset_of_nonneg
       (Finset.subset_univ _) (fun x _ _ => Finset.prod_nonneg (fun b _ => pow_nonneg (hu _) _))
     _ = ∏ b, ∑ i, u i ^ m b := (Fintype.prod_sum (fun b i => u i ^ m b)).symm
-    _ ≤ ∏ b, σ ^ m b := Finset.prod_le_prod
+    _ ≤ ∏ b, σ ^ m b := Finset.prod_le_prod₀
       (fun b _ => Finset.sum_nonneg (fun i _ => pow_nonneg (hu _) _)) (fun b _ => hblock b)
     _ = σ ^ Fintype.card κ := by rw [Finset.prod_pow_eq_pow_sum, htotal]
 
@@ -465,7 +466,7 @@ theorem abs_integral_trace_prod_le_prod_lqSchattenNorm {d N : ℕ}
     filter_upwards [(hY k).symmetric] with a ha
     exact absSchattenNorm_nonneg ((toFullBlockMat_isHermitian_iff _).2 ha) hNR
   have hprod : Integrable (fun a => ∏ k, absSchattenNorm (N : ℝ) (Y k a)) P := by
-    have hp := MemLp.prod' (s := Finset.univ) (p := fun _ : Fin N => ENNReal.ofReal (N : ℝ))
+    have hp := MemLp.fun_prod (s := Finset.univ) (p := fun _ : Fin N => ENNReal.ofReal (N : ℝ))
       (fun k _ => hmem k)
     have hne : (N : ℝ≥0∞) ≠ 0 := by exact_mod_cast (show N ≠ 0 by omega)
     simp only [Finset.sum_const, Finset.card_univ, Fintype.card_fin, nsmul_eq_mul,

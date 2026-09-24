@@ -89,25 +89,25 @@ private theorem measurable_entry {M : Vec d → Mat d} (hM : Measurable M) (i j 
 
 private theorem measurable_matTranspose {M : Vec d → Mat d} (hM : Measurable M) :
     Measurable (fun x => matTranspose (M x)) :=
-  measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j =>
+  Measurable.of_eval fun i => Measurable.of_eval fun j =>
     measurable_entry hM j i
 
 private theorem measurable_matMul {M N : Vec d → Mat d} (hM : Measurable M)
     (hN : Measurable N) : Measurable (fun x => M x * N x) := by
-  refine measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j => ?_
+  refine Measurable.of_eval fun i => Measurable.of_eval fun j => ?_
   simp only [Matrix.mul_apply]
   exact Finset.measurable_sum _ fun k _ =>
     (measurable_entry hM i k).mul (measurable_entry hN k j)
 
 private theorem measurable_symmPart {M : Vec d → Mat d} (hM : Measurable M) :
     Measurable (fun x => symmPart (M x)) := by
-  refine measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j => ?_
+  refine Measurable.of_eval fun i => Measurable.of_eval fun j => ?_
   simp only [symmPart]
   exact ((measurable_entry hM i j).add (measurable_entry hM j i)).div_const 2
 
 private theorem measurable_skewPart {M : Vec d → Mat d} (hM : Measurable M) :
     Measurable (fun x => skewPart (M x)) := by
-  refine measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j => ?_
+  refine Measurable.of_eval fun i => Measurable.of_eval fun j => ?_
   simp only [skewPart]
   exact ((measurable_entry hM i j).sub (measurable_entry hM j i)).div_const 2
 
@@ -119,7 +119,7 @@ private theorem measurable_matInv {M : Vec d → Mat d} (hM : Measurable M) :
     (Continuous.matrix_det continuous_id).measurable.comp hM
   have hadj : Measurable (fun x => (M x).adjugate) :=
     (Continuous.matrix_adjugate continuous_id).measurable.comp hM
-  refine measurable_pi_lambda _ fun i => measurable_pi_lambda _ fun j => ?_
+  refine Measurable.of_eval fun i => Measurable.of_eval fun j => ?_
   simp only [Matrix.inv_def, Ring.inverse_eq_inv, Matrix.smul_apply, smul_eq_mul]
   exact hdet.inv.mul (measurable_entry hadj i j)
 

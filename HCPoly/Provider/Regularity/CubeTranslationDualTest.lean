@@ -128,11 +128,13 @@ theorem cubeLpNorm_two_cubeIndicatorDifference_le (Q : TriadicCube d) {c : ℝ}
   have hmono : eLpNorm (cubeIndicatorDifference c S₁ S₂) (2 : ℝ≥0∞)
       (normalizedCubeMeasure Q) ≤
         eLpNorm (G.indicator (fun _ => c)) (2 : ℝ≥0∞)
-          (normalizedCubeMeasure Q) := eLpNorm_mono_ae hbound
+          (normalizedCubeMeasure Q) :=
+    eLpNorm_mono_ae (measurable_cubeIndicatorDifference h₁ h₂).aestronglyMeasurable hbound
   have hind : eLpNorm (G.indicator (fun _ => c)) (2 : ℝ≥0∞)
       (normalizedCubeMeasure Q) =
         (‖c‖ₑ) * (normalizedCubeMeasure Q G) ^ (1 / (2 : ℝ)) := by
-    simpa using eLpNorm_indicator_const (μ := normalizedCubeMeasure Q) hGmeas
+    simpa using eLpNorm_indicator_const (μ := normalizedCubeMeasure Q)
+      hGmeas.nullMeasurableSet
       (by norm_num : (2 : ℝ≥0∞) ≠ 0) (by norm_num : (2 : ℝ≥0∞) ≠ ⊤)
   have hfin : normalizedCubeMeasure Q G ≠ ⊤ :=
     (measure_lt_top (normalizedCubeMeasure Q) G).ne
@@ -713,7 +715,7 @@ theorem cubeTranslationTest_dualTestNorm_le_bound (d : ℕ) [NeZero d] (n : ℕ)
     intro j _hj
     rw [cubeBesovDepthWeight_eq_scaleWeight_mul Q s j, ← hwdef, ← hadef]
     by_cases hcase : j < J
-    · rw [if_pos hcase]
+    · rw [ite_eq_left hcase]
       have hd := cubeTranslationTest_depthAverage_le_displacement d n t hW hWle htW j
       have hsqrt : Real.sqrt (cubeBesovDepthAverage Q (2 : ℝ≥0∞) g j) ≤ cW := by
         rw [hcWdef]
@@ -724,7 +726,7 @@ theorem cubeTranslationTest_dualTestNorm_le_bound (d : ℕ) [NeZero d] (n : ℕ)
           ≤ w * a ^ j * cW := by
             exact mul_le_mul_of_nonneg_left hsqrt hnn
         _ = w * (cW * a ^ j) := by ring
-    · rw [if_neg hcase]
+    · rw [ite_eq_right hcase]
       have hj1 : 1 ≤ j := by omega
       have hd := cubeTranslationTest_depthAverage_le_depth d n t j hj1
       have hsqrt : Real.sqrt (cubeBesovDepthAverage Q (2 : ℝ≥0∞) g j) ≤

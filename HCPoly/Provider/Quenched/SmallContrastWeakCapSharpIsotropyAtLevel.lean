@@ -33,6 +33,58 @@ noncomputable section
 
 variable {d : ℕ}
 
+/-- The weak seminorm of the metric-root image of a sampled optimizer state
+minus a fixed vector is a.e. measurable once every aligned child average of the
+state is, coordinatewise. -/
+private theorem aemeasurable_adaptedWeakSeminorm_metricRoot_sub_const [NeZero d]
+    {P : Measure (CoeffSpace d)} {q : Mat d} (hq : q.PosDef) (t : ℤ)
+    (S : Mat d) (sample : CoeffSpace d → CoeffSpace d) (p r : Vec d)
+    (c : BlockVec d)
+    (hcell : ∀ k : ℤ, k ≤ t → ∀ w ∈ Response.alignedIndex q k t,
+      ∀ alpha : BlockCoord d, AEMeasurable (fun a ↦
+        toFullBlockVec (Response.blockCellAverage (adaptedCellAt q k w)
+          (Response.diagonalWeakState hq t (sample a) p r)) alpha) P) :
+    AEMeasurable (fun a ↦ Response.adaptedWeakSeminorm q t (1 / 2) (fun x ↦
+      blockMatVecMul (blockDiag S S⁻¹)
+        (Response.diagonalWeakState hq t (sample a) p r x - c))) P := by
+  have hdot : Continuous fun v : BlockVec d ↦ blockVecDot v v := by
+    unfold blockVecDot vecDot
+    fun_prop
+  have hroot : Continuous fun v : BlockVec d ↦
+      blockMatVecMul (blockDiag S S⁻¹) (v - c) := by
+    unfold blockMatVecMul matVecMul
+    fun_prop
+  unfold Response.adaptedWeakSeminorm
+  refine AEMeasurable.tsum fun j ↦ ?_
+  refine ENNReal.measurable_ofReal.comp_aemeasurable ?_
+  have hkt : t - (j : ℤ) ≤ t := by omega
+  have hterm : ∀ z ∈ Response.alignedIndex q (t - (j : ℤ)) t, AEMeasurable
+      (fun a ↦ blockVecDot
+        (Response.blockCellAverage (adaptedCellAt q (t - (j : ℤ)) z) (fun x ↦
+          blockMatVecMul (blockDiag S S⁻¹)
+            (Response.diagonalWeakState hq t (sample a) p r x - c)))
+        (Response.blockCellAverage (adaptedCellAt q (t - (j : ℤ)) z) (fun x ↦
+          blockMatVecMul (blockDiag S S⁻¹)
+            (Response.diagonalWeakState hq t (sample a) p r x - c)))) P := by
+    intro z hz
+    have hfst : AEMeasurable (fun a ↦
+        (Response.blockCellAverage (adaptedCellAt q (t - (j : ℤ)) z)
+          (Response.diagonalWeakState hq t (sample a) p r)).1) P :=
+      aemeasurable_pi_iff.mpr fun i ↦ hcell _ hkt z hz (Sum.inl i)
+    have hsnd : AEMeasurable (fun a ↦
+        (Response.blockCellAverage (adaptedCellAt q (t - (j : ℤ)) z)
+          (Response.diagonalWeakState hq t (sample a) p r)).2) P :=
+      aemeasurable_pi_iff.mpr fun i ↦ hcell _ hkt z hz (Sum.inr i)
+    have hcomp := (hdot.comp hroot).measurable.comp_aemeasurable
+      (hfst.prodMk hsnd)
+    refine hcomp.congr ?_
+    filter_upwards [] with a
+    simp only [Function.comp_apply]
+    rw [Response.blockCellAverage_metricRoot_sub_const_diagonalWeakState hq hkt
+      hz p r c]
+  unfold Response.adaptedWeakScaleTerm Response.blockAvsumL2 Response.avsum
+  exact ((Finset.aemeasurable_fun_sum _ hterm).const_mul _).sqrt.const_mul _
+
 /-- **The sharp weak cap (primal), at a released split level.** -/
 theorem eLpNorm_profilePrimalWeakRoot_reference_le_sharp_of_block_at_level [NeZero d]
     {g : ℝ} (hg : g ∈ Set.Ico (0 : ℝ) 1)
@@ -163,12 +215,22 @@ theorem eLpNorm_profilePrimalWeakRoot_reference_le_sharp_of_block_at_level [NeZe
     filter_upwards [henvMax] with a hMa
     rw [Response.diagonalWeakMaximum_subSkew hq rho t F a h0 hh0]
     exact ne_top_of_le_ne_top ENNReal.ofReal_ne_top hMa
+  -- measurability of the weak root
+  have hroot : AEStronglyMeasurable
+      (Response.profilePrimalWeakRoot m0 hq t (fun a => a.subSkew h0 hh0) p r
+        (Response.profilePrimalCenter P hq t (fun a => a.subSkew h0 hh0) p r)) P :=
+    ((aemeasurable_adaptedWeakSeminorm_metricRoot_sub_const hq t (matSqrt m0)
+      (fun a => a.subSkew h0 hh0) p r
+      (Response.profilePrimalCenter P hq t (fun a => a.subSkew h0 hh0) p r)
+      fun _k hk _w hw alpha =>
+        (Selection.aestronglyMeasurable_blockCellAverage_diagonalWeakState_subSkew_alignedIndex
+          hq hk P h0 hh0 p r hw alpha).aemeasurable).const_mul _).aestronglyMeasurable
   -- the sample-level majorization
   have hmain := Response.eLpNorm_profilePrimalWeakRoot_sample_at_level_le hq t Hw hm0
     (Response.isSymmetricBlockMat_skewBlockCongr (g := h0) hFsym)
     (Response.blockPosDef_skewBlockCongr (g := h0) hFpd)
     hrho0 hrho1 hlev0 rfl (fun a => a.subSkew h0 hh0) p r hU hV hM hEn havg
-    hfinite
+    hfinite hroot
   refine le_trans hmain ?_
   -- discharge the five groups
   refine add_le_add (add_le_add ?_ ?_) ?_
@@ -356,12 +418,22 @@ theorem eLpNorm_profileAdjointWeakRoot_reference_le_sharp_of_block_at_level [NeZ
     filter_upwards [henvMax] with a hMa
     rw [Response.diagonalWeakMaximum_subSkew hq rho t F a h0 hh0]
     exact ne_top_of_le_ne_top ENNReal.ofReal_ne_top hMa
+  -- measurability of the weak root
+  have hroot : AEStronglyMeasurable
+      (Response.profileAdjointWeakRoot m0 hq t (fun a => a.subSkew h0 hh0) p r
+        (Response.profileAdjointCenter P hq t (fun a => a.subSkew h0 hh0) p r)) P :=
+    ((aemeasurable_adaptedWeakSeminorm_metricRoot_sub_const hq t (matSqrt m0)
+      (fun a => (a.subSkew h0 hh0).transpose) p r
+      (Response.profileAdjointCenter P hq t (fun a => a.subSkew h0 hh0) p r)
+      fun _k hk _w hw alpha =>
+        (Selection.aestronglyMeasurable_blockCellAverage_diagonalWeakAdjointState_subSkew_alignedIndex
+          hq hk P h0 hh0 p r hw alpha).aemeasurable).const_mul _).aestronglyMeasurable
   -- the sample-level majorization
   have hmain := Response.eLpNorm_profileAdjointWeakRoot_sample_at_level_le hq t Hw hm0
     (Response.isSymmetricBlockMat_skewBlockCongr (g := h0) hFsym)
     (Response.blockPosDef_skewBlockCongr (g := h0) hFpd)
     hrho0 hrho1 hlev0 rfl (fun a => a.subSkew h0 hh0) p r hU hV hM hEn havg
-    hfinite
+    hfinite hroot
   refine le_trans hmain ?_
   -- discharge the five groups
   refine add_le_add (add_le_add ?_ ?_) ?_

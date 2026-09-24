@@ -88,7 +88,7 @@ private theorem bridge_integrable_opNorm_pow {d Q : ℕ} {P : Measure (CoeffSpac
     {H : CoeffSpace d → BlockMat d} (hH : SchattenMemLp P (Q : ℝ) H) (hQ : 1 ≤ (Q : ℝ)) :
     Integrable (fun a => blockOpNorm (H a) ^ Q) P := by
   have hm : AEMeasurable (fun a => toFullBlockMat (H a)) P :=
-    aemeasurable_pi_lambda _ fun i => aemeasurable_pi_lambda _ fun j => (hH.measurable i j).aemeasurable
+    AEMeasurable.of_eval fun i => AEMeasurable.of_eval fun j => (hH.measurable i j).aemeasurable
   have hi : Integrable (fun a => absSchattenNorm (Q : ℝ) (H a) ^ Q) P := by
     simpa only [Real.rpow_natCast] using hH.integrable
   apply hi.mono' (hm.norm.pow_const Q).aestronglyMeasurable

@@ -312,7 +312,8 @@ theorem positiveGap_nonlinear {d : ℕ} {P : Measure (CoeffSpace d)}
           Real.mul_rpow (Real.rpow_nonneg hsa _) hza, ← Real.rpow_mul hsa, he]
         ring
   have hsum := scalar_minkowski_toReal hN.le hu.1 hv.1
-  have hmono := ENNReal.toReal_mono hsum.1.eLpNorm_ne_top (eLpNorm_mono_ae hpoint)
+  have hmono := ENNReal.toReal_mono hsum.1.eLpNorm_ne_top
+    (eLpNorm_mono_ae hz.aestronglyMeasurable hpoint)
   have hholder := scalar_mixedMoment_root_le hN hsn hzn hs hz
   have hzr := hD.lqSchattenNorm_eq_eLpNorm_toReal hN.le
   have hsr := hC.lqSchattenNorm_eq_eLpNorm_toReal hN.le

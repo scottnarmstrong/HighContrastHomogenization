@@ -124,7 +124,7 @@ private theorem measurableRenormScale_eq (S : CoeffSpace d → ℝ)
     · exact bot_le
   · rw [renormScale]
     refine iSup_le fun m => iSup_le fun hm => ?_
-    exact le_iSup_of_le m (by rw [if_pos hm])
+    exact le_iSup_of_le m (by rw [ite_eq_left hm])
 
 /-- The renormalized minimal scale is measurable. -/
 theorem measurable_renormScale [NeZero d]
@@ -141,7 +141,7 @@ theorem measurable_renormScale [NeZero d]
   · simpa only [measurableRenormScale, hnm, true_and] using
       (Measurable.ite (p := fun b : CoeffSpace d => b ∈ renormBadGeneration S A delta rho h m)
         hbad measurable_const measurable_const)
-  · simp only [hnm, false_and, if_false]
+  · simp only [hnm, false_and, ite_false]
     exact measurable_const
 
 /-- The buffered real-valued renormalized radius is measurable. -/

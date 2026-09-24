@@ -56,8 +56,11 @@ private theorem centeredEuclideanL2Field_norm_sq
         (fun x => ENNReal.ofReal (vecNormSq (psi x))) := by
   rw [(centeredCubeDomain d n).normalizedEuclideanLpENorm_congr_ae
     (2 : ℝ≥0∞) (centeredEuclideanL2Field_ae_eq n psi hpsi)]
+  have hcont : Continuous (fun v : Vec d => euclideanNorm v) := by
+    simp_rw [euclideanNorm_eq_norm_ofVec]
+    exact (PiLp.continuous_toLp 2 fun _ : Fin d => ℝ).norm
   exact normalizedEuclideanLpENorm_two_sq_eq_eVolumeAverage
-    (originCube d n) psi
+    (originCube d n) psi (hcont.comp hpsi.contDiff.continuous).aestronglyMeasurable
 
 private noncomputable def pulledTestCompetitor
     {d : ℕ} (n : ℤ) (psi : Vec d → Vec d)
@@ -113,10 +116,10 @@ private theorem lintegral_centeredNormalizedVolume_eq_eVolumeAverage
   ac_rfl
 
 private theorem eLpNorm_two_sq_eq_lintegral_enorm
-    {α E : Type*} [MeasurableSpace α] [ENorm E]
-    (mu : Measure α) (F : α → E) :
+    {α E : Type*} [MeasurableSpace α] [ENorm E] [TopologicalSpace E]
+    (mu : Measure α) (F : α → E) (hF : AEStronglyMeasurable F mu) :
     eLpNorm F 2 mu ^ (2 : ℕ) = ∫⁻ x, ‖F x‖ₑ ^ (2 : ℝ) ∂mu := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hF]
   norm_num only [ENNReal.toReal_ofNat]
   rw [← ENNReal.rpow_natCast (_ ^ (1 / (2 : ℝ))) 2,
     ← ENNReal.rpow_mul]
@@ -227,7 +230,10 @@ private theorem physicalGradient_eLpNorm_sq
         (fun x => ENNReal.ofReal
           (∑ i : Fin d,
             vecNormSq (smoothGrad (fun y => psi y i) x))) := by
-  rw [eLpNorm_two_sq_eq_lintegral_enorm]
+  have hmeas : Measurable (physicalGradientMagnitude psi) := by
+    unfold physicalGradientMagnitude matrixFrobeniusMagnitude physicalGradientMatrix smoothGrad
+    fun_prop
+  rw [eLpNorm_two_sq_eq_lintegral_enorm _ _ hmeas.aestronglyMeasurable]
   calc
     (∫⁻ x, ‖physicalGradientMagnitude psi x‖ₑ ^ (2 : ℝ)
         ∂(centeredCubeDomain d n).normalizedVolume) =

@@ -176,12 +176,12 @@ private theorem quarterScale_smul_basisVec_mem_originCubeDomain
     mul_lt_mul_of_pos_right (by norm_num) hpow
   by_cases hji : j = i
   · subst j
-    simp only [Pi.smul_apply, basisVec_apply, if_true, smul_eq_mul,
+    simp only [Pi.smul_apply, basisVec_apply, ite_true, smul_eq_mul,
       mul_one]
     constructor
     · nlinarith only [hpow]
     · nlinarith only [hpow]
-  · simp only [Pi.smul_apply, basisVec_apply, if_neg hji, smul_eq_mul,
+  · simp only [Pi.smul_apply, basisVec_apply, ite_eq_right hji, smul_eq_mul,
       mul_zero]
     exact ⟨hleft, hright⟩
 

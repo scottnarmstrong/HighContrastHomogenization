@@ -261,13 +261,13 @@ theorem abs_blockMatEntry_coarseBlock_constIdentity_le (U : Set (Vec d))
     |blockMatEntry (coarseBlock U (constIdentity d)) α β| ≤ 2 := by
   rw [coarseBlock, blockMatEntry_coarseBlockMatrix]
   by_cases h : α = β
-  · rw [if_pos h]
+  · rw [ite_eq_left h]
     have h0 := zero_le_Mu_coeffSpace U (blockBasis α) (constIdentity d)
     have h1 := Mu_constIdentity_le U (blockBasis α) hne hfin
     rw [blockNormSq_blockBasis] at h1
     rw [abs_le]
     constructor <;> linarith only [h0, h1]
-  · rw [if_neg h]
+  · rw [ite_eq_right h]
     have h0 := zero_le_Mu_coeffSpace U (blockBasis α + blockBasis β) (constIdentity d)
     have hα0 := zero_le_Mu_coeffSpace U (blockBasis α) (constIdentity d)
     have hβ0 := zero_le_Mu_coeffSpace U (blockBasis β) (constIdentity d)

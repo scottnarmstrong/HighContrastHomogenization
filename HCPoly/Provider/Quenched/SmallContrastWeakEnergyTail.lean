@@ -60,9 +60,9 @@ moment. -/
 theorem eLpNorm_four_le_of_lintegral_le
     {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P]
     {W : CoeffSpace d → ℝ≥0∞} {h : ℝ} (hh : 0 ≤ h)
-    (hmom : ∫⁻ a, W a ^ (4 : ℝ) ∂P ≤ ENNReal.ofReal h) :
+    (hmom : ∫⁻ a, W a ^ (4 : ℝ) ∂P ≤ ENNReal.ofReal h) (hW : AEMeasurable W P) :
     eLpNorm W (ENNReal.ofReal 4) P ≤ ENNReal.ofReal (h ^ ((4 : ℝ)⁻¹)) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by simp) (by simp),
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by simp) (by simp) hW.aestronglyMeasurable,
     ENNReal.toReal_ofReal (by norm_num : (0 : ℝ) ≤ 4)]
   simp only [enorm_eq_self]
   calc
@@ -77,7 +77,7 @@ theorem eLpNorm_four_le_of_lintegral_le
 theorem eLpNorm_const_four
     {P : Measure (CoeffSpace d)} [IsProbabilityMeasure P] (c : ℝ≥0∞) :
     eLpNorm (fun _ : CoeffSpace d => c) (ENNReal.ofReal 4) P = c := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by simp) (by simp),
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by simp) (by simp) aestronglyMeasurable_const,
     ENNReal.toReal_ofReal (by norm_num : (0 : ℝ) ≤ 4)]
   simp only [enorm_eq_self]
   rw [lintegral_const, measure_univ, mul_one, ← ENNReal.rpow_mul]

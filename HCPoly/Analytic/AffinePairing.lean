@@ -169,10 +169,10 @@ theorem dualPairing_matImage {L : Mat d} (hL : IsUnit L.det)
   by_cases h :
       IntegrableOn (fun x ↦ vecDot (F x) (psi x))
         (matImage L U) volume
-  · rw [if_pos h, if_pos (hint.mp h)]
+  · rw [ite_eq_left h, ite_eq_left (hint.mp h)]
     congr 1
     rw [volumeAverage_matImage hL hU]
-  · rw [if_neg h, if_neg (mt hint.mpr h)]
+  · rw [ite_eq_right h, ite_eq_right (mt hint.mpr h)]
 
 end
 

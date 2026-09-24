@@ -254,9 +254,9 @@ theorem measurable_blockMatEntry_coarseBlock_of_measurable_Mu
   let : MeasurableSpace (CoeffSpace d) := m
   simp only [coarseBlock, blockMatEntry_coarseBlockMatrix]
   by_cases h : α = β
-  · simp only [if_pos h]
+  · simp only [ite_eq_left h]
     exact (hMu (blockBasis α)).const_mul 2
-  · simp only [if_neg h]
+  · simp only [ite_eq_right h]
     exact ((hMu (blockBasis α + blockBasis β)).sub (hMu (blockBasis α))).sub
       (hMu (blockBasis β))
 

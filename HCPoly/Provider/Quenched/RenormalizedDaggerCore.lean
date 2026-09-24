@@ -160,10 +160,10 @@ theorem coarseEllipticityDagger_rebased_of_renormalization [NeZero d]
         (flooredSourceGauge (triadicRebasedGauge n Psi) t)⁻¹ :=
     fun t ht => by
       by_cases ht1 : t < 1
-      · rw [flooredSourceGauge, if_pos ht1, inv_one]
+      · rw [flooredSourceGauge, ite_eq_left ht1, inv_one]
         exact measureReal_le_one
       · have h1t : 1 <= t := le_of_not_gt ht1
-        rw [flooredSourceGauge, if_neg ht1]
+        rw [flooredSourceGauge, ite_eq_right ht1]
         simpa only [normalizedNativeSource, flooredSource,
           triadicRebasedGauge] using!
           measureReal_restored_source_upperTail_le hdag n h1t

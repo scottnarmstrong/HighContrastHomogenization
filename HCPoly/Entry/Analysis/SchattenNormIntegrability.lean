@@ -494,8 +494,8 @@ theorem aestronglyMeasurable_absSchattenNorm {P : Measure (CoeffSpace d)}
     {N : ℝ} (hN : 1 ≤ N) :
     AEStronglyMeasurable (fun ω => absSchattenNorm N (F ω)) P := by
   have hm : AEMeasurable (fun ω α β => toFullBlockMat (F ω) α β) P :=
-    aemeasurable_pi_lambda _ fun α =>
-      aemeasurable_pi_lambda _ fun β => (hF α β).aemeasurable
+    AEMeasurable.of_eval fun α =>
+      AEMeasurable.of_eval fun β => (hF α β).aemeasurable
   simpa only [Function.comp_def, ofFullBlockMat_toFullBlockMat] using
     ((measurable_absSchattenNorm (d := d) hN).comp_aemeasurable hm).aestronglyMeasurable
 

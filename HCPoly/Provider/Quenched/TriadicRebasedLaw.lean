@@ -33,8 +33,8 @@ noncomputable def triadicRebasedLaw (n : ℕ) (P : Measure (CoeffSpace d)) :
 theorem isProbabilityMeasure_triadicRebasedLaw (n : ℕ)
     (P : Measure (CoeffSpace d)) [IsProbabilityMeasure P] :
     IsProbabilityMeasure (triadicRebasedLaw n P) := by
-  exact Measure.isProbabilityMeasure_map
-    (CoeffSpace.measurable_triadicDilation n).aemeasurable
+  unfold triadicRebasedLaw
+  infer_instance
 
 private theorem indep_map_measurableEquiv
     {α β : Type*} [mα : MeasurableSpace α] [mβ : MeasurableSpace β]
@@ -136,7 +136,7 @@ private theorem measurableSet_triadicDilateSet_local (n : ℕ)
   have hc : ((3 : ℝ) ^ n) ≠ 0 := by positivity
   have hg : Measurable
       (fun x : Vec d => fun i => ((3 : ℝ) ^ n)⁻¹ * x i) :=
-    measurable_pi_lambda _ fun i => (measurable_pi_apply i).const_mul _
+    Measurable.of_eval fun i => (measurable_pi_apply i).const_mul _
   have hset : triadicDilateSet n U =
       (fun x : Vec d => fun i => ((3 : ℝ) ^ n)⁻¹ * x i) ⁻¹' U := by
     ext x

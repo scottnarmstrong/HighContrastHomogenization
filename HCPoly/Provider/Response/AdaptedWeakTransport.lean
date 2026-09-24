@@ -133,7 +133,7 @@ theorem blockCellAverage_affinePullback {q : Mat d} (hq : q.PosDef)
         (adaptedDomainAt Matrix.PosDef.one k w)
           (fun y ↦ matVecMul A (F (matVecMul q y)).1) =
       matVecMul A (volumeAverageVec (adaptedCellAt q k w) fun x ↦ (F x).1)
-    rw [averageVec_matVecMul A hpull₁]
+    rw [averageVec_matVecMul (U := adaptedDomainAt Matrix.PosDef.one k w) A hpull₁]
     change matVecMul A
         (volumeAverageVec (adaptedCellAt (1 : Mat d) k w)
           fun y ↦ (F (matVecMul q y)).1) = _
@@ -143,7 +143,7 @@ theorem blockCellAverage_affinePullback {q : Mat d} (hq : q.PosDef)
         (adaptedDomainAt Matrix.PosDef.one k w)
           (fun y ↦ matVecMul B (F (matVecMul q y)).2) =
       matVecMul B (volumeAverageVec (adaptedCellAt q k w) fun x ↦ (F x).2)
-    rw [averageVec_matVecMul B hpull₂]
+    rw [averageVec_matVecMul (U := adaptedDomainAt Matrix.PosDef.one k w) B hpull₂]
     change matVecMul B
         (volumeAverageVec (adaptedCellAt (1 : Mat d) k w)
           fun y ↦ (F (matVecMul q y)).2) = _

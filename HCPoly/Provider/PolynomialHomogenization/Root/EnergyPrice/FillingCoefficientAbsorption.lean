@@ -65,11 +65,11 @@ theorem vecNormSq_single (i : Fin d) (t : ℝ) :
   unfold vecNormSq vecDot
   rw [Finset.sum_eq_single i]
   · show (if i = i then t else 0) * (if i = i then t else 0) = t ^ 2
-    rw [if_pos rfl]
+    rw [ite_eq_left rfl]
     ring
   · intro k _ hk
     show (if k = i then t else 0) * (if k = i then t else 0) = 0
-    rw [if_neg hk]
+    rw [ite_eq_right hk]
     ring
   · intro hcon
     exact absurd (Finset.mem_univ i) hcon
@@ -106,7 +106,7 @@ theorem normalizedRootScale_mul_le_of_innerEllipsoid_outerBall [NeZero d]
     have hcoord :
         ((fun k : Fin d => if k = i then r else 0) - cc) i = r - cc i := by
       show (if i = i then r else 0) - cc i = r - cc i
-      rw [if_pos rfl]
+      rw [ite_eq_left rfl]
     have := abs_lt_of_vecNormSq_lt hRad hballu i
     rwa [hcoord] at this
   have hplus : |t - cc i| < Rad := hspike t rfl

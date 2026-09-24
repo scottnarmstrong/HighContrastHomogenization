@@ -5,10 +5,10 @@ open Lake DSL
 package «HighContrastHomogenization» where
 
 require mathlib from git
-  "https://github.com/leanprover-community/mathlib4.git" @ "v4.33.0"
+  "https://github.com/leanprover-community/mathlib4.git" @ "v4.35.0-rc2"
 
 require «CoarseGraining» from git
-  "https://github.com/scottnarmstrong/CoarseGraining" @ "11d802f3f6023f40568cc4511f55cf251aaa974f"
+  "https://github.com/scottnarmstrong/CoarseGraining" @ "c7ddd76c08ade64fed1b8d2ca51be14dfee8deb4"
 
 /-- The Mathlib-only comparator challenges and their solutions.  Deliberately
 **not** a default target: it builds only on demand (`lake build HCPolyAudit`), so the

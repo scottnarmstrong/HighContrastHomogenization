@@ -35,10 +35,11 @@ private theorem memVectorL2_smoothGrad_of_isLocalTest {U : Set (Vec d)}
 /-- The Hilbert-vector `L²` seminorm is the square root of the integral of
 the Euclidean squared norm of the underlying vector field. -/
 theorem eLpNorm_hilbertifyVecField_eq_rpow_lintegral_vecNormSq
-    {U : Set (Vec d)} (F : Vec d → Vec d) :
+    {U : Set (Vec d)} (F : Vec d → Vec d)
+    (hF : AEStronglyMeasurable (hilbertifyVecField F) (volume.restrict U)) :
     eLpNorm (hilbertifyVecField F) 2 (volume.restrict U) =
       (∫⁻ x in U, ENNReal.ofReal (vecNormSq (F x)) ∂volume) ^ (1 / 2 : ℝ) := by
-  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num)]
+  rw [eLpNorm_eq_lintegral_rpow_enorm_toReal (by norm_num) (by norm_num) hF]
   norm_num only [ENNReal.toReal_ofNat]
   congr 1
   apply lintegral_congr
@@ -109,7 +110,10 @@ theorem exists_h10Function_grad_ae_eq_of_memH1a0 [NeZero d]
           ENNReal.ofReal (vecNormSq (smoothGrad (v n) x - Du x)) ∂volume) ^
             (1 / 2 : ℝ)) atTop (nhds (0 ^ (1 / 2 : ℝ))) :=
       (ENNReal.continuous_rpow_const.tendsto 0).comp hgradIntegral
-    simpa [eLpNorm_hilbertifyVecField_eq_rpow_lintegral_vecNormSq] using hroot
+    have hmeas : ∀ n, AEStronglyMeasurable
+        (hilbertifyVecField (fun x ↦ smoothGrad (v n) x - Du x)) (volume.restrict U) :=
+      fun n ↦ (memHilbertVectorL2_hilbertifyVecField ((hvgrad n).sub hDu)).aestronglyMeasurable
+    simpa [eLpNorm_hilbertifyVecField_eq_rpow_lintegral_vecNormSq, hmeas] using hroot
   have hgradELp' : Tendsto
       (fun n ↦ eLpNorm
         (fun x ↦ hilbertifyVecField (smoothGrad (v n)) x -

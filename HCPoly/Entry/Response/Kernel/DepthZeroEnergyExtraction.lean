@@ -342,7 +342,7 @@ theorem energy_split_pointwise (m E L θ : ℝ) (Q : ℕ) (hQ : 2 ≤ Q) (hL : 0
     ((if 1 < m then Real.sqrt m else θ) * E) ^ 2 ≤ 2 * L * (m ^ Q + θ ^ 2) := by
   have hmQnn : 0 ≤ m ^ Q := pow_nonneg hm Q
   by_cases hm1 : 1 < m
-  · rw [if_pos hm1]
+  · rw [ite_eq_left hm1]
     have hmsq : Real.sqrt m ^ 2 = m := Real.sq_sqrt hm
     have hm2Q : m ^ 2 ≤ m ^ Q := pow_le_pow_right₀ hm1.le hQ
     have hm0 : (0:ℝ) < m := by linarith only [hm1]
@@ -361,7 +361,7 @@ theorem energy_split_pointwise (m E L θ : ℝ) (Q : ℕ) (hQ : 2 ≤ Q) (hL : 0
       _ ≤ 2 * L * (m ^ Q + θ ^ 2) := by
           exact mul_le_mul_of_nonneg_left (le_add_of_nonneg_right (sq_nonneg θ))
             (mul_nonneg (by norm_num) hL)
-  · rw [if_neg hm1]
+  · rw [ite_eq_right hm1]
     push Not at hm1
     calc (θ * E) ^ 2 = θ ^ 2 * E ^ 2 := by ring
       _ ≤ θ ^ 2 * ((1 + m) * L) := mul_le_mul_of_nonneg_left hE (sq_nonneg θ)
@@ -595,7 +595,7 @@ private theorem measurable_blockSpecBound {Ω : Type*} [MeasurableSpace Ω]
       ofFullBlockMat_toFullBlockMat]
   rw [hrw]
   exact continuous_blockSpecBound.measurable.comp
-    (measurable_pi_lambda _ fun α => measurable_pi_lambda _ fun β => hG α β)
+    (Measurable.of_eval fun α => Measurable.of_eval fun β => hG α β)
 
 /-- Every flattened entry of the coarse response on an aligned adapted cell is measurable for
 the global coefficient sigma-field. -/

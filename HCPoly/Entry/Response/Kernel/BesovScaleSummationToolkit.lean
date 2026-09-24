@@ -15,7 +15,7 @@ import Homogenization.CoarseGraining.ResponseIdentities.Foundations.Algebra
 import Homogenization.CoarseGraining.ResponseIdentities.Foundations.Ellipticity
 import Homogenization.Internal.Ch02.Adapters
 import Mathlib.Algebra.Order.GroupWithZero.Basic
-import Mathlib.Data.Real.ConjExponents
+import Mathlib.Basic.Real.ConjExponents
 import Mathlib.MeasureTheory.Function.L1Space.Integrable
 import Mathlib.MeasureTheory.Function.L2Space
 import Mathlib.MeasureTheory.Integral.Bochner.Basic

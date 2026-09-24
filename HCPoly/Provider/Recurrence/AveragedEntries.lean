@@ -154,7 +154,7 @@ theorem lqNorm_sum_aligned_le {P : Measure (CoeffSpace d)} [IsProbabilityMeasure
   have htri : lqNorm P Q (fun a => ∑ w ∈ Z, Y w a)
       ≤ ∑ c ∈ cols, lqNorm P Q (fun a => ∑ w ∈ cls c, Y w a) := by
     rw [hsplit]
-    exact eLpNorm_sum_le hmeasc hone
+    exact eLpNorm_sum_le hone
   have hclass : ∀ c ∈ cols, lqNorm P Q (fun a => ∑ w ∈ cls c, Y w a)
       ≤ ENNReal.ofReal
           ((2 * Q + 4 * IndependentSums.rosenthalBennettIntegralConst * Real.sqrt Q) *

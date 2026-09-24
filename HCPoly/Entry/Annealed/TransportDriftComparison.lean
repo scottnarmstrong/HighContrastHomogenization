@@ -464,7 +464,7 @@ theorem exists_two_grid_drift_comparison (d : ℕ) (hd : 2 ≤ d)
           (Cn * aspectRatio E * Real.sqrt (‖m‖ * ‖m⁻¹‖) * Real.sqrt (‖mPlus‖ * ‖mPlus⁻¹‖))
           (mul_nonneg (mul_nonneg (mul_nonneg hCn.le hPi) (Real.sqrt_nonneg _)) (Real.sqrt_nonneg _)) hsrc
         have hbc := mul_le_mul_of_nonneg_left hBcross (mul_nonneg (two_mul_natCast_nonneg d) hCn.le)
-        dsimp only [old, src]; rw [if_pos he, if_pos he, mul_one, zero_add]
+        dsimp only [old, src]; rw [ite_eq_left he, ite_eq_left he, mul_one, zero_add]
         have hbc' : (2 * (d : ℝ)) * Cn * B ≤ Yold := by
           dsimp only [Yold]
           nlinarith only [mul_nonneg (mul_nonneg (two_mul_natCast_nonneg d) hCw.le) hB]
@@ -486,7 +486,7 @@ theorem exists_two_grid_drift_comparison (d : ℕ) (hd : 2 ≤ d)
           dsimp only [Yold]
           nlinarith only [mul_nonneg (mul_nonneg (two_mul_natCast_nonneg d) hCn.le) hB]
         have hcs' := mul_le_mul_of_nonneg_right hcs (three_rpow_nonneg (-(1 - γ) * ((j : ℝ) - jStar)))
-        dsimp only [old, src]; rw [if_neg he, if_neg he]
+        dsimp only [old, src]; rw [ite_eq_right he, ite_eq_right he]
         dsimp only [Iold, G₁]
         linarith only [ht, hi, hcs']
     have hc := transport_trace_normalizer_comparison hF hH (hNew j).posSemidef hδ hlow hup
@@ -535,7 +535,7 @@ theorem exists_two_grid_drift_comparison (d : ℕ) (hd : 2 ≤ d)
     calc
       _ ≤ Co * (grow * Dold) + (Cs * B) * ((n : ℝ) + L - jStar) * R +
           (Cd * δ + Ci * (K₀ * (3 : ℝ) ^ (-(L : ℝ)))) := by
-        convert hpay using 1 <;> try rfl
+        (convert hpay using 1; try rfl)
         show (4 / 3 : ℝ) * (1 + (Cw * K₀) * Gb) * (1 / (1 - (3 : ℝ) ^ (-a))) * (grow * Dold) +
             (Cs * B) * ((n : ℝ) + L - jStar) * R +
             (Cd * δ + Ci * (K₀ * (3 : ℝ) ^ (-(L : ℝ)))) = _

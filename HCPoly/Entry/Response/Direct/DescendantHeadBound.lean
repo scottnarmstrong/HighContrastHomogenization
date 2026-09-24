@@ -4,7 +4,7 @@ import HCPoly.Entry.Response.Pairing.CoarseBlockFenchelPairing
 import HCPoly.Entry.Response.Rows.CarrierIntegrabilityConditions
 import HCPoly.Entry.Response.Rows.OptimizerMeanRowCarriers
 import HCPoly.Entry.Response.Rows.SourceLoadHeadBound
-import Mathlib.Data.ENNReal.Holder
+import Mathlib.Basic.ENNReal.Holder
 import Mathlib.MeasureTheory.Function.L1Space.Integrable
 import Mathlib.MeasureTheory.Integral.IntegrableOn
 

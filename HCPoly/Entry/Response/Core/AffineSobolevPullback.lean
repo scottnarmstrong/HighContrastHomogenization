@@ -188,10 +188,10 @@ private theorem sum_smul_basisVec_apply {d : ℕ} (c : Fin d → ℝ) (k : Fin d
     (∑ j : Fin d, c j • basisVec j) k = c k := by
   rw [Finset.sum_apply]
   rw [Finset.sum_eq_single k]
-  · simp only [Pi.smul_apply, basisVec_apply, smul_eq_mul, if_true, mul_one]
+  · simp only [Pi.smul_apply, basisVec_apply, smul_eq_mul, ite_true, mul_one]
   · intro j _ hj
     have hkj : k ≠ j := fun h => hj h.symm
-    simp only [Pi.smul_apply, basisVec_apply, smul_eq_mul, if_neg hkj, mul_zero]
+    simp only [Pi.smul_apply, basisVec_apply, smul_eq_mul, ite_eq_right hkj, mul_zero]
   · intro hk
     exact absurd (Finset.mem_univ k) hk
 
@@ -203,9 +203,9 @@ private theorem matVecMul_basisVec_eq_sum {d : ℕ} (q : Mat d) (i : Fin d) :
   rw [sum_smul_basisVec_apply (fun j : Fin d => q j i) k]
   simp only [matVecMul, basisVec_apply]
   rw [Finset.sum_eq_single i]
-  · simp only [if_true, mul_one]
+  · simp only [ite_true, mul_one]
   · intro j _ hj
-    simp only [if_neg hj, mul_zero]
+    simp only [ite_eq_right hj, mul_zero]
   · intro hi
     exact absurd (Finset.mem_univ i) hi
 

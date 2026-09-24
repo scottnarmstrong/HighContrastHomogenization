@@ -7,7 +7,7 @@ import HCPoly.Entry.Response.Kernel.WeakEstimateAssembly
 import Homogenization.Multiscale.NormalizedNorms
 import Homogenization.Sobolev.Foundations.CubeNeumannW22CZ.WeakInteriorDQ.QuantCutoffLowerH1
 import Homogenization.Sobolev.PotentialSolenoidal
-import Mathlib.Data.ENNReal.Real
+import Mathlib.Basic.ENNReal.Real
 import Mathlib.MeasureTheory.Function.LpSeminorm.Basic
 
 /-!
@@ -336,7 +336,11 @@ theorem cubeLpNorm_top_le_of_norm_le {d : ℕ} (Q : TriadicCube d)
     {ξ : Vec d → Vec d} {K : ℝ} (hK0 : 0 ≤ K) (hK : ∀ y, ‖ξ y‖ ≤ K) :
     cubeLpNorm Q ∞ ξ ≤ K := by
   unfold cubeLpNorm
-  rw [MeasureTheory.eLpNorm_exponent_top]
+  by_cases hξm : MeasureTheory.AEStronglyMeasurable ξ (normalizedCubeMeasure Q)
+  swap
+  · rw [MeasureTheory.eLpNorm_of_not_aestronglyMeasurable hξm, ENNReal.toReal_top]
+    exact hK0
+  rw [MeasureTheory.eLpNorm_exponent_top hξm]
   exact ENNReal.toReal_le_of_le_ofReal hK0
     (MeasureTheory.eLpNormEssSup_le_of_ae_bound (Filter.Eventually.of_forall hK))
 

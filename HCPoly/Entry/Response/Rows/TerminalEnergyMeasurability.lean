@@ -8,7 +8,7 @@ import HCPoly.Entry.Response.Kernel.EllipticRepresentativeInputs
 import HCPoly.Entry.Response.Kernel.IntegratedWeakEnergyBound
 import Mathlib.Algebra.Order.BigOperators.Group.Finset
 import Mathlib.Analysis.SpecialFunctions.Pow.Real
-import Mathlib.Data.Real.ConjExponents
+import Mathlib.Basic.Real.ConjExponents
 import Mathlib.MeasureTheory.Function.L1Space.Integrable
 import Mathlib.MeasureTheory.Function.L2Space
 import Mathlib.MeasureTheory.Integral.Bochner.Basic
