@@ -2,7 +2,7 @@
 
 A machine-checked **Lean 4** formalization of the final manuscript
 *Homogenization at a polynomial scale in high contrast*
-(Scott Armstrong, Tuomo Kuusi, and Amélie Loher), submitted to arXiv.
+(Scott Armstrong, Tuomo Kuusi, and Amélie Loher), available as [arXiv:2609.27647](https://arxiv.org/abs/2609.27647).
 It is built on
 [`mathlib`](https://github.com/leanprover-community/mathlib4) and the public
 [`CoarseGraining`](https://github.com/scottnarmstrong/CoarseGraining)

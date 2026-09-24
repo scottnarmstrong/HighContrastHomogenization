@@ -43,4 +43,5 @@ references:
       - family-names: Loher
         given-names: Amélie
     year: 2026
-    notes: "Final manuscript formalized by this repository; submitted to arXiv, with public identifier pending."
+    url: "https://arxiv.org/abs/2609.27647"
+    notes: "Final manuscript formalized by this repository; arXiv:2609.27647."
